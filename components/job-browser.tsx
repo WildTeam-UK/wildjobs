@@ -1,6 +1,6 @@
 "use client";
 
-import { Select, TextInput } from "@wildteam-uk/ui";
+import { Button, Select, TextInput } from "@wildteam-uk/ui";
 import { useState } from "react";
 import { JobCard } from "@/components/job-card";
 import { filterJobs, jobCategories } from "@/lib/job-filtering";
@@ -35,9 +35,9 @@ export function JobBrowser({ jobs }: { jobs: readonly Job[] }) {
               <h2>Find your fit</h2>
             </div>
             {hasFilters ? (
-              <button type="button" onClick={clearFilters}>
+              <Button type="button" variant="quiet" onClick={clearFilters}>
                 Clear all
-              </button>
+              </Button>
             ) : null}
           </div>
           <TextInput
