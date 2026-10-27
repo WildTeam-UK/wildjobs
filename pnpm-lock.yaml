@@ -11,6 +11,9 @@ importers:
       '@wildteam-uk/tokens':
         specifier: 0.1.0
         version: 0.1.0
+      '@wildteam-uk/ui':
+        specifier: 0.1.0
+        version: 0.1.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       next:
         specifier: 16.4.3
         version: 16.4.3(@types/node@22.19.19)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
@@ -693,6 +696,12 @@ packages:
 
   '@wildteam-uk/tokens@0.1.0':
     resolution: {integrity: sha512-RlJpy6YZV9JTaFu9rTSlc9qmzqS/V2cipjmTp5xkCtclgkUGL+Xe9azXhJfZV2kvrjUNi1IzgTASwJOhDo7s1A==, tarball: https://npm.pkg.github.com/download/@wildteam-uk/tokens/0.1.0/fab4d368c4491e5d5ef5e697316aa2fcf3953831}
+
+  '@wildteam-uk/ui@0.1.0':
+    resolution: {integrity: sha512-8rL8/2jkrf0Rx+CDO7pCIjwTq8Ojt/hfi4JyRrk13PQHV9QwkRoglkTb3c8NDCnVc+z+hiMQcQwa3TAENAZwJA==, tarball: https://npm.pkg.github.com/download/@wildteam-uk/ui/0.1.0/59adcdfd1d5950dca01e6ce6b7b2a5f8fce8a51b}
+    peerDependencies:
+      react: '>=19.0.0'
+      react-dom: '>=19.0.0'
 
   assertion-error@2.0.1:
     resolution: {integrity: sha512-Izi8RQcffqCeNVgFigKli1ssklIbpHnCYc6AknXGYoB6grJqyeby7jv12JUQgmTAnIDnbck1uxksT4dzN3PWBA==}
@@ -1433,6 +1442,12 @@ snapshots:
   '@vitest/spy@5.0.5': {}
 
   '@wildteam-uk/tokens@0.1.0': {}
+
+  '@wildteam-uk/ui@0.1.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)':
+    dependencies:
+      '@wildteam-uk/tokens': 0.1.0
+      react: 19.3.1
+      react-dom: 19.3.1(react@19.3.1)
 
   assertion-error@2.0.1: {}
 

@@ -1,4 +1,5 @@
 @import "@wildteam-uk/tokens/css";
+@import "@wildteam-uk/ui/styles.css";
 
 * {
   box-sizing: border-box;
@@ -77,8 +78,9 @@ select {
   letter-spacing: -0.04em;
 }
 
-.brand__product {
-  color: var(--wt-color-brand-pink);
+.brand__wordmark {
+  font-size: inherit;
+  letter-spacing: inherit;
 }
 
 .site-nav {

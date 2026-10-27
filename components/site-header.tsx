@@ -1,3 +1,4 @@
+import { BrandWordmark } from "@wildteam-uk/ui";
 import Link from "next/link";
 
 export function SiteHeader() {
@@ -5,8 +6,7 @@ export function SiteHeader() {
     <header className="site-header">
       <div className="shell site-header__inner">
         <Link className="brand" href="/" aria-label="WildJobs home">
-          <span className="brand__wild">WILD</span>
-          <span className="brand__product">JOBS</span>
+          <BrandWordmark className="brand__wordmark" product="JOBS" />
         </Link>
         <nav className="site-nav" aria-label="Main navigation">
           <Link href="/">Find jobs</Link>
