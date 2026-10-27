@@ -109,9 +109,9 @@ export function JobBrowser({ jobs }: { jobs: readonly Job[] }) {
             <div className="empty-state">
               <h3>No roles match those filters.</h3>
               <p>Try a broader search or clear the filters to see every demonstration listing.</p>
-              <button type="button" onClick={clearFilters}>
+              <Button type="button" variant="quiet" onClick={clearFilters}>
                 Show all jobs
-              </button>
+              </Button>
             </div>
           )}
         </div>
