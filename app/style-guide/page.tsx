@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Pill } from "@wildteam-uk/ui";
 import Link from "next/link";
 
 export const metadata: Metadata = {
@@ -125,18 +126,10 @@ export default function StyleGuidePage() {
             </p>
           </div>
           <div className="guide-demo">
-            <button className="label-pill" type="button">
-              Conservation
-            </button>
-            <button className="label-pill" type="button">
-              Remote
-            </button>
-            <button className="label-pill label-pill--fancy" type="button">
-              <span aria-hidden="true">✦</span> Featured
-            </button>
-            <button className="label-pill label-pill--dark" type="button">
-              Closing soon
-            </button>
+            <Pill>Conservation</Pill>
+            <Pill>Remote</Pill>
+            <Pill variant="fancy">Featured</Pill>
+            <Pill variant="dark">Closing soon</Pill>
           </div>
         </section>
 

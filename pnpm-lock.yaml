@@ -9,11 +9,11 @@ importers:
   .:
     dependencies:
       '@wildteam-uk/tokens':
-        specifier: 0.1.0
-        version: 0.1.0
+        specifier: 0.2.0
+        version: 0.2.0
       '@wildteam-uk/ui':
-        specifier: 0.1.0
-        version: 0.1.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+        specifier: 0.2.0
+        version: 0.2.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       next:
         specifier: 16.4.3
         version: 16.4.3(@types/node@22.19.19)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
@@ -694,11 +694,11 @@ packages:
   '@vitest/spy@5.0.5':
     resolution: {integrity: sha512-lwJRExuH417257Q5wv9QYugN9IMJkoxcrKrYxGPQkBzl7wlNpTUxD/5yNX4ESKVUIShKPgkGchYPFMWOOk0wzw==}
 
-  '@wildteam-uk/tokens@0.1.0':
-    resolution: {integrity: sha512-RlJpy6YZV9JTaFu9rTSlc9qmzqS/V2cipjmTp5xkCtclgkUGL+Xe9azXhJfZV2kvrjUNi1IzgTASwJOhDo7s1A==, tarball: https://npm.pkg.github.com/download/@wildteam-uk/tokens/0.1.0/fab4d368c4491e5d5ef5e697316aa2fcf3953831}
+  '@wildteam-uk/tokens@0.2.0':
+    resolution: {integrity: sha512-5PpIoG4t6flDuzVmzDenNnMI61XVBK8XYC5P9l+vBVya+QdPhNDCtx//sX8JOyVmcnwjaTzQZ0XKLk4Ma0xb5Q==, tarball: https://npm.pkg.github.com/download/@wildteam-uk/tokens/0.2.0/44e4591057529739c35b4e5a2e28d313271bf1a6}
 
-  '@wildteam-uk/ui@0.1.0':
-    resolution: {integrity: sha512-8rL8/2jkrf0Rx+CDO7pCIjwTq8Ojt/hfi4JyRrk13PQHV9QwkRoglkTb3c8NDCnVc+z+hiMQcQwa3TAENAZwJA==, tarball: https://npm.pkg.github.com/download/@wildteam-uk/ui/0.1.0/59adcdfd1d5950dca01e6ce6b7b2a5f8fce8a51b}
+  '@wildteam-uk/ui@0.2.0':
+    resolution: {integrity: sha512-mI7vqYOCM+hLIjuTxHwpQReAxbR8lQxAkGdHIXU3NfCEv0UvOKBVdc2dPg/yDRsJMU08gvnZ4G9zLdH9u4/D1A==, tarball: https://npm.pkg.github.com/download/@wildteam-uk/ui/0.2.0/493f8d73c952b8e2fd994ee6dad16055e3bcc199}
     peerDependencies:
       react: '>=19.0.0'
       react-dom: '>=19.0.0'
@@ -1441,11 +1441,11 @@ snapshots:
 
   '@vitest/spy@5.0.5': {}
 
-  '@wildteam-uk/tokens@0.1.0': {}
+  '@wildteam-uk/tokens@0.2.0': {}
 
-  '@wildteam-uk/ui@0.1.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)':
+  '@wildteam-uk/ui@0.2.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)':
     dependencies:
-      '@wildteam-uk/tokens': 0.1.0
+      '@wildteam-uk/tokens': 0.2.0
       react: 19.3.1
       react-dom: 19.3.1(react@19.3.1)
 

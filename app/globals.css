@@ -3,8 +3,6 @@
 
 :root {
   --wt-font-family-brand: var(--font-vag-rounded), "VAG Rounded", Arial, sans-serif;
-  --wt-radius-panel: 18px;
-  --wt-radius-pill: 18px;
   --page-width: 1200px;
 }
 
@@ -97,52 +95,6 @@ select {
 }
 .text-link:hover {
   color: var(--wt-color-brand-purple);
-}
-
-/* Transitional overrides until the corrected shared package release is consumed. */
-.wt-button {
-  min-height: 44px;
-  padding: 10px 15px;
-  border: 0;
-  border-radius: var(--wt-radius-control);
-  font-size: 0.78rem;
-  transition:
-    background-color 160ms ease,
-    color 160ms ease;
-}
-.wt-button:hover:not(:disabled) {
-  transform: none;
-}
-.wt-button--primary,
-.wt-button--secondary {
-  background: var(--wt-color-brand-pink);
-  color: var(--wt-color-paper);
-  box-shadow: none;
-}
-.wt-button--primary:hover:not(:disabled),
-.wt-button--secondary:hover:not(:disabled),
-.wt-button--quiet:hover:not(:disabled) {
-  background: var(--wt-color-brand-purple);
-  color: var(--wt-color-paper);
-}
-.wt-button--quiet {
-  min-height: 34px;
-  padding: 8px 10px;
-  background: transparent;
-  color: var(--wt-color-brand-pink);
-}
-.wt-field {
-  gap: 7px;
-}
-.wt-field__label {
-  font-size: 0.78rem;
-}
-.wt-input,
-.wt-select {
-  min-height: 46px;
-  border: 1px solid var(--wt-color-rule);
-  background: var(--wt-color-paper);
-  font-size: 0.88rem;
 }
 
 .site-header {
@@ -297,8 +249,7 @@ select {
   gap: 8px;
 }
 .job-card__topline span,
-.job-detail-hero__labels span,
-.label-pill {
+.job-detail-hero__labels span {
   display: inline-flex;
   min-height: 29px;
   align-items: center;
@@ -318,19 +269,9 @@ select {
     border-color 160ms ease;
 }
 .job-card__topline span:hover,
-.job-detail-hero__labels span:hover,
-.label-pill:hover {
+.job-detail-hero__labels span:hover {
   border-color: var(--wt-color-brand-pink);
   background: var(--wt-color-brand-pink);
-  color: var(--wt-color-paper);
-}
-.label-pill--fancy {
-  border-color: var(--wt-color-brand-pink);
-  color: var(--wt-color-brand-pink);
-}
-.label-pill--dark {
-  border-color: var(--wt-color-ink);
-  background: var(--wt-color-ink);
   color: var(--wt-color-paper);
 }
 .job-card__organisation {
@@ -878,8 +819,7 @@ select {
   }
   .action,
   .primary-action,
-  .wt-button,
-  .label-pill {
+  .wt-button {
     transition: none;
   }
 }
