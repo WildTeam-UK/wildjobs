@@ -1,5 +1,6 @@
 "use client";
 
+import { TextInput } from "@wildteam-uk/ui";
 import { useState } from "react";
 import { JobCard } from "@/components/job-card";
 import { filterJobs, jobCategories } from "@/lib/job-filtering";
@@ -39,15 +40,14 @@ export function JobBrowser({ jobs }: { jobs: readonly Job[] }) {
               </button>
             ) : null}
           </div>
-          <label>
-            <span>Search</span>
-            <input
-              type="search"
-              value={query}
-              onChange={(event) => setQuery(event.target.value)}
-              placeholder="Role, organisation or skill"
-            />
-          </label>
+          <TextInput
+            id="job-search"
+            label="Search"
+            type="search"
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            placeholder="Role, organisation or skill"
+          />
           <label>
             <span>Location type</span>
             <select
