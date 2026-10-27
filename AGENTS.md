@@ -25,7 +25,7 @@ If `wildteam-shared` is attached or available as `../wildteam-shared`, read its 
 
 - Never commit credentials, tokens, passwords, personal data or real environment values.
 - Preserve accessibility, privacy, security and responsive behaviour from the beginning.
-- Prefer `@wildteam/tokens` and `@wildteam/ui` once an approved package-consumption path exists.
+- Prefer `@wildteam-uk/tokens` and `@wildteam-uk/ui` once an approved package-consumption path exists.
 - Do not commit sibling `file:` dependencies because independent CI and Vercel builds cannot resolve them.
 - Do not publish, deploy, create external services or modify marketing and training systems unless explicitly requested.
 - Inspect Git status before editing and give the user a concise GitHub Desktop commit summary and description for every completed batch.

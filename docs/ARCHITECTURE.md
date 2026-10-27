@@ -37,7 +37,7 @@ The first production backend should use normal request-driven Vercel Functions. 
 
 ## Shared packages
 
-Do not commit a sibling `file:` dependency. During package development, temporary local linking may be used without changing `package.json`. Before the first Vercel preview that consumes shared code, publish approved private versions of `@wildteam/tokens` and `@wildteam/ui`, then pin deliberate versions in this repository.
+Do not commit a sibling `file:` dependency. During package development, temporary local linking may be used without changing `package.json`. Before the first Vercel preview that consumes shared code, publish approved private versions of `@wildteam-uk/tokens` and `@wildteam-uk/ui`, then pin deliberate versions in this repository.
 
 Until that distribution path exists, `app/globals.css` contains a small, documented temporary copy of the required `--wt-*` token values. It must not become a second design-token source.
 

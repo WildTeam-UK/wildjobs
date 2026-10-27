@@ -26,5 +26,5 @@ pnpm check
 
 - Fixture jobs live in `lib/jobs.ts` and are not real vacancies.
 - The site is marked `noindex` until approved data and a production domain are connected.
-- Shared-package distribution is not configured yet. The temporary `--wt-*` CSS token declarations in `app/globals.css` will be removed when `@wildteam/tokens` is installed from an approved registry.
+- Shared-package distribution is being prepared through private GitHub Packages releases. The temporary `--wt-*` CSS token declarations in `app/globals.css` will be removed when `@wildteam-uk/tokens` is installed from an approved release.
 - Read `docs/PRODUCT_SCOPE.md`, `docs/ARCHITECTURE.md`, and `docs/DATA_OWNERSHIP.md` before implementation.
