@@ -74,17 +74,19 @@ export function JobBrowser({ jobs }: { jobs: readonly Job[] }) {
               </option>
             ))}
           </Select>
-          <label>
-            <span>Category</span>
-            <select value={category} onChange={(event) => setCategory(event.target.value)}>
-              <option value="">All categories</option>
-              {categories.map((value) => (
-                <option value={value} key={value}>
-                  {value}
-                </option>
-              ))}
-            </select>
-          </label>
+          <Select
+            id="category"
+            label="Category"
+            value={category}
+            onChange={(event) => setCategory(event.target.value)}
+          >
+            <option value="">All categories</option>
+            {categories.map((value) => (
+              <option value={value} key={value}>
+                {value}
+              </option>
+            ))}
+          </Select>
         </aside>
 
         <div className="job-results">
