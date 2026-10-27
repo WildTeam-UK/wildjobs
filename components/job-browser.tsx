@@ -1,6 +1,6 @@
 "use client";
 
-import { TextInput } from "@wildteam-uk/ui";
+import { Select, TextInput } from "@wildteam-uk/ui";
 import { useState } from "react";
 import { JobCard } from "@/components/job-card";
 import { filterJobs, jobCategories } from "@/lib/job-filtering";
@@ -48,20 +48,19 @@ export function JobBrowser({ jobs }: { jobs: readonly Job[] }) {
             onChange={(event) => setQuery(event.target.value)}
             placeholder="Role, organisation or skill"
           />
-          <label>
-            <span>Location type</span>
-            <select
-              value={locationType}
-              onChange={(event) => setLocationType(event.target.value as LocationType | "")}
-            >
-              <option value="">All location types</option>
-              {locationTypes.map((value) => (
-                <option value={value} key={value}>
-                  {value}
-                </option>
-              ))}
-            </select>
-          </label>
+          <Select
+            id="location-type"
+            label="Location type"
+            value={locationType}
+            onChange={(event) => setLocationType(event.target.value as LocationType | "")}
+          >
+            <option value="">All location types</option>
+            {locationTypes.map((value) => (
+              <option value={value} key={value}>
+                {value}
+              </option>
+            ))}
+          </Select>
           <label>
             <span>Job type</span>
             <select
