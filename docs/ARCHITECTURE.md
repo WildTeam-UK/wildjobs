@@ -37,9 +37,9 @@ The first production backend should use normal request-driven Vercel Functions. 
 
 ## Shared packages
 
-Do not commit a sibling `file:` dependency. During package development, temporary local linking may be used without changing `package.json`. Before the first Vercel preview that consumes shared code, publish approved private versions of `@wildteam-uk/tokens` and `@wildteam-uk/ui`, then pin deliberate versions in this repository.
+Do not commit a sibling `file:` dependency. During package development, temporary local linking may be used without changing `package.json`. WildJobs pins deliberate private package versions from GitHub Packages and upgrades them through its own reviewed changes.
 
-Until that distribution path exists, `app/globals.css` contains a small, documented temporary copy of the required `--wt-*` token values. It must not become a second design-token source.
+`@wildteam-uk/tokens` is the source of truth for shared `--wt-*` values. GitHub Actions reads the package with its repository-scoped workflow token. Local developers authenticate through their personal npm configuration; credentials are never committed. Before the first Vercel preview, configure a read-only package token in Vercel's secret environment without exposing it to application runtime code.
 
 ## Planned database boundary
 

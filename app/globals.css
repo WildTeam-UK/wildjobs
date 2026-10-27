@@ -1,37 +1,4 @@
-/* Temporary token declarations. Replace with @wildteam-uk/tokens/css after its first private release. */
-:root {
-  --wt-color-ink: #080808;
-  --wt-color-brand-purple: #6e0f6c;
-  --wt-color-brand-gradient-middle: #b41e8e;
-  --wt-color-brand-pink: #e60088;
-  --wt-color-cream: #fef3e5;
-  --wt-color-paper: #ffffff;
-  --wt-color-rule: #d6d1d3;
-  --wt-color-muted: #5d5d61;
-  --wt-color-surface-charcoal: #262626;
-  --wt-color-focus: #165dff;
-  --wt-color-error-text: #8a1d24;
-  --wt-font-family-brand: "VAG Rounded", Arial, sans-serif;
-  --wt-font-weight-regular: 400;
-  --wt-font-weight-bold: 800;
-  --wt-font-weight-black: 900;
-  --wt-space-2: 0.5rem;
-  --wt-space-3: 0.75rem;
-  --wt-space-4: 1rem;
-  --wt-space-5: 1.5rem;
-  --wt-space-6: 2rem;
-  --wt-space-7: 3rem;
-  --wt-space-8: 4rem;
-  --wt-radius-control: 0.5625rem;
-  --wt-radius-card: 1.125rem;
-  --wt-radius-panel: 1.375rem;
-  --wt-radius-pill: 999px;
-  --wt-shadow-offset-small: 3px 3px 0 var(--wt-color-ink);
-  --wt-shadow-offset-medium: 4px 4px 0 var(--wt-color-ink);
-  --wt-motion-duration-fast: 120ms;
-  --wt-motion-duration-default: 200ms;
-  --wt-motion-easing-standard: ease;
-}
+@import "@wildteam-uk/tokens/css";
 
 * {
   box-sizing: border-box;
