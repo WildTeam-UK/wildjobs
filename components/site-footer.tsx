@@ -1,10 +1,12 @@
+import { BrandWordmark } from "@wildteam-uk/ui";
+
 export function SiteFooter() {
   return (
     <footer className="site-footer">
       <div className="shell site-footer__grid">
         <div>
           <p className="site-footer__brand">
-            <span>WILD</span>JOBS
+            <BrandWordmark className="site-footer__wordmark" product="JOBS" />
           </p>
           <p>Conservation opportunities presented clearly, with the source always visible.</p>
         </div>

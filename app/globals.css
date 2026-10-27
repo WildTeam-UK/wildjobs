@@ -440,13 +440,14 @@ select {
 
 .site-footer__brand {
   margin: 0 0 13px;
-  color: var(--wt-color-brand-pink);
   font-size: 1.5rem;
   font-weight: var(--wt-font-weight-black);
 }
 
-.site-footer__brand span {
+.site-footer__wordmark {
   color: var(--wt-color-paper);
+  font-size: inherit;
+  letter-spacing: inherit;
 }
 
 .site-footer__grid p:not(.site-footer__brand) {
