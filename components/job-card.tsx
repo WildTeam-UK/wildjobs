@@ -34,7 +34,7 @@ export function JobCard({ job }: { job: Job }) {
         </div>
       </dl>
       <Link className="text-link" href={`/jobs/${job.slug}`}>
-        View demonstration listing <span aria-hidden="true">→</span>
+        View listing <span aria-hidden="true">→</span>
       </Link>
     </article>
   );

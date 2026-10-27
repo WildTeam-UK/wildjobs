@@ -8,15 +8,12 @@ export default function HomePage() {
         <div className="shell jobs-hero__grid">
           <div>
             <p className="eyebrow">Conservation careers</p>
-            <h1>Find work that moves nature forward.</h1>
+            <h1>Find work that moves nature forward</h1>
           </div>
           <div className="jobs-hero__intro">
-            <p>
-              Explore clearly presented opportunities across conservation, ecology, restoration and
-              environmental practice.
-            </p>
-            <a href="#available-jobs-heading">
-              Browse demonstration jobs <span aria-hidden="true">↓</span>
+            <p>Explore opportunities across conservation, ecology, restoration and environmental practice.</p>
+            <a className="action action--white" href="#available-jobs-heading">
+              Browse jobs <span aria-hidden="true">↓</span>
             </a>
           </div>
         </div>
@@ -41,7 +38,12 @@ export default function HomePage() {
               world.
             </p>
           </div>
-          <a href="https://training.wildteam.org.uk/courses" target="_blank" rel="noopener noreferrer">
+          <a
+            className="action action--white"
+            href="https://training.wildteam.org.uk/courses"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
             Explore WildTeam training <span aria-hidden="true">→</span>
           </a>
         </div>

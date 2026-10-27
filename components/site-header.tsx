@@ -10,6 +10,7 @@ export function SiteHeader() {
         </Link>
         <nav className="site-nav" aria-label="Main navigation">
           <Link href="/">Find jobs</Link>
+          <Link href="/style-guide">Brand guide</Link>
           <a href="https://training.wildteam.org.uk/courses" target="_blank" rel="noopener noreferrer">
             Build your skills
           </a>
