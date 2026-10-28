@@ -23,6 +23,8 @@ export function filterJobs(items: readonly Job[], filters: JobFilters) {
         job.location,
         job.locationType,
         job.employmentType,
+        job.contractType ?? "",
+        job.hoursType ?? "",
         job.category,
         job.summary,
       ].join(" "),
@@ -31,7 +33,8 @@ export function filterJobs(items: readonly Job[], filters: JobFilters) {
     return (
       (!query || searchable.includes(query)) &&
       (!filters.locationType || job.locationType === filters.locationType) &&
-      (!filters.employmentType || job.employmentType === filters.employmentType) &&
+      (!filters.employmentType ||
+        [job.employmentType, job.contractType, job.hoursType].includes(filters.employmentType)) &&
       (!filters.category || job.category === filters.category) &&
       (!filters.courseSlug || job.relatedCourseSlugs.includes(filters.courseSlug))
     );

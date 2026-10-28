@@ -980,8 +980,12 @@ select {
 .save-action--card {
   width: 100%;
   justify-content: center;
-  margin-bottom: 10px;
+  margin-top: 10px;
   background: var(--wt-color-paper);
+}
+.job-facts-card__other-roles {
+  display: inline-flex;
+  margin-top: 18px;
 }
 .fact-link {
   color: var(--wt-color-brand-pink);

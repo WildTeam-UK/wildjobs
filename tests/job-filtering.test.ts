@@ -40,6 +40,24 @@ describe("job filtering", () => {
     ).toEqual(["marine-restoration-officer", "biodiversity-data-analyst", "forest-programme-manager"]);
   });
 
+  it("matches both working hours and contract types", () => {
+    const liveJob = {
+      ...jobs[0],
+      contractType: "Fixed term",
+      hoursType: "Full time",
+    };
+
+    expect(
+      filterJobs([liveJob], {
+        query: "",
+        locationType: "",
+        employmentType: "Fixed term",
+        category: "",
+        courseSlug: "",
+      }),
+    ).toEqual([liveJob]);
+  });
+
   it("returns stable alphabetical categories", () => {
     expect(jobCategories(jobs)).toEqual(
       [...jobCategories(jobs)].sort((left, right) => left.localeCompare(right)),

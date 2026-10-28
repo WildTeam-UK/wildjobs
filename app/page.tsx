@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { JobCard } from "@/components/job-card";
 import { courses } from "@/lib/courses";
-import { jobs } from "@/lib/jobs";
+import { getPublicJobs } from "@/lib/public-jobs";
 
 const collections = [
   [
@@ -30,7 +30,9 @@ const careerAreas = [
   ["Communications", "Turn conservation evidence into stories that move people.", "Communications"],
 ] as const;
 
-export default function HomePage() {
+export default async function HomePage() {
+  const jobs = await getPublicJobs();
+
   return (
     <main>
       <section className="home-hero">
@@ -63,13 +65,6 @@ export default function HomePage() {
           </div>
         </div>
       </section>
-
-      <aside className="fixture-notice">
-        <div className="shell">
-          <strong>Design prototype:</strong> These roles and organisations are fictional. Nothing can be
-          applied for yet.
-        </div>
-      </aside>
 
       <section className="home-section">
         <div className="shell">
@@ -108,11 +103,18 @@ export default function HomePage() {
               View all jobs <span aria-hidden="true">→</span>
             </Link>
           </div>
-          <div className="featured-jobs">
-            {jobs.slice(0, 3).map((job) => (
-              <JobCard job={job} key={job.slug} />
-            ))}
-          </div>
+          {jobs.length ? (
+            <div className="featured-jobs">
+              {jobs.slice(0, 3).map((job) => (
+                <JobCard job={job} key={job.slug} />
+              ))}
+            </div>
+          ) : (
+            <div className="empty-state">
+              <h3>No current vacancies yet.</h3>
+              <p>New conservation opportunities will appear here as soon as they are published.</p>
+            </div>
+          )}
         </div>
       </section>
 

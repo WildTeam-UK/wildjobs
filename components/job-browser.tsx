@@ -8,7 +8,16 @@ import { filterJobs, jobCategories } from "@/lib/job-filtering";
 import type { EmploymentType, Job, LocationType } from "@/lib/jobs";
 
 const locationTypes: readonly LocationType[] = ["Remote", "Hybrid", "On-site"];
-const employmentTypes: readonly EmploymentType[] = ["Full time", "Part time", "Fixed term", "Internship"];
+const employmentTypes: readonly EmploymentType[] = [
+  "Full time",
+  "Part time",
+  "Flexible",
+  "Permanent",
+  "Fixed term",
+  "Temporary",
+  "Internship",
+  "Apprenticeship",
+];
 
 type BrowserFilters = Readonly<{
   query: string;
@@ -162,7 +171,7 @@ export function JobBrowser({
         <div className="job-results">
           <div className="job-results__heading">
             <div>
-              <p className="eyebrow">Demonstration vacancies</p>
+              <p className="eyebrow">Live vacancies</p>
               <h2 id="available-jobs-heading">Available jobs</h2>
             </div>
             <p aria-live="polite">
@@ -174,8 +183,8 @@ export function JobBrowser({
               <p className="eyebrow">Course-aware discovery</p>
               <h3>Roles related to {selectedCourse.shortTitle.toLocaleLowerCase("en-GB")}</h3>
               <p>
-                These demonstration matches use capabilities covered by the course. Completing a course does
-                not automatically satisfy every requirement in a job listing.
+                These matches use capabilities covered by the course. Completing a course does not
+                automatically satisfy every requirement in a job listing.
               </p>
             </div>
           ) : null}
@@ -188,7 +197,7 @@ export function JobBrowser({
           ) : (
             <div className="empty-state">
               <h3>No roles match those filters.</h3>
-              <p>Try a broader search or clear the filters to see every demonstration listing.</p>
+              <p>Try a broader search or clear the filters to see every current listing.</p>
               <Button type="button" variant="quiet" onClick={clearFilters}>
                 Show all jobs
               </Button>

@@ -2,6 +2,10 @@ import Link from "next/link";
 import { formatDate, type Job } from "@/lib/jobs";
 
 export function JobCard({ job, showSaveAction = true }: { job: Job; showSaveAction?: boolean }) {
+  const jobType = [job.hoursType, job.contractType]
+    .filter((value, index, values) => value && values.indexOf(value) === index)
+    .join(" · ");
+
   return (
     <article className="job-card">
       <div className="job-card__topline">
@@ -22,7 +26,7 @@ export function JobCard({ job, showSaveAction = true }: { job: Job; showSaveActi
         </div>
         <div>
           <dt>Job type</dt>
-          <dd>{job.employmentType}</dd>
+          <dd>{jobType || job.employmentType}</dd>
         </div>
         <div>
           <dt>Salary</dt>

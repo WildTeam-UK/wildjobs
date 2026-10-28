@@ -1,13 +1,25 @@
 export type LocationType = "Hybrid" | "On-site" | "Remote";
-export type EmploymentType = "Fixed term" | "Full time" | "Internship" | "Part time";
+export type EmploymentType =
+  | "Apprenticeship"
+  | "Fixed term"
+  | "Flexible"
+  | "Full time"
+  | "Internship"
+  | "Not stated"
+  | "Part time"
+  | "Permanent"
+  | "Temporary";
 
 export type Job = Readonly<{
   slug: string;
+  applicationUrl?: string;
   title: string;
   organisation: string;
   location: string;
   locationType: LocationType;
   employmentType: EmploymentType;
+  contractType?: string;
+  hoursType?: string;
   category: string;
   salary: string;
   summary: string;
@@ -17,6 +29,10 @@ export type Job = Readonly<{
   postedAt: string;
   closesAt: string;
   sourceName: string;
+  sourceUrl?: string;
+  employerSlug?: string;
+  countryCode?: string;
+  publishedAt?: string;
   relatedCourseSlugs: readonly string[];
 }>;
 
