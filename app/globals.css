@@ -1435,6 +1435,397 @@ select {
 .auth-card__switch a:hover {
   color: var(--wt-color-brand-purple);
 }
+
+/* Vacancy lifecycle and staff review design preview */
+.job-state-banner {
+  padding: 32px 0;
+  border-bottom: 1px solid var(--wt-color-rule);
+  background: var(--wt-color-cream);
+}
+.job-state-banner--withdrawn {
+  background: #f1ecef;
+}
+.job-state-banner--changed {
+  background: #f8e4f0;
+}
+.job-state-banner .eyebrow {
+  margin-bottom: 8px;
+}
+.job-state-banner h2 {
+  margin: 0;
+  font-size: clamp(1.75rem, 3vw, 2.5rem);
+  line-height: 1;
+}
+.job-state-banner p:last-child {
+  max-width: 760px;
+  margin: 10px 0 0;
+  color: var(--wt-color-muted);
+}
+.staff-preview-notice {
+  padding: 12px 0;
+  background: var(--wt-color-surface-charcoal);
+  color: var(--wt-color-paper);
+  font-size: 0.76rem;
+}
+.staff-preview-notice strong {
+  color: #f4bbdc;
+}
+.staff-nav {
+  display: flex;
+  gap: 30px;
+  overflow-x: auto;
+  padding-top: 17px;
+  padding-bottom: 17px;
+  border-bottom: 1px solid var(--wt-color-rule);
+  color: var(--wt-color-brand-purple);
+  font-size: 0.74rem;
+  font-weight: var(--wt-font-weight-bold);
+  white-space: nowrap;
+}
+.staff-nav a:hover {
+  color: var(--wt-color-brand-pink);
+}
+.staff-nav span {
+  color: var(--wt-color-muted);
+}
+.staff-page {
+  background: #faf9f8;
+}
+.staff-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(280px, 0.48fr);
+  align-items: end;
+  gap: clamp(42px, 8vw, 100px);
+  padding-top: 72px;
+  padding-bottom: 62px;
+}
+.staff-hero h1,
+.review-hero h1 {
+  margin: 0;
+  font-size: clamp(3rem, 6vw, 4.7rem);
+  line-height: 0.94;
+  letter-spacing: -0.04em;
+}
+.staff-hero > p {
+  margin: 0;
+  color: var(--wt-color-muted);
+}
+.staff-summary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  border: 1px solid var(--wt-color-rule);
+  border-radius: var(--wt-radius-panel);
+  background: var(--wt-color-paper);
+}
+.staff-summary > div {
+  display: flex;
+  min-height: 150px;
+  flex-direction: column;
+  padding: 24px;
+}
+.staff-summary > div + div {
+  border-left: 1px solid var(--wt-color-rule);
+}
+.staff-summary span {
+  color: var(--wt-color-brand-pink);
+  font-size: 2.2rem;
+  font-weight: var(--wt-font-weight-black);
+  line-height: 1;
+}
+.staff-summary strong {
+  margin-top: auto;
+  font-size: 1rem;
+}
+.staff-section {
+  padding-top: 76px;
+  padding-bottom: 100px;
+}
+.staff-section__heading {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 30px;
+  margin-bottom: 30px;
+}
+.staff-section__heading h2 {
+  margin: 0;
+  font-size: clamp(2.2rem, 4vw, 3.4rem);
+  line-height: 0.98;
+}
+.staff-section__heading > p {
+  margin: 0;
+  color: var(--wt-color-muted);
+  font-size: 0.75rem;
+}
+.review-list {
+  display: grid;
+  gap: 10px;
+}
+.review-row {
+  display: grid;
+  grid-template-columns: minmax(160px, 0.32fr) minmax(280px, 0.72fr) minmax(150px, 0.28fr) auto;
+  align-items: center;
+  gap: 26px;
+  padding: 24px;
+  border: 1px solid var(--wt-color-rule);
+  border-radius: var(--wt-radius-panel);
+  background: var(--wt-color-paper);
+}
+.review-row > div:first-child > p {
+  margin: 8px 0 0;
+  color: var(--wt-color-muted);
+  font-size: 0.68rem;
+}
+.review-row__job h2 {
+  margin: 0;
+  font-size: 1.25rem;
+  line-height: 1.1;
+}
+.review-row__job p {
+  margin: 5px 0 0;
+  color: var(--wt-color-muted);
+  font-size: 0.75rem;
+}
+.review-row dl,
+.review-hero dl,
+.import-list dl {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin: 0;
+}
+.review-row dt,
+.review-hero dt,
+.review-fields dt,
+.import-list dt {
+  margin-bottom: 3px;
+  color: var(--wt-color-muted);
+  font-size: 0.6rem;
+  font-weight: var(--wt-font-weight-bold);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.review-row dd,
+.review-hero dd,
+.review-fields dd,
+.import-list dd {
+  margin: 0;
+  font-size: 0.78rem;
+  font-weight: var(--wt-font-weight-bold);
+  line-height: 1.35;
+}
+.status-badge {
+  display: inline-flex;
+  min-height: 29px;
+  align-items: center;
+  padding: 6px 10px;
+  border: 1px solid var(--wt-color-rule);
+  border-radius: var(--wt-radius-pill);
+  background: var(--wt-color-cream);
+  color: var(--wt-color-ink);
+  font-size: 0.61rem;
+  font-weight: var(--wt-font-weight-bold);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.status-badge--ready-to-publish,
+.status-badge--published {
+  border-color: var(--wt-color-brand-purple);
+  color: var(--wt-color-brand-purple);
+}
+.status-badge--needs-review {
+  border-color: var(--wt-color-brand-pink);
+  color: var(--wt-color-brand-pink);
+}
+.status-badge--duplicate-warning {
+  border-color: var(--wt-color-ink);
+  background: var(--wt-color-surface-charcoal);
+  color: var(--wt-color-paper);
+}
+.review-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(280px, 0.42fr);
+  align-items: end;
+  gap: clamp(44px, 8vw, 96px);
+  padding-top: 50px;
+  padding-bottom: 62px;
+  border-bottom: 1px solid var(--wt-color-ink);
+}
+.review-hero > div > p {
+  margin: 16px 0 10px;
+  color: var(--wt-color-brand-purple);
+  font-weight: var(--wt-font-weight-bold);
+}
+.review-hero dl {
+  grid-template-columns: 1fr;
+  padding: 24px;
+  border-radius: var(--wt-radius-panel);
+  background: var(--wt-color-paper);
+}
+.review-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(280px, 0.38fr);
+  align-items: start;
+  gap: clamp(48px, 8vw, 96px);
+  padding-top: 70px;
+  padding-bottom: 100px;
+}
+.review-content {
+  display: grid;
+  gap: 62px;
+}
+.review-content section {
+  padding-top: 22px;
+  border-top: 1px solid var(--wt-color-ink);
+}
+.review-content h2 {
+  margin: 0 0 24px;
+  font-size: clamp(1.9rem, 3vw, 2.7rem);
+  line-height: 1;
+}
+.review-fields {
+  margin: 0;
+}
+.review-fields > div {
+  display: grid;
+  grid-template-columns: minmax(150px, 0.3fr) minmax(0, 0.7fr);
+  gap: 24px;
+  padding: 15px 0;
+  border-top: 1px solid var(--wt-color-rule);
+}
+.review-issues {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.review-issues li {
+  padding: 16px 18px;
+  border-left: 4px solid var(--wt-color-brand-pink);
+  background: #f8e4f0;
+}
+.review-clear {
+  margin: 0;
+  padding: 16px 18px;
+  border-left: 4px solid var(--wt-color-brand-purple);
+  background: var(--wt-color-cream);
+}
+.audit-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--wt-color-rule);
+}
+.audit-list li {
+  display: grid;
+  grid-template-columns: 42px 1fr;
+  gap: 18px;
+  padding: 18px 0;
+  border-bottom: 1px solid var(--wt-color-rule);
+}
+.audit-list span {
+  color: var(--wt-color-brand-pink);
+  font-size: 0.7rem;
+  font-weight: var(--wt-font-weight-bold);
+}
+.audit-list p {
+  margin: 0;
+}
+.review-actions {
+  position: sticky;
+  top: 24px;
+  padding: 28px;
+  border-radius: var(--wt-radius-panel);
+  background: var(--wt-color-cream);
+}
+.review-actions h2 {
+  margin: 0 0 24px;
+  font-size: 1.7rem;
+  line-height: 1;
+}
+.review-actions > button {
+  width: 100%;
+  margin-bottom: 9px;
+}
+.staff-danger-action {
+  min-height: 46px;
+  padding: 12px 18px;
+  border: 1px solid var(--wt-color-ink);
+  border-radius: var(--wt-radius-control);
+  background: transparent;
+  color: var(--wt-color-ink);
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: var(--wt-font-weight-bold);
+}
+.staff-danger-action:hover {
+  background: var(--wt-color-surface-charcoal);
+  color: var(--wt-color-paper);
+}
+.review-actions > p {
+  color: var(--wt-color-muted);
+  font-size: 0.7rem;
+  line-height: 1.5;
+}
+.preview-links {
+  display: grid;
+  gap: 9px;
+  margin-top: 26px;
+  padding-top: 22px;
+  border-top: 1px solid var(--wt-color-rule);
+  font-size: 0.75rem;
+}
+.preview-links strong {
+  margin-bottom: 4px;
+}
+.preview-links a {
+  color: var(--wt-color-brand-pink);
+  font-weight: var(--wt-font-weight-bold);
+}
+.preview-links a:hover {
+  color: var(--wt-color-brand-purple);
+}
+.import-list {
+  display: grid;
+  gap: 10px;
+}
+.import-list article {
+  display: grid;
+  grid-template-columns: minmax(240px, 1fr) auto minmax(230px, 0.45fr);
+  align-items: center;
+  gap: 28px;
+  padding: 24px;
+  border: 1px solid var(--wt-color-rule);
+  border-radius: var(--wt-radius-panel);
+  background: var(--wt-color-paper);
+}
+.import-list h2 {
+  margin: 0;
+  font-size: 1.35rem;
+}
+.import-list dl {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.safe-error-note {
+  display: grid;
+  grid-template-columns: minmax(240px, 0.45fr) minmax(280px, 0.55fr);
+  gap: 40px;
+  margin-top: 54px;
+  padding: 34px;
+  border-radius: var(--wt-radius-panel);
+  background: var(--wt-color-surface-charcoal);
+  color: var(--wt-color-paper);
+}
+.safe-error-note h2 {
+  margin: 0;
+  font-size: 2rem;
+  line-height: 1;
+}
+.safe-error-note > p:last-child {
+  margin: 0;
+  color: #e6dce4;
+}
 .not-found {
   min-height: 65vh;
   padding-top: 84px;
@@ -1639,6 +2030,9 @@ select {
   .employer-profile-layout,
   .account-hero__layout,
   .auth-panel,
+  .staff-hero,
+  .review-hero,
+  .review-layout,
   .guide-section,
   .home-hero__grid,
   .interior-hero__layout,
@@ -1657,7 +2051,8 @@ select {
   }
   .filter-panel,
   .job-detail-sidebar,
-  .employer-profile-facts {
+  .employer-profile-facts,
+  .review-actions {
     position: static;
   }
   .filter-panel {
@@ -1818,6 +2213,36 @@ select {
   }
   .auth-card {
     padding: 26px 20px;
+  }
+  .staff-summary,
+  .review-row {
+    grid-template-columns: 1fr;
+  }
+  .staff-summary > div + div {
+    border-top: 1px solid var(--wt-color-rule);
+    border-left: 0;
+  }
+  .review-row dl {
+    max-width: 260px;
+  }
+  .review-row .action {
+    justify-self: start;
+  }
+  .review-actions {
+    position: static;
+  }
+  .import-list article {
+    grid-template-columns: 1fr auto;
+  }
+  .import-list dl {
+    grid-column: 1 / -1;
+  }
+  .safe-error-note {
+    grid-template-columns: 1fr;
+  }
+  .review-fields > div {
+    grid-template-columns: 1fr;
+    gap: 5px;
   }
   .job-facts-card {
     padding: 23px 20px;

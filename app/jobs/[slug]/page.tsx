@@ -2,10 +2,12 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { employerByName } from "@/lib/employers";
+import { parsePreviewJobState, previewJobStates } from "@/lib/job-review-fixtures";
 import { formatDate, jobBySlug, jobs } from "@/lib/jobs";
 
 type JobPageProps = {
   params: Promise<{ slug: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 };
 
 export function generateStaticParams() {
@@ -23,10 +25,12 @@ export async function generateMetadata({ params }: JobPageProps): Promise<Metada
   };
 }
 
-export default async function JobPage({ params }: JobPageProps) {
+export default async function JobPage({ params, searchParams }: JobPageProps) {
   const job = jobBySlug((await params).slug);
   if (!job) notFound();
   const employer = employerByName(job.organisation);
+  const previewState = parsePreviewJobState((await searchParams).state);
+  const stateContent = previewState === "active" ? undefined : previewJobStates[previewState];
 
   const structuredData = {
     "@context": "https://schema.org",
@@ -50,10 +54,12 @@ export default async function JobPage({ params }: JobPageProps) {
 
   return (
     <main className="job-detail-page">
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData).replaceAll("<", "\\u003c") }}
-      />
+      {previewState === "active" ? (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData).replaceAll("<", "\\u003c") }}
+        />
+      ) : null}
       <div className="shell">
         <Link className="back-link" href="/jobs">
           <span aria-hidden="true">←</span> Back to all jobs
@@ -70,6 +76,16 @@ export default async function JobPage({ params }: JobPageProps) {
         <h1>{job.title}</h1>
         <p className="job-detail-hero__summary">{job.summary}</p>
       </header>
+
+      {stateContent ? (
+        <aside className={`job-state-banner job-state-banner--${previewState}`}>
+          <div className="shell">
+            <p className="eyebrow">{stateContent.label}</p>
+            <h2>{stateContent.title}</h2>
+            <p>{stateContent.message}</p>
+          </div>
+        </aside>
+      ) : null}
 
       <div className="shell job-detail-layout">
         <article className="job-detail-content">
@@ -145,12 +161,14 @@ export default async function JobPage({ params }: JobPageProps) {
             <p className="job-facts-card__notice">
               This is fictional prototype content. Applications are not available.
             </p>
-            <Link
-              className="save-action save-action--card"
-              href={{ pathname: "/sign-in", query: { intent: "save", next: `/jobs/${job.slug}` } }}
-            >
-              <span aria-hidden="true">♡</span> Save this role
-            </Link>
+            {previewState === "active" || previewState === "changed" ? (
+              <Link
+                className="save-action save-action--card"
+                href={{ pathname: "/sign-in", query: { intent: "save", next: `/jobs/${job.slug}` } }}
+              >
+                <span aria-hidden="true">♡</span> Save this role
+              </Link>
+            ) : null}
             <Link className="primary-action" href="/jobs">
               Explore other roles
             </Link>
