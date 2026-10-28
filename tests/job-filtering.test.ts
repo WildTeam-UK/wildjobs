@@ -10,16 +10,33 @@ describe("job filtering", () => {
         locationType: "",
         employmentType: "",
         category: "",
+        courseSlug: "",
       }).map((job) => job.slug),
     ).toEqual(["biodiversity-data-analyst"]);
   });
 
   it("combines structured filters", () => {
     expect(
-      filterJobs(jobs, { query: "", locationType: "Hybrid", employmentType: "Full time", category: "" }).map(
-        (job) => job.slug,
-      ),
+      filterJobs(jobs, {
+        query: "",
+        locationType: "Hybrid",
+        employmentType: "Full time",
+        category: "",
+        courseSlug: "",
+      }).map((job) => job.slug),
     ).toEqual(["community-conservation-coordinator", "forest-programme-manager"]);
+  });
+
+  it("finds roles related to a WildTeam course", () => {
+    expect(
+      filterJobs(jobs, {
+        query: "",
+        locationType: "",
+        employmentType: "",
+        category: "",
+        courseSlug: "monitoring-and-evaluation",
+      }).map((job) => job.slug),
+    ).toEqual(["marine-restoration-officer", "biodiversity-data-analyst", "forest-programme-manager"]);
   });
 
   it("returns stable alphabetical categories", () => {

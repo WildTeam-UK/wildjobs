@@ -5,6 +5,7 @@ export type JobFilters = Readonly<{
   locationType: LocationType | "";
   employmentType: EmploymentType | "";
   category: string;
+  courseSlug: string;
 }>;
 
 function normalise(value: string) {
@@ -31,7 +32,8 @@ export function filterJobs(items: readonly Job[], filters: JobFilters) {
       (!query || searchable.includes(query)) &&
       (!filters.locationType || job.locationType === filters.locationType) &&
       (!filters.employmentType || job.employmentType === filters.employmentType) &&
-      (!filters.category || job.category === filters.category)
+      (!filters.category || job.category === filters.category) &&
+      (!filters.courseSlug || job.relatedCourseSlugs.includes(filters.courseSlug))
     );
   });
 }

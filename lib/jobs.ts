@@ -17,6 +17,7 @@ export type Job = Readonly<{
   postedAt: string;
   closesAt: string;
   sourceName: string;
+  relatedCourseSlugs: readonly string[];
 }>;
 
 export const jobs: readonly Job[] = [
@@ -48,6 +49,7 @@ export const jobs: readonly Job[] = [
     postedAt: "2026-10-24",
     closesAt: "2026-11-28",
     sourceName: "Demonstration data",
+    relatedCourseSlugs: ["project-management", "project-planning", "stakeholder-engagement"],
   },
   {
     slug: "marine-restoration-officer",
@@ -77,6 +79,7 @@ export const jobs: readonly Job[] = [
     postedAt: "2026-10-22",
     closesAt: "2026-11-24",
     sourceName: "Demonstration data",
+    relatedCourseSlugs: ["project-planning", "monitoring-and-evaluation"],
   },
   {
     slug: "biodiversity-data-analyst",
@@ -106,6 +109,7 @@ export const jobs: readonly Job[] = [
     postedAt: "2026-10-20",
     closesAt: "2026-12-01",
     sourceName: "Demonstration data",
+    relatedCourseSlugs: ["monitoring-and-evaluation"],
   },
   {
     slug: "forest-programme-manager",
@@ -135,6 +139,7 @@ export const jobs: readonly Job[] = [
     postedAt: "2026-10-18",
     closesAt: "2026-11-21",
     sourceName: "Demonstration data",
+    relatedCourseSlugs: ["project-management", "project-planning", "monitoring-and-evaluation"],
   },
   {
     slug: "wildlife-communications-officer",
@@ -164,6 +169,7 @@ export const jobs: readonly Job[] = [
     postedAt: "2026-10-16",
     closesAt: "2026-11-18",
     sourceName: "Demonstration data",
+    relatedCourseSlugs: ["stakeholder-engagement", "grant-writing"],
   },
   {
     slug: "conservation-project-intern",
@@ -193,6 +199,7 @@ export const jobs: readonly Job[] = [
     postedAt: "2026-10-14",
     closesAt: "2026-11-16",
     sourceName: "Demonstration data",
+    relatedCourseSlugs: ["launching-your-career", "project-planning"],
   },
 ];
 

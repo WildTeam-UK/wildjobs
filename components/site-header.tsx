@@ -9,14 +9,13 @@ export function SiteHeader() {
           <BrandWordmark className="brand__wordmark" product="JOBS" />
         </Link>
         <nav className="site-nav" aria-label="Main navigation">
-          <Link href="/">Find jobs</Link>
-          <Link href="/style-guide">Brand guide</Link>
-          <a href="https://training.wildteam.org.uk/courses" target="_blank" rel="noopener noreferrer">
-            Build your skills
-          </a>
-          <a href="https://www.wildteam.org.uk/" target="_blank" rel="noopener noreferrer">
-            About WildTeam
-          </a>
+          <Link href="/jobs">Find jobs</Link>
+          <Link href="/careers">Explore careers</Link>
+          <Link href="/employers">Employers</Link>
+          <Link href="/for-employers">For employers</Link>
+          <Link className="site-nav__saved" href="/account/saved">
+            Saved jobs
+          </Link>
         </nav>
       </div>
     </header>
