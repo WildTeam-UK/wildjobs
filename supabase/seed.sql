@@ -1,0 +1,2 @@
+-- Production-like vacancy and candidate fixtures are intentionally excluded.
+-- Reference data that must exist in every environment is installed by migrations.

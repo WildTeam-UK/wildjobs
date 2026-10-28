@@ -43,7 +43,9 @@ Do not commit a sibling `file:` dependency. During package development, temporar
 
 ## Planned database boundary
 
-The initial production schema is expected to include organisations, sources, jobs, categories, job-category links, import runs and staff access. All database changes must be ordered migrations in `supabase/migrations` once a Supabase project is approved.
+The independent `wildjobs` Supabase project and empty beta schema were created in the WildTeam UK organisation on 2026-10-28. The application still uses fixtures and is not connected to the hosted database.
+
+The schema includes employers, jobs, career areas, course-capability mappings, provenance, import runs, controlled employer submissions, candidate profiles, saved jobs, preferences and staff moderation. All changes remain ordered migrations in `supabase/migrations`.
 
 Every table in an exposed schema must have RLS. Public access will be limited to active, approved listings. Staff access will require an active staff record, while imports will use server-only credentials.
 

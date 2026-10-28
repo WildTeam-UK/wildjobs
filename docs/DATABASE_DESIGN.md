@@ -1,7 +1,8 @@
 # WildJobs beta database design
 
-**Status:** Proposed for approval on 2026-10-28  
-**Scope:** Local design only. This document does not create a Supabase project, migration or production data.
+**Status:** Approved on 2026-10-28
+
+**Implementation:** The empty hosted beta schema was created and verified on 2026-10-28. The application is not connected and no vacancy, candidate or submission data has been seeded.
 
 This design translates the approved beta foundation into an independent WildJobs database. It is deliberately limited to trustworthy vacancy publication, public course-aware discovery, candidate saves and preferences, and controlled staff moderation.
 
@@ -294,6 +295,6 @@ This database does not include:
 
 ## Approval checkpoint
 
-Approval of this design authorises the next local stage: creating the Supabase folder structure and ordered draft migrations for review. It does not authorise creating a Supabase project, applying migrations remotely, seeding production data or enabling analytics.
+The approved design authorised the Supabase folder structure and reviewed hosted beta foundation. Connecting the application, seeding vacancy data and enabling analytics remain separate implementation stages.
 
 Before external beta users are invited, separate approval is still required for the employer-submission contact retention period, import-error retention period, first vacancy sources, production SMTP provider and approved LearnWorlds course input set.
