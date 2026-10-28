@@ -1857,6 +1857,115 @@ select {
   background: #fff0f3;
   color: #7e1730;
 }
+.staff-empty-state {
+  padding: clamp(32px, 6vw, 72px);
+  border: 1px solid var(--wt-color-rule);
+  border-radius: var(--wt-radius-panel);
+  background: var(--wt-color-paper);
+  text-align: center;
+}
+.staff-empty-state h2 {
+  max-width: 700px;
+  margin: 12px auto;
+  font-size: clamp(2rem, 4vw, 3.4rem);
+  line-height: 1;
+}
+.staff-empty-state > p:not(.eyebrow) {
+  max-width: 600px;
+  margin: 0 auto 24px;
+  color: var(--wt-color-muted);
+}
+.staff-job-form {
+  display: grid;
+  max-width: 980px;
+  gap: 18px;
+  margin: 0 auto;
+}
+.staff-job-form fieldset {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: clamp(24px, 4vw, 42px);
+  border: 1px solid var(--wt-color-rule);
+  border-radius: var(--wt-radius-panel);
+  background: var(--wt-color-paper);
+}
+.staff-job-form legend {
+  padding: 0 8px;
+  font-size: clamp(1.5rem, 3vw, 2.2rem);
+  font-weight: var(--wt-font-weight-black);
+}
+.staff-job-form fieldset > p {
+  max-width: 680px;
+  margin: 0 0 24px;
+  color: var(--wt-color-muted);
+}
+.staff-job-form__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 22px;
+}
+.staff-job-form__grid > div {
+  display: grid;
+  align-content: start;
+  gap: 7px;
+}
+.staff-job-form__wide {
+  grid-column: 1 / -1;
+}
+.staff-job-form label {
+  font-size: 0.78rem;
+  font-weight: var(--wt-font-weight-bold);
+}
+.staff-job-form label span,
+.staff-job-form small {
+  color: var(--wt-color-muted);
+  font-weight: var(--wt-font-weight-regular);
+}
+.staff-job-form input,
+.staff-job-form select,
+.staff-job-form textarea {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid var(--wt-color-rule);
+  border-radius: var(--wt-radius-control);
+  background: var(--wt-color-paper);
+  color: var(--wt-color-ink);
+  font: inherit;
+}
+.staff-job-form input,
+.staff-job-form select {
+  min-height: 48px;
+}
+.staff-job-form textarea {
+  line-height: 1.55;
+  resize: vertical;
+}
+.staff-job-form input:focus-visible,
+.staff-job-form select:focus-visible,
+.staff-job-form textarea:focus-visible {
+  border-color: var(--wt-color-brand-pink);
+  outline: 3px solid color-mix(in srgb, var(--wt-color-brand-pink) 22%, transparent);
+  outline-offset: 1px;
+}
+.staff-job-form__actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 32px;
+  padding: 28px;
+  border-radius: var(--wt-radius-panel);
+  background: var(--wt-color-surface-charcoal);
+  color: var(--wt-color-paper);
+}
+.staff-job-form__actions p {
+  max-width: 600px;
+  margin: 5px 0 0;
+  color: #d8d4da;
+}
+.staff-job-form__actions .action {
+  flex: 0 0 auto;
+}
 .review-list {
   display: grid;
   gap: 10px;
@@ -1913,6 +2022,53 @@ select {
   font-size: 0.78rem;
   font-weight: var(--wt-font-weight-bold);
   line-height: 1.35;
+}
+.review-copy {
+  display: grid;
+  gap: 20px;
+  white-space: pre-line;
+}
+.review-copy > strong {
+  color: var(--wt-color-brand-purple);
+  font-size: 1.1rem;
+  line-height: 1.5;
+}
+.review-copy p,
+.review-copy h3 {
+  margin: 0;
+}
+.review-copy > div {
+  display: grid;
+  gap: 8px;
+  padding-top: 18px;
+  border-top: 1px solid var(--wt-color-rule);
+}
+.review-source-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.review-source-links a {
+  display: inline-flex;
+  min-height: 42px;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 14px;
+  border: 1px solid var(--wt-color-brand-purple);
+  border-radius: var(--wt-radius-control);
+  color: var(--wt-color-brand-purple);
+  font-size: 0.76rem;
+  font-weight: var(--wt-font-weight-bold);
+  text-decoration: none;
+}
+.review-source-links a:hover {
+  border-color: var(--wt-color-brand-pink);
+  background: var(--wt-color-brand-pink);
+  color: var(--wt-color-paper);
+}
+.audit-list small {
+  color: var(--wt-color-muted);
+  font-size: 0.68rem;
 }
 .status-badge {
   display: inline-flex;
@@ -2613,8 +2769,19 @@ select {
   .staff-summary,
   .review-row,
   .staff-dashboard-grid,
-  .staff-source-layout {
+  .staff-source-layout,
+  .staff-job-form__grid {
     grid-template-columns: 1fr;
+  }
+  .staff-job-form__wide {
+    grid-column: auto;
+  }
+  .staff-job-form__actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+  .staff-job-form__actions .action {
+    width: 100%;
   }
   .staff-summary > div + div {
     border-top: 1px solid var(--wt-color-rule);
