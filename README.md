@@ -2,7 +2,7 @@
 
 WildJobs is WildTeam's independent conservation careers platform, intended for `jobs.wildteam.org.uk`.
 
-This initial application demonstrates the public discovery experience with clearly labelled fixture data. Its Supabase foundation and server-rendered session plumbing are connected, but the visible job content is still fixture-only. Candidate authentication, analytics, marketing integration and job ingestion are not implemented yet.
+This initial application demonstrates the public discovery experience with clearly labelled fixture data. Its Supabase foundation and candidate email/password authentication are connected, but the visible job and account content is still fixture-only. Analytics, marketing integration and job ingestion are not implemented yet.
 
 The proposed production direction is documented in `docs/IMPLEMENTATION_PLAN.md` and `docs/EXPERIENCE_BLUEPRINT.md`. Both remain drafts until product review; the fixture prototype does not define the production data model.
 

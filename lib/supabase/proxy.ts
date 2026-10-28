@@ -30,7 +30,15 @@ export async function updateSession(request: NextRequest) {
   });
 
   // Validate or refresh the session before any response-dependent work.
-  await supabase.auth.getClaims();
+  const { data } = await supabase.auth.getClaims();
+
+  if (request.nextUrl.pathname.startsWith("/account") && !data?.claims?.sub) {
+    const signInUrl = request.nextUrl.clone();
+    signInUrl.pathname = "/sign-in";
+    signInUrl.search = "";
+    signInUrl.searchParams.set("next", `${request.nextUrl.pathname}${request.nextUrl.search}`);
+    return NextResponse.redirect(signInUrl);
+  }
 
   return response;
 }
