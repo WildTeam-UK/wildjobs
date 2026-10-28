@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { employerByName } from "@/lib/employers";
 import { formatDate, jobBySlug, jobs } from "@/lib/jobs";
 
 type JobPageProps = {
@@ -25,6 +26,7 @@ export async function generateMetadata({ params }: JobPageProps): Promise<Metada
 export default async function JobPage({ params }: JobPageProps) {
   const job = jobBySlug((await params).slug);
   if (!job) notFound();
+  const employer = employerByName(job.organisation);
 
   const structuredData = {
     "@context": "https://schema.org",
@@ -53,7 +55,7 @@ export default async function JobPage({ params }: JobPageProps) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData).replaceAll("<", "\\u003c") }}
       />
       <div className="shell">
-        <Link className="back-link" href="/">
+        <Link className="back-link" href="/jobs">
           <span aria-hidden="true">←</span> Back to all jobs
         </Link>
       </div>
@@ -62,7 +64,9 @@ export default async function JobPage({ params }: JobPageProps) {
           <span>{job.category}</span>
           <span>{job.locationType}</span>
         </div>
-        <p>{job.organisation}</p>
+        <p>
+          {employer ? <Link href={`/employers/${employer.slug}`}>{job.organisation}</Link> : job.organisation}
+        </p>
         <h1>{job.title}</h1>
         <p className="job-detail-hero__summary">{job.summary}</p>
       </header>
@@ -99,7 +103,15 @@ export default async function JobPage({ params }: JobPageProps) {
             <dl>
               <div>
                 <dt>Organisation</dt>
-                <dd>{job.organisation}</dd>
+                <dd>
+                  {employer ? (
+                    <Link className="fact-link" href={`/employers/${employer.slug}`}>
+                      {job.organisation}
+                    </Link>
+                  ) : (
+                    job.organisation
+                  )}
+                </dd>
               </div>
               <div>
                 <dt>Location</dt>

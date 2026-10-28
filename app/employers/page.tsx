@@ -1,9 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { jobs } from "@/lib/jobs";
+import { employers, jobsForEmployer } from "@/lib/employers";
 
 export const metadata: Metadata = { title: "Conservation employers" };
-const employers = Array.from(new Map(jobs.map((job) => [job.organisation, job])).values());
 
 export default function EmployersPage() {
   return (
@@ -34,24 +33,22 @@ export default function EmployersPage() {
             </Link>
           </div>
           <div className="employer-grid">
-            {employers.map((job) => (
-              <article key={job.organisation}>
-                <div className="employer-monogram" aria-hidden="true">
-                  {job.organisation
-                    .replace("Example ", "")
-                    .split(" ")
-                    .map((part) => part[0])
-                    .slice(0, 2)
-                    .join("")}
-                </div>
-                <p className="eyebrow">{job.category}</p>
-                <h2>{job.organisation}</h2>
-                <p>{job.summary}</p>
-                <Link className="text-link" href={`/jobs/${job.slug}`}>
-                  View open role →
-                </Link>
-              </article>
-            ))}
+            {employers.map((employer) => {
+              const openRoles = jobsForEmployer(employer.name).length;
+              return (
+                <article key={employer.slug}>
+                  <div className="employer-monogram" aria-hidden="true">
+                    {employer.shortName}
+                  </div>
+                  <p className="eyebrow">{employer.focus}</p>
+                  <h2>{employer.name}</h2>
+                  <p>{employer.mission}</p>
+                  <Link className="text-link" href={`/employers/${employer.slug}`}>
+                    View profile · {openRoles} {openRoles === 1 ? "role" : "roles"} →
+                  </Link>
+                </article>
+              );
+            })}
           </div>
         </div>
       </section>
