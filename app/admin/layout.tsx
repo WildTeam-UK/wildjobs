@@ -19,8 +19,8 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
       <nav className="staff-nav shell" aria-label="Staff workspace">
         <Link href="/admin/jobs">Job review</Link>
         <Link href="/admin/imports">Import runs</Link>
-        <span aria-disabled="true">Employers · later</span>
-        <span aria-disabled="true">Submissions · later</span>
+        <Link href="/admin/employers">Employers</Link>
+        <Link href="/admin/submissions">Submissions</Link>
       </nav>
       {children}
     </>

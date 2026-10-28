@@ -26,7 +26,8 @@ a {
 }
 button,
 input,
-select {
+select,
+textarea {
   font: inherit;
 }
 button,
@@ -1117,6 +1118,133 @@ select {
   background: var(--wt-color-cream);
 }
 
+/* Employer submission design preview */
+.submission-page {
+  background: #faf9f8;
+}
+.submission-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(300px, 0.48fr);
+  align-items: end;
+  gap: clamp(50px, 9vw, 120px);
+  padding-top: 76px;
+  padding-bottom: 68px;
+}
+.submission-hero h1 {
+  max-width: 880px;
+  margin: 0;
+  font-size: clamp(3.2rem, 6.5vw, 5.2rem);
+  line-height: 0.92;
+  letter-spacing: -0.045em;
+}
+.submission-hero > div:last-child > p {
+  margin: 0 0 18px;
+  color: var(--wt-color-muted);
+  font-size: 1.05rem;
+}
+.submission-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(280px, 0.36fr);
+  align-items: start;
+  gap: clamp(48px, 8vw, 94px);
+  padding-top: 72px;
+  padding-bottom: 100px;
+}
+.submission-form fieldset {
+  margin: 0;
+  padding: 0 0 58px;
+  border: 0;
+}
+.submission-form fieldset + fieldset {
+  padding-top: 54px;
+  border-top: 1px solid var(--wt-color-ink);
+}
+.submission-form legend {
+  padding: 0;
+  font-size: clamp(1.9rem, 3.5vw, 2.8rem);
+  font-weight: var(--wt-font-weight-black);
+  line-height: 1;
+}
+.submission-form fieldset > p {
+  max-width: 680px;
+  margin: 12px 0 28px;
+  color: var(--wt-color-muted);
+}
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 22px;
+}
+.form-grid > div {
+  display: grid;
+  gap: 7px;
+}
+.form-grid__wide {
+  grid-column: 1 / -1;
+}
+.submission-form label {
+  font-size: 0.74rem;
+  font-weight: var(--wt-font-weight-bold);
+}
+.submission-form input:not([type="checkbox"]),
+.submission-form select,
+.submission-form textarea {
+  width: 100%;
+  min-height: 51px;
+  padding: 12px 14px;
+  border: 1px solid var(--wt-color-rule);
+  border-radius: var(--wt-radius-control);
+  background: var(--wt-color-paper);
+  color: var(--wt-color-ink);
+}
+.submission-form textarea {
+  min-height: 130px;
+  resize: vertical;
+}
+.submission-actions {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+.submission-actions p {
+  margin: 0;
+  color: var(--wt-color-muted);
+  font-size: 0.74rem;
+}
+.submission-guidance {
+  position: sticky;
+  top: 24px;
+  padding: 28px;
+  border-radius: var(--wt-radius-panel);
+  background: var(--wt-color-brand-purple);
+  color: var(--wt-color-paper);
+}
+.submission-guidance .eyebrow {
+  color: #f4bbdc;
+}
+.submission-guidance h2 {
+  margin: 0;
+  font-size: 1.8rem;
+  line-height: 1;
+}
+.submission-guidance ul {
+  display: grid;
+  gap: 10px;
+  margin: 24px 0;
+  padding-left: 1.2rem;
+}
+.submission-guidance li,
+.submission-guidance > p:last-child {
+  color: #f7e7f2;
+  font-size: 0.8rem;
+  line-height: 1.5;
+}
+.submission-guidance > p:last-child {
+  margin: 0;
+  padding-top: 20px;
+  border-top: 1px solid rgb(255 255 255 / 28%);
+}
+
 /* Candidate account design preview */
 .account-preview-notice {
   border-bottom: 0;
@@ -1826,6 +1954,99 @@ select {
   margin: 0;
   color: #e6dce4;
 }
+.submission-review-list,
+.employer-review-list {
+  display: grid;
+  gap: 10px;
+}
+.submission-review-list article {
+  display: grid;
+  grid-template-columns: minmax(150px, 0.28fr) minmax(260px, 0.62fr) minmax(220px, 0.4fr) auto;
+  align-items: center;
+  gap: 26px;
+  padding: 24px;
+  border: 1px solid var(--wt-color-rule);
+  border-radius: var(--wt-radius-panel);
+  background: var(--wt-color-paper);
+}
+.submission-review-list article > div:first-child p,
+.submission-review-list article > div:nth-child(2) p {
+  margin: 7px 0 0;
+  color: var(--wt-color-muted);
+  font-size: 0.7rem;
+}
+.submission-review-list h2,
+.employer-review-list h2 {
+  margin: 0;
+  font-size: 1.3rem;
+  line-height: 1.1;
+}
+.submission-review-list dl {
+  display: grid;
+  grid-template-columns: 0.35fr 0.65fr;
+  gap: 16px;
+  margin: 0;
+}
+.submission-review-list dt,
+.employer-review-list dt {
+  margin-bottom: 3px;
+  color: var(--wt-color-muted);
+  font-size: 0.6rem;
+  font-weight: var(--wt-font-weight-bold);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.submission-review-list dd,
+.employer-review-list dd {
+  margin: 0;
+  font-size: 0.76rem;
+  font-weight: var(--wt-font-weight-bold);
+  line-height: 1.35;
+}
+.review-issues--neutral li {
+  border-left-color: var(--wt-color-brand-purple);
+  background: var(--wt-color-cream);
+}
+.staff-body-copy {
+  max-width: 760px;
+  margin: 0;
+  color: var(--wt-color-muted);
+  line-height: 1.65;
+}
+.employer-review-list article {
+  display: grid;
+  grid-template-columns: minmax(280px, 1fr) minmax(140px, 0.22fr) auto;
+  align-items: center;
+  gap: 30px;
+  padding: 24px;
+  border: 1px solid var(--wt-color-rule);
+  border-radius: var(--wt-radius-panel);
+  background: var(--wt-color-paper);
+}
+.employer-review-list h2 {
+  margin-top: 16px;
+}
+.employer-review-list article > div:first-child > p {
+  margin: 8px 0 0;
+  color: var(--wt-color-muted);
+  font-size: 0.75rem;
+}
+.employer-review-list dl {
+  margin: 0;
+}
+.employer-review-actions {
+  display: flex;
+  gap: 9px;
+}
+.employer-review-actions button {
+  white-space: nowrap;
+}
+.employer-review-note {
+  margin-top: 32px;
+  padding: 24px;
+  border-radius: var(--wt-radius-panel);
+  background: var(--wt-color-cream);
+}
 .not-found {
   min-height: 65vh;
   padding-top: 84px;
@@ -2033,6 +2254,8 @@ select {
   .staff-hero,
   .review-hero,
   .review-layout,
+  .submission-hero,
+  .submission-layout,
   .guide-section,
   .home-hero__grid,
   .interior-hero__layout,
@@ -2052,7 +2275,8 @@ select {
   .filter-panel,
   .job-detail-sidebar,
   .employer-profile-facts,
-  .review-actions {
+  .review-actions,
+  .submission-guidance {
     position: static;
   }
   .filter-panel {
@@ -2240,9 +2464,33 @@ select {
   .safe-error-note {
     grid-template-columns: 1fr;
   }
+  .submission-review-list article,
+  .employer-review-list article {
+    grid-template-columns: 1fr 1fr;
+  }
+  .submission-review-list .action,
+  .employer-review-actions {
+    justify-self: start;
+  }
+  .employer-review-actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
   .review-fields > div {
     grid-template-columns: 1fr;
     gap: 5px;
+  }
+  .form-grid,
+  .submission-review-list article,
+  .employer-review-list article {
+    grid-template-columns: 1fr;
+  }
+  .submission-actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+  .submission-actions .action {
+    width: 100%;
   }
   .job-facts-card {
     padding: 23px 20px;

@@ -60,15 +60,15 @@ export default function ForEmployersPage() {
         <div className="shell employer-callout__inner">
           <div>
             <p className="eyebrow">Beta access</p>
-            <h2>Employer submissions are not open yet.</h2>
+            <h2>Preview the controlled submission journey.</h2>
           </div>
           <div>
             <p>
-              This page establishes the experience; the controlled submission route will be designed with the
-              backend.
+              The form is a design preview only. Pricing, beta access and the first approved submission
+              process still need a product decision.
             </p>
-            <Link className="action action--white" href="/jobs">
-              Explore the candidate experience →
+            <Link className="action action--white" href="/for-employers/submit">
+              Preview job submission →
             </Link>
           </div>
         </div>
