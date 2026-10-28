@@ -17,8 +17,8 @@ export default async function AdminLayout({ children }: { children: ReactNode })
       <aside className="staff-preview-notice">
         <div className="shell">
           <strong>Secure staff workspace:</strong> Signed in as {staff.email ?? "WildJobs staff"} (
-          {staff.role}). Job review and submission screens still contain clearly labelled examples until their
-          next build stage.
+          {staff.role}). Import, employer and submission screens still contain clearly labelled examples until
+          their next build stage.
         </div>
       </aside>
       <nav className="staff-nav shell" aria-label="Staff workspace">

@@ -2204,6 +2204,25 @@ select {
   width: 100%;
   margin-bottom: 9px;
 }
+.review-actions > .action,
+.review-publication .action {
+  width: 100%;
+  margin-bottom: 9px;
+}
+.review-publication {
+  margin: 22px 0 14px;
+  padding-top: 20px;
+  border-top: 1px solid var(--wt-color-rule);
+}
+.review-publication > p,
+.review-permission-note {
+  color: var(--wt-color-muted);
+  font-size: 0.7rem;
+  line-height: 1.5;
+}
+.review-publication form {
+  margin-top: 16px;
+}
 .staff-danger-action {
   min-height: 46px;
   padding: 12px 18px;

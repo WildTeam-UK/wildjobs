@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import { publishJobReview } from "@/app/admin/jobs/actions";
+import { PublishJobForm } from "@/components/admin/publish-job-form";
 import { requireStaff } from "@/lib/auth/staff";
 import { formatDate } from "@/lib/jobs";
 import { createClient } from "@/lib/supabase/server";
@@ -10,7 +12,7 @@ export const metadata: Metadata = { title: "Review vacancy" };
 
 type ReviewPageProps = {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ status?: string }>;
+  searchParams: Promise<{ error?: string; status?: string }>;
 };
 
 const labels: Record<string, string> = {
@@ -30,8 +32,10 @@ const labels: Record<string, string> = {
   open: "Open",
   part_time: "Part time",
   permanent: "Permanent",
+  published: "Published",
   remote: "Remote",
   temporary: "Temporary",
+  updated: "Review updated",
 };
 
 function label(value: string | null) {
@@ -47,7 +51,7 @@ function formatDateTime(value: string) {
 }
 
 export default async function ReviewJobPage({ params, searchParams }: ReviewPageProps) {
-  await requireStaff();
+  const staff = await requireStaff();
   const id = Number((await params).id);
   if (!Number.isSafeInteger(id) || id < 1) notFound();
 
@@ -56,7 +60,7 @@ export default async function ReviewJobPage({ params, searchParams }: ReviewPage
     supabase
       .from("jobs")
       .select(
-        "id, title, summary, description, responsibilities, requirements, status, location_text, country_code, workplace_type, contract_type, hours_type, experience_level, salary_text, application_url, posted_at, closes_at, employers(name, website_url)",
+        "id, title, summary, description, responsibilities, requirements, status, location_text, country_code, workplace_type, contract_type, hours_type, experience_level, salary_text, application_url, posted_at, closes_at, employers(name, website_url, mission, overview, status)",
       )
       .eq("id", id)
       .maybeSingle(),
@@ -76,8 +80,14 @@ export default async function ReviewJobPage({ params, searchParams }: ReviewPage
   const job = jobResult.data;
   const source = sourceResult.data?.[0];
   const events = eventResult.data ?? [];
-  const created = (await searchParams).status === "created";
+  const query = await searchParams;
+  const created = query.status === "created";
+  const updated = query.status === "updated";
+  const published = query.status === "published";
+  const publicationError = query.error === "publication-check";
   const statusLabel = label(job.status);
+  const isPublished = job.status === "published";
+  const publish = publishJobReview.bind(null, id);
 
   return (
     <main className="staff-page">
@@ -91,6 +101,30 @@ export default async function ReviewJobPage({ params, searchParams }: ReviewPage
         <div className="shell">
           <p className="staff-form-message" role="status">
             Review draft created. It is private and has not been published.
+          </p>
+        </div>
+      ) : null}
+
+      {updated ? (
+        <div className="shell">
+          <p className="staff-form-message" role="status">
+            Reviewed details saved. The vacancy is still private.
+          </p>
+        </div>
+      ) : null}
+
+      {published ? (
+        <div className="shell">
+          <p className="staff-form-message" role="status">
+            Vacancy approved and published to the live catalogue.
+          </p>
+        </div>
+      ) : null}
+
+      {publicationError ? (
+        <div className="shell">
+          <p className="staff-form-message staff-form-message--error" role="alert">
+            Publication was stopped. Check the required vacancy, employer and source details, then try again.
           </p>
         </div>
       ) : null}
@@ -227,13 +261,34 @@ export default async function ReviewJobPage({ params, searchParams }: ReviewPage
           </section>
         </article>
 
-        <aside className="review-actions" aria-label="Review state">
-          <p className="eyebrow">Private review draft</p>
-          <h2>Nothing is public yet.</h2>
-          <p>
-            Check the original source against every field. Editing and publication decisions are the next
-            controlled part of this workflow.
-          </p>
+        <aside className="review-actions" aria-label="Review actions">
+          <p className="eyebrow">{isPublished ? "Live catalogue" : "Private review draft"}</p>
+          <h2>{isPublished ? "This record is approved." : "Nothing is public yet."}</h2>
+          {isPublished ? (
+            <p>
+              The vacancy and employer have passed the publication checks. The next build stage connects the
+              public job pages to this live catalogue.
+            </p>
+          ) : (
+            <>
+              <p>Check the original source against every field before making a publication decision.</p>
+              <Link className="action action--outline" href={`/admin/jobs/${id}/edit`}>
+                Edit reviewed details
+              </Link>
+              {staff.role === "admin" ? (
+                <div className="review-publication">
+                  <strong>Administrator decision</strong>
+                  <p>
+                    Publishing makes the database record readable by the public. This action is recorded in
+                    the audit history.
+                  </p>
+                  <PublishJobForm action={publish} />
+                </div>
+              ) : (
+                <p className="review-permission-note">An administrator must make the publication decision.</p>
+              )}
+            </>
+          )}
           <Link className="action action--outline" href="/admin/jobs">
             Return to queue
           </Link>

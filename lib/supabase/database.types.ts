@@ -975,6 +975,36 @@ export type Database = {
         };
         Returns: number;
       };
+      publish_job_review_draft: {
+        Args: { p_job_id: number };
+        Returns: string;
+      };
+      update_job_review_draft: {
+        Args: {
+          p_application_url: string;
+          p_canonical_url: string;
+          p_closes_at: string;
+          p_contract_type: string;
+          p_country_code: string;
+          p_description: string;
+          p_employer_mission: string;
+          p_employer_overview: string;
+          p_employer_website_url: string | null;
+          p_experience_level: string;
+          p_hours_type: string;
+          p_job_id: number;
+          p_job_slug: string;
+          p_location_text: string;
+          p_posted_at: string | null;
+          p_requirements: string;
+          p_responsibilities: string;
+          p_salary_text: string;
+          p_summary: string;
+          p_title: string;
+          p_workplace_type: string;
+        };
+        Returns: number;
+      };
     };
     Enums: {
       [_ in never]: never;

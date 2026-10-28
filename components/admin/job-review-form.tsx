@@ -1,0 +1,283 @@
+"use client";
+
+import { useActionState } from "react";
+
+import { type JobReviewActionState, updateJobReview } from "@/app/admin/jobs/actions";
+import { SubmitButton } from "@/components/submit-button";
+
+export type ReviewFormValues = {
+  applicationUrl: string;
+  canonicalUrl: string;
+  closesAt: string;
+  contractType: string;
+  countryCode: string;
+  description: string;
+  employerMission: string;
+  employerName: string;
+  employerOverview: string;
+  employerWebsiteUrl: string;
+  experienceLevel: string;
+  hoursType: string;
+  locationText: string;
+  postedAt: string;
+  requirements: string;
+  responsibilities: string;
+  salaryText: string;
+  summary: string;
+  title: string;
+  workplaceType: string;
+};
+
+const initialState: JobReviewActionState = { error: null };
+
+export function JobReviewForm({
+  jobId,
+  today,
+  values,
+}: {
+  jobId: number;
+  today: string;
+  values: ReviewFormValues;
+}) {
+  const update = updateJobReview.bind(null, jobId);
+  const [state, action] = useActionState(update, initialState);
+
+  return (
+    <form action={action} className="staff-job-form">
+      {state.error ? (
+        <p aria-live="polite" className="staff-form-message staff-form-message--error" role="alert">
+          {state.error}
+        </p>
+      ) : null}
+
+      <fieldset>
+        <legend>Source and employer</legend>
+        <p>Check the authoritative vacancy page and add enough employer context for a trustworthy listing.</p>
+        <div className="staff-job-form__grid">
+          <div className="staff-job-form__wide">
+            <label htmlFor="canonical-url">Original vacancy URL</label>
+            <input
+              defaultValue={values.canonicalUrl}
+              id="canonical-url"
+              name="canonicalUrl"
+              required
+              type="url"
+            />
+          </div>
+          <div>
+            <label htmlFor="employer-name">Employer</label>
+            <input disabled id="employer-name" value={values.employerName} />
+          </div>
+          <div>
+            <label htmlFor="employer-website-url">Employer website</label>
+            <input
+              defaultValue={values.employerWebsiteUrl}
+              id="employer-website-url"
+              name="employerWebsiteUrl"
+              required
+              type="url"
+            />
+          </div>
+          <div className="staff-job-form__wide">
+            <label htmlFor="employer-mission">Employer mission</label>
+            <textarea
+              defaultValue={values.employerMission}
+              id="employer-mission"
+              maxLength={400}
+              name="employerMission"
+              required
+              rows={3}
+            />
+            <small>20–400 characters, written as a factual summary.</small>
+          </div>
+          <div className="staff-job-form__wide">
+            <label htmlFor="employer-overview">Employer overview</label>
+            <textarea
+              defaultValue={values.employerOverview}
+              id="employer-overview"
+              maxLength={1200}
+              name="employerOverview"
+              required
+              rows={5}
+            />
+            <small>40–1,200 characters explaining who the organisation is and what it does.</small>
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Vacancy copy</legend>
+        <div className="staff-job-form__grid">
+          <div className="staff-job-form__wide">
+            <label htmlFor="title">Job title</label>
+            <input defaultValue={values.title} id="title" maxLength={180} name="title" required />
+          </div>
+          <div className="staff-job-form__wide">
+            <label htmlFor="summary">Short summary</label>
+            <textarea
+              defaultValue={values.summary}
+              id="summary"
+              maxLength={500}
+              name="summary"
+              required
+              rows={3}
+            />
+          </div>
+          <div className="staff-job-form__wide">
+            <label htmlFor="description">Description</label>
+            <textarea
+              defaultValue={values.description}
+              id="description"
+              maxLength={20000}
+              name="description"
+              required
+              rows={9}
+            />
+          </div>
+          <div className="staff-job-form__wide">
+            <label htmlFor="responsibilities">
+              Responsibilities <span>(optional)</span>
+            </label>
+            <textarea
+              defaultValue={values.responsibilities}
+              id="responsibilities"
+              maxLength={12000}
+              name="responsibilities"
+              rows={5}
+            />
+          </div>
+          <div className="staff-job-form__wide">
+            <label htmlFor="requirements">
+              Requirements <span>(optional)</span>
+            </label>
+            <textarea
+              defaultValue={values.requirements}
+              id="requirements"
+              maxLength={12000}
+              name="requirements"
+              rows={5}
+            />
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Place and working pattern</legend>
+        <div className="staff-job-form__grid">
+          <div>
+            <label htmlFor="location-text">Location as advertised</label>
+            <input
+              defaultValue={values.locationText}
+              id="location-text"
+              maxLength={240}
+              name="locationText"
+              required
+            />
+          </div>
+          <div>
+            <label htmlFor="country-code">Country code</label>
+            <input
+              defaultValue={values.countryCode}
+              id="country-code"
+              maxLength={2}
+              name="countryCode"
+              required
+            />
+          </div>
+          <div>
+            <label htmlFor="workplace-type">Workplace</label>
+            <select defaultValue={values.workplaceType} id="workplace-type" name="workplaceType" required>
+              <option value="remote">Remote</option>
+              <option value="hybrid">Hybrid</option>
+              <option value="on_site">On-site</option>
+            </select>
+          </div>
+          <div>
+            <label htmlFor="contract-type">Contract</label>
+            <select defaultValue={values.contractType} id="contract-type" name="contractType" required>
+              <option value="permanent">Permanent</option>
+              <option value="fixed_term">Fixed term</option>
+              <option value="temporary">Temporary</option>
+              <option value="internship">Internship</option>
+              <option value="apprenticeship">Apprenticeship</option>
+            </select>
+          </div>
+          <div>
+            <label htmlFor="hours-type">Hours</label>
+            <select defaultValue={values.hoursType} id="hours-type" name="hoursType" required>
+              <option value="full_time">Full time</option>
+              <option value="part_time">Part time</option>
+              <option value="flexible">Flexible</option>
+            </select>
+          </div>
+          <div>
+            <label htmlFor="experience-level">Experience level</label>
+            <select
+              defaultValue={values.experienceLevel}
+              id="experience-level"
+              name="experienceLevel"
+              required
+            >
+              <option value="entry">Entry</option>
+              <option value="developing">Developing</option>
+              <option value="experienced">Experienced</option>
+              <option value="leadership">Leadership</option>
+              <option value="open">Open</option>
+            </select>
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Salary, dates and application</legend>
+        <div className="staff-job-form__grid">
+          <div className="staff-job-form__wide">
+            <label htmlFor="salary-text">Salary as advertised</label>
+            <input
+              defaultValue={values.salaryText}
+              id="salary-text"
+              maxLength={240}
+              name="salaryText"
+              required
+            />
+          </div>
+          <div>
+            <label htmlFor="posted-at">
+              Published by employer <span>(optional)</span>
+            </label>
+            <input defaultValue={values.postedAt} id="posted-at" name="postedAt" type="date" />
+          </div>
+          <div>
+            <label htmlFor="closes-at">Closing date</label>
+            <input
+              defaultValue={values.closesAt}
+              id="closes-at"
+              min={today}
+              name="closesAt"
+              required
+              type="date"
+            />
+          </div>
+          <div className="staff-job-form__wide">
+            <label htmlFor="application-url">Application URL</label>
+            <input
+              defaultValue={values.applicationUrl}
+              id="application-url"
+              name="applicationUrl"
+              required
+              type="url"
+            />
+          </div>
+        </div>
+      </fieldset>
+
+      <div className="staff-job-form__actions">
+        <div>
+          <strong>Saving still does not publish the vacancy.</strong>
+          <p>It rechecks the source, updates the private review record and appends an audit entry.</p>
+        </div>
+        <SubmitButton idleLabel="Save reviewed details" pendingLabel="Saving review…" />
+      </div>
+    </form>
+  );
+}
