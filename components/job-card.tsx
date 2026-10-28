@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { formatDate, type Job } from "@/lib/jobs";
 
-export function JobCard({ job }: { job: Job }) {
+export function JobCard({ job, showSaveAction = true }: { job: Job; showSaveAction?: boolean }) {
   return (
     <article className="job-card">
       <div className="job-card__topline">
@@ -33,9 +33,19 @@ export function JobCard({ job }: { job: Job }) {
           <dd>{formatDate(job.closesAt)}</dd>
         </div>
       </dl>
-      <Link className="text-link" href={`/jobs/${job.slug}`}>
-        View listing <span aria-hidden="true">→</span>
-      </Link>
+      <div className="job-card__actions">
+        <Link className="text-link" href={`/jobs/${job.slug}`}>
+          View listing <span aria-hidden="true">→</span>
+        </Link>
+        {showSaveAction ? (
+          <Link
+            className="save-action"
+            href={{ pathname: "/sign-in", query: { intent: "save", next: `/jobs/${job.slug}` } }}
+          >
+            <span aria-hidden="true">♡</span> Save job
+          </Link>
+        ) : null}
+      </div>
     </article>
   );
 }

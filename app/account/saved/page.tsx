@@ -1,34 +1,46 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { JobCard } from "@/components/job-card";
+import { jobs } from "@/lib/jobs";
 
 export const metadata: Metadata = { title: "Saved jobs" };
 
 export default function SavedJobsPage() {
+  const savedJobs = [jobs[0], jobs[5]];
+
   return (
     <main>
-      <section className="interior-hero">
-        <div className="shell interior-hero__layout">
+      <section className="account-hero account-hero--compact">
+        <div className="shell account-hero__layout">
           <div>
             <p className="eyebrow">Saved jobs</p>
             <h1>Keep promising opportunities close.</h1>
           </div>
-          <p>
-            Your future WildJobs account will bring saved roles, closing dates and preferences together here.
-          </p>
+          <p>Review your shortlist and closing dates without losing where you were in your search.</p>
         </div>
       </section>
       <section className="content-section">
-        <div className="shell empty-saved">
-          <span aria-hidden="true">♡</span>
-          <p className="eyebrow">Design preview</p>
-          <h2>No saved jobs yet.</h2>
-          <p>
-            Accounts are not connected in this prototype. For now, explore the fictional roles and imagine
-            this as your personal shortlist.
-          </p>
-          <Link className="action" href="/jobs">
-            Find jobs <span aria-hidden="true">→</span>
-          </Link>
+        <div className="shell">
+          <div className="job-results__heading">
+            <h2>Your shortlist</h2>
+            <p>2 demonstration roles</p>
+          </div>
+          <div className="job-list">
+            {savedJobs.map((job) => (
+              <JobCard job={job} key={job.slug} showSaveAction={false} />
+            ))}
+          </div>
+          <div className="saved-jobs-footer">
+            <p>Looking for something different? Your preferences can make the next visit more useful.</p>
+            <div>
+              <Link className="action" href="/jobs">
+                Find more jobs <span aria-hidden="true">→</span>
+              </Link>
+              <Link className="action action--outline" href="/account/preferences">
+                Update preferences
+              </Link>
+            </div>
+          </div>
         </div>
       </section>
     </main>

@@ -145,7 +145,13 @@ export default async function JobPage({ params }: JobPageProps) {
             <p className="job-facts-card__notice">
               This is fictional prototype content. Applications are not available.
             </p>
-            <Link className="primary-action" href="/">
+            <Link
+              className="save-action save-action--card"
+              href={{ pathname: "/sign-in", query: { intent: "save", next: `/jobs/${job.slug}` } }}
+            >
+              <span aria-hidden="true">♡</span> Save this role
+            </Link>
+            <Link className="primary-action" href="/jobs">
               Explore other roles
             </Link>
           </div>
