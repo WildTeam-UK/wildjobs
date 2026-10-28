@@ -1,6 +1,6 @@
 # WildJobs implementation plan
 
-**Status:** Draft for approval  
+**Status:** Approved as the beta planning baseline on 2026-10-28
 **Purpose:** Replace the scaffold-led view of WildJobs with a product-led plan before database or production implementation begins.
 
 ## Product ambition
@@ -48,6 +48,7 @@ The existing fixture-based prototype is a design and interaction reference only.
 - Search across approved active vacancies.
 - Useful filters for category, location, remote or hybrid status, employment type, experience level and salary where the source provides it.
 - Curated collection pages such as early-career roles, remote opportunities, field roles and closing soon.
+- Course-aware discovery that lets anyone select a WildTeam course and find roles related to the capabilities it covers.
 - Rich job detail pages with structured metadata and visible source attribution.
 - Employer profile pages showing approved organisation information and active roles.
 - Career-facing supporting content or signposts where it genuinely improves the journey.
@@ -90,7 +91,7 @@ Optional analytics must not run before the applicable consent state permits them
 - Hosting job applications inside WildJobs.
 - Employer payments and fully automated self-service publishing.
 - AI matching, ranking or generated job content.
-- LearnWorlds account linking, training recommendations or course-progress synchronisation.
+- Verified LearnWorlds account linking and automatic use of completed-course data. Public course-based discovery remains in the beta scope.
 - Shared WildTeam single sign-on.
 - A central cross-application analytics backend or unified user dashboard.
 - Native mobile applications.
@@ -147,5 +148,6 @@ Each slice includes accessibility, responsive behaviour, security, tests and mea
 4. What is the controlled first version of employer submission?
 5. Which career collections and information architecture should lead the homepage?
 6. Which measurement provider receives the approved event contract during the beta?
+7. Which LearnWorlds course identifiers, public metadata and learning outcomes are approved for the beta course-to-capability mapping?
 
 Until these decisions are approved, the fixture prototype may be refined for design exploration but must not be treated as the production data model.
