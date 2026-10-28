@@ -3,7 +3,7 @@
 
 :root {
   --wt-font-family-brand: var(--font-vag-rounded), "VAG Rounded", Arial, sans-serif;
-  --page-width: 1240px;
+  --page-width: var(--wt-layout-content-max-width, 77.5rem);
 }
 
 * {
@@ -39,7 +39,10 @@ select {
 }
 
 .shell {
-  width: min(var(--page-width), calc(100% - 48px));
+  width: min(
+    var(--page-width),
+    calc(100% - var(--wt-layout-page-gutter, 1.5rem) - var(--wt-layout-page-gutter, 1.5rem))
+  );
   margin-inline: auto;
 }
 .eyebrow {
@@ -105,7 +108,7 @@ select {
 }
 .site-header__inner {
   display: flex;
-  min-height: 94px;
+  min-height: var(--wt-layout-site-header-height, 5.875rem);
   align-items: center;
   justify-content: space-between;
   gap: var(--wt-space-6);
@@ -114,10 +117,10 @@ select {
   display: inline-flex;
   flex: 0 0 auto;
   align-items: baseline;
-  font-size: clamp(24px, 3vw, 38px);
+  font-size: var(--wt-font-size-site-wordmark, clamp(1.5rem, 3vw, 2.375rem));
   font-weight: var(--wt-font-weight-black);
   line-height: 1;
-  letter-spacing: -0.015em;
+  letter-spacing: var(--wt-font-tracking-site-wordmark, -0.015em);
 }
 .brand__wordmark {
   font-size: inherit;
@@ -1117,10 +1120,16 @@ select {
   border-radius: var(--wt-radius-panel);
 }
 
-@media (max-width: 900px) {
-  .brand {
-    font-size: 28px;
+@media (max-width: 1040px) {
+  .site-header__inner {
+    min-height: var(--wt-layout-site-header-height-tablet, 4.875rem);
   }
+  .brand {
+    font-size: var(--wt-font-size-site-wordmark-tablet, 1.75rem);
+  }
+}
+
+@media (max-width: 900px) {
   .jobs-hero__grid,
   .guide-hero__layout,
   .job-browser__layout,
@@ -1166,19 +1175,12 @@ select {
 }
 
 @media (max-width: 640px) {
-  .shell {
-    width: min(100% - 30px, var(--page-width));
-  }
   .site-header__inner {
-    min-height: 74px;
     align-items: flex-start;
     flex-direction: column;
     justify-content: center;
     padding-top: 18px;
     padding-bottom: 18px;
-  }
-  .brand {
-    font-size: 25px;
   }
   .site-nav {
     width: 100%;
@@ -1278,6 +1280,24 @@ select {
   .guide-demo,
   .inline-cta {
     padding: 24px 20px;
+  }
+}
+
+@media (max-width: 560px) {
+  .shell {
+    width: min(
+      var(--page-width),
+      calc(
+        100% - var(--wt-layout-page-gutter-compact, 0.9375rem) -
+          var(--wt-layout-page-gutter-compact, 0.9375rem)
+      )
+    );
+  }
+  .site-header__inner {
+    min-height: var(--wt-layout-site-header-height-phone, 4.625rem);
+  }
+  .brand {
+    font-size: var(--wt-font-size-site-wordmark-phone, 1.5625rem);
   }
 }
 
