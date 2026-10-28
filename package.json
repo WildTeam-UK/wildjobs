@@ -12,6 +12,7 @@
     "db:reset": "supabase db reset",
     "db:test": "supabase test db",
     "db:lint": "supabase db lint --level error",
+    "db:check-connection": "node --env-file=.env.local scripts/check-supabase.mjs",
     "typecheck": "tsc --noEmit",
     "lint": "oxlint . --deny-warnings",
     "format": "oxfmt .",
@@ -20,11 +21,14 @@
     "check": "pnpm format:check && pnpm typecheck && pnpm lint && pnpm test && pnpm build"
   },
   "dependencies": {
+    "@supabase/ssr": "0.12.7",
+    "@supabase/supabase-js": "2.118.0",
     "@wildteam-uk/tokens": "0.3.0",
     "@wildteam-uk/ui": "0.2.1",
     "next": "16.4.3",
     "react": "19.3.1",
-    "react-dom": "19.3.1"
+    "react-dom": "19.3.1",
+    "server-only": "0.0.1"
   },
   "devDependencies": {
     "@types/node": "22.19.19",
