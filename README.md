@@ -44,6 +44,9 @@ that pass essential source, duplicate, identity, destination and lifetime checks
 employer-profile enrichment continue without delaying a usable listing. AI-generated job and employer summaries
 are stored separately from source and official copy and are labelled in the public experience. When a source has
 no closing date, the listing remains eligible for 30 days from first discovery and visibly reports its age.
+Once enrichment work is clear, each heartbeat also refreshes a bounded batch of decisions made under an older
+publication policy. Shadow mode can refresh ten decisions without another AI call; live mode remains limited to
+one decision per heartbeat so a policy change cannot suddenly publish a large batch.
 
 Run the complete local checks with:
 

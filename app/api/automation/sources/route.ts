@@ -1,4 +1,5 @@
 import { isAutomationRequestAuthorized } from "@/lib/admin/automation-auth";
+import { reevaluateStalePublicationDecisions } from "@/lib/admin/automation-publication";
 import { enrichNextPendingSourceRecord } from "@/lib/admin/source-enrichment";
 import { importApprovedSource } from "@/lib/admin/source-import";
 import { getSourceConnector } from "@/lib/admin/source-connector";
@@ -20,10 +21,20 @@ export async function POST(request: Request) {
 
     if (!claimed) {
       const enrichment = await enrichNextPendingSourceRecord(supabase, "automation");
+      const publication =
+        enrichment.status === "idle"
+          ? await reevaluateStalePublicationDecisions(supabase)
+          : { attempted: 0, blocked: 0, failed: 0, published: 0, ready: 0 };
       return Response.json({
-        action: enrichment.status === "idle" ? "idle" : "enriched",
+        action:
+          enrichment.status !== "idle"
+            ? "enriched"
+            : publication.attempted
+              ? "publication_reevaluated"
+              : "idle",
         enrichment,
-        ok: enrichment.status !== "failed",
+        ok: enrichment.status !== "failed" && publication.failed === 0,
+        publication,
       });
     }
 

@@ -17,6 +17,14 @@ type AutomationResult = {
   status: "blocked" | "failed" | "published" | "ready";
 };
 
+export type PublicationReevaluationSummary = {
+  attempted: number;
+  blocked: number;
+  failed: number;
+  published: number;
+  ready: number;
+};
+
 function isAutoPublishEnabled() {
   return process.env.AUTO_PUBLISH_ENABLED === "true";
 }
@@ -181,4 +189,36 @@ export async function evaluateAndMaybePublishSourceRecord(
     });
     return { blockers: [], score: 0, status: "failed" };
   }
+}
+
+export async function reevaluateStalePublicationDecisions(
+  supabase: SupabaseClient<Database>,
+): Promise<PublicationReevaluationSummary> {
+  const batchSize = isAutoPublishEnabled() ? 1 : 10;
+  const { data: records, error } = await supabase
+    .from("job_source_records")
+    .select("id")
+    .is("job_id", null)
+    .in("mapping_status", ["unmapped", "possible_duplicate"])
+    .in("enrichment_status", ["complete", "failed", "needs_review", "skipped"])
+    .or(
+      `automation_policy_version.is.null,automation_policy_version.neq.${AUTOMATION_PUBLICATION_POLICY_VERSION}`,
+    )
+    .order("first_seen_at")
+    .limit(batchSize);
+  if (error) throw new Error("Stale publication decisions could not be read.");
+
+  const summary: PublicationReevaluationSummary = {
+    attempted: 0,
+    blocked: 0,
+    failed: 0,
+    published: 0,
+    ready: 0,
+  };
+  for (const record of records ?? []) {
+    const result = await evaluateAndMaybePublishSourceRecord(supabase, record.id);
+    summary.attempted += 1;
+    summary[result.status] += 1;
+  }
+  return summary;
 }
