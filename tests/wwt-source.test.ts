@@ -28,20 +28,32 @@ describe("WWT vacancy source", () => {
       {
         canonicalUrl: "https://vacancies.wwt.org.uk/vacancies/971/researcher-wetland-bioscience.html",
         closesAt: "2026-11-01",
+        employer: "WWT",
         externalId: "971",
+        location: null,
+        publishedAt: null,
+        summary: null,
         title: "Researcher, Wetland & BioScience",
       },
       {
         canonicalUrl: "https://vacancies.wwt.org.uk/vacancies/981/reserve-warden.html",
         closesAt: "2026-11-06",
+        employer: "WWT",
         externalId: "981",
+        location: null,
+        publishedAt: null,
+        summary: null,
         title: "Reserve Warden",
       },
       {
         canonicalUrl:
           "https://vacancies.wwt.org.uk/vacancies/35/volunteer-educational-activities-assistant.html",
         closesAt: null,
+        employer: "WWT",
         externalId: "35",
+        location: null,
+        publishedAt: null,
+        summary: null,
         title: "Volunteer Activities Assistant",
       },
     ]);

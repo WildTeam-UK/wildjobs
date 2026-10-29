@@ -29,6 +29,13 @@ function formatTimestamp(value: string) {
   }).format(new Date(value));
 }
 
+function formatDate(value: string) {
+  return new Intl.DateTimeFormat("en-GB", {
+    dateStyle: "medium",
+    timeZone: "Europe/London",
+  }).format(new Date(`${value}T12:00:00Z`));
+}
+
 export default async function SourcePage({ params, searchParams }: SourcePageProps) {
   const staff = await requireStaff();
   const sourceId = Number((await params).id);
@@ -43,7 +50,9 @@ export default async function SourcePage({ params, searchParams }: SourcePagePro
       .maybeSingle(),
     supabase
       .from("job_source_records")
-      .select("id, external_id, canonical_url, mapping_status, job_id, first_seen_at, last_seen_at")
+      .select(
+        "id, external_id, canonical_url, mapping_status, job_id, first_seen_at, last_seen_at, source_title, employer_name, location_text, closes_at",
+      )
       .eq("source_id", sourceId)
       .order("last_seen_at", { ascending: false }),
   ]);
@@ -118,10 +127,22 @@ export default async function SourcePage({ params, searchParams }: SourcePagePro
                     <span className="status-badge">
                       {mappingLabels[record.mapping_status] ?? record.mapping_status}
                     </span>
-                    <h2>
-                      Source vacancy {record.external_id ? `#${record.external_id}` : `record ${record.id}`}
-                    </h2>
-                    <p>
+                    <h2>{record.source_title ?? "Untitled source vacancy"}</h2>
+                    <dl className="source-record-list__details">
+                      <div>
+                        <dt>Employer</dt>
+                        <dd>{record.employer_name ?? source.name}</dd>
+                      </div>
+                      <div>
+                        <dt>Location</dt>
+                        <dd>{record.location_text ?? "Check original vacancy"}</dd>
+                      </div>
+                      <div>
+                        <dt>Closing date</dt>
+                        <dd>{record.closes_at ? formatDate(record.closes_at) : "Check original vacancy"}</dd>
+                      </div>
+                    </dl>
+                    <p className="source-record-list__seen">
                       First seen {formatTimestamp(record.first_seen_at)} · last checked{" "}
                       {formatTimestamp(record.last_seen_at)}
                     </p>

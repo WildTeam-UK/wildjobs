@@ -172,9 +172,15 @@ export async function runSourceDiscovery(formData: FormData) {
           .from("job_source_records")
           .update({
             canonical_url: vacancy.canonicalUrl,
+            closes_at: vacancy.closesAt,
             content_hash: contentHash,
+            employer_name: vacancy.employer,
             external_id: vacancy.externalId,
             last_seen_at: seenAt,
+            location_text: vacancy.location,
+            source_title: vacancy.title,
+            source_updated_at: vacancy.publishedAt,
+            summary: vacancy.summary,
           })
           .eq("id", existing.id);
         if (error) throw new Error("A source record could not be updated.");
@@ -185,12 +191,18 @@ export async function runSourceDiscovery(formData: FormData) {
 
       const { error } = await supabase.from("job_source_records").insert({
         canonical_url: vacancy.canonicalUrl,
+        closes_at: vacancy.closesAt,
         content_hash: contentHash,
+        employer_name: vacancy.employer,
         external_id: vacancy.externalId,
         first_seen_at: seenAt,
         last_seen_at: seenAt,
+        location_text: vacancy.location,
         mapping_status: "unmapped",
         source_id: source.id,
+        source_title: vacancy.title,
+        source_updated_at: vacancy.publishedAt,
+        summary: vacancy.summary,
       });
       if (error) throw new Error("A source record could not be created.");
       recordsCreated += 1;

@@ -1905,15 +1905,46 @@ select {
   border: 1px solid var(--wt-color-rule);
   border-radius: var(--wt-radius-panel);
   background: var(--wt-color-paper);
+  content-visibility: auto;
+  contain-intrinsic-size: auto 170px;
 }
 .source-record-list h2 {
   margin: 14px 0 5px;
   font-size: 1.3rem;
 }
+.source-record-list article > div:first-child {
+  min-width: 0;
+  flex: 1;
+}
+.source-record-list__details {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 24px;
+  margin: 12px 0;
+}
+.source-record-list__details div {
+  display: grid;
+  gap: 2px;
+}
+.source-record-list__details dt {
+  color: var(--wt-color-muted);
+  font-size: 0.64rem;
+  font-weight: var(--wt-font-weight-bold);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.source-record-list__details dd {
+  margin: 0;
+  font-size: 0.8rem;
+  font-weight: var(--wt-font-weight-bold);
+}
 .source-record-list p {
   margin: 0;
   color: var(--wt-color-muted);
   font-size: 0.78rem;
+}
+.source-record-list .source-record-list__seen {
+  font-size: 0.7rem;
 }
 .source-record-list__actions {
   display: grid;

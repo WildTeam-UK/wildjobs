@@ -20,7 +20,9 @@ export default async function NewAdminJobPage({ searchParams }: NewAdminJobPageP
     Number.isSafeInteger(recordId) && recordId > 0
       ? supabase
           .from("job_source_records")
-          .select("id, source_id, canonical_url, mapping_status, job_id, job_sources(name, is_active)")
+          .select(
+            "id, source_id, canonical_url, mapping_status, job_id, source_title, employer_name, location_text, closes_at, source_updated_at, job_sources(name, is_active)",
+          )
           .eq("id", recordId)
           .maybeSingle()
       : Promise.resolve({ data: null, error: null }),
@@ -38,8 +40,12 @@ export default async function NewAdminJobPage({ searchParams }: NewAdminJobPageP
       ? {
           applicationUrl: canonicalUrl,
           canonicalUrl,
-          employerName: sourceRecord.job_sources?.name,
+          closesAt: sourceRecord.closes_at ?? undefined,
+          employerName: (sourceRecord.employer_name ?? sourceRecord.job_sources?.name)?.slice(0, 160),
+          locationText: sourceRecord.location_text ?? undefined,
+          postedAt: sourceRecord.source_updated_at?.slice(0, 10),
           sourceId: sourceRecord.source_id,
+          title: sourceRecord.source_title?.slice(0, 180),
         }
       : undefined;
 

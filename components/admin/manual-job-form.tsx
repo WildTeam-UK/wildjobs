@@ -10,8 +10,12 @@ type VacancySource = { id: number; name: string };
 type ManualJobDefaults = {
   applicationUrl?: string;
   canonicalUrl?: string;
+  closesAt?: string;
   employerName?: string;
+  locationText?: string;
+  postedAt?: string;
   sourceId?: number;
+  title?: string;
 };
 
 const initialState: JobIntakeActionState = { error: null };
@@ -86,7 +90,7 @@ export function ManualJobForm({
         <div className="staff-job-form__grid">
           <div className="staff-job-form__wide">
             <label htmlFor="title">Job title</label>
-            <input id="title" maxLength={180} name="title" required />
+            <input defaultValue={defaults?.title} id="title" maxLength={180} name="title" required />
           </div>
           <div className="staff-job-form__wide">
             <label htmlFor="summary">Short summary</label>
@@ -117,7 +121,13 @@ export function ManualJobForm({
         <div className="staff-job-form__grid">
           <div>
             <label htmlFor="location-text">Location as advertised</label>
-            <input id="location-text" maxLength={240} name="locationText" required />
+            <input
+              defaultValue={defaults?.locationText}
+              id="location-text"
+              maxLength={240}
+              name="locationText"
+              required
+            />
           </div>
           <div>
             <label htmlFor="country-code">Country code</label>
@@ -177,11 +187,18 @@ export function ManualJobForm({
             <label htmlFor="posted-at">
               Published by employer <span>(optional)</span>
             </label>
-            <input id="posted-at" name="postedAt" type="date" />
+            <input defaultValue={defaults?.postedAt} id="posted-at" name="postedAt" type="date" />
           </div>
           <div>
             <label htmlFor="closes-at">Closing date</label>
-            <input id="closes-at" min={today} name="closesAt" required type="date" />
+            <input
+              defaultValue={defaults?.closesAt}
+              id="closes-at"
+              min={today}
+              name="closesAt"
+              required
+              type="date"
+            />
           </div>
           <div className="staff-job-form__wide">
             <label htmlFor="application-url">Application URL</label>

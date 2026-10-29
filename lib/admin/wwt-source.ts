@@ -3,7 +3,11 @@ export const WWT_SEARCH_URL = "https://vacancies.wwt.org.uk/vacancies/vacancy-se
 export type WwtVacancy = {
   canonicalUrl: string;
   closesAt: string | null;
+  employer: string | null;
   externalId: string;
+  location: string | null;
+  publishedAt: string | null;
+  summary: string | null;
   title: string;
 };
 
@@ -105,7 +109,11 @@ export function parseWwtVacancies(html: string): WwtVacancy[] {
       vacancies.set(pathMatch[1], {
         canonicalUrl: canonicalUrl.toString(),
         closesAt,
+        employer: "WWT",
         externalId: pathMatch[1],
+        location: null,
+        publishedAt: null,
+        summary: null,
         title,
       });
     }
