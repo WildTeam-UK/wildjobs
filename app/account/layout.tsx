@@ -1,26 +1,19 @@
 import type { ReactNode } from "react";
-import { redirect } from "next/navigation";
-
 import { AccountNav } from "@/components/account-nav";
-import { createClient } from "@/lib/supabase/server";
+import { requireCandidate } from "@/lib/auth/candidate";
 
 export default async function AccountLayout({ children }: { children: ReactNode }) {
-  const supabase = await createClient();
-  const { data, error } = await supabase.auth.getClaims();
-
-  if (error || !data?.claims?.sub) redirect("/sign-in?next=/account");
-
-  const email = typeof data.claims.email === "string" ? data.claims.email : undefined;
+  const candidate = await requireCandidate("/account");
 
   return (
     <>
       <aside className="fixture-notice account-preview-notice">
         <div className="shell">
-          <strong>Your account is connected.</strong> Saved jobs and preferences are still design examples
-          until the next build stage.
+          <strong>Your account is connected.</strong> Saved jobs are private to this account. Preferences
+          remain a design preview until the next build stage.
         </div>
       </aside>
-      <AccountNav email={email} />
+      <AccountNav email={candidate.email} />
       {children}
     </>
   );

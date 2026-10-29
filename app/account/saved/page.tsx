@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { JobCard } from "@/components/job-card";
-import { jobs } from "@/lib/jobs";
+import { getCandidateSavedJobs } from "@/lib/candidate-saved-jobs";
 
 export const metadata: Metadata = { title: "Saved jobs" };
 
-export default function SavedJobsPage() {
-  const savedJobs = [jobs[0], jobs[5]];
+export default async function SavedJobsPage({ searchParams }: { searchParams: Promise<{ save?: string }> }) {
+  const [savedJobs, query] = await Promise.all([getCandidateSavedJobs(), searchParams]);
 
   return (
     <main>
@@ -23,13 +23,34 @@ export default function SavedJobsPage() {
         <div className="shell">
           <div className="job-results__heading">
             <h2>Your shortlist</h2>
-            <p>2 demonstration roles</p>
+            <p>
+              {savedJobs.length} saved {savedJobs.length === 1 ? "role" : "roles"}
+            </p>
           </div>
-          <div className="job-list">
-            {savedJobs.map((job) => (
-              <JobCard job={job} key={job.slug} showSaveAction={false} />
-            ))}
-          </div>
+          {query.save === "removed" || query.save === "error" ? (
+            <p
+              className={`staff-form-message${query.save === "error" ? " staff-form-message--error" : ""}`}
+              role={query.save === "error" ? "alert" : "status"}
+            >
+              {query.save === "removed"
+                ? "Job removed from your shortlist."
+                : "Your saved jobs could not be updated. Please try again."}
+            </p>
+          ) : null}
+          {savedJobs.length ? (
+            <div className="job-list">
+              {savedJobs.map((job) => (
+                <JobCard job={job} key={job.slug} saveReturnTo="/account/saved" saveState="saved" />
+              ))}
+            </div>
+          ) : (
+            <div className="empty-saved">
+              <span aria-hidden="true">♡</span>
+              <p className="eyebrow">Your shortlist is empty</p>
+              <h2>Save roles you want to return to.</h2>
+              <p>Saved jobs are private to your account and easy to remove at any time.</p>
+            </div>
+          )}
           <div className="saved-jobs-footer">
             <p>Looking for something different? Your preferences can make the next visit more useful.</p>
             <div>

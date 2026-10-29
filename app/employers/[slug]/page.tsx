@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { JobCard } from "@/components/job-card";
+import { getCandidateSaveState } from "@/lib/candidate-saved-jobs";
 import { formatDate } from "@/lib/jobs";
 import { getPublicEmployerBySlug } from "@/lib/public-employers";
 
@@ -20,9 +21,14 @@ export async function generateMetadata({ params }: EmployerPageProps): Promise<M
 }
 
 export default async function EmployerPage({ params }: EmployerPageProps) {
-  const employer = await getPublicEmployerBySlug((await params).slug);
+  const { slug } = await params;
+  const [employer, candidateSaveState] = await Promise.all([
+    getPublicEmployerBySlug(slug),
+    getCandidateSaveState(),
+  ]);
   if (!employer) notFound();
   const openRoles = employer.openRoles;
+  const savedJobIds = new Set(candidateSaveState.savedJobIds);
   const structuredData = {
     "@context": "https://schema.org",
     "@type": "Organization",
@@ -129,7 +135,17 @@ export default async function EmployerPage({ params }: EmployerPageProps) {
           {openRoles.length ? (
             <div className="job-list">
               {openRoles.map((job) => (
-                <JobCard job={job} key={job.slug} />
+                <JobCard
+                  job={job}
+                  key={job.slug}
+                  saveState={
+                    candidateSaveState.isSignedIn && job.id && savedJobIds.has(job.id)
+                      ? "saved"
+                      : candidateSaveState.isSignedIn
+                        ? "available"
+                        : "signed-out"
+                  }
+                />
               ))}
             </div>
           ) : (

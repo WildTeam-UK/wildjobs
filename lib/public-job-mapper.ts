@@ -16,6 +16,7 @@ type PublicCareerAreaRecord = Readonly<{
 }>;
 
 export type PublicJobRecord = Readonly<{
+  id: number;
   application_url: string | null;
   closes_at: string | null;
   contract_type: string | null;
@@ -33,8 +34,10 @@ export type PublicJobRecord = Readonly<{
   responsibilities: string | null;
   salary_text: string | null;
   slug: string;
+  status: string;
   summary: string | null;
   title: string;
+  withdrawn_at: string | null;
   workplace_type: string | null;
 }>;
 
@@ -88,6 +91,15 @@ function dateOnly(value: string | null) {
   return value?.slice(0, 10);
 }
 
+function availability(record: PublicJobRecord) {
+  if (record.withdrawn_at || record.status === "withdrawn") return "withdrawn" as const;
+  if (record.closes_at && record.closes_at < new Date().toISOString().slice(0, 10)) {
+    return "expired" as const;
+  }
+  if (record.status !== "published") return "unavailable" as const;
+  return "current" as const;
+}
+
 export function mapPublicJob(record: PublicJobRecord): Job {
   const description = paragraphs(record.description);
   const careerAreas = record.job_career_areas
@@ -100,6 +112,7 @@ export function mapPublicJob(record: PublicJobRecord): Job {
   const summary = record.summary?.trim() || description[0] || "View the full vacancy details.";
 
   return {
+    availability: availability(record),
     applicationUrl: record.application_url ?? undefined,
     category,
     closesAt: dateOnly(record.closes_at) ?? "",
@@ -109,6 +122,7 @@ export function mapPublicJob(record: PublicJobRecord): Job {
     employerSlug: employer?.slug,
     employmentType: hoursType ?? contractType ?? "Not stated",
     hoursType,
+    id: record.id,
     location: record.location_text?.trim() || record.region?.trim() || "Location not stated",
     locationType: workplaceLabels[record.workplace_type as keyof typeof workplaceLabels] ?? "Not specified",
     organisation: employer?.short_name?.trim() || employer?.name?.trim() || "Employer not stated",

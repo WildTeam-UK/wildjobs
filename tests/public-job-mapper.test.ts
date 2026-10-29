@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { mapPublicJob, type PublicJobRecord } from "../lib/public-job-mapper";
 
 const record: PublicJobRecord = {
+  id: 42,
   application_url: "https://example.org/jobs/wetland-researcher",
   closes_at: "2026-11-01",
   contract_type: "fixed_term",
@@ -30,8 +31,10 @@ const record: PublicJobRecord = {
   responsibilities: "Run field surveys\r\nManage monitoring data",
   salary_text: "£25,985 per annum",
   slug: "wetland-researcher",
+  status: "published",
   summary: "Support an ecological monitoring programme.",
   title: "Wetland Researcher",
+  withdrawn_at: null,
   workplace_type: "on_site",
 };
 
@@ -44,6 +47,7 @@ describe("public job mapping", () => {
       contractType: "Fixed term",
       employmentType: "Full time",
       hoursType: "Full time",
+      id: 42,
       locationType: "On-site",
       organisation: "WT",
       postedAt: "2026-10-28",
@@ -75,5 +79,13 @@ describe("public job mapping", () => {
       salary: "Salary not stated",
     });
     expect(job.description).toEqual(["View the full vacancy details."]);
+  });
+
+  it("marks saved roles that are no longer available", () => {
+    expect(
+      mapPublicJob({ ...record, status: "withdrawn", withdrawn_at: "2026-10-29T09:00:00Z" }),
+    ).toMatchObject({
+      availability: "withdrawn",
+    });
   });
 });

@@ -763,7 +763,10 @@ select {
   padding: 9px 13px;
   border: 1px solid var(--wt-color-brand-purple);
   border-radius: var(--wt-radius-control);
+  background: transparent;
   color: var(--wt-color-brand-purple);
+  cursor: pointer;
+  font-family: inherit;
   font-size: 0.74rem;
   font-weight: var(--wt-font-weight-bold);
   transition:
@@ -779,6 +782,15 @@ select {
   border-color: var(--wt-color-brand-pink);
   background: var(--wt-color-brand-pink);
   color: var(--wt-color-paper);
+}
+.save-action:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+.job-card__unavailable {
+  color: var(--wt-color-muted);
+  font-size: 0.74rem;
+  font-weight: var(--wt-font-weight-bold);
 }
 .empty-state {
   padding: 60px 28px;

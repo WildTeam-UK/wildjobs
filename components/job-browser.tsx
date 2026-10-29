@@ -4,6 +4,7 @@ import { Button, Select, TextInput } from "@wildteam-uk/ui";
 import { useState } from "react";
 import { JobCard } from "@/components/job-card";
 import { courseBySlug, courses } from "@/lib/courses";
+import type { CandidateSaveState } from "@/lib/candidate-saved-jobs";
 import { filterJobs, jobCategories } from "@/lib/job-filtering";
 import type { EmploymentType, Job, LocationType } from "@/lib/jobs";
 
@@ -29,9 +30,11 @@ type BrowserFilters = Readonly<{
 }>;
 
 export function JobBrowser({
+  candidateSaveState,
   jobs,
   initialFilters = {},
 }: {
+  candidateSaveState: CandidateSaveState;
   jobs: readonly Job[];
   initialFilters?: Partial<BrowserFilters>;
 }) {
@@ -46,6 +49,7 @@ export function JobBrowser({
   const categories = jobCategories(jobs);
   const hasFilters = Boolean(query || locationType || employmentType || category || courseSlug);
   const selectedCourse = courseBySlug(courseSlug);
+  const savedJobIds = new Set(candidateSaveState.savedJobIds);
 
   function syncUrl(filters: BrowserFilters) {
     const params = new URLSearchParams();
@@ -192,7 +196,17 @@ export function JobBrowser({
           {filteredJobs.length ? (
             <div className="job-list">
               {filteredJobs.map((job) => (
-                <JobCard job={job} key={job.slug} />
+                <JobCard
+                  job={job}
+                  key={job.slug}
+                  saveState={
+                    candidateSaveState.isSignedIn && job.id && savedJobIds.has(job.id)
+                      ? "saved"
+                      : candidateSaveState.isSignedIn
+                        ? "available"
+                        : "signed-out"
+                  }
+                />
               ))}
             </div>
           ) : (

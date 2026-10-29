@@ -2,7 +2,7 @@ begin;
 
 create extension if not exists pgtap with schema extensions;
 
-select plan(18);
+select plan(20);
 
 insert into auth.users (id, email)
 values
@@ -283,6 +283,24 @@ select is(
   0::bigint,
   'Another candidate cannot see the first candidate saved jobs'
 );
+
+select lives_ok(
+  $$
+    insert into public.saved_jobs (user_id, job_id)
+    select '10000000-0000-0000-0000-000000000002', id
+    from public.jobs where slug = 'current-job'
+  $$,
+  'A candidate can save a current job for themselves'
+);
+
+select is(
+  (select count(*) from public.saved_jobs),
+  1::bigint,
+  'A candidate can read a job they just saved'
+);
+
+delete from public.saved_jobs
+where user_id = '10000000-0000-0000-0000-000000000002';
 
 select throws_ok(
   $$

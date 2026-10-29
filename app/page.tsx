@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { JobCard } from "@/components/job-card";
+import { getCandidateSaveState } from "@/lib/candidate-saved-jobs";
 import { courses } from "@/lib/courses";
 import { getPublicJobs } from "@/lib/public-jobs";
 
@@ -31,7 +32,8 @@ const careerAreas = [
 ] as const;
 
 export default async function HomePage() {
-  const jobs = await getPublicJobs();
+  const [jobs, candidateSaveState] = await Promise.all([getPublicJobs(), getCandidateSaveState()]);
+  const savedJobIds = new Set(candidateSaveState.savedJobIds);
 
   return (
     <main>
@@ -106,7 +108,17 @@ export default async function HomePage() {
           {jobs.length ? (
             <div className="featured-jobs">
               {jobs.slice(0, 3).map((job) => (
-                <JobCard job={job} key={job.slug} />
+                <JobCard
+                  job={job}
+                  key={job.slug}
+                  saveState={
+                    candidateSaveState.isSignedIn && job.id && savedJobIds.has(job.id)
+                      ? "saved"
+                      : candidateSaveState.isSignedIn
+                        ? "available"
+                        : "signed-out"
+                  }
+                />
               ))}
             </div>
           ) : (

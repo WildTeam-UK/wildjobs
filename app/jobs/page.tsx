@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { JobBrowser } from "@/components/job-browser";
+import { getCandidateSaveState } from "@/lib/candidate-saved-jobs";
 import type { EmploymentType, LocationType } from "@/lib/jobs";
 import { getPublicJobs } from "@/lib/public-jobs";
 
@@ -25,7 +26,11 @@ function valueOf(value: string | string[] | undefined) {
 }
 
 export default async function JobsPage({ searchParams }: { searchParams: SearchParams }) {
-  const [params, jobs] = await Promise.all([searchParams, getPublicJobs()]);
+  const [params, jobs, candidateSaveState] = await Promise.all([
+    searchParams,
+    getPublicJobs(),
+    getCandidateSaveState(),
+  ]);
   const location = valueOf(params.location);
   const employment = valueOf(params.type);
   return (
@@ -40,6 +45,7 @@ export default async function JobsPage({ searchParams }: { searchParams: SearchP
         </div>
       </section>
       <JobBrowser
+        candidateSaveState={candidateSaveState}
         jobs={jobs}
         initialFilters={{
           query: valueOf(params.q),

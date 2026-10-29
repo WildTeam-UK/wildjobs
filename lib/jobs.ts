@@ -11,6 +11,8 @@ export type EmploymentType =
   | "Temporary";
 
 export type Job = Readonly<{
+  id?: number;
+  availability?: "current" | "expired" | "unavailable" | "withdrawn";
   slug: string;
   applicationUrl?: string;
   title: string;

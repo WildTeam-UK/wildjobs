@@ -7,7 +7,8 @@ import type { Job } from "./jobs";
 import { mapPublicJob } from "./public-job-mapper";
 import { createPublicClient } from "./supabase/public";
 
-const publicJobFields = `
+export const publicJobFields = `
+  id,
   slug,
   title,
   summary,
@@ -25,6 +26,8 @@ const publicJobFields = `
   posted_at,
   closes_at,
   published_at,
+  status,
+  withdrawn_at,
   created_at,
   employers!inner(slug, name, short_name, website_url),
   job_career_areas(is_primary, career_areas!inner(slug, title))

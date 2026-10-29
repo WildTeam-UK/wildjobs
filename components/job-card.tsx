@@ -1,7 +1,18 @@
 import Link from "next/link";
+import { SaveJobControl, type JobSaveState } from "@/components/save-job-control";
 import { formatDate, type Job } from "@/lib/jobs";
 
-export function JobCard({ job, showSaveAction = true }: { job: Job; showSaveAction?: boolean }) {
+export function JobCard({
+  job,
+  saveReturnTo,
+  saveState = "signed-out",
+  showSaveAction = true,
+}: {
+  job: Job;
+  saveReturnTo?: string;
+  saveState?: JobSaveState;
+  showSaveAction?: boolean;
+}) {
   const jobType = [job.hoursType, job.contractType]
     .filter((value, index, values) => value && values.indexOf(value) === index)
     .join(" · ");
@@ -15,7 +26,11 @@ export function JobCard({ job, showSaveAction = true }: { job: Job; showSaveActi
       <div className="job-card__body">
         <p className="job-card__organisation">{job.organisation}</p>
         <h2>
-          <Link href={`/jobs/${job.slug}`}>{job.title}</Link>
+          {job.availability && job.availability !== "current" ? (
+            job.title
+          ) : (
+            <Link href={`/jobs/${job.slug}`}>{job.title}</Link>
+          )}
         </h2>
         <p className="job-card__summary">{job.summary}</p>
       </div>
@@ -38,16 +53,17 @@ export function JobCard({ job, showSaveAction = true }: { job: Job; showSaveActi
         </div>
       </dl>
       <div className="job-card__actions">
-        <Link className="text-link" href={`/jobs/${job.slug}`}>
-          View listing <span aria-hidden="true">→</span>
-        </Link>
-        {showSaveAction ? (
-          <Link
-            className="save-action"
-            href={{ pathname: "/sign-in", query: { intent: "save", next: `/jobs/${job.slug}` } }}
-          >
-            <span aria-hidden="true">♡</span> Save job
+        {job.availability && job.availability !== "current" ? (
+          <span className="job-card__unavailable">
+            {job.availability === "expired" ? "Applications closed" : "No longer available"}
+          </span>
+        ) : (
+          <Link className="text-link" href={`/jobs/${job.slug}`}>
+            View listing <span aria-hidden="true">→</span>
           </Link>
+        )}
+        {showSaveAction ? (
+          <SaveJobControl jobId={job.id} jobSlug={job.slug} returnTo={saveReturnTo} state={saveState} />
         ) : null}
       </div>
     </article>

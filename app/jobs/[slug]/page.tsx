@@ -1,11 +1,14 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { SaveJobControl } from "@/components/save-job-control";
+import { getCandidateSaveState } from "@/lib/candidate-saved-jobs";
 import { formatDate } from "@/lib/jobs";
 import { getPublicJobBySlug } from "@/lib/public-jobs";
 
 type JobPageProps = {
   params: Promise<{ slug: string }>;
+  searchParams: Promise<{ save?: string }>;
 };
 
 export async function generateMetadata({ params }: JobPageProps): Promise<Metadata> {
@@ -29,9 +32,15 @@ function structuredEmploymentType(job: { contractType?: string; hoursType?: stri
   return types.length ? types : undefined;
 }
 
-export default async function JobPage({ params }: JobPageProps) {
-  const job = await getPublicJobBySlug((await params).slug);
+export default async function JobPage({ params, searchParams }: JobPageProps) {
+  const { slug } = await params;
+  const [job, candidateSaveState, query] = await Promise.all([
+    getPublicJobBySlug(slug),
+    getCandidateSaveState(),
+    searchParams,
+  ]);
   if (!job) notFound();
+  const isSaved = Boolean(job.id && candidateSaveState.savedJobIds.includes(job.id));
 
   const jobType = [job.hoursType, job.contractType]
     .filter((value, index, values) => value && values.indexOf(value) === index)
@@ -71,6 +80,20 @@ export default async function JobPage({ params }: JobPageProps) {
           <span aria-hidden="true">←</span> Back to all jobs
         </Link>
       </div>
+      {query.save === "saved" || query.save === "removed" || query.save === "error" ? (
+        <div className="shell">
+          <p
+            className={`staff-form-message${query.save === "error" ? " staff-form-message--error" : ""}`}
+            role={query.save === "error" ? "alert" : "status"}
+          >
+            {query.save === "saved"
+              ? "Job saved to your private shortlist."
+              : query.save === "removed"
+                ? "Job removed from your shortlist."
+                : "Your saved jobs could not be updated. Please try again."}
+          </p>
+        </div>
+      ) : null}
       <header className="job-detail-hero shell">
         <div className="job-detail-hero__labels">
           <span>{job.category}</span>
@@ -179,12 +202,12 @@ export default async function JobPage({ params }: JobPageProps) {
                 Apply on employer website <span aria-hidden="true">↗</span>
               </a>
             ) : null}
-            <Link
+            <SaveJobControl
               className="save-action save-action--card"
-              href={{ pathname: "/sign-in", query: { intent: "save", next: `/jobs/${job.slug}` } }}
-            >
-              <span aria-hidden="true">♡</span> Save this role
-            </Link>
+              jobId={job.id}
+              jobSlug={job.slug}
+              state={candidateSaveState.isSignedIn ? (isSaved ? "saved" : "available") : "signed-out"}
+            />
             <Link className="text-link job-facts-card__other-roles" href="/jobs">
               Explore other roles <span aria-hidden="true">→</span>
             </Link>
