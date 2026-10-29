@@ -884,6 +884,30 @@ export type Database = {
           },
         ];
       };
+      source_import_automation: {
+        Row: {
+          created_at: string;
+          id: boolean;
+          last_heartbeat_at: string | null;
+          last_import_claimed_at: string | null;
+          updated_at: string;
+        };
+        Insert: {
+          created_at?: string;
+          id?: boolean;
+          last_heartbeat_at?: string | null;
+          last_import_claimed_at?: string | null;
+          updated_at?: string;
+        };
+        Update: {
+          created_at?: string;
+          id?: boolean;
+          last_heartbeat_at?: string | null;
+          last_import_claimed_at?: string | null;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
       staff_members: {
         Row: {
           created_at: string;
@@ -964,6 +988,10 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
+      claim_periodic_source_import: {
+        Args: { interval_hours?: number };
+        Returns: boolean;
+      };
       create_manual_job_draft: {
         Args: {
           p_application_url: string;

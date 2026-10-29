@@ -1,6 +1,6 @@
 import { timingSafeEqual } from "node:crypto";
 
-export function isCronRequestAuthorized(authorization: string | null, secret: string | undefined) {
+export function isAutomationRequestAuthorized(authorization: string | null, secret: string | undefined) {
   if (!authorization || !secret || secret.length < 16) return false;
 
   const supplied = Buffer.from(authorization);
