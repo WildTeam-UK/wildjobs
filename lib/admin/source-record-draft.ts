@@ -1,3 +1,5 @@
+import { extractVacancyDetails } from "./vacancy-detail-extraction";
+
 type SourceRecordDraftInput = {
   canonical_url: string | null;
   closes_at: string | null;
@@ -21,6 +23,7 @@ function excerpt(value: string, maximum: number) {
 
 export function buildSourceRecordDraftDefaults(record: SourceRecordDraftInput) {
   const sourceSummary = record.summary?.trim() || undefined;
+  const extractedDetails = extractVacancyDetails(sourceSummary ?? null);
 
   return {
     applicationUrl: record.canonical_url ?? undefined,
@@ -34,5 +37,6 @@ export function buildSourceRecordDraftDefaults(record: SourceRecordDraftInput) {
     sourceId: record.source_id,
     summary: sourceSummary && sourceSummary.length >= 20 ? excerpt(sourceSummary, 500) : undefined,
     title: record.source_title?.slice(0, 180) || undefined,
+    ...extractedDetails,
   };
 }

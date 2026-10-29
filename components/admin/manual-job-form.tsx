@@ -11,14 +11,19 @@ type ManualJobDefaults = {
   applicationUrl?: string;
   canonicalUrl?: string;
   closesAt?: string;
+  contractType?: string;
   countryCode?: string;
   description?: string;
   employerName?: string;
+  experienceLevel?: string;
+  hoursType?: string;
   locationText?: string;
   postedAt?: string;
+  salaryText?: string;
   sourceId?: number;
   summary?: string;
   title?: string;
+  workplaceType?: string;
 };
 
 const initialState: JobIntakeActionState = { error: null };
@@ -166,7 +171,12 @@ export function ManualJobForm({
           </div>
           <div>
             <label htmlFor="workplace-type">Workplace</label>
-            <select id="workplace-type" name="workplaceType" required>
+            <select
+              defaultValue={defaults?.workplaceType ?? ""}
+              id="workplace-type"
+              name="workplaceType"
+              required
+            >
               <option value="">Choose one</option>
               <option value="remote">Remote</option>
               <option value="hybrid">Hybrid</option>
@@ -175,7 +185,12 @@ export function ManualJobForm({
           </div>
           <div>
             <label htmlFor="contract-type">Contract</label>
-            <select id="contract-type" name="contractType" required>
+            <select
+              defaultValue={defaults?.contractType ?? ""}
+              id="contract-type"
+              name="contractType"
+              required
+            >
               <option value="">Choose one</option>
               <option value="permanent">Permanent</option>
               <option value="fixed_term">Fixed term</option>
@@ -186,7 +201,7 @@ export function ManualJobForm({
           </div>
           <div>
             <label htmlFor="hours-type">Hours</label>
-            <select id="hours-type" name="hoursType" required>
+            <select defaultValue={defaults?.hoursType ?? ""} id="hours-type" name="hoursType" required>
               <option value="">Choose one</option>
               <option value="full_time">Full time</option>
               <option value="part_time">Part time</option>
@@ -195,7 +210,12 @@ export function ManualJobForm({
           </div>
           <div>
             <label htmlFor="experience-level">Experience level</label>
-            <select id="experience-level" name="experienceLevel" required>
+            <select
+              defaultValue={defaults?.experienceLevel ?? ""}
+              id="experience-level"
+              name="experienceLevel"
+              required
+            >
               <option value="">Choose one</option>
               <option value="entry">Entry</option>
               <option value="developing">Developing</option>
@@ -212,7 +232,13 @@ export function ManualJobForm({
         <div className="staff-job-form__grid">
           <div className="staff-job-form__wide">
             <label htmlFor="salary-text">Salary as advertised</label>
-            <input id="salary-text" maxLength={240} name="salaryText" required />
+            <input
+              defaultValue={defaults?.salaryText}
+              id="salary-text"
+              maxLength={240}
+              name="salaryText"
+              required
+            />
           </div>
           <div>
             <label htmlFor="posted-at">
