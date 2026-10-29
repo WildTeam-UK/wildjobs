@@ -11,6 +11,7 @@ import {
   type AiEmployerSuggestion,
 } from "./ai-vacancy-enrichment";
 import { evaluateAndMaybePublishSourceRecord } from "./automation-publication";
+import { evidenceAppearsInText, sameWebsiteHost } from "./employer-research-validation";
 import { fetchApprovedVacancyPage, fetchEmployerPage, SourcePageError } from "./source-page-fetch";
 import {
   parseEmployerPage,
@@ -393,9 +394,9 @@ async function persistEmployerEnrichment(
         .join(" · ")
         .slice(0, 1_000),
       extraction_method: "ai",
-      extractor_version: "ai-structured-v1",
+      extractor_version: AI_ENRICHMENT_POLICY_VERSION,
       field_name: fieldName,
-      source_url: input.sourceUrl,
+      source_url: items.find((item) => item.sourceUrl)?.sourceUrl ?? input.sourceUrl,
       value: items
         .map((item) => item.value)
         .join("\n")
@@ -508,7 +509,7 @@ export async function enrichNextPendingSourceRecord(
     }
 
     const employer = await resolveEmployer(supabase, record, page);
-    const employerWebsiteUrl = page.employerWebsiteUrl ?? employer?.website_url ?? null;
+    let employerWebsiteUrl = page.employerWebsiteUrl ?? employer?.website_url ?? null;
     let employerPage: { logoUrl: string | null; sourceUrl: string | null; text: string } = {
       logoUrl: page.employerLogoUrl,
       sourceUrl: page.employerLogoUrl ? detail.url : null,
@@ -549,11 +550,16 @@ export async function enrichNextPendingSourceRecord(
 
     let aiResult: Awaited<ReturnType<typeof enrichWithAi>> = { status: "disabled" };
     let aiError = false;
-    const aiNeeded = Boolean(unresolved.length || employerPage.text);
+    const employerResearchNeeded = Boolean(
+      employer?.name && !employerWebsiteUrl && employer.name !== "Private Employer",
+    );
+    const aiNeeded = Boolean(unresolved.length || employerPage.text || employerResearchNeeded);
     if (aiNeeded && aiBudget.allowed) {
       try {
         aiResult = await enrichWithAi({
+          allowEmployerWebResearch: employerResearchNeeded,
           employerName: employer?.name ?? page.employerName ?? record.employer_name,
+          employerSourceUrl: employerPage.sourceUrl,
           employerText: employerPage.text || null,
           listingText: page.detailText,
           unresolvedFields: unresolved,
@@ -564,6 +570,53 @@ export async function enrichNextPendingSourceRecord(
           message: error instanceof Error ? error.message : "Unknown AI error",
           recordId: record.id,
         });
+      }
+    }
+
+    if (
+      employer &&
+      aiResult.status === "completed" &&
+      !employerWebsiteUrl &&
+      aiResult.researchedEmployerWebsiteUrl
+    ) {
+      employerWebsiteUrl = aiResult.researchedEmployerWebsiteUrl;
+      const researchUrls = [
+        employerWebsiteUrl,
+        ...aiResult.employerSuggestions.flatMap((item) => (item.sourceUrl ? [item.sourceUrl] : [])),
+      ]
+        .filter((value, index, values) => values.indexOf(value) === index)
+        .filter((value) => sameWebsiteHost(value, employerWebsiteUrl))
+        .slice(0, 2);
+      const researchedPages: { logoUrl: string | null; text: string; url: string }[] = [];
+      for (const researchUrl of researchUrls) {
+        try {
+          const fetched = await fetchEmployerPage(researchUrl);
+          const parsed = parseEmployerPage(fetched.html, fetched.url);
+          researchedPages.push({ logoUrl: parsed.logoUrl, text: parsed.text, url: fetched.url });
+        } catch {
+          // Web research remains optional and fails closed when an official page cannot be verified safely.
+        }
+      }
+      if (researchedPages.length) {
+        employerPage = {
+          logoUrl: researchedPages.find((item) => item.logoUrl)?.logoUrl ?? page.employerLogoUrl,
+          sourceUrl: researchedPages[0].url,
+          text: researchedPages.map((item) => item.text).join("\n\n"),
+        };
+        aiResult = {
+          ...aiResult,
+          employerSuggestions: aiResult.employerSuggestions.flatMap((suggestion) => {
+            const matchingPage = researchedPages.find(
+              (item) =>
+                sameWebsiteHost(item.url, suggestion.sourceUrl) &&
+                evidenceAppearsInText(suggestion.evidence, item.text),
+            );
+            return matchingPage ? [{ ...suggestion, sourceUrl: matchingPage.url }] : [];
+          }),
+        };
+      } else {
+        employerWebsiteUrl = null;
+        aiResult = { ...aiResult, employerSuggestions: [] };
       }
     }
 
