@@ -296,7 +296,8 @@ export async function enrichWithAi(input: {
     include: input.allowEmployerWebResearch ? ["web_search_call.action.sources"] : undefined,
     instructions: [instructions, "Return JSON matching the supplied schema."].join(" "),
     input: prompt,
-    max_output_tokens: 1_500,
+    max_output_tokens: 3_000,
+    reasoning: { effort: "low" },
     text: {
       format: {
         type: "json_schema",
@@ -318,6 +319,10 @@ export async function enrichWithAi(input: {
         ]
       : undefined,
   });
+  if (response.status === "incomplete") {
+    const reason = response.incomplete_details?.reason ?? "unknown";
+    throw new Error(`OpenAI returned an incomplete vacancy enrichment response: ${reason}.`);
+  }
   if (!response.output_text) throw new Error("OpenAI returned no vacancy enrichment output.");
   const output = outputSchema.parse(JSON.parse(response.output_text));
   const searchSourceUrls = webSearchSourceUrls(response.output);
