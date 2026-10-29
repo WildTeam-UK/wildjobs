@@ -60,7 +60,7 @@ export default async function ReviewJobPage({ params, searchParams }: ReviewPage
     supabase
       .from("jobs")
       .select(
-        "id, title, summary, description, responsibilities, requirements, status, location_text, country_code, workplace_type, contract_type, hours_type, experience_level, salary_text, application_url, posted_at, closes_at, employers(name, website_url, mission, overview, status)",
+        "id, title, summary, description, responsibilities, requirements, status, location_text, country_code, workplace_type, contract_type, hours_type, experience_level, salary_text, application_url, posted_at, closes_at, employers(id, name, website_url, mission, overview, status)",
       )
       .eq("id", id)
       .maybeSingle(),
@@ -134,7 +134,9 @@ export default async function ReviewJobPage({ params, searchParams }: ReviewPage
           <span className={`status-badge status-badge--${statusLabel.toLowerCase().replaceAll(" ", "-")}`}>
             {statusLabel}
           </span>
-          <p>{job.employers.name}</p>
+          <p>
+            <Link href={`/admin/employers/${job.employers.id}`}>{job.employers.name}</Link>
+          </p>
           <h1>{job.title}</h1>
         </div>
         <dl>

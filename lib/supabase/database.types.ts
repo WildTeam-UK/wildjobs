@@ -848,6 +848,7 @@ export type Database = {
           action: string;
           actor_user_id: string;
           created_at: string;
+          employer_id: number | null;
           employer_submission_id: number | null;
           id: number;
           job_id: number | null;
@@ -859,6 +860,7 @@ export type Database = {
           action: string;
           actor_user_id: string;
           created_at?: string;
+          employer_id?: number | null;
           employer_submission_id?: number | null;
           id?: never;
           job_id?: number | null;
@@ -870,6 +872,7 @@ export type Database = {
           action?: string;
           actor_user_id?: string;
           created_at?: string;
+          employer_id?: number | null;
           employer_submission_id?: number | null;
           id?: never;
           job_id?: number | null;
@@ -884,6 +887,13 @@ export type Database = {
             isOneToOne: false;
             referencedRelation: "staff_members";
             referencedColumns: ["user_id"];
+          },
+          {
+            foreignKeyName: "moderation_events_employer_id_fkey";
+            columns: ["employer_id"];
+            isOneToOne: false;
+            referencedRelation: "employers";
+            referencedColumns: ["id"];
           },
           {
             foreignKeyName: "moderation_events_employer_submission_id_fkey";
@@ -1078,6 +1088,15 @@ export type Database = {
       publish_job_review_draft: {
         Args: { p_job_id: number };
         Returns: string;
+      };
+      update_employer_review_profile: {
+        Args: {
+          p_employer_id: number;
+          p_mission: string;
+          p_overview: string;
+          p_website_url: string;
+        };
+        Returns: number;
       };
       update_job_review_draft: {
         Args: {
