@@ -9,6 +9,10 @@ describe("source automation authentication", () => {
     expect(isAutomationRequestAuthorized(`Bearer ${secret}`, secret)).toBe(true);
   });
 
+  it("ignores accidental whitespace around the stored environment value", () => {
+    expect(isAutomationRequestAuthorized(`Bearer ${secret}`, ` ${secret}\n`)).toBe(true);
+  });
+
   it("rejects missing, short and mismatched credentials", () => {
     expect(isAutomationRequestAuthorized(null, secret)).toBe(false);
     expect(isAutomationRequestAuthorized(`Bearer ${secret}`, "too-short")).toBe(false);
