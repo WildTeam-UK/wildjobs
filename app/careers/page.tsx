@@ -1,32 +1,20 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { getPublicCareerAreas } from "@/lib/public-career-areas";
+import { getPublicJobs } from "@/lib/public-jobs";
 
 export const metadata: Metadata = { title: "Explore conservation careers" };
 
-const paths = [
-  [
-    "Science and evidence",
-    "Ecology, research, data and monitoring roles that turn observation into better decisions.",
-    "Science and research",
-  ],
-  [
-    "Projects and programmes",
-    "Roles that transform conservation ambition into organised, funded and measurable action.",
-    "Programme management",
-  ],
-  [
-    "People and partnerships",
-    "Community, stakeholder and engagement roles built around durable relationships.",
-    "Community conservation",
-  ],
-  [
-    "Stories and support",
-    "Communications and fundraising work that helps conservation reach more people.",
-    "Communications",
-  ],
-] as const;
+export default async function CareersPage() {
+  const [careerAreas, jobs] = await Promise.all([getPublicCareerAreas(), getPublicJobs()]);
+  const jobCounts = new Map<string, number>();
 
-export default function CareersPage() {
+  for (const job of jobs) {
+    for (const careerArea of job.careerAreas ?? []) {
+      jobCounts.set(careerArea, (jobCounts.get(careerArea) ?? 0) + 1);
+    }
+  }
+
   return (
     <main>
       <section className="interior-hero">
@@ -46,18 +34,25 @@ export default function CareersPage() {
               <h2>Start with what draws you in.</h2>
             </div>
             <p>
-              This is the first design pass for practical career guidance. Rich pathway pages will follow.
+              Explore the main areas of work and see current roles connected to each one. More practical
+              guidance will be added as it is reviewed.
             </p>
           </div>
           <div className="pathway-grid">
-            {paths.map(([title, description, category], index) => (
-              <Link href={`/jobs?category=${encodeURIComponent(category)}`} key={title}>
-                <span>0{index + 1}</span>
-                <h2>{title}</h2>
-                <p>{description}</p>
-                <strong>See related roles →</strong>
-              </Link>
-            ))}
+            {careerAreas.map((area, index) => {
+              const jobCount = jobCounts.get(area.title) ?? 0;
+
+              return (
+                <Link href={`/careers/${area.slug}`} key={area.id}>
+                  <span>0{index + 1}</span>
+                  <h3>{area.title}</h3>
+                  <p>{area.description}</p>
+                  <strong>
+                    {jobCount} current {jobCount === 1 ? "role" : "roles"} →
+                  </strong>
+                </Link>
+              );
+            })}
           </div>
         </div>
       </section>

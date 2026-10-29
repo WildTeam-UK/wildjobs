@@ -2,6 +2,7 @@ import Link from "next/link";
 import { JobCard } from "@/components/job-card";
 import { getCandidateSaveState } from "@/lib/candidate-saved-jobs";
 import { courses } from "@/lib/courses";
+import { getPublicCareerAreas } from "@/lib/public-career-areas";
 import { getPublicJobs } from "@/lib/public-jobs";
 
 const collections = [
@@ -20,19 +21,12 @@ const collections = [
   ["03", "Closing soon", "A timely shortlist for opportunities that deserve your attention now.", "/jobs"],
 ] as const;
 
-const careerAreas = [
-  ["Project delivery", "Plan, coordinate and strengthen conservation programmes.", "Programme management"],
-  ["Science and evidence", "Use fieldwork, monitoring and data to guide action.", "Science and research"],
-  [
-    "People and communities",
-    "Build participation, partnerships and lasting local change.",
-    "Community conservation",
-  ],
-  ["Communications", "Turn conservation evidence into stories that move people.", "Communications"],
-] as const;
-
 export default async function HomePage() {
-  const [jobs, candidateSaveState] = await Promise.all([getPublicJobs(), getCandidateSaveState()]);
+  const [jobs, candidateSaveState, careerAreas] = await Promise.all([
+    getPublicJobs(),
+    getCandidateSaveState(),
+    getPublicCareerAreas(),
+  ]);
   const savedJobIds = new Set(candidateSaveState.savedJobIds);
 
   return (
@@ -141,12 +135,12 @@ export default async function HomePage() {
             </Link>
           </div>
           <div className="career-area-list">
-            {careerAreas.map(([title, description, category], index) => (
-              <Link href={`/jobs?category=${encodeURIComponent(category)}`} key={title}>
+            {careerAreas.slice(0, 4).map((area, index) => (
+              <Link href={`/careers/${area.slug}`} key={area.id}>
                 <span>0{index + 1}</span>
                 <div>
-                  <h3>{title}</h3>
-                  <p>{description}</p>
+                  <h3>{area.title}</h3>
+                  <p>{area.description}</p>
                 </div>
                 <strong aria-hidden="true">↗</strong>
               </Link>

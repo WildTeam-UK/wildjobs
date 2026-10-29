@@ -2,7 +2,7 @@
 
 WildJobs is WildTeam's independent conservation careers platform, intended for `jobs.wildteam.org.uk`.
 
-The application is connected to its independent Supabase project. Public job discovery and employer profiles read approved live records; candidate authentication, private saved jobs and explicit job preferences are connected; and authorised staff can curate, review, publish, expire and withdraw jobs with an audit trail. Source connectors check WWT's public vacancy page and the reviewed Countryside Jobs Service RSS feed, automatically every two hours or on demand, and route discoveries into manual review without automatic publication. The controlled employer journey creates seven-day, single-use invitation links, validates and consumes them through a protected server route, and sends complete submissions into the staff-only review queue without automatic publication. The career area still contains clearly labelled prototype content. Analytics and marketing integrations are not implemented yet.
+The application is connected to its independent Supabase project. Public job discovery, employer profiles and career-area discovery read approved live records; candidate authentication, private saved jobs and explicit job preferences are connected; and authorised staff can curate, review, publish, expire and withdraw jobs with an audit trail. Source connectors check WWT's public vacancy page and the reviewed Countryside Jobs Service RSS feed, automatically every two hours or on demand, and route discoveries into manual review without automatic publication. The controlled employer journey creates seven-day, single-use invitation links, validates and consumes them through a protected server route, and sends complete submissions into the staff-only review queue without automatic publication. Course matching still contains clearly labelled prototype content. Analytics and marketing integrations are not implemented yet.
 
 The approved beta direction is documented in `docs/IMPLEMENTATION_PLAN.md` and `docs/EXPERIENCE_BLUEPRINT.md`.
 
@@ -42,7 +42,7 @@ pnpm check
 
 - Published jobs and their source provenance live in Supabase; fixture jobs in `lib/jobs.ts` remain design references only.
 - Source discovery is restricted to explicitly reviewed endpoints. WWT HTML and Countryside Jobs Service RSS are checked every two hours by the protected automation heartbeat and can also be checked manually by an administrator; neither route publishes a vacancy automatically.
-- Employer invitations, protected employer submission and staff submission review are connected to production data. Career and course experiences are not yet fully connected.
+- Employer invitations, protected employer submission and staff submission review are connected to production data. Career-area pages use reviewed production taxonomy and live vacancy relationships; course experiences are not yet connected to an approved LearnWorlds catalogue.
 - The site is marked `noindex` until approved data and a production domain are connected.
 - Shared design tokens are pinned to the private `@wildteam-uk/tokens` package released through GitHub Packages. Local development requires a personal package login; CI uses its repository-scoped `GITHUB_TOKEN`.
 - Read `docs/IMPLEMENTATION_PLAN.md`, `docs/EXPERIENCE_BLUEPRINT.md`, `docs/PRODUCT_SCOPE.md`, `docs/ARCHITECTURE.md`, and `docs/DATA_OWNERSHIP.md` before implementation.

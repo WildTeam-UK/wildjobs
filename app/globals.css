@@ -476,7 +476,7 @@ select {
   font-size: 0.7rem;
   font-weight: var(--wt-font-weight-bold);
 }
-.pathway-grid h2,
+.pathway-grid h3,
 .employer-grid h2 {
   margin: 36px 0 12px;
   font-size: 2rem;
@@ -502,6 +502,36 @@ select {
 .pathway-grid > a:hover p,
 .pathway-grid > a:hover strong {
   color: var(--wt-color-paper);
+}
+.career-area-back {
+  padding-top: 24px;
+  padding-bottom: 24px;
+}
+.career-area-hero {
+  padding-top: clamp(54px, 7vw, 82px);
+}
+.career-area-intro__layout {
+  display: grid;
+  grid-template-columns: minmax(280px, 0.54fr) minmax(0, 0.46fr);
+  align-items: start;
+  gap: clamp(48px, 8vw, 100px);
+}
+.career-area-intro__layout > div:last-child > p {
+  margin: 0 0 22px;
+  color: var(--wt-color-muted);
+  font-size: 1rem;
+}
+.career-area-jobs {
+  padding: 0 0 clamp(70px, 9vw, 112px);
+}
+.career-area-jobs .staff-empty-state {
+  margin-top: 28px;
+}
+.career-area-more {
+  background: var(--wt-color-cream);
+}
+.career-area-more .career-area-list {
+  max-width: 900px;
 }
 .employer-grid {
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -3177,6 +3207,7 @@ select {
   .home-hero__grid,
   .interior-hero__layout,
   .career-area-layout,
+  .career-area-intro__layout,
   .employer-callout__inner,
   .employer-proposition {
     grid-template-columns: 1fr;
@@ -3210,6 +3241,7 @@ select {
   .home-hero__grid,
   .interior-hero__layout,
   .career-area-layout,
+  .career-area-intro__layout,
   .employer-callout__inner,
   .employer-proposition {
     gap: 40px;
