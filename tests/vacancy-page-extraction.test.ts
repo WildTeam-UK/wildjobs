@@ -77,4 +77,38 @@ describe("vacancy page extraction", () => {
     expect(result.logoUrl).toBe("https://nature.example.org/assets/brand.svg");
     expect(result.text).toContain("We restore habitats with communities.");
   });
+
+  it("keeps a richer advertised salary range and rejects incidental remote wording", () => {
+    const result = parseVacancyPage(
+      `
+        <html>
+          <head>
+            <script type="application/ld+json">
+              {
+                "@type": "JobPosting",
+                "title": "Civil Engineer",
+                "description": "Reference: REQ1254Salary: £36987 - £39459 per annum + 28.97% employer pension contributionsType: Permanent. Projects include remote, steep or environmentally sensitive areas.",
+                "baseSalary": {
+                  "@type": "MonetaryAmount",
+                  "currency": "GBP",
+                  "value": {"@type": "QuantitativeValue", "value": 36987, "unitText": "YEAR"}
+                }
+              }
+            </script>
+          </head>
+          <body><main><h1>Civil Engineer</h1></main></body>
+        </html>
+      `,
+      pageUrl,
+    );
+
+    expect(result.salaryText).toBe("£36987 - £39459 per annum + 28.97% employer pension contributions");
+    expect(result.evidence.find((item) => item.fieldName === "salary_text")).toMatchObject({
+      value: "£36987 - £39459 per annum + 28.97% employer pension contributions",
+    });
+    expect(result.evidence.find((item) => item.fieldName === "workplace_type")).toMatchObject({
+      resolutionStatus: "unresolved",
+      value: null,
+    });
+  });
 });

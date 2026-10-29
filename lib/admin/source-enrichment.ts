@@ -88,6 +88,8 @@ function mergeEvidence(
   const byField = new Map(current.map((item) => [item.field_name, item]));
   const selected: VacancyFieldEvidence[] = [];
 
+  const salaryAmountCount = (value: string | null) => value?.match(/(?:£|GBP\s*)[\d,.]+/gi)?.length ?? 0;
+
   for (const candidate of candidates) {
     const existing = byField.get(candidate.fieldName);
     if (existing?.extraction_method === "manual") continue;
@@ -98,6 +100,15 @@ function mergeEvidence(
       candidate.resolutionStatus === "extracted" &&
       existing?.resolution_status === "extracted" &&
       existing.confidence > candidate.confidence
+    ) {
+      continue;
+    }
+    if (
+      candidate.fieldName === "salary_text" &&
+      candidate.resolutionStatus === "extracted" &&
+      existing?.resolution_status === "extracted" &&
+      existing.confidence === candidate.confidence &&
+      salaryAmountCount(existing.value) > salaryAmountCount(candidate.value)
     ) {
       continue;
     }

@@ -41,6 +41,7 @@ function salaryBoundary(value: string) {
   const boundaries = [
     /(?=[.;]\s+(?:permanent|fixed[- ]term|temporary|full[- ]time|part[- ]time|hybrid|remote|on[- ]site)\b)/i,
     /\s+(?=(?:based|contract(?:\s+type)?|hours?|location|start\s+date|terms|type)\s*:)/i,
+    /(?=(?:Contract(?:\s+Type)?|Hours?|Location|Start\s+Date|Terms|Type)\s*:)/,
     /\s+(?=(?:do you|join\b|we(?:’|')?re|we are|we need)\b)/i,
     /\s+(?=(?:hybrid|home[- ]?based|remote)\s+working\b)/i,
     /\s+(?=\d{1,2}(?:\.\d+)?\s+hours?\s+(?:a|per)\b)/i,
@@ -60,7 +61,7 @@ function salaryBoundary(value: string) {
 }
 
 function extractSalary(value: string): MatchResult {
-  const labelled = /\bsalary(?:\s+details)?\s*(?::|is\s+|will\s+be\s+)/i.exec(value);
+  const labelled = /(?:^|[^a-z])salary(?:\s+details)?\s*(?::|is\s+|will\s+be\s+)/i.exec(value);
   if (labelled) {
     const remainder = value.slice(labelled.index + labelled[0].length).trim();
     const competitive = /^(?:pitched\s+)?competitively?(?:\s+for\s+the\s+right\s+candidate)?/i.exec(
@@ -114,9 +115,31 @@ function extractHoursType(value: string): MatchResult {
 
 function extractWorkplaceType(value: string): MatchResult {
   return (
-    firstMatch(value, [/\bhybrid(?:\s+working)?\b/i], "hybrid") ??
-    firstMatch(value, [/\b(?:home[- ]?based|remote(?:\s+working)?)\b/i], "remote") ??
-    firstMatch(value, [/\b(?:office[- ]based|on[- ]site|site[- ]based)\b/i], "on_site")
+    firstMatch(
+      value,
+      [
+        /\bhybrid\s+(?:role|position|job|working|work|arrangement)\b/i,
+        /\b(?:work|working)\s+(?:in\s+a\s+)?hybrid\b/i,
+      ],
+      "hybrid",
+    ) ??
+    firstMatch(
+      value,
+      [
+        /\bhome[- ]?based\b/i,
+        /\b(?:fully\s+)?remote\s+(?:role|position|job|working|work|arrangement)\b/i,
+        /\b(?:work|working)\s+remotely\b/i,
+      ],
+      "remote",
+    ) ??
+    firstMatch(
+      value,
+      [
+        /\b(?:office[- ]based|site[- ]based)\b/i,
+        /\bon[- ]site\s+(?:role|position|job|working|work|arrangement)\b/i,
+      ],
+      "on_site",
+    )
   );
 }
 

@@ -68,6 +68,22 @@ describe("vacancy detail extraction", () => {
     ).toBe("£28,000 to £30,000 pa, dependent on experience");
   });
 
+  it("reads a salary label joined to a source reference", () => {
+    expect(
+      extractVacancyDetails(
+        "Reference: REQ1254Salary: £36987 - £39459 per annum + 28.97% employer pension contributionsType: Permanent",
+      ).salaryText,
+    ).toBe("£36987 - £39459 per annum + 28.97% employer pension contributions");
+  });
+
+  it("does not mistake remote terrain for a remote working arrangement", () => {
+    expect(
+      extractVacancyDetails(
+        "Manage construction projects in challenging environments, including remote, steep or environmentally sensitive areas.",
+      ).workplaceType,
+    ).toBeUndefined();
+  });
+
   it("records evidence and confidence without inventing missing facts", () => {
     const evidence = extractVacancyFieldEvidence(
       "Salary: £26,250 Contract Type: Permanent. We need an experienced conservation professional.",

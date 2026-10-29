@@ -118,6 +118,16 @@ function structuredSalary(jobPosting: JsonRecord | null) {
   return null;
 }
 
+function salaryAmountCount(value: string | null | undefined) {
+  return value?.match(/(?:£|GBP\s*)[\d,.]+/gi)?.length ?? 0;
+}
+
+function preferredSalaryText(structured: string | null, extracted: string | null) {
+  if (!structured) return extracted;
+  if (!extracted) return structured;
+  return salaryAmountCount(extracted) > salaryAmountCount(structured) ? extracted : structured;
+}
+
 function readJsonLd(html: string) {
   const $ = load(html);
   const values: unknown[] = [];
@@ -173,7 +183,7 @@ export function parseVacancyPage(html: string, pageUrl: string): VacancyPageExtr
     sourceKind: "source_page",
   });
   const salaryEvidence = deterministicEvidence.find((item) => item.fieldName === "salary_text");
-  const salaryText = structuredSalary(jobPosting) ?? salaryEvidence?.value ?? null;
+  const salaryText = preferredSalaryText(structuredSalary(jobPosting), salaryEvidence?.value ?? null);
   if (salaryText && salaryEvidence && salaryEvidence.resolutionStatus === "unresolved") {
     salaryEvidence.confidence = 95;
     salaryEvidence.evidenceText = salaryText;
