@@ -32,10 +32,11 @@ server-only Vercel environment variables. The same automation-secret value is st
 Vault as `wildjobs_automation_secret`. Supabase calls the protected heartbeat every minute; an
 atomic database claim releases source-import work once every two hours.
 
-AI enrichment uses a current Vercel AI Gateway model only for unresolved fields. Daily request and token
-limits are enforced in the application. `AUTO_PUBLISH_ENABLED` remains false until shadow decisions have
-been reviewed; even in live mode, a service-only atomic database function publishes only records that pass
-the evidence, source, duplicate, date and employer-profile policy.
+AI enrichment uses the official OpenAI SDK and Responses API only for unresolved fields, authenticated by
+the server-only `OPENAI_API_KEY` in the same pattern as WildNews. Daily request and token limits are enforced
+in the application. `AUTO_PUBLISH_ENABLED` remains false until shadow decisions have been reviewed; even in
+live mode, a service-only atomic database function publishes only records that pass the evidence, source,
+duplicate, date and employer-profile policy.
 
 Run the complete local checks with:
 
