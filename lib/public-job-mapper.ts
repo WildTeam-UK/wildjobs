@@ -1,7 +1,10 @@
 import type { Job } from "./jobs";
 
 type PublicEmployerRecord = Readonly<{
+  ai_summary: string | null;
+  logo_url: string | null;
   name: string;
+  overview: string | null;
   short_name: string | null;
   slug: string;
   website_url: string | null;
@@ -150,6 +153,8 @@ export function mapPublicJob(record: PublicJobRecord): Job {
   const contractType = jobTypeLabel(record.contract_type);
   const hoursType = jobTypeLabel(record.hours_type);
   const employer = record.employers;
+  const officialEmployerOverview = paragraphs(employer?.overview ?? null);
+  const aiEmployerOverview = paragraphs(employer?.ai_summary ?? null);
   const summary = record.summary?.trim() || rawDescription[0] || "View the full vacancy details.";
   const description = rawDescription.filter(
     (paragraph) => paragraph.toLocaleLowerCase("en-GB") !== summary.toLocaleLowerCase("en-GB"),
@@ -167,7 +172,11 @@ export function mapPublicJob(record: PublicJobRecord): Job {
     contractType,
     countryCode: record.country_code ?? undefined,
     description,
+    employerLogoUrl: employer?.logo_url?.trim() || undefined,
+    employerOverview: officialEmployerOverview.length ? officialEmployerOverview : aiEmployerOverview,
+    employerOverviewIsAi: !officialEmployerOverview.length && aiEmployerOverview.length > 0,
     employerSlug: employer?.slug,
+    employerWebsiteUrl: employer?.website_url?.trim() || undefined,
     employmentType: hoursType ?? contractType ?? "Not stated",
     engagementType: engagementType(record),
     experienceLevel: record.experience_level ?? undefined,

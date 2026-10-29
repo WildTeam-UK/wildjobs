@@ -36,7 +36,7 @@ export const publicJobFields = `
   status,
   withdrawn_at,
   created_at,
-  employers!inner(slug, name, short_name, website_url),
+  employers!inner(slug, name, short_name, website_url, logo_url, overview, ai_summary),
   job_career_areas(is_primary, career_areas!inner(slug, title))
 `;
 

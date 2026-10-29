@@ -11,7 +11,10 @@ const record: PublicJobRecord = {
   description: "First paragraph.\r\n\r\nSecond paragraph.",
   engagement_type: "paid",
   employers: {
+    ai_summary: null,
+    logo_url: "https://example.org/logo.svg",
     name: "Wetland Trust",
+    overview: "Wetland Trust restores wetlands and supports nature recovery.",
     short_name: "WT",
     slug: "wetland-trust",
     website_url: "https://example.org",
@@ -56,6 +59,9 @@ describe("public job mapping", () => {
       applicationLabel: "Apply on Example Jobs Feed",
       engagementType: "Paid",
       employmentType: "Full time",
+      employerLogoUrl: "https://example.org/logo.svg",
+      employerOverview: ["Wetland Trust restores wetlands and supports nature recovery."],
+      employerWebsiteUrl: "https://example.org",
       experienceLevel: "developing",
       hoursType: "Full time",
       id: 42,
@@ -100,6 +106,22 @@ describe("public job mapping", () => {
     });
 
     expect(job.description).toEqual([]);
+  });
+
+  it("uses a clearly identified AI employer overview when official copy is unavailable", () => {
+    const job = mapPublicJob({
+      ...record,
+      employers: {
+        ...record.employers!,
+        ai_summary: "An evidence-backed overview of the employer.",
+        overview: null,
+      },
+    });
+
+    expect(job).toMatchObject({
+      employerOverview: ["An evidence-backed overview of the employer."],
+      employerOverviewIsAi: true,
+    });
   });
 
   it("preserves an AI summary label and an unknown closing date", () => {

@@ -40,6 +40,10 @@ export type Job = Readonly<{
   sourceName: string;
   sourceUrl?: string;
   employerSlug?: string;
+  employerLogoUrl?: string;
+  employerOverview: readonly string[];
+  employerOverviewIsAi?: boolean;
+  employerWebsiteUrl?: string;
   countryCode?: string;
   publishedAt?: string;
   relatedCourseSlugs: readonly string[];
@@ -74,6 +78,7 @@ export const jobs: readonly Job[] = [
     postedAt: "2026-10-24",
     closesAt: "2026-11-28",
     sourceName: "Demonstration data",
+    employerOverview: [],
     relatedCourseSlugs: ["project-management", "project-planning", "stakeholder-engagement"],
   },
   {
@@ -104,6 +109,7 @@ export const jobs: readonly Job[] = [
     postedAt: "2026-10-22",
     closesAt: "2026-11-24",
     sourceName: "Demonstration data",
+    employerOverview: [],
     relatedCourseSlugs: ["project-planning", "monitoring-and-evaluation"],
   },
   {
@@ -134,6 +140,7 @@ export const jobs: readonly Job[] = [
     postedAt: "2026-10-20",
     closesAt: "2026-12-01",
     sourceName: "Demonstration data",
+    employerOverview: [],
     relatedCourseSlugs: ["monitoring-and-evaluation"],
   },
   {
@@ -164,6 +171,7 @@ export const jobs: readonly Job[] = [
     postedAt: "2026-10-18",
     closesAt: "2026-11-21",
     sourceName: "Demonstration data",
+    employerOverview: [],
     relatedCourseSlugs: ["project-management", "project-planning", "monitoring-and-evaluation"],
   },
   {
@@ -194,6 +202,7 @@ export const jobs: readonly Job[] = [
     postedAt: "2026-10-16",
     closesAt: "2026-11-18",
     sourceName: "Demonstration data",
+    employerOverview: [],
     relatedCourseSlugs: ["stakeholder-engagement", "grant-writing"],
   },
   {
@@ -224,6 +233,7 @@ export const jobs: readonly Job[] = [
     postedAt: "2026-10-14",
     closesAt: "2026-11-16",
     sourceName: "Demonstration data",
+    employerOverview: [],
     relatedCourseSlugs: ["launching-your-career", "project-planning"],
   },
 ];

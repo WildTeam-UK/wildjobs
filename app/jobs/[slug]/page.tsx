@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { EmployerLogo } from "@/components/employer-logo";
+import { JobCard } from "@/components/job-card";
 import { SaveJobControl } from "@/components/save-job-control";
 import { getCandidateSaveState } from "@/lib/candidate-saved-jobs";
 import { formatDate, listingAgeLabel } from "@/lib/jobs";
-import { getPublicJobBySlug } from "@/lib/public-jobs";
+import { getPublicJobBySlug, getPublicJobs } from "@/lib/public-jobs";
 
 type JobPageProps = {
   params: Promise<{ slug: string }>;
@@ -32,10 +34,18 @@ function structuredEmploymentType(job: { contractType?: string; hoursType?: stri
   return types.length ? types : undefined;
 }
 
+const factIcons = {
+  category: "◎",
+  location: "⌖",
+  salary: "£",
+  type: "◷",
+} as const;
+
 export default async function JobPage({ params, searchParams }: JobPageProps) {
   const { slug } = await params;
-  const [job, candidateSaveState, query] = await Promise.all([
+  const [job, jobs, candidateSaveState, query] = await Promise.all([
     getPublicJobBySlug(slug),
+    getPublicJobs(),
     getCandidateSaveState(),
     searchParams,
   ]);
@@ -45,6 +55,16 @@ export default async function JobPage({ params, searchParams }: JobPageProps) {
   const jobType = [job.hoursType, job.contractType]
     .filter((value, index, values) => value && values.indexOf(value) === index)
     .join(" · ");
+  const sameAreaJobs = jobs.filter(
+    (candidate) =>
+      candidate.slug !== job.slug && candidate.careerAreas?.some((area) => job.careerAreas?.includes(area)),
+  );
+  const fallbackJobs = jobs.filter(
+    (candidate) =>
+      candidate.slug !== job.slug && !sameAreaJobs.some((match) => match.slug === candidate.slug),
+  );
+  const relatedJobs = [...sameAreaJobs, ...fallbackJobs].slice(0, 3);
+  const savedJobIds = new Set(candidateSaveState.savedJobIds);
   const structuredData = {
     "@context": "https://schema.org",
     "@type": "JobPosting",
@@ -95,32 +115,70 @@ export default async function JobPage({ params, searchParams }: JobPageProps) {
         </div>
       ) : null}
       <header className="job-detail-hero shell">
-        <div className="job-detail-hero__labels">
-          <span>{job.category}</span>
-          <span>{job.locationType}</span>
+        <div className="job-detail-hero__identity">
+          <EmployerLogo
+            imageClassName="job-detail-hero__logo"
+            logoUrl={job.employerLogoUrl}
+            monogramClassName="job-detail-hero__monogram"
+            name={job.organisation}
+          />
+          <div className="job-detail-hero__heading">
+            <p className="eyebrow">
+              {job.employerSlug ? (
+                <Link href={`/employers/${job.employerSlug}`}>{job.organisation}</Link>
+              ) : (
+                job.organisation
+              )}
+            </p>
+            <h1>{job.title}</h1>
+          </div>
         </div>
-        <p>
-          {job.employerSlug ? (
-            <Link href={`/employers/${job.employerSlug}`}>{job.organisation}</Link>
-          ) : (
-            job.organisation
-          )}
-        </p>
-        <h1>{job.title}</h1>
-        {job.summarySource === "ai" ? <p className="ai-summary-label">AI-generated summary</p> : null}
-        <p className="job-detail-hero__summary">{job.summary}</p>
+        <dl className="job-detail-key-facts">
+          <div>
+            <dt>
+              <span aria-hidden="true">{factIcons.location}</span> Location
+            </dt>
+            <dd>{job.location}</dd>
+          </div>
+          <div>
+            <dt>
+              <span aria-hidden="true">{factIcons.salary}</span> Salary
+            </dt>
+            <dd>{job.salary}</dd>
+          </div>
+          <div>
+            <dt>
+              <span aria-hidden="true">{factIcons.type}</span> Job type
+            </dt>
+            <dd>{jobType || job.employmentType}</dd>
+          </div>
+          <div>
+            <dt>
+              <span aria-hidden="true">{factIcons.category}</span> Career area
+            </dt>
+            <dd>{job.category}</dd>
+          </div>
+        </dl>
       </header>
 
       <div className="shell job-detail-layout">
         <article className="job-detail-content">
-          {job.description.length ? (
-            <section>
-              <h2>About this role</h2>
-              {job.description.map((paragraph) => (
-                <p key={paragraph}>{paragraph}</p>
-              ))}
-            </section>
-          ) : null}
+          <section className="job-detail-summary">
+            <p className="eyebrow">
+              {job.summarySource === "ai" ? "AI-generated role summary" : "Role summary"}
+            </p>
+            <h2>About the role</h2>
+            <p className="job-detail-summary__lead">{job.summary}</p>
+            {job.description.map((paragraph) => (
+              <p key={paragraph}>{paragraph}</p>
+            ))}
+            {job.sourceUrl ? (
+              <p className="job-detail-summary__source">
+                This concise summary helps you assess the role quickly. Read the original advert for the
+                complete responsibilities, requirements and application instructions.
+              </p>
+            ) : null}
+          </section>
           {job.responsibilities.length ? (
             <section>
               <h2>What you’ll do</h2>
@@ -141,30 +199,65 @@ export default async function JobPage({ params, searchParams }: JobPageProps) {
               </ul>
             </section>
           ) : null}
+          <section className="job-employer-card">
+            <div className="job-employer-card__header">
+              <EmployerLogo
+                imageClassName="job-employer-card__logo"
+                logoUrl={job.employerLogoUrl}
+                monogramClassName="job-employer-card__monogram"
+                name={job.organisation}
+              />
+              <div>
+                <p className="eyebrow">Organisation</p>
+                <h2>{job.organisation}</h2>
+              </div>
+            </div>
+            {job.employerOverview.length ? (
+              job.employerOverview.map((paragraph) => <p key={paragraph}>{paragraph}</p>)
+            ) : (
+              <p>Explore this organisation’s profile and current conservation opportunities.</p>
+            )}
+            {job.employerOverviewIsAi ? (
+              <p className="job-employer-card__ai-note">
+                AI-generated organisation overview based on available public information.
+              </p>
+            ) : null}
+            <div className="job-employer-card__links">
+              {job.employerSlug ? (
+                <Link className="action action--outline" href={`/employers/${job.employerSlug}`}>
+                  View organisation profile <span aria-hidden="true">→</span>
+                </Link>
+              ) : null}
+              {job.employerWebsiteUrl ? (
+                <a className="text-link" href={job.employerWebsiteUrl} rel="noreferrer" target="_blank">
+                  Official website <span aria-hidden="true">↗</span>
+                </a>
+              ) : null}
+            </div>
+          </section>
         </article>
 
         <aside className="job-detail-sidebar" aria-label="Job facts">
           <div className="job-facts-card">
-            <p className="eyebrow">Job overview</p>
+            <p className="eyebrow">Applications</p>
+            <h2>{job.closesAt ? `Apply by ${formatDate(job.closesAt)}` : "Applications currently open"}</h2>
+            <p className="job-facts-card__intro">Applications are handled on the original vacancy site.</p>
+            <div className="job-detail-sidebar__actions">
+              {job.applicationUrl ? (
+                <a className="primary-action" href={job.applicationUrl} rel="noreferrer" target="_blank">
+                  Apply now <span aria-hidden="true">↗</span>
+                </a>
+              ) : null}
+              <SaveJobControl
+                className="save-action save-action--card"
+                jobId={job.id}
+                jobSlug={job.slug}
+                state={candidateSaveState.isSignedIn ? (isSaved ? "saved" : "available") : "signed-out"}
+              />
+            </div>
             <dl>
               <div>
-                <dt>Organisation</dt>
-                <dd>
-                  {job.employerSlug ? (
-                    <Link className="fact-link" href={`/employers/${job.employerSlug}`}>
-                      {job.organisation}
-                    </Link>
-                  ) : (
-                    job.organisation
-                  )}
-                </dd>
-              </div>
-              <div>
-                <dt>Location</dt>
-                <dd>{job.location}</dd>
-              </div>
-              <div>
-                <dt>Workplace</dt>
+                <dt>Working arrangement</dt>
                 <dd>{job.locationType}</dd>
               </div>
               <div>
@@ -172,15 +265,7 @@ export default async function JobPage({ params, searchParams }: JobPageProps) {
                 <dd>{job.engagementType ?? "Not specified"}</dd>
               </div>
               <div>
-                <dt>Job type</dt>
-                <dd>{jobType || job.employmentType}</dd>
-              </div>
-              <div>
-                <dt>Salary</dt>
-                <dd>{job.salary}</dd>
-              </div>
-              <div>
-                <dt>Added</dt>
+                <dt>Posted</dt>
                 <dd>{formatDate(job.postedAt)}</dd>
               </div>
               <div>
@@ -201,26 +286,57 @@ export default async function JobPage({ params, searchParams }: JobPageProps) {
               </div>
             </dl>
             <p className="job-facts-card__notice">
-              WildJobs has reviewed this listing against the original vacancy. Applications are handled on the
-              linked application site.
+              WildJobs collected this vacancy from an approved source and checked its essential details
+              against the original listing.
             </p>
-            {job.applicationUrl ? (
-              <a className="primary-action" href={job.applicationUrl} rel="noreferrer" target="_blank">
-                {job.applicationLabel ?? "Open application page"} <span aria-hidden="true">↗</span>
-              </a>
-            ) : null}
-            <SaveJobControl
-              className="save-action save-action--card"
-              jobId={job.id}
-              jobSlug={job.slug}
-              state={candidateSaveState.isSignedIn ? (isSaved ? "saved" : "available") : "signed-out"}
-            />
             <Link className="text-link job-facts-card__other-roles" href="/jobs">
               Explore other roles <span aria-hidden="true">→</span>
             </Link>
           </div>
         </aside>
       </div>
+
+      <div className="job-detail-mobile-actions">
+        {job.applicationUrl ? (
+          <a className="primary-action" href={job.applicationUrl} rel="noreferrer" target="_blank">
+            Apply now <span aria-hidden="true">↗</span>
+          </a>
+        ) : null}
+        <SaveJobControl
+          className="save-action"
+          jobId={job.id}
+          jobSlug={job.slug}
+          state={candidateSaveState.isSignedIn ? (isSaved ? "saved" : "available") : "signed-out"}
+        />
+      </div>
+
+      {relatedJobs.length ? (
+        <section className="job-detail-related">
+          <div className="shell">
+            <div className="job-results__heading">
+              <h2>Other jobs you may like</h2>
+              <Link className="text-link" href="/jobs">
+                View all jobs <span aria-hidden="true">→</span>
+              </Link>
+            </div>
+            <div className="job-list">
+              {relatedJobs.map((relatedJob) => (
+                <JobCard
+                  job={relatedJob}
+                  key={relatedJob.slug}
+                  saveState={
+                    candidateSaveState.isSignedIn && relatedJob.id && savedJobIds.has(relatedJob.id)
+                      ? "saved"
+                      : candidateSaveState.isSignedIn
+                        ? "available"
+                        : "signed-out"
+                  }
+                />
+              ))}
+            </div>
+          </div>
+        </section>
+      ) : null}
     </main>
   );
 }
