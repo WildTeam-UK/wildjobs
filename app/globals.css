@@ -1790,6 +1790,13 @@ select {
   margin: 14px 0 4px;
   font-size: 1.35rem;
 }
+.source-list h3 a {
+  color: inherit;
+  font-size: inherit;
+}
+.source-list h3 a:hover {
+  color: var(--wt-color-brand-pink);
+}
 .source-list p,
 .source-list article > span {
   margin: 0;
@@ -1884,6 +1891,43 @@ select {
   width: 18px;
   height: 18px;
   margin: 1px 0 0;
+}
+.source-record-list {
+  display: grid;
+  gap: 12px;
+}
+.source-record-list article {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 28px;
+  padding: 24px;
+  border: 1px solid var(--wt-color-rule);
+  border-radius: var(--wt-radius-panel);
+  background: var(--wt-color-paper);
+}
+.source-record-list h2 {
+  margin: 14px 0 5px;
+  font-size: 1.3rem;
+}
+.source-record-list p {
+  margin: 0;
+  color: var(--wt-color-muted);
+  font-size: 0.78rem;
+}
+.source-record-list__actions {
+  display: grid;
+  justify-items: end;
+  gap: 12px;
+  text-align: right;
+}
+.source-record-list__actions a:not(.staff-source-toggle) {
+  color: var(--wt-color-brand-purple);
+  font-size: 0.78rem;
+  font-weight: var(--wt-font-weight-bold);
+}
+.source-record-list__actions a:not(.staff-source-toggle):hover {
+  color: var(--wt-color-brand-pink);
 }
 .staff-form-message {
   margin: 0 0 20px;
@@ -2878,6 +2922,14 @@ select {
   }
   .staff-source-form {
     position: static;
+  }
+  .source-record-list article {
+    align-items: stretch;
+    flex-direction: column;
+  }
+  .source-record-list__actions {
+    justify-items: start;
+    text-align: left;
   }
   .import-list article {
     grid-template-columns: 1fr auto;

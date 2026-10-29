@@ -2,27 +2,33 @@
 
 ## Current implementation
 
-WildJobs is a Next.js App Router application written in strict TypeScript and intended for independent Vercel deployment. The initial scaffold uses in-repository fixture data only.
+WildJobs is a Next.js App Router application written in strict TypeScript and independently deployed on Vercel. Public job pages, candidate authentication and staff vacancy operations are connected to the independent WildJobs Supabase project. Employer, career, course and submission areas still include prototype content.
 
 ```text
 browser
   -> Next.js server-rendered public pages
-  -> client-side filtering of the small fixture collection
-  -> no external APIs, database, authentication or tracking
+       -> Supabase public job catalogue protected by Row Level Security
+       -> Supabase Auth for candidate and staff sessions
+       -> authenticated staff review and publication actions
+       -> administrator-triggered WWT vacancy discovery
+  -> no optional analytics or marketing integration
 ```
 
-## Planned production architecture
+## Beta architecture
 
 ```text
 browser
   -> Vercel CDN and Next.js application
        -> server-rendered job discovery pages
-       -> Route Handlers for approved writes and integrations
+       -> Server Actions for approved staff writes
        -> separate WildJobs Supabase project
             -> Postgres
             -> Row Level Security
-            -> staff-only Supabase Auth
-       -> approved job-source adapter
+            -> candidate and staff Supabase Auth
+       -> exact-host WWT source adapter
+            -> public vacancy identities and content hashes only
+            -> private discovery queue
+            -> manual review before publication
 ```
 
 The first production backend should use normal request-driven Vercel Functions. Do not introduce Services, Queues or durable Workflows until workload evidence requires them.
@@ -41,13 +47,13 @@ Do not commit a sibling `file:` dependency. During package development, temporar
 
 `@wildteam-uk/tokens` is the source of truth for shared `--wt-*` values. GitHub Actions reads the package with its repository-scoped workflow token. Local developers authenticate through their personal npm configuration; credentials are never committed. Before the first Vercel preview, configure a read-only package token in Vercel's secret environment without exposing it to application runtime code.
 
-## Planned database boundary
+## Database boundary
 
-The independent `wildjobs` Supabase project and empty beta schema were created in the WildTeam UK organisation on 2026-10-28. The application still uses fixtures and is not connected to the hosted database.
+The independent `wildjobs` Supabase project and beta schema were created in the WildTeam UK organisation on 2026-10-28. The application reads and writes the hosted database through authenticated, RLS-protected clients; no service-role key is exposed to the browser.
 
 The schema includes employers, jobs, career areas, course-capability mappings, provenance, import runs, controlled employer submissions, candidate profiles, saved jobs, preferences and staff moderation. All changes remain ordered migrations in `supabase/migrations`.
 
-Every table in an exposed schema must have RLS. Public access will be limited to active, approved listings. Staff access will require an active staff record, while imports will use server-only credentials.
+Every table in an exposed schema has RLS. Public access is limited to active, approved listings. Staff access requires an active staff record. The first connector is a manual administrator action running on the server; future scheduled connectors will require a separately approved server-only credential path.
 
 ## Search
 
@@ -55,7 +61,7 @@ Start with Postgres full-text search and appropriate indexes. Do not add a separ
 
 ## Privacy and measurement
 
-The initial public scaffold stores no personal data and loads no optional analytics. Public accounts, saved jobs, alerts and measurement require separate privacy and consent review.
+Supabase Auth and candidate-owned records hold the minimum account data required for enabled account features. The application loads no optional analytics. Alerts, marketing integration and cross-application measurement require separate privacy and consent review.
 
 ## Environments
 

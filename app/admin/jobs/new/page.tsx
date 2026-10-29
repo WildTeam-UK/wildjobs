@@ -7,14 +7,41 @@ import { createClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = { title: "Add vacancy" };
 
-export default async function NewAdminJobPage() {
+type NewAdminJobPageProps = {
+  searchParams: Promise<{ recordId?: string }>;
+};
+
+export default async function NewAdminJobPage({ searchParams }: NewAdminJobPageProps) {
   await requireAdministrator();
   const supabase = await createClient();
-  const { data: sources, error } = await supabase
-    .from("job_sources")
-    .select("id, name")
-    .eq("is_active", true)
-    .order("name");
+  const recordId = Number((await searchParams).recordId);
+  const [sourcesResult, recordResult] = await Promise.all([
+    supabase.from("job_sources").select("id, name").eq("is_active", true).order("name"),
+    Number.isSafeInteger(recordId) && recordId > 0
+      ? supabase
+          .from("job_source_records")
+          .select("id, source_id, canonical_url, mapping_status, job_id, job_sources(name, is_active)")
+          .eq("id", recordId)
+          .maybeSingle()
+      : Promise.resolve({ data: null, error: null }),
+  ]);
+  const sources = sourcesResult.data;
+  const error = sourcesResult.error;
+  const sourceRecord = recordResult.data;
+  const canonicalUrl = sourceRecord?.canonical_url ?? undefined;
+  const defaults =
+    sourceRecord &&
+    canonicalUrl &&
+    sourceRecord.job_id === null &&
+    sourceRecord.job_sources?.is_active &&
+    ["unmapped", "possible_duplicate"].includes(sourceRecord.mapping_status)
+      ? {
+          applicationUrl: canonicalUrl,
+          canonicalUrl,
+          employerName: sourceRecord.job_sources?.name,
+          sourceId: sourceRecord.source_id,
+        }
+      : undefined;
 
   return (
     <main className="staff-page">
@@ -39,7 +66,11 @@ export default async function NewAdminJobPage() {
             The approved sources could not be loaded. Please return to the queue and try again.
           </p>
         ) : sources?.length ? (
-          <ManualJobForm sources={sources} today={new Date().toISOString().slice(0, 10)} />
+          <ManualJobForm
+            defaults={defaults}
+            sources={sources}
+            today={new Date().toISOString().slice(0, 10)}
+          />
         ) : (
           <div className="staff-empty-state">
             <p className="eyebrow">Source required</p>

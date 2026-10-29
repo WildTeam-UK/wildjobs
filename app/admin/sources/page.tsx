@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 
-import { addSource, setSourceStatus } from "@/app/admin/sources/actions";
+import { addSource, runSourceDiscovery, setSourceStatus } from "@/app/admin/sources/actions";
+import { isSupportedWwtSource } from "@/lib/admin/wwt-source";
 import { requireStaff } from "@/lib/auth/staff";
 import { createClient } from "@/lib/supabase/server";
 
@@ -17,6 +19,8 @@ const errorMessages: Record<string, string> = {
   "invalid-status": "Choose a valid source status.",
   "invalid-type": "Choose one of the available source types.",
   "invalid-url": "Enter a complete HTTPS careers, feed or API URL.",
+  "connection-unavailable": "The vacancy check could not be started. Please try again.",
+  "unsupported-connection": "That source does not have an approved connector yet.",
   unavailable: "The source could not be saved. Please try again.",
 };
 
@@ -86,7 +90,9 @@ export default async function SourcesPage({ searchParams }: SourcesPageProps) {
               <article key={source.id}>
                 <div>
                   <span className="status-badge">{source.is_active ? "Active" : "Paused"}</span>
-                  <h3>{source.name}</h3>
+                  <h3>
+                    <Link href={`/admin/sources/${source.id}`}>{source.name}</Link>
+                  </h3>
                   <p>{sourceLabels[source.source_type] ?? source.source_type}</p>
                 </div>
                 <div className="source-list__actions">
@@ -98,13 +104,23 @@ export default async function SourcesPage({ searchParams }: SourcesPageProps) {
                     <span>No external URL recorded</span>
                   )}
                   {staff.role === "admin" ? (
-                    <form action={setSourceStatus}>
-                      <input name="sourceId" type="hidden" value={source.id} />
-                      <input name="status" type="hidden" value={source.is_active ? "paused" : "active"} />
-                      <button className="staff-source-toggle" type="submit">
-                        {source.is_active ? "Pause source" : "Reactivate source"}
-                      </button>
-                    </form>
+                    <>
+                      {source.is_active && isSupportedWwtSource(source.authoritative_base_url) ? (
+                        <form action={runSourceDiscovery}>
+                          <input name="sourceId" type="hidden" value={source.id} />
+                          <button className="staff-source-toggle" type="submit">
+                            Check for vacancies
+                          </button>
+                        </form>
+                      ) : null}
+                      <form action={setSourceStatus}>
+                        <input name="sourceId" type="hidden" value={source.id} />
+                        <input name="status" type="hidden" value={source.is_active ? "paused" : "active"} />
+                        <button className="staff-source-toggle" type="submit">
+                          {source.is_active ? "Pause source" : "Reactivate source"}
+                        </button>
+                      </form>
+                    </>
                   ) : null}
                 </div>
               </article>

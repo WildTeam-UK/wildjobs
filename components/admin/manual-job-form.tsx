@@ -7,9 +7,24 @@ import { SubmitButton } from "@/components/submit-button";
 
 type VacancySource = { id: number; name: string };
 
+type ManualJobDefaults = {
+  applicationUrl?: string;
+  canonicalUrl?: string;
+  employerName?: string;
+  sourceId?: number;
+};
+
 const initialState: JobIntakeActionState = { error: null };
 
-export function ManualJobForm({ sources, today }: { sources: readonly VacancySource[]; today: string }) {
+export function ManualJobForm({
+  defaults,
+  sources,
+  today,
+}: {
+  defaults?: ManualJobDefaults;
+  sources: readonly VacancySource[];
+  today: string;
+}) {
   const [state, action] = useActionState(createManualJob, initialState);
 
   return (
@@ -26,7 +41,7 @@ export function ManualJobForm({ sources, today }: { sources: readonly VacancySou
         <div className="staff-job-form__grid">
           <div>
             <label htmlFor="source-id">Approved source</label>
-            <select id="source-id" name="sourceId" required>
+            <select defaultValue={defaults?.sourceId ?? ""} id="source-id" name="sourceId" required>
               <option value="">Choose a source</option>
               {sources.map((source) => (
                 <option key={source.id} value={source.id}>
@@ -37,11 +52,24 @@ export function ManualJobForm({ sources, today }: { sources: readonly VacancySou
           </div>
           <div>
             <label htmlFor="canonical-url">Original vacancy URL</label>
-            <input id="canonical-url" name="canonicalUrl" placeholder="https://…" required type="url" />
+            <input
+              defaultValue={defaults?.canonicalUrl}
+              id="canonical-url"
+              name="canonicalUrl"
+              placeholder="https://…"
+              required
+              type="url"
+            />
           </div>
           <div>
             <label htmlFor="employer-name">Employer name</label>
-            <input id="employer-name" maxLength={160} name="employerName" required />
+            <input
+              defaultValue={defaults?.employerName}
+              id="employer-name"
+              maxLength={160}
+              name="employerName"
+              required
+            />
           </div>
           <div>
             <label htmlFor="employer-website-url">
@@ -157,7 +185,14 @@ export function ManualJobForm({ sources, today }: { sources: readonly VacancySou
           </div>
           <div className="staff-job-form__wide">
             <label htmlFor="application-url">Application URL</label>
-            <input id="application-url" name="applicationUrl" placeholder="https://…" required type="url" />
+            <input
+              defaultValue={defaults?.applicationUrl}
+              id="application-url"
+              name="applicationUrl"
+              placeholder="https://…"
+              required
+              type="url"
+            />
           </div>
         </div>
       </fieldset>
