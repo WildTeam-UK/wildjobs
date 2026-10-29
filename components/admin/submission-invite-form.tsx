@@ -100,7 +100,8 @@ export function SubmissionInviteForm({ employers }: { employers: readonly Employ
             {copyMessage}
           </p>
           <p className="submission-invite-result__warning">
-            Do not send this link yet. The secure employer form will be connected in the next batch.
+            Send this link only to the intended employer contact. Anyone who has it can use it once before it
+            expires.
           </p>
         </section>
       ) : null}
