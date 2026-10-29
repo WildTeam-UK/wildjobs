@@ -67,6 +67,32 @@ export type Database = {
           },
         ];
       };
+      candidate_hours_preferences: {
+        Row: {
+          created_at: string;
+          hours_type: string;
+          user_id: string;
+        };
+        Insert: {
+          created_at?: string;
+          hours_type: string;
+          user_id: string;
+        };
+        Update: {
+          created_at?: string;
+          hours_type?: string;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "candidate_hours_preferences_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "candidate_profiles";
+            referencedColumns: ["user_id"];
+          },
+        ];
+      };
       candidate_preferences: {
         Row: {
           created_at: string;
@@ -1088,6 +1114,17 @@ export type Database = {
       publish_job_review_draft: {
         Args: { p_job_id: number };
         Returns: string;
+      };
+      replace_candidate_preferences: {
+        Args: {
+          p_career_area_ids: number[];
+          p_contract_types: string[];
+          p_experience_level: string;
+          p_hours_types: string[];
+          p_preferred_location: string;
+          p_workplace_types: string[];
+        };
+        Returns: undefined;
       };
       update_employer_review_profile: {
         Args: {

@@ -24,6 +24,7 @@ export type PublicJobRecord = Readonly<{
   created_at: string;
   description: string | null;
   employers: PublicEmployerRecord | null;
+  experience_level: string | null;
   hours_type: string | null;
   job_career_areas: readonly PublicCareerAreaRecord[];
   location_text: string | null;
@@ -115,12 +116,16 @@ export function mapPublicJob(record: PublicJobRecord): Job {
     availability: availability(record),
     applicationUrl: record.application_url ?? undefined,
     category,
+    careerAreas: careerAreas.flatMap((relation) =>
+      relation.career_areas ? [relation.career_areas.title] : [],
+    ),
     closesAt: dateOnly(record.closes_at) ?? "",
     contractType,
     countryCode: record.country_code ?? undefined,
     description: description.length ? description : [summary],
     employerSlug: employer?.slug,
     employmentType: hoursType ?? contractType ?? "Not stated",
+    experienceLevel: record.experience_level ?? undefined,
     hoursType,
     id: record.id,
     location: record.location_text?.trim() || record.region?.trim() || "Location not stated",

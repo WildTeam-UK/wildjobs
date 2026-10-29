@@ -21,8 +21,10 @@ export type Job = Readonly<{
   locationType: LocationType;
   employmentType: EmploymentType;
   contractType?: string;
+  experienceLevel?: string;
   hoursType?: string;
   category: string;
+  careerAreas?: readonly string[];
   salary: string;
   summary: string;
   description: readonly string[];

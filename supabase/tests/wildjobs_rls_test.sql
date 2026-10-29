@@ -2,7 +2,7 @@ begin;
 
 create extension if not exists pgtap with schema extensions;
 
-select plan(20);
+select plan(26);
 
 insert into auth.users (id, email)
 values
@@ -219,11 +219,12 @@ select is(
         'job_sources', 'job_source_records', 'import_runs', 'submission_invites',
         'employer_submissions', 'moderation_events', 'candidate_profiles',
         'saved_jobs', 'candidate_preferences', 'candidate_career_area_preferences',
-        'candidate_workplace_preferences', 'candidate_contract_preferences'
+        'candidate_workplace_preferences', 'candidate_hours_preferences',
+        'candidate_contract_preferences'
       )
       and pg_class.relrowsecurity
   ),
-  21::bigint,
+  22::bigint,
   'RLS is enabled on every WildJobs public table'
 );
 
@@ -264,6 +265,44 @@ select is(
   'A candidate sees only their own saved jobs'
 );
 
+select lives_ok(
+  $$
+    select public.replace_candidate_preferences(
+      'Bristol',
+      'developing',
+      array(select id from public.career_areas where slug in ('science-and-research', 'programme-management')),
+      array['remote', 'hybrid'],
+      array['full_time', 'part_time'],
+      array['fixed_term']
+    )
+  $$,
+  'A candidate can replace their own preferences atomically'
+);
+
+select is(
+  (select count(*) from public.candidate_preferences),
+  1::bigint,
+  'A candidate can read their preference summary'
+);
+
+select is(
+  (select count(*) from public.candidate_career_area_preferences),
+  2::bigint,
+  'A candidate can read their career area preferences'
+);
+
+select is(
+  (select count(*) from public.candidate_workplace_preferences),
+  2::bigint,
+  'A candidate can read their workplace preferences'
+);
+
+select is(
+  (select count(*) from public.candidate_hours_preferences),
+  2::bigint,
+  'A candidate can read their hours preferences'
+);
+
 select results_eq(
   $$select slug from public.jobs where slug = 'expired-saved-job'$$,
   array['expired-saved-job'::text],
@@ -282,6 +321,12 @@ select is(
   (select count(*) from public.saved_jobs),
   0::bigint,
   'Another candidate cannot see the first candidate saved jobs'
+);
+
+select is(
+  (select count(*) from public.candidate_preferences),
+  0::bigint,
+  'Another candidate cannot see the first candidate preferences'
 );
 
 select lives_ok(

@@ -9,8 +9,8 @@ export default async function AccountLayout({ children }: { children: ReactNode 
     <>
       <aside className="fixture-notice account-preview-notice">
         <div className="shell">
-          <strong>Your account is connected.</strong> Saved jobs are private to this account. Preferences
-          remain a design preview until the next build stage.
+          <strong>Your account is connected.</strong> Saved jobs and job preferences are private to this
+          account.
         </div>
       </aside>
       <AccountNav email={candidate.email} />

@@ -15,6 +15,7 @@ const record: PublicJobRecord = {
     slug: "wetland-trust",
     website_url: "https://example.org",
   },
+  experience_level: "developing",
   hours_type: "full_time",
   job_career_areas: [
     { career_areas: { slug: "fieldwork", title: "Fieldwork" }, is_primary: false },
@@ -43,9 +44,11 @@ describe("public job mapping", () => {
     const job = mapPublicJob(record);
 
     expect(job).toMatchObject({
+      careerAreas: ["Science and research", "Fieldwork"],
       category: "Science and research",
       contractType: "Fixed term",
       employmentType: "Full time",
+      experienceLevel: "developing",
       hoursType: "Full time",
       id: 42,
       locationType: "On-site",

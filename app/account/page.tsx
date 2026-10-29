@@ -1,15 +1,24 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { JobCard } from "@/components/job-card";
+import { getCandidatePreferenceData } from "@/lib/candidate-preferences";
 import { getCandidateSavedJobs } from "@/lib/candidate-saved-jobs";
+import { matchJobsToPreferences } from "@/lib/job-preference-matching";
 import { getPublicJobs } from "@/lib/public-jobs";
 
 export const metadata: Metadata = { title: "Your account" };
 
 export default async function AccountPage() {
-  const [savedJobs, currentJobs] = await Promise.all([getCandidateSavedJobs(), getPublicJobs()]);
+  const [savedJobs, currentJobs, { preferences }] = await Promise.all([
+    getCandidateSavedJobs(),
+    getPublicJobs(),
+    getCandidatePreferenceData(),
+  ]);
   const savedJobIds = new Set(savedJobs.map((job) => job.id));
-  const recentJobs = currentJobs.filter((job) => !savedJobIds.has(job.id)).slice(0, 2);
+  const availableJobs = currentJobs.filter((job) => !savedJobIds.has(job.id));
+  const relevantJobs = preferences.hasPreferences
+    ? matchJobsToPreferences(availableJobs, preferences).slice(0, 2)
+    : availableJobs.slice(0, 2);
 
   return (
     <main>
@@ -30,9 +39,11 @@ export default async function AccountPage() {
           <small>Review roles and closing dates →</small>
         </Link>
         <Link href="/account/preferences">
-          <span>Next</span>
+          <span>{String(preferences.preferenceCount).padStart(2, "0")}</span>
           <strong>Job preferences</strong>
-          <small>Choose what makes a role useful →</small>
+          <small>
+            {preferences.hasPreferences ? "Inspect and change them →" : "Choose what makes a role useful →"}
+          </small>
         </Link>
         <div>
           <span>Off</span>
@@ -45,28 +56,39 @@ export default async function AccountPage() {
         <div className="shell">
           <div className="section-heading section-heading--with-link">
             <div>
-              <p className="eyebrow">Recently added</p>
-              <h2>More roles worth a closer look.</h2>
+              <p className="eyebrow">
+                {preferences.hasPreferences ? "Based on your preferences" : "Recently added"}
+              </p>
+              <h2>
+                {preferences.hasPreferences
+                  ? "Roles that share your choices."
+                  : "More roles worth a closer look."}
+              </h2>
             </div>
             <Link className="text-link" href="/jobs">
               Explore all jobs →
             </Link>
           </div>
-          {recentJobs.length ? (
+          {relevantJobs.length ? (
             <div className="job-list">
-              {recentJobs.map((job) => (
+              {relevantJobs.map((job) => (
                 <JobCard job={job} key={job.slug} saveState="available" />
               ))}
             </div>
           ) : (
             <div className="empty-state">
-              <h3>You’re caught up.</h3>
-              <p>Newly published roles will appear here.</p>
+              <h3>{preferences.hasPreferences ? "No current matches yet." : "You’re caught up."}</h3>
+              <p>
+                {preferences.hasPreferences
+                  ? "Your choices are saved and new roles will be checked against them."
+                  : "Newly published roles will appear here."}
+              </p>
             </div>
           )}
           <p className="recommendation-note">
-            These are recently added roles, not personalised recommendations. Preference-based matching is the
-            next account stage and will use only choices you can inspect and change.
+            {preferences.hasPreferences
+              ? "These transparent matches use only the preferences you can inspect and change. They are not eligibility decisions."
+              : "These are recently added roles, not personalised recommendations. Add preferences when you want more relevant suggestions."}
           </p>
         </div>
       </section>

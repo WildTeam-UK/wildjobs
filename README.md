@@ -2,7 +2,7 @@
 
 WildJobs is WildTeam's independent conservation careers platform, intended for `jobs.wildteam.org.uk`.
 
-The application is connected to its independent Supabase project. Public job discovery and employer profiles read approved live records, candidate email/password authentication is connected, and authorised staff can curate, review and publish jobs. Source connectors check WWT's public vacancy page and the reviewed Countryside Jobs Service RSS feed, automatically every two hours or on demand, and route discoveries into manual review without automatic publication. Career and submission areas still contain clearly labelled prototype content. Analytics and marketing integrations are not implemented yet.
+The application is connected to its independent Supabase project. Public job discovery and employer profiles read approved live records; candidate authentication, private saved jobs and explicit job preferences are connected; and authorised staff can curate, review and publish jobs. Source connectors check WWT's public vacancy page and the reviewed Countryside Jobs Service RSS feed, automatically every two hours or on demand, and route discoveries into manual review without automatic publication. Career and submission areas still contain clearly labelled prototype content. Analytics and marketing integrations are not implemented yet.
 
 The approved beta direction is documented in `docs/IMPLEMENTATION_PLAN.md` and `docs/EXPERIENCE_BLUEPRINT.md`.
 

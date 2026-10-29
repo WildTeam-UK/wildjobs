@@ -18,6 +18,7 @@ export const publicJobFields = `
   location_text,
   country_code,
   region,
+  experience_level,
   workplace_type,
   contract_type,
   hours_type,

@@ -1425,6 +1425,9 @@ select {
   gap: 10px;
 }
 .choice-grid--compact {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.choice-grid--contracts {
   grid-template-columns: repeat(5, minmax(0, 1fr));
 }
 .choice-grid label {
@@ -1497,6 +1500,28 @@ select {
   margin: 0;
   color: var(--wt-color-muted);
   font-size: 0.76rem;
+}
+.preferences-clear {
+  padding: 10px 0;
+  border: 0;
+  background: transparent;
+  color: var(--wt-color-brand-purple);
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.76rem;
+  font-weight: var(--wt-font-weight-bold);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.preferences-clear:hover {
+  color: var(--wt-color-brand-pink);
+}
+.preferences-clear:focus-visible {
+  outline: 3px solid var(--wt-color-brand-pink);
+  outline-offset: 4px;
+}
+.preference-preview {
+  background: var(--wt-color-cream);
 }
 .auth-page {
   padding: clamp(58px, 8vw, 100px) 0;
