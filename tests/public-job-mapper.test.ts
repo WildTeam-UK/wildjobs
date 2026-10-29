@@ -70,6 +70,7 @@ describe("public job mapping", () => {
       category: "Conservation",
       employmentType: "Not stated",
       location: "Location not stated",
+      locationType: "Not specified",
       organisation: "Employer not stated",
       salary: "Salary not stated",
     });

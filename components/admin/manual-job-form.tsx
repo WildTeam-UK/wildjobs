@@ -4,6 +4,7 @@ import { useActionState } from "react";
 
 import { createManualJob, type JobIntakeActionState } from "@/app/admin/jobs/new/actions";
 import { SubmitButton } from "@/components/submit-button";
+import type { VacancyFieldEvidence } from "@/lib/admin/vacancy-detail-extraction";
 
 type VacancySource = { id: number; name: string };
 
@@ -16,6 +17,7 @@ type ManualJobDefaults = {
   description?: string;
   employerName?: string;
   experienceLevel?: string;
+  fieldEvidence?: VacancyFieldEvidence[];
   hoursType?: string;
   locationText?: string;
   postedAt?: string;
@@ -27,6 +29,17 @@ type ManualJobDefaults = {
 };
 
 const initialState: JobIntakeActionState = { error: null };
+const evidenceLabels: Record<VacancyFieldEvidence["fieldName"], string> = {
+  contract_type: "Contract",
+  experience_level: "Experience",
+  hours_type: "Hours",
+  salary_text: "Salary",
+  workplace_type: "Workplace",
+};
+
+function readableValue(value: string) {
+  return value.replaceAll("_", " ");
+}
 
 export function ManualJobForm({
   defaults,
@@ -51,6 +64,27 @@ export function ManualJobForm({
         <div className="staff-form-message" role="status">
           <strong>Imported details added.</strong> Check every field against the original vacancy before you
           create the private review draft.
+        </div>
+      ) : null}
+
+      {defaults?.fieldEvidence ? (
+        <div className="staff-form-message">
+          <strong>What the feed actually told us</strong>
+          <ul>
+            {defaults.fieldEvidence.map((item) => (
+              <li key={item.fieldName}>
+                <strong>{evidenceLabels[item.fieldName]}:</strong>{" "}
+                {item.resolutionStatus === "extracted" ? (
+                  <>
+                    {readableValue(item.value ?? "")} ({item.confidence}% confidence; evidence: “
+                    {item.evidenceText}”)
+                  </>
+                ) : (
+                  "Not specified in the feed — no assumption made"
+                )}
+              </li>
+            ))}
+          </ul>
         </div>
       ) : null}
 
@@ -172,7 +206,7 @@ export function ManualJobForm({
           <div>
             <label htmlFor="workplace-type">Workplace</label>
             <select
-              defaultValue={defaults?.workplaceType ?? ""}
+              defaultValue={defaults ? (defaults.workplaceType ?? "not_specified") : ""}
               id="workplace-type"
               name="workplaceType"
               required
@@ -181,12 +215,13 @@ export function ManualJobForm({
               <option value="remote">Remote</option>
               <option value="hybrid">Hybrid</option>
               <option value="on_site">On-site</option>
+              <option value="not_specified">Not specified</option>
             </select>
           </div>
           <div>
             <label htmlFor="contract-type">Contract</label>
             <select
-              defaultValue={defaults?.contractType ?? ""}
+              defaultValue={defaults ? (defaults.contractType ?? "not_specified") : ""}
               id="contract-type"
               name="contractType"
               required
@@ -197,21 +232,28 @@ export function ManualJobForm({
               <option value="temporary">Temporary</option>
               <option value="internship">Internship</option>
               <option value="apprenticeship">Apprenticeship</option>
+              <option value="not_specified">Not specified</option>
             </select>
           </div>
           <div>
             <label htmlFor="hours-type">Hours</label>
-            <select defaultValue={defaults?.hoursType ?? ""} id="hours-type" name="hoursType" required>
+            <select
+              defaultValue={defaults ? (defaults.hoursType ?? "not_specified") : ""}
+              id="hours-type"
+              name="hoursType"
+              required
+            >
               <option value="">Choose one</option>
               <option value="full_time">Full time</option>
               <option value="part_time">Part time</option>
               <option value="flexible">Flexible</option>
+              <option value="not_specified">Not specified</option>
             </select>
           </div>
           <div>
             <label htmlFor="experience-level">Experience level</label>
             <select
-              defaultValue={defaults?.experienceLevel ?? ""}
+              defaultValue={defaults ? (defaults.experienceLevel ?? "not_specified") : ""}
               id="experience-level"
               name="experienceLevel"
               required
@@ -222,6 +264,7 @@ export function ManualJobForm({
               <option value="experienced">Experienced</option>
               <option value="leadership">Leadership</option>
               <option value="open">Open</option>
+              <option value="not_specified">Not specified</option>
             </select>
           </div>
         </div>
@@ -232,13 +275,15 @@ export function ManualJobForm({
         <div className="staff-job-form__grid">
           <div className="staff-job-form__wide">
             <label htmlFor="salary-text">Salary as advertised</label>
-            <input
-              defaultValue={defaults?.salaryText}
-              id="salary-text"
-              maxLength={240}
-              name="salaryText"
-              required
-            />
+            <input defaultValue={defaults?.salaryText} id="salary-text" maxLength={240} name="salaryText" />
+            <label>
+              <input
+                defaultChecked={Boolean(defaults && !defaults.salaryText)}
+                name="salaryNotStated"
+                type="checkbox"
+              />{" "}
+              Salary not stated by the employer
+            </label>
           </div>
           <div>
             <label htmlFor="posted-at">

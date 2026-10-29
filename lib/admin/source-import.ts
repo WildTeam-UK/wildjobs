@@ -6,6 +6,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 
 import { parseCjsVacancyFeed } from "@/lib/admin/feed-source";
 import { getSourceConnector, type SourceConnector } from "@/lib/admin/source-connector";
+import { extractVacancyFieldEvidence } from "@/lib/admin/vacancy-detail-extraction";
 import { parseWwtVacancies } from "@/lib/admin/wwt-source";
 import type { Database } from "@/lib/supabase/database.types";
 
@@ -125,6 +126,7 @@ export async function importApprovedSource(
     let recordsUpdated = 0;
     let recordsFlagged = 0;
     const seenAt = new Date().toISOString();
+    const evidenceRows: Database["public"]["Tables"]["job_source_field_evidence"]["Insert"][] = [];
 
     for (const vacancy of vacancies) {
       const contentHash = createHash("sha256").update(JSON.stringify(vacancy)).digest("hex");
@@ -152,29 +154,66 @@ export async function importApprovedSource(
           })
           .eq("id", existing.id);
         if (error) throw new Error("A source record could not be updated.");
+        evidenceRows.push(
+          ...extractVacancyFieldEvidence(vacancy.summary).map((item) => ({
+            confidence: item.confidence,
+            evidence_text: item.evidenceText,
+            extraction_method: item.extractionMethod,
+            extractor_version: item.extractorVersion,
+            field_name: item.fieldName,
+            resolution_status: item.resolutionStatus,
+            source_kind: item.sourceKind,
+            source_record_id: existing.id,
+            updated_at: seenAt,
+            value: item.value,
+          })),
+        );
         if (changed) recordsUpdated += 1;
         if (existing.mapping_status === "possible_duplicate") recordsFlagged += 1;
         continue;
       }
 
-      const { error } = await supabase.from("job_source_records").insert({
-        canonical_url: vacancy.canonicalUrl,
-        closes_at: vacancy.closesAt,
-        content_hash: contentHash,
-        employer_name: vacancy.employer,
-        external_id: vacancy.externalId,
-        first_seen_at: seenAt,
-        last_seen_at: seenAt,
-        location_text: vacancy.location,
-        mapping_status: "unmapped",
-        source_id: source.id,
-        source_title: vacancy.title,
-        source_updated_at: vacancy.publishedAt,
-        summary: vacancy.summary,
-      });
-      if (error) throw new Error("A source record could not be created.");
+      const { data: createdRecord, error } = await supabase
+        .from("job_source_records")
+        .insert({
+          canonical_url: vacancy.canonicalUrl,
+          closes_at: vacancy.closesAt,
+          content_hash: contentHash,
+          employer_name: vacancy.employer,
+          external_id: vacancy.externalId,
+          first_seen_at: seenAt,
+          last_seen_at: seenAt,
+          location_text: vacancy.location,
+          mapping_status: "unmapped",
+          source_id: source.id,
+          source_title: vacancy.title,
+          source_updated_at: vacancy.publishedAt,
+          summary: vacancy.summary,
+        })
+        .select("id")
+        .single();
+      if (error || !createdRecord) throw new Error("A source record could not be created.");
+      evidenceRows.push(
+        ...extractVacancyFieldEvidence(vacancy.summary).map((item) => ({
+          confidence: item.confidence,
+          evidence_text: item.evidenceText,
+          extraction_method: item.extractionMethod,
+          extractor_version: item.extractorVersion,
+          field_name: item.fieldName,
+          resolution_status: item.resolutionStatus,
+          source_kind: item.sourceKind,
+          source_record_id: createdRecord.id,
+          updated_at: seenAt,
+          value: item.value,
+        })),
+      );
       recordsCreated += 1;
     }
+
+    const { error: evidenceError } = await supabase
+      .from("job_source_field_evidence")
+      .upsert(evidenceRows, { onConflict: "source_record_id,field_name" });
+    if (evidenceError) throw new Error("Source evidence could not be saved.");
 
     const { error: completionError } = await supabase
       .from("import_runs")

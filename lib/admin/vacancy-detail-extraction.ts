@@ -6,6 +6,26 @@ export type ExtractedVacancyDetails = {
   workplaceType?: "hybrid" | "on_site" | "remote";
 };
 
+export type VacancyFieldName =
+  | "contract_type"
+  | "experience_level"
+  | "hours_type"
+  | "salary_text"
+  | "workplace_type";
+
+export type VacancyFieldEvidence = {
+  confidence: number;
+  evidenceText: string | null;
+  extractionMethod: "deterministic";
+  extractorVersion: "feed-rules-v1";
+  fieldName: VacancyFieldName;
+  resolutionStatus: "extracted" | "unresolved";
+  sourceKind: "feed";
+  value: string | null;
+};
+
+type MatchResult = { evidenceText: string; value: string } | undefined;
+
 function clean(value: string) {
   return value.replace(/\s+/g, " ").trim();
 }
@@ -31,79 +51,119 @@ function salaryBoundary(value: string) {
     .slice(0, 240);
 }
 
-function extractSalary(value: string) {
+function extractSalary(value: string): MatchResult {
   const labelled = /\bsalary(?:\s+details)?\s*(?::|is\s+|will\s+be\s+)/i.exec(value);
   if (labelled) {
     const remainder = value.slice(labelled.index + labelled[0].length).trim();
     const competitive = /^(?:pitched\s+)?competitively?(?:\s+for\s+the\s+right\s+candidate)?/i.exec(
       remainder,
     );
-    if (competitive) return competitive[0].trim();
-
-    const salary = salaryBoundary(remainder);
-    return /£\s?\d/.test(salary) ? salary : undefined;
+    const salary = competitive?.[0].trim() || salaryBoundary(remainder);
+    if (competitive || /£\s?\d/.test(salary)) return { evidenceText: salary, value: salary };
   }
 
   if (/^(?:(?:circa|from|starting|up to)\s+)?£\s?\d/i.test(value)) {
-    return salaryBoundary(value) || undefined;
+    const salary = salaryBoundary(value);
+    if (salary) return { evidenceText: salary, value: salary };
   }
 
   return undefined;
 }
 
-function extractContractType(value: string): ExtractedVacancyDetails["contractType"] {
-  if (/\bapprentice(?:ship)?\b/i.test(value)) return "apprenticeship";
-  if (/\bintern(?:ship)?\b/i.test(value)) return "internship";
-  if (/\b(?:seasonal|temporary)\b/i.test(value)) return "temporary";
-  if (
-    /\bfixed(?:\s|-)?term\b/i.test(value) ||
-    /\bcontract(?:\s+running)?\s+until\b/i.test(value) ||
-    /\b\d{1,2}[- ]month\s+contract\b/i.test(value)
-  ) {
-    return "fixed_term";
-  }
-  if (/\bpermanent\b/i.test(value)) return "permanent";
-  return undefined;
-}
-
-function extractHoursType(value: string): ExtractedVacancyDetails["hoursType"] {
-  const fullTime = /\bfull(?:\s|-)?time\b/i.test(value);
-  const partTime = /\bpart(?:\s|-)?time\b/i.test(value);
-
-  if (fullTime && partTime) return "flexible";
-  if (partTime) return "part_time";
-  if (fullTime) return "full_time";
-  if (/\bflexible\s+hours?\b/i.test(value)) return "flexible";
-  return undefined;
-}
-
-function extractWorkplaceType(value: string): ExtractedVacancyDetails["workplaceType"] {
-  if (/\bhybrid(?:\s+working)?\b/i.test(value)) return "hybrid";
-  if (/\b(?:home[- ]?based|remote(?:\s+working)?)\b/i.test(value)) return "remote";
-  if (/\b(?:office[- ]based|on[- ]site|site[- ]based)\b/i.test(value)) return "on_site";
-  return undefined;
-}
-
-function extractExperienceLevel(value: string): ExtractedVacancyDetails["experienceLevel"] {
-  if (/\b(?:all experience levels|no experience required|open to all levels)\b/i.test(value)) return "open";
-  if (/\b(?:entry[- ]level|trainee)\b/i.test(value)) return "entry";
-  if (/\b(?:early career|graduate|junior)\b/i.test(value)) return "developing";
-  if (/\b(?:leadership position|senior leadership)\b/i.test(value)) return "leadership";
-  if (/\b(?:experienced|proven track record|significant experience|substantial experience)\b/i.test(value)) {
-    return "experienced";
+function firstMatch(value: string, patterns: readonly RegExp[], result: string): MatchResult {
+  for (const pattern of patterns) {
+    const match = pattern.exec(value);
+    if (match) return { evidenceText: clean(match[0]), value: result };
   }
   return undefined;
+}
+
+function extractContractType(value: string): MatchResult {
+  return (
+    firstMatch(value, [/\bapprentice(?:ship)?\b/i], "apprenticeship") ??
+    firstMatch(value, [/\bintern(?:ship)?\b/i], "internship") ??
+    firstMatch(value, [/\b(?:seasonal|temporary)\b/i], "temporary") ??
+    firstMatch(
+      value,
+      [/\bfixed(?:\s|-)?term\b/i, /\bcontract(?:\s+running)?\s+until\b/i, /\b\d{1,2}[- ]month\s+contract\b/i],
+      "fixed_term",
+    ) ??
+    firstMatch(value, [/\bpermanent\b/i], "permanent")
+  );
+}
+
+function extractHoursType(value: string): MatchResult {
+  const fullTime = /\bfull(?:\s|-)?time\b/i.exec(value);
+  const partTime = /\bpart(?:\s|-)?time\b/i.exec(value);
+
+  if (fullTime && partTime) {
+    return { evidenceText: `${clean(fullTime[0])}; ${clean(partTime[0])}`, value: "flexible" };
+  }
+  if (partTime) return { evidenceText: clean(partTime[0]), value: "part_time" };
+  if (fullTime) return { evidenceText: clean(fullTime[0]), value: "full_time" };
+  return firstMatch(value, [/\bflexible\s+hours?\b/i], "flexible");
+}
+
+function extractWorkplaceType(value: string): MatchResult {
+  return (
+    firstMatch(value, [/\bhybrid(?:\s+working)?\b/i], "hybrid") ??
+    firstMatch(value, [/\b(?:home[- ]?based|remote(?:\s+working)?)\b/i], "remote") ??
+    firstMatch(value, [/\b(?:office[- ]based|on[- ]site|site[- ]based)\b/i], "on_site")
+  );
+}
+
+function extractExperienceLevel(value: string): MatchResult {
+  return (
+    firstMatch(value, [/\b(?:all experience levels|no experience required|open to all levels)\b/i], "open") ??
+    firstMatch(value, [/\b(?:entry[- ]level|trainee)\b/i], "entry") ??
+    firstMatch(value, [/\b(?:early career|graduate|junior)\b/i], "developing") ??
+    firstMatch(value, [/\b(?:leadership position|senior leadership)\b/i], "leadership") ??
+    firstMatch(
+      value,
+      [/\b(?:experienced|proven track record|significant experience|substantial experience)\b/i],
+      "experienced",
+    )
+  );
+}
+
+function evidence(
+  fieldName: VacancyFieldName,
+  result: MatchResult,
+  confidence: number,
+): VacancyFieldEvidence {
+  return {
+    confidence: result ? confidence : 0,
+    evidenceText: result?.evidenceText ?? null,
+    extractionMethod: "deterministic",
+    extractorVersion: "feed-rules-v1",
+    fieldName,
+    resolutionStatus: result ? "extracted" : "unresolved",
+    sourceKind: "feed",
+    value: result?.value ?? null,
+  };
+}
+
+export function extractVacancyFieldEvidence(sourceText: string | null): VacancyFieldEvidence[] {
+  const text = sourceText?.trim() ? clean(sourceText) : "";
+  return [
+    evidence("contract_type", text ? extractContractType(text) : undefined, 90),
+    evidence("experience_level", text ? extractExperienceLevel(text) : undefined, 75),
+    evidence("hours_type", text ? extractHoursType(text) : undefined, 90),
+    evidence("salary_text", text ? extractSalary(text) : undefined, 95),
+    evidence("workplace_type", text ? extractWorkplaceType(text) : undefined, 85),
+  ];
 }
 
 export function extractVacancyDetails(sourceText: string | null): ExtractedVacancyDetails {
-  if (!sourceText?.trim()) return {};
-  const text = clean(sourceText);
+  const values = new Map(
+    extractVacancyFieldEvidence(sourceText).map((item) => [item.fieldName, item.value ?? undefined]),
+  );
 
   return {
-    contractType: extractContractType(text),
-    experienceLevel: extractExperienceLevel(text),
-    hoursType: extractHoursType(text),
-    salaryText: extractSalary(text),
-    workplaceType: extractWorkplaceType(text),
+    contractType: values.get("contract_type") as ExtractedVacancyDetails["contractType"],
+    experienceLevel: values.get("experience_level") as ExtractedVacancyDetails["experienceLevel"],
+    hoursType: values.get("hours_type") as ExtractedVacancyDetails["hoursType"],
+    salaryText: values.get("salary_text"),
+    workplaceType: values.get("workplace_type") as ExtractedVacancyDetails["workplaceType"],
   };
 }

@@ -57,4 +57,26 @@ describe("manual job intake validation", () => {
   it("creates stable URL slugs", () => {
     expect(toSlug("People & Nature – Côte d'Ivoire")).toBe("people-nature-cote-d-ivoire");
   });
+
+  it("stores genuinely unstated facts as null instead of guessing", () => {
+    const result = validateJobIntake(
+      jobForm({
+        contractType: "not_specified",
+        experienceLevel: "not_specified",
+        hoursType: "not_specified",
+        salaryNotStated: "on",
+        salaryText: "",
+        workplaceType: "not_specified",
+      }),
+      "2026-10-28",
+    );
+
+    expect(result.data).toMatchObject({
+      contractType: null,
+      experienceLevel: null,
+      hoursType: null,
+      salaryText: null,
+      workplaceType: null,
+    });
+  });
 });

@@ -13,24 +13,24 @@ type JobIntakeInput = {
   applicationUrl: string;
   canonicalUrl: string;
   closesAt: string;
-  contractType: (typeof contractTypes)[number];
+  contractType: (typeof contractTypes)[number] | null;
   countryCode: string;
   description: string;
   employerName: string;
   employerSlug: string;
   employerWebsiteUrl: string | null;
-  experienceLevel: (typeof experienceLevels)[number];
-  hoursType: (typeof hoursTypes)[number];
+  experienceLevel: (typeof experienceLevels)[number] | null;
+  hoursType: (typeof hoursTypes)[number] | null;
   jobSlug: string;
   locationText: string;
   postedAt: string | null;
   requirements: string;
   responsibilities: string;
-  salaryText: string;
+  salaryText: string | null;
   sourceId: number;
   summary: string;
   title: string;
-  workplaceType: (typeof workplaceTypes)[number];
+  workplaceType: (typeof workplaceTypes)[number] | null;
 };
 
 export type JobIntakeValidation = { data: JobIntakeInput; error?: never } | { data?: never; error: string };
@@ -38,6 +38,11 @@ export type JobIntakeValidation = { data: JobIntakeInput; error?: never } | { da
 function textValue(formData: FormData, key: string) {
   const value = formData.get(key);
   return typeof value === "string" ? value.trim() : "";
+}
+
+function optionalChoice<const T extends readonly string[]>(value: string, choices: T) {
+  if (value === "not_specified") return null;
+  return choices.includes(value) ? (value as T[number]) : undefined;
 }
 
 function hasLength(value: string, minimum: number, maximum: number) {
@@ -87,6 +92,7 @@ export function validateJobIntake(
   const hoursType = textValue(formData, "hoursType");
   const experienceLevel = textValue(formData, "experienceLevel");
   const salaryText = textValue(formData, "salaryText");
+  const salaryNotStated = formData.has("salaryNotStated");
   const applicationUrl = textValue(formData, "applicationUrl");
   const postedAt = textValue(formData, "postedAt");
   const closesAt = textValue(formData, "closesAt");
@@ -102,19 +108,25 @@ export function validateJobIntake(
   if (!hasLength(description, 40, 20_000)) return { error: "Add a clear vacancy description." };
   if (!hasLength(locationText, 2, 240)) return { error: "Enter the location shown by the employer." };
   if (!/^[A-Z]{2}$/.test(countryCode)) return { error: "Enter a two-letter country code, such as GB." };
-  if (!workplaceTypes.includes(workplaceType as JobIntakeInput["workplaceType"])) {
+  const normalisedWorkplaceType = optionalChoice(workplaceType, workplaceTypes);
+  const normalisedContractType = optionalChoice(contractType, contractTypes);
+  const normalisedHoursType = optionalChoice(hoursType, hoursTypes);
+  const normalisedExperienceLevel = optionalChoice(experienceLevel, experienceLevels);
+  if (normalisedWorkplaceType === undefined) {
     return { error: "Choose how the role is based." };
   }
-  if (!contractTypes.includes(contractType as JobIntakeInput["contractType"])) {
+  if (normalisedContractType === undefined) {
     return { error: "Choose the contract type." };
   }
-  if (!hoursTypes.includes(hoursType as JobIntakeInput["hoursType"])) {
+  if (normalisedHoursType === undefined) {
     return { error: "Choose the working pattern." };
   }
-  if (!experienceLevels.includes(experienceLevel as JobIntakeInput["experienceLevel"])) {
+  if (normalisedExperienceLevel === undefined) {
     return { error: "Choose the experience level." };
   }
-  if (!hasLength(salaryText, 2, 240)) return { error: "Enter the salary exactly as advertised." };
+  if (!salaryNotStated && !hasLength(salaryText, 2, 240)) {
+    return { error: "Enter the advertised salary or mark it as not stated." };
+  }
   if (!isHttpsUrl(applicationUrl)) return { error: "The application address must use HTTPS." };
   if (postedAt && !isDate(postedAt)) return { error: "Enter a valid publication date." };
   if (!isDate(closesAt) || closesAt < today) return { error: "The closing date must be today or later." };
@@ -130,24 +142,24 @@ export function validateJobIntake(
       applicationUrl,
       canonicalUrl,
       closesAt,
-      contractType: contractType as JobIntakeInput["contractType"],
+      contractType: normalisedContractType,
       countryCode,
       description,
       employerName,
       employerSlug,
       employerWebsiteUrl: employerWebsiteUrl || null,
-      experienceLevel: experienceLevel as JobIntakeInput["experienceLevel"],
-      hoursType: hoursType as JobIntakeInput["hoursType"],
+      experienceLevel: normalisedExperienceLevel,
+      hoursType: normalisedHoursType,
       jobSlug,
       locationText,
       postedAt: postedAt || null,
       requirements,
       responsibilities,
-      salaryText,
+      salaryText: salaryNotStated ? null : salaryText,
       sourceId,
       summary,
       title,
-      workplaceType: workplaceType as JobIntakeInput["workplaceType"],
+      workplaceType: normalisedWorkplaceType,
     },
   };
 }

@@ -186,34 +186,52 @@ export function JobReviewForm({
           </div>
           <div>
             <label htmlFor="workplace-type">Workplace</label>
-            <select defaultValue={values.workplaceType} id="workplace-type" name="workplaceType" required>
+            <select
+              defaultValue={values.workplaceType || "not_specified"}
+              id="workplace-type"
+              name="workplaceType"
+              required
+            >
               <option value="remote">Remote</option>
               <option value="hybrid">Hybrid</option>
               <option value="on_site">On-site</option>
+              <option value="not_specified">Not specified</option>
             </select>
           </div>
           <div>
             <label htmlFor="contract-type">Contract</label>
-            <select defaultValue={values.contractType} id="contract-type" name="contractType" required>
+            <select
+              defaultValue={values.contractType || "not_specified"}
+              id="contract-type"
+              name="contractType"
+              required
+            >
               <option value="permanent">Permanent</option>
               <option value="fixed_term">Fixed term</option>
               <option value="temporary">Temporary</option>
               <option value="internship">Internship</option>
               <option value="apprenticeship">Apprenticeship</option>
+              <option value="not_specified">Not specified</option>
             </select>
           </div>
           <div>
             <label htmlFor="hours-type">Hours</label>
-            <select defaultValue={values.hoursType} id="hours-type" name="hoursType" required>
+            <select
+              defaultValue={values.hoursType || "not_specified"}
+              id="hours-type"
+              name="hoursType"
+              required
+            >
               <option value="full_time">Full time</option>
               <option value="part_time">Part time</option>
               <option value="flexible">Flexible</option>
+              <option value="not_specified">Not specified</option>
             </select>
           </div>
           <div>
             <label htmlFor="experience-level">Experience level</label>
             <select
-              defaultValue={values.experienceLevel}
+              defaultValue={values.experienceLevel || "not_specified"}
               id="experience-level"
               name="experienceLevel"
               required
@@ -223,6 +241,7 @@ export function JobReviewForm({
               <option value="experienced">Experienced</option>
               <option value="leadership">Leadership</option>
               <option value="open">Open</option>
+              <option value="not_specified">Not specified</option>
             </select>
           </div>
         </div>
@@ -233,13 +252,11 @@ export function JobReviewForm({
         <div className="staff-job-form__grid">
           <div className="staff-job-form__wide">
             <label htmlFor="salary-text">Salary as advertised</label>
-            <input
-              defaultValue={values.salaryText}
-              id="salary-text"
-              maxLength={240}
-              name="salaryText"
-              required
-            />
+            <input defaultValue={values.salaryText} id="salary-text" maxLength={240} name="salaryText" />
+            <label>
+              <input defaultChecked={!values.salaryText} name="salaryNotStated" type="checkbox" /> Salary not
+              stated by the employer
+            </label>
           </div>
           <div>
             <label htmlFor="posted-at">

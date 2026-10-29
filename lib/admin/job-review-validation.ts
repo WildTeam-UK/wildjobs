@@ -4,22 +4,22 @@ type JobReviewInput = {
   applicationUrl: string;
   canonicalUrl: string;
   closesAt: string;
-  contractType: (typeof contractTypes)[number];
+  contractType: (typeof contractTypes)[number] | null;
   countryCode: string;
   description: string;
   employerMission: string;
   employerOverview: string;
   employerWebsiteUrl: string;
-  experienceLevel: (typeof experienceLevels)[number];
-  hoursType: (typeof hoursTypes)[number];
+  experienceLevel: (typeof experienceLevels)[number] | null;
+  hoursType: (typeof hoursTypes)[number] | null;
   locationText: string;
   postedAt: string | null;
   requirements: string;
   responsibilities: string;
-  salaryText: string;
+  salaryText: string | null;
   summary: string;
   title: string;
-  workplaceType: (typeof workplaceTypes)[number];
+  workplaceType: (typeof workplaceTypes)[number] | null;
 };
 
 export type JobReviewValidation = { data: JobReviewInput; error?: never } | { data?: never; error: string };
@@ -27,6 +27,11 @@ export type JobReviewValidation = { data: JobReviewInput; error?: never } | { da
 function textValue(formData: FormData, key: string) {
   const value = formData.get(key);
   return typeof value === "string" ? value.trim() : "";
+}
+
+function optionalChoice<const T extends readonly string[]>(value: string, choices: T) {
+  if (value === "not_specified") return null;
+  return choices.includes(value) ? (value as T[number]) : undefined;
 }
 
 function hasLength(value: string, minimum: number, maximum: number) {
@@ -65,6 +70,7 @@ export function validateJobReview(
   const hoursType = textValue(formData, "hoursType");
   const experienceLevel = textValue(formData, "experienceLevel");
   const salaryText = textValue(formData, "salaryText");
+  const salaryNotStated = formData.has("salaryNotStated");
   const applicationUrl = textValue(formData, "applicationUrl");
   const postedAt = textValue(formData, "postedAt");
   const closesAt = textValue(formData, "closesAt");
@@ -82,19 +88,25 @@ export function validateJobReview(
   if (!hasLength(description, 40, 20_000)) return { error: "Add a clear vacancy description." };
   if (!hasLength(locationText, 2, 240)) return { error: "Enter the location shown by the employer." };
   if (!/^[A-Z]{2}$/.test(countryCode)) return { error: "Enter a two-letter country code, such as GB." };
-  if (!workplaceTypes.includes(workplaceType as JobReviewInput["workplaceType"])) {
+  const normalisedWorkplaceType = optionalChoice(workplaceType, workplaceTypes);
+  const normalisedContractType = optionalChoice(contractType, contractTypes);
+  const normalisedHoursType = optionalChoice(hoursType, hoursTypes);
+  const normalisedExperienceLevel = optionalChoice(experienceLevel, experienceLevels);
+  if (normalisedWorkplaceType === undefined) {
     return { error: "Choose how the role is based." };
   }
-  if (!contractTypes.includes(contractType as JobReviewInput["contractType"])) {
+  if (normalisedContractType === undefined) {
     return { error: "Choose the contract type." };
   }
-  if (!hoursTypes.includes(hoursType as JobReviewInput["hoursType"])) {
+  if (normalisedHoursType === undefined) {
     return { error: "Choose the working pattern." };
   }
-  if (!experienceLevels.includes(experienceLevel as JobReviewInput["experienceLevel"])) {
+  if (normalisedExperienceLevel === undefined) {
     return { error: "Choose the experience level." };
   }
-  if (!hasLength(salaryText, 2, 240)) return { error: "Enter the salary exactly as advertised." };
+  if (!salaryNotStated && !hasLength(salaryText, 2, 240)) {
+    return { error: "Enter the advertised salary or mark it as not stated." };
+  }
   if (!isHttpsUrl(applicationUrl)) return { error: "The application address must use HTTPS." };
   if (postedAt && !isDate(postedAt)) return { error: "Enter a valid publication date." };
   if (!isDate(closesAt) || closesAt < today) return { error: "The closing date must be today or later." };
@@ -107,22 +119,22 @@ export function validateJobReview(
       applicationUrl,
       canonicalUrl,
       closesAt,
-      contractType: contractType as JobReviewInput["contractType"],
+      contractType: normalisedContractType,
       countryCode,
       description,
       employerMission,
       employerOverview,
       employerWebsiteUrl,
-      experienceLevel: experienceLevel as JobReviewInput["experienceLevel"],
-      hoursType: hoursType as JobReviewInput["hoursType"],
+      experienceLevel: normalisedExperienceLevel,
+      hoursType: normalisedHoursType,
       locationText,
       postedAt: postedAt || null,
       requirements,
       responsibilities,
-      salaryText,
+      salaryText: salaryNotStated ? null : salaryText,
       summary,
       title,
-      workplaceType: workplaceType as JobReviewInput["workplaceType"],
+      workplaceType: normalisedWorkplaceType,
     },
   };
 }

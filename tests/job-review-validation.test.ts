@@ -47,4 +47,26 @@ describe("job review validation", () => {
       error: "The closing date must be today or later.",
     });
   });
+
+  it("accepts explicit not-stated fallbacks without creating false facts", () => {
+    const result = validateJobReview(
+      reviewForm({
+        contractType: "not_specified",
+        experienceLevel: "not_specified",
+        hoursType: "not_specified",
+        salaryNotStated: "on",
+        salaryText: "",
+        workplaceType: "not_specified",
+      }),
+      "2026-10-28",
+    );
+
+    expect(result.data).toMatchObject({
+      contractType: null,
+      experienceLevel: null,
+      hoursType: null,
+      salaryText: null,
+      workplaceType: null,
+    });
+  });
 });

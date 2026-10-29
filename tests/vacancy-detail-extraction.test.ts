@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { extractVacancyDetails } from "../lib/admin/vacancy-detail-extraction";
+import { extractVacancyDetails, extractVacancyFieldEvidence } from "../lib/admin/vacancy-detail-extraction";
 
 describe("vacancy detail extraction", () => {
   it("extracts the labelled details from the live Staffordshire format", () => {
@@ -62,5 +62,24 @@ describe("vacancy detail extraction", () => {
         "£28,000 to £30,000 pa, dependent on experience Hybrid working with office bases in Pirbright and Nower Wood.",
       ).salaryText,
     ).toBe("£28,000 to £30,000 pa, dependent on experience");
+  });
+
+  it("records evidence and confidence without inventing missing facts", () => {
+    const evidence = extractVacancyFieldEvidence(
+      "Salary: £26,250 Contract Type: Permanent. We need an experienced conservation professional.",
+    );
+
+    expect(evidence.find((item) => item.fieldName === "salary_text")).toMatchObject({
+      confidence: 95,
+      evidenceText: "£26,250",
+      resolutionStatus: "extracted",
+      value: "£26,250",
+    });
+    expect(evidence.find((item) => item.fieldName === "workplace_type")).toMatchObject({
+      confidence: 0,
+      evidenceText: null,
+      resolutionStatus: "unresolved",
+      value: null,
+    });
   });
 });

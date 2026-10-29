@@ -15,7 +15,8 @@ const sourceRecord = {
 
 describe("source record draft defaults", () => {
   it("carries trusted feed details into the review form", () => {
-    expect(buildSourceRecordDraftDefaults(sourceRecord)).toEqual({
+    const defaults = buildSourceRecordDraftDefaults(sourceRecord);
+    expect(defaults).toMatchObject({
       applicationUrl: "https://example.org/jobs/ecologist",
       canonicalUrl: "https://example.org/jobs/ecologist",
       closesAt: "2026-11-18",
@@ -30,6 +31,8 @@ describe("source record draft defaults", () => {
         "Help restore habitats across the Elan Valley while supporting long-term ecological monitoring.",
       title: "Ecologist with Elan Valley Trust",
     });
+    expect(defaults.fieldEvidence).toHaveLength(5);
+    expect(defaults.fieldEvidence.every((item) => item.resolutionStatus === "unresolved")).toBe(true);
   });
 
   it("shortens a long feed description without cutting the final word", () => {

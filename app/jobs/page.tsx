@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   title: "Find conservation jobs",
   description: "Search and explore conservation careers with WildJobs.",
 };
-const locationTypes: readonly LocationType[] = ["Remote", "Hybrid", "On-site"];
+const locationTypes: readonly LocationType[] = ["Remote", "Hybrid", "On-site", "Not specified"];
 const employmentTypes: readonly EmploymentType[] = [
   "Full time",
   "Part time",
@@ -17,6 +17,7 @@ const employmentTypes: readonly EmploymentType[] = [
   "Temporary",
   "Internship",
   "Apprenticeship",
+  "Not stated",
 ];
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 function valueOf(value: string | string[] | undefined) {

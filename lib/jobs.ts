@@ -1,4 +1,4 @@
-export type LocationType = "Hybrid" | "On-site" | "Remote";
+export type LocationType = "Hybrid" | "Not specified" | "On-site" | "Remote";
 export type EmploymentType =
   | "Apprenticeship"
   | "Fixed term"

@@ -575,6 +575,56 @@ export type Database = {
           },
         ];
       };
+      job_source_field_evidence: {
+        Row: {
+          confidence: number;
+          created_at: string;
+          evidence_text: string | null;
+          extraction_method: string;
+          extractor_version: string;
+          field_name: string;
+          resolution_status: string;
+          source_kind: string;
+          source_record_id: number;
+          updated_at: string;
+          value: string | null;
+        };
+        Insert: {
+          confidence?: number;
+          created_at?: string;
+          evidence_text?: string | null;
+          extraction_method: string;
+          extractor_version: string;
+          field_name: string;
+          resolution_status: string;
+          source_kind: string;
+          source_record_id: number;
+          updated_at?: string;
+          value?: string | null;
+        };
+        Update: {
+          confidence?: number;
+          created_at?: string;
+          evidence_text?: string | null;
+          extraction_method?: string;
+          extractor_version?: string;
+          field_name?: string;
+          resolution_status?: string;
+          source_kind?: string;
+          source_record_id?: number;
+          updated_at?: string;
+          value?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "job_source_field_evidence_source_record_id_fkey";
+            columns: ["source_record_id"];
+            isOneToOne: false;
+            referencedRelation: "job_source_records";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       job_source_records: {
         Row: {
           canonical_url: string | null;

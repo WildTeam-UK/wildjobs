@@ -7,7 +7,7 @@ import { courseBySlug, courses } from "@/lib/courses";
 import { filterJobs, jobCategories } from "@/lib/job-filtering";
 import type { EmploymentType, Job, LocationType } from "@/lib/jobs";
 
-const locationTypes: readonly LocationType[] = ["Remote", "Hybrid", "On-site"];
+const locationTypes: readonly LocationType[] = ["Remote", "Hybrid", "On-site", "Not specified"];
 const employmentTypes: readonly EmploymentType[] = [
   "Full time",
   "Part time",
@@ -17,6 +17,7 @@ const employmentTypes: readonly EmploymentType[] = [
   "Temporary",
   "Internship",
   "Apprenticeship",
+  "Not stated",
 ];
 
 type BrowserFilters = Readonly<{

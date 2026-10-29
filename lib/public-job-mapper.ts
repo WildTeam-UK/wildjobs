@@ -110,7 +110,7 @@ export function mapPublicJob(record: PublicJobRecord): Job {
     employmentType: hoursType ?? contractType ?? "Not stated",
     hoursType,
     location: record.location_text?.trim() || record.region?.trim() || "Location not stated",
-    locationType: workplaceLabels[record.workplace_type as keyof typeof workplaceLabels] ?? "On-site",
+    locationType: workplaceLabels[record.workplace_type as keyof typeof workplaceLabels] ?? "Not specified",
     organisation: employer?.short_name?.trim() || employer?.name?.trim() || "Employer not stated",
     postedAt:
       dateOnly(record.posted_at) ?? dateOnly(record.published_at) ?? dateOnly(record.created_at) ?? "",
