@@ -2227,6 +2227,43 @@ select {
   padding-top: 18px;
   border-top: 1px solid var(--wt-color-rule);
 }
+.review-source-records {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+.review-source-records article {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 16px 18px;
+  border: 1px solid var(--wt-color-rule);
+  border-radius: var(--wt-radius-control);
+  background: var(--wt-color-paper);
+}
+.review-source-records article > div {
+  display: grid;
+  gap: 4px;
+}
+.review-source-records article > div:last-child {
+  justify-items: end;
+  text-align: right;
+}
+.review-source-records small,
+.review-source-missing {
+  color: var(--wt-color-muted);
+  font-size: 0.7rem;
+}
+.review-source-records a {
+  color: var(--wt-color-brand-purple);
+  font-size: 0.75rem;
+  font-weight: var(--wt-font-weight-bold);
+}
+.review-source-records a:hover {
+  color: var(--wt-color-brand-pink);
+}
 .review-source-links {
   display: flex;
   flex-wrap: wrap;

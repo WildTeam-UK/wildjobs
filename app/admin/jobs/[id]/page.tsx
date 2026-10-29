@@ -66,7 +66,7 @@ export default async function ReviewJobPage({ params, searchParams }: ReviewPage
       .maybeSingle(),
     supabase
       .from("job_source_records")
-      .select("canonical_url, verified_at, mapping_status, job_sources(name)")
+      .select("id, canonical_url, verified_at, mapping_status, job_sources(id, name)")
       .eq("job_id", id)
       .order("created_at", { ascending: true }),
     supabase
@@ -78,7 +78,7 @@ export default async function ReviewJobPage({ params, searchParams }: ReviewPage
 
   if (jobResult.error || !jobResult.data) notFound();
   const job = jobResult.data;
-  const source = sourceResult.data?.[0];
+  const sources = sourceResult.data ?? [];
   const events = eventResult.data ?? [];
   const query = await searchParams;
   const created = query.status === "created";
@@ -139,8 +139,14 @@ export default async function ReviewJobPage({ params, searchParams }: ReviewPage
         </div>
         <dl>
           <div>
-            <dt>Source</dt>
-            <dd>{source?.job_sources.name ?? "Not connected"}</dd>
+            <dt>Sources</dt>
+            <dd>
+              {sources.length === 1
+                ? sources[0].job_sources.name
+                : sources.length > 1
+                  ? `${sources.length} linked sources`
+                  : "Not connected"}
+            </dd>
           </div>
           <div>
             <dt>Record</dt>
@@ -218,12 +224,35 @@ export default async function ReviewJobPage({ params, searchParams }: ReviewPage
           <section>
             <p className="eyebrow">Provenance</p>
             <h2>Authoritative links</h2>
+            {sources.length ? (
+              <div className="review-source-records">
+                {sources.map((source) => (
+                  <article key={source.id}>
+                    <div>
+                      <strong>{source.job_sources.name}</strong>
+                      <small>
+                        {source.verified_at
+                          ? `Verified ${formatDateTime(source.verified_at)}`
+                          : "Awaiting verification"}
+                      </small>
+                    </div>
+                    <div>
+                      <Link href={`/admin/sources/${source.job_sources.id}?status=mapped`}>
+                        Open source queue
+                      </Link>
+                      {source.canonical_url ? (
+                        <a href={source.canonical_url} rel="noreferrer" target="_blank">
+                          Open original vacancy <span aria-hidden="true">↗</span>
+                        </a>
+                      ) : null}
+                    </div>
+                  </article>
+                ))}
+              </div>
+            ) : (
+              <p className="review-source-missing">No authoritative source is linked to this vacancy.</p>
+            )}
             <div className="review-source-links">
-              {source?.canonical_url ? (
-                <a href={source.canonical_url} rel="noreferrer" target="_blank">
-                  Open original vacancy <span aria-hidden="true">↗</span>
-                </a>
-              ) : null}
               {job.application_url ? (
                 <a href={job.application_url} rel="noreferrer" target="_blank">
                   Open application route <span aria-hidden="true">↗</span>
