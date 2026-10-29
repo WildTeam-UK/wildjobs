@@ -13,6 +13,10 @@ export type SourceValidation =
   | { data: SourceInput; error?: never }
   | { data?: never; error: "invalid-name" | "invalid-type" | "invalid-url" };
 
+export type SourceStatusValidation =
+  | { data: { isActive: boolean; sourceId: number }; error?: never }
+  | { data?: never; error: "invalid-source" | "invalid-status" };
+
 export function validateSource(formData: FormData): SourceValidation {
   const nameValue = formData.get("name");
   const sourceTypeValue = formData.get("sourceType");
@@ -40,4 +44,15 @@ export function validateSource(formData: FormData): SourceValidation {
       sourceType: sourceTypeValue as SourceType,
     },
   };
+}
+
+export function validateSourceStatus(formData: FormData): SourceStatusValidation {
+  const sourceIdValue = formData.get("sourceId");
+  const statusValue = formData.get("status");
+  const sourceId = typeof sourceIdValue === "string" ? Number(sourceIdValue) : Number.NaN;
+
+  if (!Number.isSafeInteger(sourceId) || sourceId <= 0) return { error: "invalid-source" };
+  if (statusValue !== "active" && statusValue !== "paused") return { error: "invalid-status" };
+
+  return { data: { isActive: statusValue === "active", sourceId } };
 }

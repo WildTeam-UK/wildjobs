@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 
-import { addSource } from "@/app/admin/sources/actions";
+import { addSource, setSourceStatus } from "@/app/admin/sources/actions";
 import { requireStaff } from "@/lib/auth/staff";
 import { createClient } from "@/lib/supabase/server";
 
@@ -13,9 +13,17 @@ type SourcesPageProps = {
 const errorMessages: Record<string, string> = {
   duplicate: "A source with that name already exists.",
   "invalid-name": "Enter a source name between 2 and 120 characters.",
+  "invalid-source": "That source could not be found.",
+  "invalid-status": "Choose a valid source status.",
   "invalid-type": "Choose one of the available source types.",
   "invalid-url": "Enter a complete HTTPS careers, feed or API URL.",
   unavailable: "The source could not be saved. Please try again.",
+};
+
+const statusMessages: Record<string, string> = {
+  activated: "Source reactivated successfully.",
+  created: "Source added successfully.",
+  paused: "Source paused successfully. Existing provenance and vacancies were kept.",
 };
 
 const sourceLabels: Record<string, string> = {
@@ -56,9 +64,9 @@ export default async function SourcesPage({ searchParams }: SourcesPageProps) {
           <p>Active sources can supply review drafts.</p>
         </div>
 
-        {params.status === "created" ? (
+        {params.status && statusMessages[params.status] ? (
           <p className="staff-form-message" role="status">
-            Source added successfully.
+            {statusMessages[params.status]}
           </p>
         ) : null}
         {params.error ? (
@@ -81,13 +89,24 @@ export default async function SourcesPage({ searchParams }: SourcesPageProps) {
                   <h3>{source.name}</h3>
                   <p>{sourceLabels[source.source_type] ?? source.source_type}</p>
                 </div>
-                {source.authoritative_base_url ? (
-                  <a href={source.authoritative_base_url} rel="noreferrer" target="_blank">
-                    Open authoritative source <span aria-hidden="true">↗</span>
-                  </a>
-                ) : (
-                  <span>No external URL recorded</span>
-                )}
+                <div className="source-list__actions">
+                  {source.authoritative_base_url ? (
+                    <a href={source.authoritative_base_url} rel="noreferrer" target="_blank">
+                      Open authoritative source <span aria-hidden="true">↗</span>
+                    </a>
+                  ) : (
+                    <span>No external URL recorded</span>
+                  )}
+                  {staff.role === "admin" ? (
+                    <form action={setSourceStatus}>
+                      <input name="sourceId" type="hidden" value={source.id} />
+                      <input name="status" type="hidden" value={source.is_active ? "paused" : "active"} />
+                      <button className="staff-source-toggle" type="submit">
+                        {source.is_active ? "Pause source" : "Reactivate source"}
+                      </button>
+                    </form>
+                  ) : null}
+                </div>
               </article>
             ))}
           </div>

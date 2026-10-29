@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { validateSource } from "../lib/admin/source-validation";
+import { validateSource, validateSourceStatus } from "../lib/admin/source-validation";
 
 function sourceForm(values: Record<string, string>) {
   const formData = new FormData();
@@ -51,5 +51,25 @@ describe("source validation", () => {
     );
 
     expect(result).toEqual({ error: "invalid-url" });
+  });
+});
+
+describe("source status validation", () => {
+  it("accepts a valid source and explicit status", () => {
+    expect(validateSourceStatus(sourceForm({ sourceId: "7", status: "paused" }))).toEqual({
+      data: { isActive: false, sourceId: 7 },
+    });
+  });
+
+  it("rejects invalid source references", () => {
+    expect(validateSourceStatus(sourceForm({ sourceId: "0", status: "active" }))).toEqual({
+      error: "invalid-source",
+    });
+  });
+
+  it("rejects implicit or unknown statuses", () => {
+    expect(validateSourceStatus(sourceForm({ sourceId: "7", status: "deleted" }))).toEqual({
+      error: "invalid-status",
+    });
   });
 });
