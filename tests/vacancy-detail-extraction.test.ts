@@ -60,6 +60,20 @@ describe("vacancy detail extraction", () => {
     });
   });
 
+  it("treats a salaried role as paid when its work involves volunteers", () => {
+    expect(
+      extractVacancyDetails(
+        "Salary: £28,000 to £30,000. Recruit and support volunteers, coordinate volunteer training and develop volunteer-led groups.",
+      ).engagementType,
+    ).toBe("paid");
+  });
+
+  it("only classifies a volunteer opportunity from explicit role wording", () => {
+    expect(
+      extractVacancyDetails("This is an unpaid volunteer role supporting habitat surveys.").engagementType,
+    ).toBe("volunteer");
+  });
+
   it("captures an unlabelled salary at the start of a feed description", () => {
     expect(
       extractVacancyDetails(

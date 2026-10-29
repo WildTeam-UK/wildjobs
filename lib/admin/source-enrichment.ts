@@ -107,6 +107,10 @@ function domainFromUrl(value: string | null) {
   }
 }
 
+function looksLikeFavicon(value: string | null) {
+  return Boolean(value && /(?:favicon|apple-touch-icon|icon[-_.]?\d*)/i.test(value));
+}
+
 function slugify(value: string) {
   return (
     value
@@ -359,8 +363,16 @@ async function persistEmployerEnrichment(
     enriched_at: new Date().toISOString(),
     focus: employer.focus ?? suggestions.get("focus")?.value ?? null,
     locations: employer.locations.length ? employer.locations : [...new Set(locations)],
-    logo_source_url: employer.logo_source_url ?? (input.logoUrl ? input.sourceUrl : null),
-    logo_url: employer.logo_url ?? input.logoUrl,
+    logo_source_url:
+      input.logoUrl &&
+      (!employer.logo_url || (looksLikeFavicon(employer.logo_url) && !looksLikeFavicon(input.logoUrl)))
+        ? input.sourceUrl
+        : employer.logo_source_url,
+    logo_url:
+      input.logoUrl &&
+      (!employer.logo_url || (looksLikeFavicon(employer.logo_url) && !looksLikeFavicon(input.logoUrl)))
+        ? input.logoUrl
+        : employer.logo_url,
     mission: employer.mission ?? suggestions.get("mission")?.value ?? null,
     overview: employer.overview,
     profile_source_url: employer.profile_source_url ?? input.sourceUrl,
@@ -565,6 +577,8 @@ export async function enrichNextPendingSourceRecord(
     if (
       employerWebsiteUrl &&
       (!employer?.enriched_at ||
+        !employer?.logo_url ||
+        looksLikeFavicon(employer.logo_url) ||
         (isAiEnrichmentEnabled() &&
           !employer?.ai_summary?.trim() &&
           !employer?.mission?.trim() &&
@@ -602,7 +616,7 @@ export async function enrichNextPendingSourceRecord(
       employer.name !== "Private Employer" &&
       !employer.reviewed_at,
     );
-    const shouldSummariseJob = shouldGenerateAiSummary(record.summary);
+    const shouldSummariseJob = shouldGenerateAiSummary(record.ai_summary);
     const aiNeeded = Boolean(
       unresolved.length || shouldSummariseJob || employerPage.text || employerResearchNeeded,
     );

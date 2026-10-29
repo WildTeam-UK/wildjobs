@@ -3,8 +3,9 @@ import { describe, expect, it } from "vitest";
 import { cleanPublicationSummary, shouldGenerateAiSummary } from "../lib/admin/publication-summary";
 
 describe("publication summaries", () => {
-  it("requests a concise AI summary when source copy exceeds the public limit", () => {
-    expect(shouldGenerateAiSummary("A".repeat(501))).toBe(true);
+  it("requests a concise AI summary until a bounded generated summary exists", () => {
+    expect(shouldGenerateAiSummary(null)).toBe(true);
+    expect(shouldGenerateAiSummary("A".repeat(321))).toBe(true);
     expect(shouldGenerateAiSummary("A useful concise vacancy summary.")).toBe(false);
   });
 

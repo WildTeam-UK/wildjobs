@@ -1,8 +1,9 @@
 export const PUBLICATION_SUMMARY_MAX_LENGTH = 500;
+export const AI_SUMMARY_TARGET_MAX_LENGTH = 320;
 
-export function shouldGenerateAiSummary(value: string | null) {
-  const length = value?.trim().length ?? 0;
-  return length < 20 || length > PUBLICATION_SUMMARY_MAX_LENGTH;
+export function shouldGenerateAiSummary(generatedValue: string | null) {
+  const length = generatedValue?.trim().length ?? 0;
+  return length < 20 || length > AI_SUMMARY_TARGET_MAX_LENGTH;
 }
 
 export function cleanPublicationSummary(value: string, maximum = PUBLICATION_SUMMARY_MAX_LENGTH) {

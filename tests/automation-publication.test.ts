@@ -58,7 +58,7 @@ describe("automated publication readiness", () => {
   it("allows a fully evidenced vacancy without fabricating optional fields", () => {
     const result = evaluatePublicationReadiness(readyInput());
 
-    expect(AUTOMATION_PUBLICATION_POLICY_VERSION).toBe("evidence-gated-v3");
+    expect(AUTOMATION_PUBLICATION_POLICY_VERSION).toBe("evidence-gated-v4");
     expect(result).toMatchObject({ blockers: [], ready: true, score: 100 });
   });
 
@@ -133,5 +133,25 @@ describe("automated publication readiness", () => {
     };
 
     expect(evaluatePublicationReadiness(input)).toMatchObject({ blockers: [], ready: true });
+  });
+
+  it("blocks a volunteer classification when the advert contains salary evidence", () => {
+    const input = readyInput();
+    input.evidence = [
+      ...input.evidence.map((item) =>
+        item.field_name === "engagement_type" ? { ...item, value: "volunteer" } : item,
+      ),
+      {
+        confidence: 95,
+        field_name: "salary_text",
+        resolution_status: "extracted",
+        value: "£28,000 to £30,000",
+      },
+    ];
+
+    expect(evaluatePublicationReadiness(input)).toMatchObject({
+      blockers: ["engagement_salary_conflict"],
+      ready: false,
+    });
   });
 });

@@ -4,7 +4,7 @@ import { extractVacancyFieldEvidence, type VacancyFieldEvidence } from "./vacanc
 
 type JsonRecord = Record<string, unknown>;
 
-export const SOURCE_PAGE_EXTRACTOR_VERSION = "source-page-rules-v4";
+export const SOURCE_PAGE_EXTRACTOR_VERSION = "source-page-rules-v5";
 
 export type VacancyPageExtraction = {
   applicationUrl: string | null;
@@ -37,6 +37,25 @@ function asArray(value: unknown): unknown[] {
 
 function clean(value: unknown, maximum = 60_000) {
   return typeof value === "string" ? value.replace(/\s+/g, " ").trim().slice(0, maximum) : "";
+}
+
+function readableHtmlText(html: string, selector: string) {
+  const $ = load(html);
+  const root = $(selector).first();
+  if (!root.length) return "";
+  root.find("script, style, noscript, svg, nav, footer").remove();
+  root.find("br").replaceWith("\n");
+  root.find("p, li, h1, h2, h3, h4, blockquote, section").each((_index, element) => {
+    $(element).append("\n\n");
+  });
+  return root
+    .text()
+    .replace(/\r/g, "")
+    .split(/\n+/)
+    .map((part) => clean(part))
+    .filter(Boolean)
+    .join("\n\n")
+    .slice(0, 60_000);
 }
 
 function safeHttpsUrl(value: unknown, baseUrl: string) {
@@ -163,17 +182,15 @@ function firstExternalUrl(values: unknown[], pageUrl: string) {
 function pageText(html: string, structuredDescription: string) {
   if (structuredDescription) return structuredDescription.slice(0, 60_000);
 
-  const $ = load(html);
-  $("script, style, noscript, svg, nav, footer").remove();
-  const preferred = $("main").first().text() || $("article").first().text() || $("body").text();
-  return clean(preferred, 60_000);
+  return (
+    readableHtmlText(html, "main") || readableHtmlText(html, "article") || readableHtmlText(html, "body")
+  );
 }
 
 function structuredDescriptionText(value: unknown) {
-  const html = clean(value, 60_000);
+  const html = typeof value === "string" ? value.trim().slice(0, 60_000) : "";
   if (!html) return "";
-  const $ = load(`<body>${html}</body>`);
-  return clean($("body").text(), 60_000);
+  return readableHtmlText(`<body>${html}</body>`, "body");
 }
 
 export function parseVacancyPage(html: string, pageUrl: string): VacancyPageExtraction {
@@ -239,8 +256,19 @@ export function parseEmployerPage(html: string, pageUrl: string): EmployerPageEx
   const $ = load(html);
   const jsonLd = readJsonLd(html);
   const organisation = jsonLd.map((value) => findTypedObject(value, "Organization")).find(Boolean) ?? null;
+  let visibleLogoUrl: string | null = null;
+  $("img[src], img[data-src]").each((_index, element) => {
+    if (visibleLogoUrl) return;
+    const identity = [$(element).attr("alt"), $(element).attr("class"), $(element).attr("id")]
+      .filter(Boolean)
+      .join(" ");
+    if (!/\b(?:brand|logo|wordmark)\b/i.test(identity)) return;
+    visibleLogoUrl = safeHttpsUrl($(element).attr("src") ?? $(element).attr("data-src"), pageUrl);
+  });
   const logoUrl =
     safeHttpsUrl(asRecord(organisation?.logo)?.url ?? organisation?.logo, pageUrl) ??
+    safeHttpsUrl($("meta[property='og:logo']").first().attr("content"), pageUrl) ??
+    visibleLogoUrl ??
     safeHttpsUrl($("link[rel='apple-touch-icon']").first().attr("href"), pageUrl) ??
     safeHttpsUrl($("link[rel~='icon']").first().attr("href"), pageUrl);
   const currentUrl = new URL(pageUrl);

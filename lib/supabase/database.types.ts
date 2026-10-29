@@ -8,6 +8,24 @@ export type Database = {
   };
   public: {
     Tables: {
+      automation_controls: {
+        Row: {
+          auto_publish_enabled: boolean;
+          id: string;
+          updated_at: string;
+        };
+        Insert: {
+          auto_publish_enabled?: boolean;
+          id: string;
+          updated_at?: string;
+        };
+        Update: {
+          auto_publish_enabled?: boolean;
+          id?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
       automation_publication_decisions: {
         Row: {
           blocker_codes: string[];

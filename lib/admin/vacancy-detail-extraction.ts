@@ -161,12 +161,22 @@ function extractExperienceLevel(value: string): MatchResult {
 }
 
 function extractEngagementType(value: string): MatchResult {
+  const advertisedSalary = /£\s?[\d,.]+/.exec(value);
+  if (advertisedSalary) {
+    return { evidenceText: clean(advertisedSalary[0]), value: "paid" };
+  }
+
   return (
-    firstMatch(value, [/\bvolunteer(?:ing|s)?\b/i, /\bunpaid\b/i], "volunteer") ??
     firstMatch(value, [/\bpaid\s+(?:role|position|opportunity)\b/i, /\bsalaried\b/i], "paid") ??
-    (/£\s?\d/.test(value)
-      ? { evidenceText: clean(/£\s?[\d,.]+/.exec(value)?.[0] ?? "salary stated"), value: "paid" }
-      : undefined)
+    firstMatch(
+      value,
+      [
+        /\bunpaid\s+(?:role|position|opportunity|post|vacancy)\b/i,
+        /\bvolunteer\s+(?:role|position|opportunity|post|vacancy)\b/i,
+        /\b(?:role|position|opportunity|post|vacancy)\s+(?:is\s+)?(?:an?\s+)?(?:unpaid|volunteer)\b/i,
+      ],
+      "volunteer",
+    )
   );
 }
 
@@ -179,7 +189,7 @@ function evidence(
     confidence: result ? confidence : 0,
     evidenceText: result?.evidenceText ?? null,
     extractionMethod: "deterministic",
-    extractorVersion: "feed-rules-v2",
+    extractorVersion: "feed-rules-v3",
     fieldName,
     resolutionStatus: result ? "extracted" : "unresolved",
     sourceKind: "feed",

@@ -78,6 +78,30 @@ describe("vacancy page extraction", () => {
     expect(result.text).toContain("We restore habitats with communities.");
   });
 
+  it("preserves readable paragraph breaks from structured vacancy copy", () => {
+    const result = parseVacancyPage(
+      `<script type="application/ld+json">{
+        "@type":"JobPosting",
+        "title":"Ranger",
+        "description":"<p>Protect priority habitats.</p><p>Work with local volunteers.</p>"
+      }</script>`,
+      pageUrl,
+    );
+
+    expect(result.detailText).toBe("Protect priority habitats.\n\nWork with local volunteers.");
+  });
+
+  it("prefers a visible brand logo over a small browser icon", () => {
+    const result = parseEmployerPage(
+      `<html><head><link rel="icon" href="/favicon.ico"></head><body>
+        <header><img class="site-logo" src="/assets/full-logo.svg" alt="Example Trust logo"></header>
+      </body></html>`,
+      "https://nature.example.org/",
+    );
+
+    expect(result.logoUrl).toBe("https://nature.example.org/assets/full-logo.svg");
+  });
+
   it("ranks one same-site employer research page without following unrelated links", () => {
     const result = parseEmployerPage(
       `

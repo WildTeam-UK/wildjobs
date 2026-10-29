@@ -1,6 +1,6 @@
 import { employerIdentityConflicts } from "./employer-identity";
 
-export const AUTOMATION_PUBLICATION_POLICY_VERSION = "evidence-gated-v3";
+export const AUTOMATION_PUBLICATION_POLICY_VERSION = "evidence-gated-v4";
 
 export const automationBlockerLabels = {
   already_linked: "This source record is already linked to a WildJobs vacancy.",
@@ -17,6 +17,7 @@ export const automationBlockerLabels = {
   employer_missing: "A canonical employer could not be matched.",
   employer_profile_incomplete: "The employer website, mission or overview is incomplete.",
   engagement_evidence_weak: "Paid or volunteer status is not supported by strong evidence.",
+  engagement_salary_conflict: "The paid or volunteer classification conflicts with the advertised salary.",
   enrichment_incomplete: "Vacancy enrichment has not completed cleanly.",
   location_evidence_weak: "The location is not supported by strong evidence.",
   location_missing: "The vacancy location is missing.",
@@ -127,6 +128,16 @@ export function evaluatePublicationReadiness(input: PublicationReadinessInput): 
   if (!usableText(input.sourceTitle, 2)) blockers.add("title_missing");
   if (!usableText(input.detailText, 80)) blockers.add("description_missing");
 
+  const salaryEvidence = input.evidence.find(
+    (item) => item.field_name === "salary_text" && item.resolution_status === "extracted" && item.value,
+  );
+  const engagementEvidence = input.evidence.find(
+    (item) => item.field_name === "engagement_type" && item.resolution_status === "extracted" && item.value,
+  );
+  if (salaryEvidence && engagementEvidence?.value === "volunteer") {
+    blockers.add("engagement_salary_conflict");
+  }
+
   if (!input.employer) {
     blockers.add("employer_missing");
   } else if (input.employer.status === "archived") {
@@ -141,7 +152,7 @@ export function evaluatePublicationReadiness(input: PublicationReadinessInput): 
   }
 
   const blockerList = [...blockers];
-  const totalChecks = 12;
+  const totalChecks = 13;
   const score = Math.max(0, Math.round(((totalChecks - blockerList.length) / totalChecks) * 100));
   return { blockers: blockerList, fieldConfidences, ready: blockerList.length === 0, score };
 }

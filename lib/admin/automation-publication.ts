@@ -25,8 +25,18 @@ export type PublicationReevaluationSummary = {
   ready: number;
 };
 
-function isAutoPublishEnabled() {
-  return process.env.AUTO_PUBLISH_ENABLED === "true";
+async function isAutoPublishEnabled(supabase: SupabaseClient<Database>) {
+  if (process.env.AUTO_PUBLISH_ENABLED !== "true") return false;
+  const { data, error } = await supabase
+    .from("automation_controls")
+    .select("auto_publish_enabled")
+    .eq("id", "global")
+    .maybeSingle();
+  if (error) {
+    console.error("Automatic publication control could not be read; publication remains off.");
+    return false;
+  }
+  return data?.auto_publish_enabled === true;
 }
 
 async function exactDuplicateCount(
@@ -91,7 +101,7 @@ async function evaluateAndMaybePublishSourceRecordUnsafe(
     summary: record.summary,
     today: new Date().toISOString().slice(0, 10),
   });
-  const mode = isAutoPublishEnabled() ? "live" : "shadow";
+  const mode = (await isAutoPublishEnabled(supabase)) ? "live" : "shadow";
   const evaluatedAt = new Date().toISOString();
   const decision = readiness.ready ? "ready" : "blocked";
   const commonDecision = {
@@ -180,7 +190,7 @@ export async function evaluateAndMaybePublishSourceRecord(
         blocker_codes: [],
         decision: "failed",
         field_confidences: {},
-        mode: isAutoPublishEnabled() ? "live" : "shadow",
+        mode: "shadow",
         policy_version: AUTOMATION_PUBLICATION_POLICY_VERSION,
         score: 0,
         source_record_id: sourceRecordId,
@@ -197,18 +207,22 @@ export async function evaluateAndMaybePublishSourceRecord(
 export async function reevaluateStalePublicationDecisions(
   supabase: SupabaseClient<Database>,
 ): Promise<PublicationReevaluationSummary> {
-  const batchSize = isAutoPublishEnabled() ? 1 : 10;
-  const { data: records, error } = await supabase
+  const liveMode = await isAutoPublishEnabled(supabase);
+  const batchSize = liveMode ? 1 : 10;
+  let query = supabase
     .from("job_source_records")
     .select("id")
     .is("job_id", null)
     .in("mapping_status", ["unmapped", "possible_duplicate"])
-    .in("enrichment_status", ["complete", "failed", "needs_review", "skipped"])
-    .or(
-      `automation_policy_version.is.null,automation_policy_version.neq.${AUTOMATION_PUBLICATION_POLICY_VERSION}`,
-    )
-    .order("first_seen_at")
-    .limit(batchSize);
+    .in("enrichment_status", ["complete", "failed", "needs_review", "skipped"]);
+  query = liveMode
+    ? query.or(
+        `automation_policy_version.is.null,automation_policy_version.neq.${AUTOMATION_PUBLICATION_POLICY_VERSION},and(automation_policy_version.eq.${AUTOMATION_PUBLICATION_POLICY_VERSION},automation_status.eq.ready)`,
+      )
+    : query.or(
+        `automation_policy_version.is.null,automation_policy_version.neq.${AUTOMATION_PUBLICATION_POLICY_VERSION}`,
+      );
+  const { data: records, error } = await query.order("first_seen_at").limit(batchSize);
   if (error) throw new Error("Stale publication decisions could not be read.");
 
   const summary: PublicationReevaluationSummary = {
