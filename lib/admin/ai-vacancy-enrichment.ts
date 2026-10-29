@@ -13,7 +13,7 @@ import {
 import type { VacancyFieldEvidence, VacancyFieldName } from "./vacancy-detail-extraction";
 
 const MODEL = "gpt-6-luna";
-export const AI_ENRICHMENT_POLICY_VERSION = "ai-structured-v4";
+export const AI_ENRICHMENT_POLICY_VERSION = "ai-structured-v5";
 
 const supportedFields = [
   "contract_type",
@@ -68,11 +68,19 @@ const outputSchema = z.object({
   }),
   employer: z.object({
     benefits: z.array(researchedEmployerField).max(8),
-    culture: researchedEmployerField,
-    focus: researchedEmployerField,
+    culture: researchedEmployerField.describe(
+      "Evidence-backed working culture or organisational values stated by the employer.",
+    ),
+    focus: researchedEmployerField.describe(
+      "The causes, species, places, communities or activities the employer focuses on.",
+    ),
     locations: z.array(researchedEmployerField).max(8),
-    mission: researchedEmployerField,
-    overview: researchedEmployerField,
+    mission: researchedEmployerField.describe(
+      "A concise, faithful summary of the employer's stated mission, purpose or vision, supported by an exact quote.",
+    ),
+    overview: researchedEmployerField.describe(
+      "A concise factual summary of what the employer is and does, supported by an exact quote from the official text.",
+    ),
     website_url: z.object({
       confidence: confidenceSchema,
       source_url: z.string().trim().min(1).max(2_000).nullable(),
@@ -244,6 +252,10 @@ export async function enrichWithAi(input: {
     "Never infer on-site merely because remote or hybrid is absent.",
     "Never estimate salary. Return null when the advertised salary is absent.",
     "Every non-null value must include a short exact evidence quote copied from the supplied text.",
+    "Always inspect the supplied official employer text even when no vacancy fields need resolving.",
+    "Populate employer mission when the text states a mission, purpose, vision, aim or commitment; value may be a concise faithful summary, but evidence must be an exact quote.",
+    "Populate employer overview when the text explains what the organisation is and does; value may be a concise factual summary, but evidence must be an exact quote.",
+    "Mission and overview may use the same evidence quote when that quote genuinely supports both fields.",
     input.allowEmployerWebResearch
       ? "Use at most one bounded web research step to locate the employer's official website. Use only pages on that official website for employer facts."
       : "Employer facts may only use the supplied official employer text section.",
