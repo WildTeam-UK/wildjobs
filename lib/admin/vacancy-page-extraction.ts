@@ -4,6 +4,8 @@ import { extractVacancyFieldEvidence, type VacancyFieldEvidence } from "./vacanc
 
 type JsonRecord = Record<string, unknown>;
 
+export const SOURCE_PAGE_EXTRACTOR_VERSION = "source-page-rules-v2";
+
 export type VacancyPageExtraction = {
   applicationUrl: string | null;
   closesAt: string | null;
@@ -179,7 +181,7 @@ export function parseVacancyPage(html: string, pageUrl: string): VacancyPageExtr
   const structuredDescription = structuredDescriptionText(jobPosting?.description);
   const detailText = pageText(html, structuredDescription);
   const deterministicEvidence = extractVacancyFieldEvidence(detailText, {
-    extractorVersion: "source-page-rules-v1",
+    extractorVersion: SOURCE_PAGE_EXTRACTOR_VERSION,
     sourceKind: "source_page",
   });
   const salaryEvidence = deterministicEvidence.find((item) => item.fieldName === "salary_text");

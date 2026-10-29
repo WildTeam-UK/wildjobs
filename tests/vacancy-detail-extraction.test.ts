@@ -84,6 +84,27 @@ describe("vacancy detail extraction", () => {
     ).toBeUndefined();
   });
 
+  it.each([
+    [
+      "£30,977.00 - £33,073.00 Per Annum The project protects globally important wildlife.",
+      "£30,977.00 - £33,073.00 Per Annum",
+    ],
+    [
+      "Salary: £36,987 - £39,459 per annum + 28.97% employer pension contributions Description: Manage forest infrastructure.",
+      "£36,987 - £39,459 per annum + 28.97% employer pension contributions",
+    ],
+    [
+      "Salary: £40,000 - £50,000 dependent on experience Help restore peatlands with regional partners.",
+      "£40,000 - £50,000 dependent on experience",
+    ],
+    [
+      "Salary: Up to £33,000 pro rata depending on skills and experience Fixed Term Contract Until 31 March 2030",
+      "Up to £33,000 pro rata depending on skills and experience",
+    ],
+  ])("stops salary evidence before following vacancy copy", (source, expected) => {
+    expect(extractVacancyDetails(source).salaryText).toBe(expected);
+  });
+
   it("records evidence and confidence without inventing missing facts", () => {
     const evidence = extractVacancyFieldEvidence(
       "Salary: £26,250 Contract Type: Permanent. We need an experienced conservation professional.",

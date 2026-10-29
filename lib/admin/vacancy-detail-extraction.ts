@@ -40,9 +40,12 @@ function clean(value: string) {
 function salaryBoundary(value: string) {
   const boundaries = [
     /(?=[.;]\s+(?:permanent|fixed[- ]term|temporary|full[- ]time|part[- ]time|hybrid|remote|on[- ]site)\b)/i,
+    /\s+(?=(?:permanent|fixed[- ]term|temporary|full[- ]time|part[- ]time|hybrid|remote|on[- ]site)(?:\s+(?:contract|role|working))?\b)/i,
     /\s+(?=(?:based|contract(?:\s+type)?|hours?|location|start\s+date|terms|type)\s*:)/i,
     /(?=(?:Contract(?:\s+Type)?|Hours?|Location|Start\s+Date|Terms|Type)\s*:)/,
+    /(?=Description\b\s*:)/,
     /\s+(?=(?:do you|join\b|we(?:’|')?re|we are|we need)\b)/i,
+    /\s+(?=(?:The|This|Our|Help|About)\b)/,
     /\s+(?=(?:hybrid|home[- ]?based|remote)\s+working\b)/i,
     /\s+(?=\d{1,2}(?:\.\d+)?\s+hours?\s+(?:a|per)\b)/i,
   ];

@@ -6,7 +6,12 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 
 import { enrichWithAi, type AiEmployerSuggestion } from "./ai-vacancy-enrichment";
 import { fetchApprovedVacancyPage, fetchEmployerPage, SourcePageError } from "./source-page-fetch";
-import { parseEmployerPage, parseVacancyPage, type VacancyPageExtraction } from "./vacancy-page-extraction";
+import {
+  parseEmployerPage,
+  parseVacancyPage,
+  SOURCE_PAGE_EXTRACTOR_VERSION,
+  type VacancyPageExtraction,
+} from "./vacancy-page-extraction";
 import type { VacancyFieldEvidence, VacancyFieldName } from "./vacancy-detail-extraction";
 import type { Database } from "../supabase/database.types";
 
@@ -421,6 +426,7 @@ export async function enrichNextPendingSourceRecord(
       applicationUrl: page.applicationUrl,
       detailText: page.detailText,
       employerWebsiteUrl: page.employerWebsiteUrl,
+      extractorVersion: SOURCE_PAGE_EXTRACTOR_VERSION,
     });
 
     if (record.enriched_content_hash === detailContentHash) {
