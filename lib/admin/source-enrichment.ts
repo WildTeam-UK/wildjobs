@@ -13,6 +13,7 @@ import {
 import { evaluateAndMaybePublishSourceRecord } from "./automation-publication";
 import {
   evidenceAppearsInText,
+  isEmployerProfileSourceUrl,
   isEmployerResearchPending,
   normaliseResearchUrl,
   sameWebsiteHost,
@@ -710,6 +711,10 @@ export async function enrichNextPendingSourceRecord(
             const matchingPage = researchedPages.find(
               (item) =>
                 sameWebsiteHost(item.url, suggestion.sourceUrl) &&
+                (suggestion.fieldName === "culture" ||
+                  suggestion.fieldName === "benefits" ||
+                  suggestion.fieldName === "locations" ||
+                  isEmployerProfileSourceUrl(item.url)) &&
                 evidenceAppearsInText(suggestion.evidence, item.text),
             );
             return matchingPage ? [{ ...suggestion, sourceUrl: matchingPage.url }] : [];

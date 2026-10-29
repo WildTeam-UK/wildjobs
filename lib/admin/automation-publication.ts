@@ -5,6 +5,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import {
   AUTOMATION_PUBLICATION_POLICY_VERSION,
   evaluatePublicationReadiness,
+  publicationControlAllowsSource,
   type AutomationBlockerCode,
 } from "./automation-publication-readiness";
 import { toSlug } from "./job-intake-validation";
@@ -25,18 +26,20 @@ export type PublicationReevaluationSummary = {
   ready: number;
 };
 
-async function isAutoPublishEnabled(supabase: SupabaseClient<Database>) {
-  if (process.env.AUTO_PUBLISH_ENABLED !== "true") return false;
+async function readAutoPublishControl(supabase: SupabaseClient<Database>) {
   const { data, error } = await supabase
     .from("automation_controls")
-    .select("auto_publish_enabled")
+    .select("auto_publish_enabled, auto_publish_source_record_id")
     .eq("id", "global")
     .maybeSingle();
   if (error) {
     console.error("Automatic publication control could not be read; publication remains off.");
-    return false;
+    return { databaseEnabled: false, targetSourceRecordId: null };
   }
-  return data?.auto_publish_enabled === true;
+  return {
+    databaseEnabled: data?.auto_publish_enabled === true,
+    targetSourceRecordId: data?.auto_publish_source_record_id ?? null,
+  };
 }
 
 async function exactDuplicateCount(
@@ -101,7 +104,14 @@ async function evaluateAndMaybePublishSourceRecordUnsafe(
     summary: record.summary,
     today: new Date().toISOString().slice(0, 10),
   });
-  const mode = (await isAutoPublishEnabled(supabase)) ? "live" : "shadow";
+  const control = await readAutoPublishControl(supabase);
+  const mode = publicationControlAllowsSource({
+    ...control,
+    environmentEnabled: process.env.AUTO_PUBLISH_ENABLED === "true",
+    sourceRecordId: record.id,
+  })
+    ? "live"
+    : "shadow";
   const evaluatedAt = new Date().toISOString();
   const decision = readiness.ready ? "ready" : "blocked";
   const commonDecision = {
@@ -207,7 +217,8 @@ export async function evaluateAndMaybePublishSourceRecord(
 export async function reevaluateStalePublicationDecisions(
   supabase: SupabaseClient<Database>,
 ): Promise<PublicationReevaluationSummary> {
-  const liveMode = await isAutoPublishEnabled(supabase);
+  const control = await readAutoPublishControl(supabase);
+  const liveMode = process.env.AUTO_PUBLISH_ENABLED === "true" && control.databaseEnabled;
   const batchSize = liveMode ? 1 : 10;
   let query = supabase
     .from("job_source_records")
@@ -215,6 +226,9 @@ export async function reevaluateStalePublicationDecisions(
     .is("job_id", null)
     .in("mapping_status", ["unmapped", "possible_duplicate"])
     .in("enrichment_status", ["complete", "failed", "needs_review", "skipped"]);
+  if (liveMode && control.targetSourceRecordId !== null) {
+    query = query.eq("id", control.targetSourceRecordId);
+  }
   query = liveMode
     ? query.or(
         `automation_policy_version.is.null,automation_policy_version.neq.${AUTOMATION_PUBLICATION_POLICY_VERSION},and(automation_policy_version.eq.${AUTOMATION_PUBLICATION_POLICY_VERSION},automation_status.eq.ready)`,

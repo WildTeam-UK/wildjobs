@@ -1,0 +1,3 @@
+create index automation_controls_auto_publish_source_record_id_idx
+on public.automation_controls (auto_publish_source_record_id)
+where auto_publish_source_record_id is not null;

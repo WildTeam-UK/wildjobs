@@ -20,18 +20,14 @@ export async function POST(request: Request) {
     if (claimError) throw new Error("The scheduled source check could not be claimed.");
 
     if (!claimed) {
+      const publication = await reevaluateStalePublicationDecisions(supabase);
       const enrichment = await enrichNextPendingSourceRecord(supabase, "automation");
-      const publication =
-        enrichment.status === "idle"
-          ? await reevaluateStalePublicationDecisions(supabase)
-          : { attempted: 0, blocked: 0, failed: 0, published: 0, ready: 0 };
       return Response.json({
-        action:
-          enrichment.status !== "idle"
+        action: publication.attempted
+          ? "publication_reevaluated"
+          : enrichment.status !== "idle"
             ? "enriched"
-            : publication.attempted
-              ? "publication_reevaluated"
-              : "idle",
+            : "idle",
         enrichment,
         ok: enrichment.status !== "failed" && publication.failed === 0,
         publication,

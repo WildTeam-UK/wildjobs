@@ -142,7 +142,7 @@ function engagementType(record: PublicJobRecord) {
 }
 
 export function mapPublicJob(record: PublicJobRecord): Job {
-  const description = paragraphs(record.description);
+  const rawDescription = paragraphs(record.description);
   const careerAreas = record.job_career_areas
     .filter((relation) => relation.career_areas)
     .toSorted((left, right) => Number(right.is_primary) - Number(left.is_primary));
@@ -150,7 +150,10 @@ export function mapPublicJob(record: PublicJobRecord): Job {
   const contractType = jobTypeLabel(record.contract_type);
   const hoursType = jobTypeLabel(record.hours_type);
   const employer = record.employers;
-  const summary = record.summary?.trim() || description[0] || "View the full vacancy details.";
+  const summary = record.summary?.trim() || rawDescription[0] || "View the full vacancy details.";
+  const description = rawDescription.filter(
+    (paragraph) => paragraph.toLocaleLowerCase("en-GB") !== summary.toLocaleLowerCase("en-GB"),
+  );
 
   return {
     availability: availability(record),
@@ -163,7 +166,7 @@ export function mapPublicJob(record: PublicJobRecord): Job {
     closesAt: dateOnly(record.closes_at),
     contractType,
     countryCode: record.country_code ?? undefined,
-    description: description.length ? description : [summary],
+    description,
     employerSlug: employer?.slug,
     employmentType: hoursType ?? contractType ?? "Not stated",
     engagementType: engagementType(record),

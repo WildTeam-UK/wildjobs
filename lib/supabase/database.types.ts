@@ -11,20 +11,31 @@ export type Database = {
       automation_controls: {
         Row: {
           auto_publish_enabled: boolean;
+          auto_publish_source_record_id: number | null;
           id: string;
           updated_at: string;
         };
         Insert: {
           auto_publish_enabled?: boolean;
+          auto_publish_source_record_id?: number | null;
           id: string;
           updated_at?: string;
         };
         Update: {
           auto_publish_enabled?: boolean;
+          auto_publish_source_record_id?: number | null;
           id?: string;
           updated_at?: string;
         };
-        Relationships: [];
+        Relationships: [
+          {
+            foreignKeyName: "automation_controls_auto_publish_source_record_id_fkey";
+            columns: ["auto_publish_source_record_id"];
+            isOneToOne: false;
+            referencedRelation: "job_source_records";
+            referencedColumns: ["id"];
+          },
+        ];
       };
       automation_publication_decisions: {
         Row: {

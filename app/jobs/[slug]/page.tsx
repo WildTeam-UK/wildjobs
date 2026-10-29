@@ -49,7 +49,7 @@ export default async function JobPage({ params, searchParams }: JobPageProps) {
     "@context": "https://schema.org",
     "@type": "JobPosting",
     title: job.title,
-    description: [...job.description, ...job.responsibilities, ...job.requirements].join(" "),
+    description: [job.summary, ...job.description, ...job.responsibilities, ...job.requirements].join(" "),
     identifier: { "@type": "PropertyValue", name: "WildJobs", value: job.slug },
     datePosted: job.postedAt,
     validThrough: job.closesAt ? `${job.closesAt}T23:59:59Z` : undefined,
@@ -113,12 +113,14 @@ export default async function JobPage({ params, searchParams }: JobPageProps) {
 
       <div className="shell job-detail-layout">
         <article className="job-detail-content">
-          <section>
-            <h2>About this role</h2>
-            {job.description.map((paragraph) => (
-              <p key={paragraph}>{paragraph}</p>
-            ))}
-          </section>
+          {job.description.length ? (
+            <section>
+              <h2>About this role</h2>
+              {job.description.map((paragraph) => (
+                <p key={paragraph}>{paragraph}</p>
+              ))}
+            </section>
+          ) : null}
           {job.responsibilities.length ? (
             <section>
               <h2>What you’ll do</h2>

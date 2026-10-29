@@ -6,6 +6,7 @@ import { getOpenAIClient } from "@/lib/openai/client";
 
 import {
   isAllowedEmployerWebsite,
+  isEmployerProfileSourceUrl,
   isReturnedSearchSource,
   normaliseResearchUrl,
   sameWebsiteHost,
@@ -173,7 +174,8 @@ function employerSuggestions(
       field.evidence &&
       field.confidence >= 80 &&
       isReturnedSearchSource(field.source_url, searchSourceUrls) &&
-      sameWebsiteHost(field.source_url, searchedWebsiteUrl)
+      sameWebsiteHost(field.source_url, searchedWebsiteUrl) &&
+      (fieldName === "culture" || isEmployerProfileSourceUrl(field.source_url))
         ? field.evidence.replace(/\s+/g, " ").trim()
         : null;
     const evidence = employerEvidence ?? listingEvidence ?? webEvidence;

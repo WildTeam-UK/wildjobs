@@ -89,7 +89,17 @@ describe("public job mapping", () => {
       organisation: "Employer not stated",
       salary: "Salary not stated",
     });
-    expect(job.description).toEqual(["View the full vacancy details."]);
+    expect(job.description).toEqual([]);
+  });
+
+  it("does not repeat the short summary as a second description block", () => {
+    const job = mapPublicJob({
+      ...record,
+      description: "Support an ecological monitoring programme.",
+      summary: "Support an ecological monitoring programme.",
+    });
+
+    expect(job.description).toEqual([]);
   });
 
   it("preserves an AI summary label and an unknown closing date", () => {

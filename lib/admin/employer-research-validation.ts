@@ -50,6 +50,33 @@ export function sameWebsiteHost(left: string | null, right: string | null) {
   return normaliseHost(new URL(normalisedLeft).hostname) === normaliseHost(new URL(normalisedRight).hostname);
 }
 
+const EMPLOYER_PROFILE_PATH_SEGMENTS = new Set([
+  "about",
+  "about-the-council",
+  "about-us",
+  "corporate-plan",
+  "organisation",
+  "organisations",
+  "organization",
+  "organizations",
+  "our-council",
+  "our-story",
+  "our-work",
+  "strategy",
+  "vision",
+  "what-we-do",
+  "who-we-are",
+]);
+
+export function isEmployerProfileSourceUrl(value: string | null) {
+  const normalised = normaliseResearchUrl(value);
+  if (!normalised) return false;
+  const pathSegments = new URL(normalised).pathname.toLocaleLowerCase("en-GB").split("/").filter(Boolean);
+  return (
+    pathSegments.length === 0 || pathSegments.some((segment) => EMPLOYER_PROFILE_PATH_SEGMENTS.has(segment))
+  );
+}
+
 export function isReturnedSearchSource(value: string | null, sourceUrls: readonly string[]) {
   const normalised = normaliseResearchUrl(value);
   if (!normalised) return false;

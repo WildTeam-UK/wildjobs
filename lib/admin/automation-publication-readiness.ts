@@ -1,6 +1,19 @@
 import { employerIdentityConflicts } from "./employer-identity";
 
-export const AUTOMATION_PUBLICATION_POLICY_VERSION = "evidence-gated-v4";
+export const AUTOMATION_PUBLICATION_POLICY_VERSION = "evidence-gated-v5";
+
+export function publicationControlAllowsSource(input: {
+  databaseEnabled: boolean;
+  environmentEnabled: boolean;
+  sourceRecordId: number;
+  targetSourceRecordId: number | null;
+}) {
+  return (
+    input.environmentEnabled &&
+    input.databaseEnabled &&
+    (input.targetSourceRecordId === null || input.targetSourceRecordId === input.sourceRecordId)
+  );
+}
 
 export const automationBlockerLabels = {
   already_linked: "This source record is already linked to a WildJobs vacancy.",

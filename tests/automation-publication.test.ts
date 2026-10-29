@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   AUTOMATION_PUBLICATION_POLICY_VERSION,
   evaluatePublicationReadiness,
+  publicationControlAllowsSource,
   type PublicationReadinessInput,
 } from "../lib/admin/automation-publication-readiness";
 
@@ -58,8 +59,18 @@ describe("automated publication readiness", () => {
   it("allows a fully evidenced vacancy without fabricating optional fields", () => {
     const result = evaluatePublicationReadiness(readyInput());
 
-    expect(AUTOMATION_PUBLICATION_POLICY_VERSION).toBe("evidence-gated-v4");
+    expect(AUTOMATION_PUBLICATION_POLICY_VERSION).toBe("evidence-gated-v5");
     expect(result).toMatchObject({ blockers: [], ready: true, score: 100 });
+  });
+
+  it("allows only the selected source record during a controlled live test", () => {
+    const control = { databaseEnabled: true, environmentEnabled: true, targetSourceRecordId: 17 };
+
+    expect(publicationControlAllowsSource({ ...control, sourceRecordId: 17 })).toBe(true);
+    expect(publicationControlAllowsSource({ ...control, sourceRecordId: 36 })).toBe(false);
+    expect(publicationControlAllowsSource({ ...control, databaseEnabled: false, sourceRecordId: 17 })).toBe(
+      false,
+    );
   });
 
   it("blocks possible duplicates but not absent optional classification evidence", () => {

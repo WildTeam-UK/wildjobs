@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   evidenceAppearsInText,
   isAllowedEmployerWebsite,
+  isEmployerProfileSourceUrl,
   isEmployerResearchPending,
   isReturnedSearchSource,
   normaliseResearchUrl,
@@ -33,6 +34,16 @@ describe("employer research validation", () => {
   it("compares hosts without treating www as a different employer", () => {
     expect(sameWebsiteHost("https://example.org/", "https://www.example.org/about")).toBe(true);
     expect(sameWebsiteHost("https://example.org/", "https://example.com/")).toBe(false);
+  });
+
+  it("accepts employer profile pages and rejects unrelated service pages", () => {
+    expect(isEmployerProfileSourceUrl("https://example.org/")).toBe(true);
+    expect(isEmployerProfileSourceUrl("https://example.org/about-us/our-work")).toBe(true);
+    expect(isEmployerProfileSourceUrl("https://www.gov.uk/government/organisations/natural-england")).toBe(
+      true,
+    );
+    expect(isEmployerProfileSourceUrl("https://example.org/business/food-safety/hygiene-rating")).toBe(false);
+    expect(isEmployerProfileSourceUrl("https://example.org/jobs/ranger")).toBe(false);
   });
 
   it("verifies exact evidence despite harmless whitespace differences", () => {
