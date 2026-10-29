@@ -76,9 +76,9 @@ async function readAiBudget(supabase: SupabaseClient<Database>) {
     .eq("ai_attempted", true)
     .gte("started_at", start.toISOString());
   if (error) throw new Error("AI usage could not be checked safely.");
-  const requestLimit = positiveLimit(process.env.AI_DAILY_REQUEST_LIMIT, 25, 1_000);
-  const inputLimit = positiveLimit(process.env.AI_DAILY_INPUT_TOKEN_LIMIT, 250_000, 10_000_000);
-  const outputLimit = positiveLimit(process.env.AI_DAILY_OUTPUT_TOKEN_LIMIT, 40_000, 2_000_000);
+  const requestLimit = positiveLimit(process.env.AI_DAILY_REQUEST_LIMIT, 200, 1_000);
+  const inputLimit = positiveLimit(process.env.AI_DAILY_INPUT_TOKEN_LIMIT, 500_000, 10_000_000);
+  const outputLimit = positiveLimit(process.env.AI_DAILY_OUTPUT_TOKEN_LIMIT, 80_000, 2_000_000);
   const usage = (data ?? []).reduce(
     (total, run) => ({
       input: total.input + run.input_tokens,
