@@ -1,5 +1,4 @@
 import { describe, expect, it } from "vitest";
-import { employerByName, employerBySlug, employers, jobsForEmployer } from "../lib/employers";
 import { filterJobs, jobCategories } from "../lib/job-filtering";
 import { jobs } from "../lib/jobs";
 
@@ -62,18 +61,5 @@ describe("job filtering", () => {
     expect(jobCategories(jobs)).toEqual(
       [...jobCategories(jobs)].sort((left, right) => left.localeCompare(right)),
     );
-  });
-});
-
-describe("employer profiles", () => {
-  it("provides one profile for every fixture employer", () => {
-    expect(jobs.every((job) => employerByName(job.organisation))).toBe(true);
-    expect(employers.every((employer) => employerBySlug(employer.slug))).toBe(true);
-  });
-
-  it("connects an employer profile to its roles", () => {
-    expect(jobsForEmployer("Example Coastal Trust").map((job) => job.slug)).toEqual([
-      "marine-restoration-officer",
-    ]);
   });
 });

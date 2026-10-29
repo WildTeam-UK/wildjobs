@@ -76,7 +76,13 @@ export default async function JobPage({ params }: JobPageProps) {
           <span>{job.category}</span>
           <span>{job.locationType}</span>
         </div>
-        <p>{job.organisation}</p>
+        <p>
+          {job.employerSlug ? (
+            <Link href={`/employers/${job.employerSlug}`}>{job.organisation}</Link>
+          ) : (
+            job.organisation
+          )}
+        </p>
         <h1>{job.title}</h1>
         <p className="job-detail-hero__summary">{job.summary}</p>
       </header>
@@ -117,7 +123,15 @@ export default async function JobPage({ params }: JobPageProps) {
             <dl>
               <div>
                 <dt>Organisation</dt>
-                <dd>{job.organisation}</dd>
+                <dd>
+                  {job.employerSlug ? (
+                    <Link className="fact-link" href={`/employers/${job.employerSlug}`}>
+                      {job.organisation}
+                    </Link>
+                  ) : (
+                    job.organisation
+                  )}
+                </dd>
               </div>
               <div>
                 <dt>Location</dt>
