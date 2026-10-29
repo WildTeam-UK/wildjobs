@@ -2,7 +2,7 @@
 
 WildJobs is WildTeam's independent conservation careers platform, intended for `jobs.wildteam.org.uk`.
 
-The application is connected to its independent Supabase project. Public job discovery reads approved live vacancies, candidate email/password authentication is connected, and authorised staff can curate, review and publish jobs. The first source connector lets an administrator check WWT's public vacancy page and route discoveries into manual review without automatic publication. Employer, career and submission areas still contain clearly labelled prototype content. Analytics and marketing integrations are not implemented yet.
+The application is connected to its independent Supabase project. Public job discovery reads approved live vacancies, candidate email/password authentication is connected, and authorised staff can curate, review and publish jobs. Source connectors let an administrator check WWT's public vacancy page or the reviewed Countryside Jobs Service RSS feed and route discoveries into manual review without automatic publication. Employer, career and submission areas still contain clearly labelled prototype content. Analytics and marketing integrations are not implemented yet.
 
 The approved beta direction is documented in `docs/IMPLEMENTATION_PLAN.md` and `docs/EXPERIENCE_BLUEPRINT.md`.
 
@@ -36,7 +36,7 @@ pnpm check
 ## Current boundaries
 
 - Published jobs and their source provenance live in Supabase; fixture jobs in `lib/jobs.ts` remain design references only.
-- WWT discovery is manual, administrator-only and restricted to the approved WWT vacancies endpoint. It never publishes a vacancy automatically.
+- Source discovery is manual, administrator-only and restricted to explicitly reviewed endpoints. WWT HTML and Countryside Jobs Service RSS are currently supported; neither publishes a vacancy automatically.
 - Employer, career, course and submission experiences are not yet fully connected to production data.
 - The site is marked `noindex` until approved data and a production domain are connected.
 - Shared design tokens are pinned to the private `@wildteam-uk/tokens` package released through GitHub Packages. Local development requires a personal package login; CI uses its repository-scoped `GITHUB_TOKEN`.

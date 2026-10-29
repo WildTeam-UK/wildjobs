@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { addSource, runSourceDiscovery, setSourceStatus } from "@/app/admin/sources/actions";
-import { isSupportedWwtSource } from "@/lib/admin/wwt-source";
+import { getSourceConnector } from "@/lib/admin/source-connector";
 import { requireStaff } from "@/lib/auth/staff";
 import { createClient } from "@/lib/supabase/server";
 
@@ -105,7 +105,8 @@ export default async function SourcesPage({ searchParams }: SourcesPageProps) {
                   )}
                   {staff.role === "admin" ? (
                     <>
-                      {source.is_active && isSupportedWwtSource(source.authoritative_base_url) ? (
+                      {source.is_active &&
+                      getSourceConnector(source.source_type, source.authoritative_base_url) ? (
                         <form action={runSourceDiscovery}>
                           <input name="sourceId" type="hidden" value={source.id} />
                           <button className="staff-source-toggle" type="submit">
@@ -133,7 +134,8 @@ export default async function SourcesPage({ searchParams }: SourcesPageProps) {
                 <p className="eyebrow">Administrator action</p>
                 <h2>Add a source</h2>
                 <p>
-                  Choose the route we have actually verified. Feed and API connections are configured later.
+                  Choose the route we have actually verified. Supported feeds receive a private review queue;
+                  nothing is published automatically.
                 </p>
               </div>
               <label htmlFor="source-name">Source name</label>

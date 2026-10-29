@@ -10,7 +10,7 @@ browser
        -> Supabase public job catalogue protected by Row Level Security
        -> Supabase Auth for candidate and staff sessions
        -> authenticated staff review and publication actions
-       -> administrator-triggered WWT vacancy discovery
+       -> administrator-triggered approved-source discovery
   -> no optional analytics or marketing integration
 ```
 
@@ -25,7 +25,9 @@ browser
             -> Postgres
             -> Row Level Security
             -> candidate and staff Supabase Auth
-       -> exact-host WWT source adapter
+       -> exact-host source adapters
+            -> WWT public vacancies HTML
+            -> Countryside Jobs Service RSS 2.0
             -> public vacancy identities and content hashes only
             -> private discovery queue
             -> manual review before publication
@@ -53,7 +55,7 @@ The independent `wildjobs` Supabase project and beta schema were created in the 
 
 The schema includes employers, jobs, career areas, course-capability mappings, provenance, import runs, controlled employer submissions, candidate profiles, saved jobs, preferences and staff moderation. All changes remain ordered migrations in `supabase/migrations`.
 
-Every table in an exposed schema has RLS. Public access is limited to active, approved listings. Staff access requires an active staff record. The first connector is a manual administrator action running on the server; future scheduled connectors will require a separately approved server-only credential path.
+Every table in an exposed schema has RLS. Public access is limited to active, approved listings. Staff access requires an active staff record. Current connectors are manual administrator actions running on the server and permit only reviewed source endpoints; future scheduled connectors will require a separately approved server-only credential path.
 
 ## Search
 

@@ -5,8 +5,10 @@ import { createHash } from "node:crypto";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
+import { parseCjsVacancyFeed } from "@/lib/admin/feed-source";
+import { getSourceConnector, type SourceConnector } from "@/lib/admin/source-connector";
 import { validateSource, validateSourceStatus } from "@/lib/admin/source-validation";
-import { isSupportedWwtSource, parseWwtVacancies } from "@/lib/admin/wwt-source";
+import { parseWwtVacancies } from "@/lib/admin/wwt-source";
 import { requireAdministrator } from "@/lib/auth/staff";
 import { createClient } from "@/lib/supabase/server";
 
@@ -17,23 +19,40 @@ function readSourceId(formData: FormData) {
   return Number.isSafeInteger(sourceId) && sourceId > 0 ? sourceId : null;
 }
 
-async function fetchWwtVacancies(url: string) {
+async function fetchSourceVacancies(connector: SourceConnector, url: string) {
   const response = await fetch(url, {
     cache: "no-store",
     headers: { "User-Agent": "WildJobs source checker (+https://jobs.wildteam.org.uk)" },
+    redirect: "manual",
     signal: AbortSignal.timeout(10_000),
   });
 
   const contentLength = Number(response.headers.get("content-length") ?? 0);
-  if (!response.ok || !response.headers.get("content-type")?.toLowerCase().includes("text/html")) {
+  const contentType = response.headers.get("content-type")?.toLowerCase() ?? "";
+  if (
+    !response.ok ||
+    getSourceConnector(connector === "rss" ? "feed" : "manual_curation", response.url) !== connector
+  ) {
+    throw new Error("The source did not return the approved vacancy endpoint.");
+  }
+  if (connector === "wwt" && !contentType.includes("text/html")) {
     throw new Error("The source did not return an HTML vacancies page.");
+  }
+  if (
+    connector === "rss" &&
+    !["application/rss+xml", "application/atom+xml", "application/xml", "text/xml", "text/html"].some(
+      (type) => contentType.includes(type),
+    )
+  ) {
+    throw new Error("The source did not return an RSS or Atom feed.");
   }
   if (contentLength > MAX_SOURCE_BYTES) throw new Error("The source response was too large.");
 
   const body = await response.arrayBuffer();
   if (body.byteLength > MAX_SOURCE_BYTES) throw new Error("The source response was too large.");
 
-  const vacancies = parseWwtVacancies(new TextDecoder().decode(body));
+  const sourceBody = new TextDecoder().decode(body);
+  const vacancies = connector === "rss" ? parseCjsVacancyFeed(sourceBody) : parseWwtVacancies(sourceBody);
   if (!vacancies.length) throw new Error("No verified vacancy records were found.");
   return vacancies;
 }
@@ -91,14 +110,15 @@ export async function runSourceDiscovery(formData: FormData) {
   const supabase = await createClient();
   const { data: source, error: sourceError } = await supabase
     .from("job_sources")
-    .select("id, authoritative_base_url, is_active")
+    .select("id, source_type, authoritative_base_url, is_active")
     .eq("id", sourceId)
     .maybeSingle();
 
   if (sourceError || !source || !source.is_active) {
     redirect("/admin/sources?error=invalid-source");
   }
-  if (!isSupportedWwtSource(source.authoritative_base_url)) {
+  const connector = getSourceConnector(source.source_type, source.authoritative_base_url);
+  if (!connector) {
     redirect("/admin/sources?error=unsupported-connection");
   }
   const sourceUrl = source.authoritative_base_url;
@@ -114,7 +134,7 @@ export async function runSourceDiscovery(formData: FormData) {
 
   try {
     const [vacancies, existingResult] = await Promise.all([
-      fetchWwtVacancies(sourceUrl),
+      fetchSourceVacancies(connector, sourceUrl),
       supabase
         .from("job_source_records")
         .select("id, external_id, canonical_url, content_hash, mapping_status")
@@ -192,7 +212,7 @@ export async function runSourceDiscovery(formData: FormData) {
     await supabase
       .from("import_runs")
       .update({
-        error_summary: "WWT vacancies could not be checked. No listings were published.",
+        error_summary: "The approved source could not be checked. No listings were published.",
         finished_at: new Date().toISOString(),
         status: "failed",
       })

@@ -3,7 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { runSourceDiscovery } from "@/app/admin/sources/actions";
-import { isSupportedWwtSource } from "@/lib/admin/wwt-source";
+import { connectorActionLabel, getSourceConnector } from "@/lib/admin/source-connector";
 import { requireStaff } from "@/lib/auth/staff";
 import { createClient } from "@/lib/supabase/server";
 
@@ -53,6 +53,7 @@ export default async function SourcePage({ params, searchParams }: SourcePagePro
   const records = recordsResult.data ?? [];
   const query = await searchParams;
   const checkSource = runSourceDiscovery;
+  const connector = getSourceConnector(source.source_type, source.authoritative_base_url);
 
   return (
     <main className="staff-page">
@@ -80,7 +81,7 @@ export default async function SourcePage({ params, searchParams }: SourcePagePro
         ) : null}
         {query.status === "failed" ? (
           <p className="staff-form-message staff-form-message--error" role="alert">
-            WWT could not be checked just now. Nothing was published; try again later.
+            This source could not be checked just now. Nothing was published; try again later.
           </p>
         ) : null}
         {recordsResult.error ? (
@@ -94,13 +95,11 @@ export default async function SourcePage({ params, searchParams }: SourcePagePro
             <p className="eyebrow">Discovery queue</p>
             <h2>{records.length} source records</h2>
           </div>
-          {staff.role === "admin" &&
-          source.is_active &&
-          isSupportedWwtSource(source.authoritative_base_url) ? (
+          {staff.role === "admin" && source.is_active && connector ? (
             <form action={checkSource}>
               <input name="sourceId" type="hidden" value={source.id} />
               <button className="action" type="submit">
-                Check WWT now
+                {connectorActionLabel(connector)}
               </button>
             </form>
           ) : null}
