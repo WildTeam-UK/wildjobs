@@ -178,6 +178,11 @@ export default async function SourcePage({ params, searchParams }: SourcePagePro
             This source could not be checked just now. Nothing was published; try again later.
           </p>
         ) : null}
+        {firstQueryValue(query.status) === "already-running" ? (
+          <p className="staff-form-message" role="status">
+            This source is already being checked. Its result will appear in Import runs when it finishes.
+          </p>
+        ) : null}
         {firstQueryValue(query.status) === "triaged" ? (
           <p className="staff-form-message" role="status">
             Source record updated. Nothing was published.
