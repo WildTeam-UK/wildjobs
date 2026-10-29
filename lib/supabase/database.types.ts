@@ -1104,6 +1104,14 @@ export type Database = {
         };
         Returns: number;
       };
+      create_job_review_from_submission: {
+        Args: {
+          p_employer_slug: string;
+          p_job_slug: string;
+          p_submission_id: number;
+        };
+        Returns: number;
+      };
       link_source_record_to_job: {
         Args: {
           p_job_id: number;
@@ -1141,6 +1149,14 @@ export type Database = {
           p_workplace_types: string[];
         };
         Returns: undefined;
+      };
+      review_employer_submission: {
+        Args: {
+          p_decision: string;
+          p_review_note: string;
+          p_submission_id: number;
+        };
+        Returns: string;
       };
       update_employer_review_profile: {
         Args: {

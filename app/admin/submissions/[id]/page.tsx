@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import { EmployerSubmissionActions } from "@/components/admin/employer-submission-actions";
 import {
   employerSubmissionStatusLabel,
   formatSubmissionTimestamp,
@@ -9,17 +10,25 @@ import {
   workplaceTypeLabel,
 } from "@/lib/admin/employer-submission-display";
 import { getEmployerSubmission } from "@/lib/admin/employer-submissions";
+import { requireStaff } from "@/lib/auth/staff";
 import { formatDate } from "@/lib/jobs";
 
-type SubmissionPageProps = { params: Promise<{ id: string }> };
+type SubmissionPageProps = {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ status?: string }>;
+};
 export const metadata: Metadata = { title: "Review employer submission" };
 
-export default async function SubmissionPage({ params }: SubmissionPageProps) {
+export default async function SubmissionPage({ params, searchParams }: SubmissionPageProps) {
   const id = parseEmployerSubmissionId((await params).id);
   if (!id) notFound();
 
-  const { events, submission } = await getEmployerSubmission(id);
+  const [{ events, submission }, staff] = await Promise.all([getEmployerSubmission(id), requireStaff()]);
   if (!submission) notFound();
+  const query = await searchParams;
+  const isOpen =
+    !submission.resulting_job &&
+    ["new", "changes_requested", "ready_for_job_review"].includes(submission.status);
 
   return (
     <main className="staff-page">
@@ -28,6 +37,20 @@ export default async function SubmissionPage({ params }: SubmissionPageProps) {
           <span aria-hidden="true">←</span> Submission queue
         </Link>
       </div>
+      {query.status === "changes-requested" ? (
+        <div className="shell">
+          <p className="staff-form-message" role="status">
+            Changes needed were recorded in the audit history. No employer email was sent automatically.
+          </p>
+        </div>
+      ) : null}
+      {query.status === "rejected" ? (
+        <div className="shell">
+          <p className="staff-form-message" role="status">
+            Submission rejected and removed from the active review queue.
+          </p>
+        </div>
+      ) : null}
       <header className="review-hero shell">
         <div>
           <span className="status-badge">{employerSubmissionStatusLabel(submission.status)}</span>
@@ -145,7 +168,13 @@ export default async function SubmissionPage({ params }: SubmissionPageProps) {
           ) : (
             <p>No job review draft has been created yet.</p>
           )}
-          <p>Review actions will be connected in the next controlled-submission batch.</p>
+          {isOpen ? (
+            <EmployerSubmissionActions canCreateDraft={staff.role === "admin"} submissionId={submission.id} />
+          ) : submission.status === "rejected" ? (
+            <p>This submission is closed. Its evidence and staff decisions remain available above.</p>
+          ) : (
+            <p>This submission has completed intake and now continues in the private job-review queue.</p>
+          )}
         </aside>
       </div>
     </main>

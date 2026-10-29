@@ -2823,6 +2823,63 @@ select {
 .submission-detail-list a:hover {
   color: var(--wt-color-brand-pink);
 }
+.submission-review-actions {
+  display: grid;
+  gap: 18px;
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 1px solid var(--wt-color-rule);
+}
+.submission-review-actions section {
+  display: grid;
+  gap: 12px;
+  padding: 20px;
+  border: 1px solid var(--wt-color-rule);
+  border-radius: var(--wt-radius-panel);
+  background: var(--wt-color-paper);
+}
+.submission-review-actions h3,
+.submission-review-actions p {
+  margin: 0;
+}
+.submission-review-actions h3 {
+  font-size: 1.3rem;
+  line-height: 1.05;
+}
+.submission-review-actions section > p:not(.eyebrow) {
+  color: var(--wt-color-muted);
+  font-size: 0.78rem;
+  line-height: 1.55;
+}
+.submission-review-actions form {
+  display: grid;
+  gap: 10px;
+}
+.submission-review-actions label {
+  font-size: 0.72rem;
+  font-weight: var(--wt-font-weight-bold);
+}
+.submission-review-actions textarea {
+  width: 100%;
+  min-height: 112px;
+  padding: 12px 14px;
+  resize: vertical;
+  border: 1px solid var(--wt-color-rule);
+  border-radius: var(--wt-radius-control);
+  background: var(--wt-color-paper);
+  color: var(--wt-color-ink);
+  font: inherit;
+}
+.submission-review-actions textarea:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--wt-color-brand-pink) 35%, transparent);
+  outline-offset: 2px;
+}
+.submission-review-actions .action {
+  justify-self: start;
+}
+.submission-review-actions section.submission-review-actions__reject {
+  border-color: color-mix(in srgb, #7e1730 35%, var(--wt-color-rule));
+}
 .employer-review-list article {
   display: grid;
   grid-template-columns: minmax(280px, 1fr) minmax(140px, 0.22fr) auto;
