@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { getSafeNextPath } from "@/lib/auth/redirects";
+import { getSaveJobIntent } from "@/lib/auth/save-intent";
 
 export const metadata: Metadata = { title: "Check your email" };
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
@@ -9,6 +10,7 @@ type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 export default async function CheckEmailPage({ searchParams }: { searchParams: SearchParams }) {
   const params = await searchParams;
   const next = getSafeNextPath(params.next);
+  const saveIntent = getSaveJobIntent(params);
 
   return (
     <main className="auth-page">
@@ -20,6 +22,9 @@ export default async function CheckEmailPage({ searchParams }: { searchParams: S
             Open the confirmation email from WildJobs in the same browser if you can. The link will verify
             your address and securely sign you in.
           </p>
+          {saveIntent ? (
+            <p className="intent-note">Your chosen job will then be saved before you return to it.</p>
+          ) : null}
         </div>
         <div className="auth-card">
           <p className="eyebrow">No email yet?</p>
@@ -28,7 +33,15 @@ export default async function CheckEmailPage({ searchParams }: { searchParams: S
             an address already has an account.
           </p>
           <p className="auth-card__switch">
-            Already confirmed? <Link href={{ pathname: "/sign-in", query: { next } }}>Sign in</Link>
+            Already confirmed?{" "}
+            <Link
+              href={{
+                pathname: "/sign-in",
+                query: saveIntent ? { intent: "save", job: saveIntent.jobSlug, next } : { next },
+              }}
+            >
+              Sign in
+            </Link>
           </p>
         </div>
       </section>

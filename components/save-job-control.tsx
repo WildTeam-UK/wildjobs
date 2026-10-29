@@ -24,7 +24,10 @@ export function SaveJobControl({
     return (
       <Link
         className={className}
-        href={{ pathname: "/sign-in", query: { intent: "save", next: `/jobs/${jobSlug}` } }}
+        href={{
+          pathname: "/sign-in",
+          query: { intent: "save", job: jobSlug, next: `/jobs/${jobSlug}` },
+        }}
       >
         <span aria-hidden="true">♡</span> Save job
       </Link>

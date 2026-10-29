@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { signUp } from "@/app/auth/actions";
 import { SubmitButton } from "@/components/submit-button";
 import { getSafeNextPath } from "@/lib/auth/redirects";
+import { getSaveJobIntent } from "@/lib/auth/save-intent";
 import { createClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = { title: "Create an account" };
@@ -20,6 +21,7 @@ const messages: Record<string, string> = {
 export default async function CreateAccountPage({ searchParams }: { searchParams: SearchParams }) {
   const params = await searchParams;
   const next = getSafeNextPath(params.next);
+  const saveIntent = getSaveJobIntent(params);
   const error = typeof params.error === "string" ? params.error : undefined;
   const supabase = await createClient();
   const { data } = await supabase.auth.getClaims();
@@ -47,6 +49,12 @@ export default async function CreateAccountPage({ searchParams }: { searchParams
           ) : null}
           <form action={signUp}>
             <input name="next" type="hidden" value={next} />
+            {saveIntent ? (
+              <>
+                <input name="intent" type="hidden" value="save" />
+                <input name="job" type="hidden" value={saveIntent.jobSlug} />
+              </>
+            ) : null}
             <label htmlFor="create-email">Email address</label>
             <input
               autoComplete="email"
@@ -78,7 +86,15 @@ export default async function CreateAccountPage({ searchParams }: { searchParams
             Marketing updates will be offered separately once Brevo consent capture is connected.
           </p>
           <p className="auth-card__switch">
-            Already have an account? <Link href={{ pathname: "/sign-in", query: { next } }}>Sign in</Link>
+            Already have an account?{" "}
+            <Link
+              href={{
+                pathname: "/sign-in",
+                query: saveIntent ? { intent: "save", job: saveIntent.jobSlug, next } : { next },
+              }}
+            >
+              Sign in
+            </Link>
           </p>
         </div>
       </section>

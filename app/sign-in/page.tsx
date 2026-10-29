@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { signIn } from "@/app/auth/actions";
 import { SubmitButton } from "@/components/submit-button";
 import { getSafeNextPath } from "@/lib/auth/redirects";
+import { getSaveJobIntent } from "@/lib/auth/save-intent";
 import { createClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = { title: "Sign in" };
@@ -21,7 +22,8 @@ const messages: Record<string, string> = {
 export default async function SignInPage({ searchParams }: { searchParams: SearchParams }) {
   const params = await searchParams;
   const next = getSafeNextPath(params.next);
-  const savingJob = params.intent === "save";
+  const saveIntent = getSaveJobIntent(params);
+  const savingJob = Boolean(saveIntent);
   const error = typeof params.error === "string" ? params.error : undefined;
   const status = typeof params.status === "string" ? params.status : undefined;
   const supabase = await createClient();
@@ -40,7 +42,7 @@ export default async function SignInPage({ searchParams }: { searchParams: Searc
             browse or apply.
           </p>
           {savingJob ? (
-            <p className="intent-note">After signing in, you will return to the same job.</p>
+            <p className="intent-note">After signing in, this job will be saved and you will return to it.</p>
           ) : null}
         </div>
         <div className="auth-card">
@@ -57,6 +59,12 @@ export default async function SignInPage({ searchParams }: { searchParams: Searc
           ) : null}
           <form action={signIn}>
             <input name="next" type="hidden" value={next} />
+            {saveIntent ? (
+              <>
+                <input name="intent" type="hidden" value="save" />
+                <input name="job" type="hidden" value={saveIntent.jobSlug} />
+              </>
+            ) : null}
             <label htmlFor="sign-in-email">Email address</label>
             <input
               autoComplete="email"
@@ -83,7 +91,14 @@ export default async function SignInPage({ searchParams }: { searchParams: Searc
           </p>
           <p className="auth-card__switch">
             New to WildJobs?{" "}
-            <Link href={{ pathname: "/create-account", query: { next } }}>Create an account</Link>
+            <Link
+              href={{
+                pathname: "/create-account",
+                query: saveIntent ? { intent: "save", job: saveIntent.jobSlug, next } : { next },
+              }}
+            >
+              Create an account
+            </Link>
           </p>
         </div>
       </section>

@@ -24,4 +24,14 @@ describe("buildAuthPath", () => {
       }),
     ).toBe("/sign-in?error=invalid-credentials&next=%2Faccount%2Fsaved");
   });
+
+  it("preserves a validated save intention", () => {
+    expect(
+      buildAuthPath("/create-account", {
+        intent: "save",
+        job: "marine-policy-officer",
+        next: "/jobs/marine-policy-officer",
+      }),
+    ).toBe("/create-account?intent=save&job=marine-policy-officer&next=%2Fjobs%2Fmarine-policy-officer");
+  });
 });
