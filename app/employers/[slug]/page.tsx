@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { EmployerLogo } from "@/components/employer-logo";
 import { JobCard } from "@/components/job-card";
 import { getCandidateSaveState } from "@/lib/candidate-saved-jobs";
 import { formatDate } from "@/lib/jobs";
@@ -51,26 +52,36 @@ export default async function EmployerPage({ params }: EmployerPageProps) {
 
       <header className="employer-profile-hero shell">
         <div className="employer-profile-hero__identity">
-          {employer.logoUrl ? (
-            <div className="employer-profile-logo">
-              <img alt={`${employer.name} logo`} src={employer.logoUrl} />
-            </div>
-          ) : (
-            <div className="employer-profile-monogram" aria-hidden="true">
-              {employer.shortName}
-            </div>
-          )}
+          <EmployerLogo
+            imageClassName="employer-profile-logo"
+            logoUrl={employer.logoUrl}
+            monogramClassName="employer-profile-monogram"
+            name={employer.name}
+          />
           <div>
             <p className="eyebrow">{employer.focus}</p>
             <h1>{employer.name}</h1>
           </div>
         </div>
-        <p className="employer-profile-hero__mission">{employer.mission}</p>
+        <div className="employer-profile-hero__summary">
+          <p className="eyebrow">Organisation profile</p>
+          <p className="employer-profile-hero__mission">{employer.mission}</p>
+          <div className="employer-profile-hero__actions">
+            <a className="action action--outline" href="#current-opportunities">
+              {openRoles.length} current {openRoles.length === 1 ? "role" : "roles"}
+            </a>
+            {employer.websiteUrl ? (
+              <a className="text-link" href={employer.websiteUrl} rel="noreferrer" target="_blank">
+                Official website <span aria-hidden="true">↗</span>
+              </a>
+            ) : null}
+          </div>
+        </div>
       </header>
 
       <div className="shell employer-profile-layout">
         <article className="employer-profile-content">
-          <section>
+          <section className="employer-profile-about">
             <p className="eyebrow">
               {employer.overviewIsAi ? "AI-generated overview" : "About the organisation"}
             </p>
@@ -151,7 +162,7 @@ export default async function EmployerPage({ params }: EmployerPageProps) {
         </aside>
       </div>
 
-      <section className="employer-profile-jobs">
+      <section className="employer-profile-jobs" id="current-opportunities">
         <div className="shell">
           <div className="job-results__heading">
             <h2>Current opportunities</h2>
