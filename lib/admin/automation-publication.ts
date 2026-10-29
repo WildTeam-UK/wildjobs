@@ -51,7 +51,7 @@ async function evaluateAndMaybePublishSourceRecordUnsafe(
   const { data: record, error } = await supabase
     .from("job_source_records")
     .select(
-      "id, job_id, mapping_status, canonical_url, application_url, closes_at, first_seen_at, source_title, summary, detail_text, location_text, enrichment_status, job_sources(name, source_type, is_active, default_country_code), employers(id, name, status, website_url, mission, overview, reviewed_at, employer_field_evidence(field_name, confidence)), job_source_field_evidence(field_name, resolution_status, value, confidence)",
+      "id, job_id, mapping_status, canonical_url, application_url, closes_at, first_seen_at, source_title, summary, detail_text, location_text, employer_name, employer_website_url, enrichment_status, job_sources(name, source_type, is_active, default_country_code), employers(id, name, status, website_url, mission, overview, reviewed_at, employer_field_evidence(field_name, confidence)), job_source_field_evidence(field_name, resolution_status, value, confidence)",
     )
     .eq("id", sourceRecordId)
     .maybeSingle();
@@ -68,6 +68,7 @@ async function evaluateAndMaybePublishSourceRecordUnsafe(
     employer: record.employers
       ? {
           id: record.employers.id,
+          name: record.employers.name,
           mission: record.employers.mission,
           overview: record.employers.overview,
           reviewedAt: record.employers.reviewed_at,
@@ -83,6 +84,8 @@ async function evaluateAndMaybePublishSourceRecordUnsafe(
     locationText: record.location_text,
     mappingStatus: record.mapping_status,
     sourceActive: record.job_sources?.is_active ?? false,
+    sourceEmployerName: record.employer_name,
+    sourceEmployerWebsiteUrl: record.employer_website_url,
     sourceTitle: record.source_title,
     sourceType: record.job_sources?.source_type ?? "",
     summary: record.summary,

@@ -1,4 +1,6 @@
-export const AUTOMATION_PUBLICATION_POLICY_VERSION = "evidence-gated-v2";
+import { employerIdentityConflicts } from "./employer-identity";
+
+export const AUTOMATION_PUBLICATION_POLICY_VERSION = "evidence-gated-v3";
 
 export const automationBlockerLabels = {
   already_linked: "This source record is already linked to a WildJobs vacancy.",
@@ -11,6 +13,7 @@ export const automationBlockerLabels = {
   description_missing: "The full vacancy description is missing.",
   duplicate_risk: "The vacancy may already exist and needs a person to resolve it.",
   employer_evidence_weak: "The employer identity is not supported by strong evidence.",
+  employer_identity_conflict: "The canonical employer conflicts with the source-page evidence.",
   employer_missing: "A canonical employer could not be matched.",
   employer_profile_incomplete: "The employer website, mission or overview is incomplete.",
   engagement_evidence_weak: "Paid or volunteer status is not supported by strong evidence.",
@@ -47,6 +50,7 @@ export type PublicationReadinessInput = {
   duplicateCount: number;
   employer: {
     id: number;
+    name: string;
     mission: string | null;
     overview: string | null;
     reviewedAt: string | null;
@@ -61,6 +65,8 @@ export type PublicationReadinessInput = {
   locationText: string | null;
   mappingStatus: string;
   sourceActive: boolean;
+  sourceEmployerName: string | null;
+  sourceEmployerWebsiteUrl: string | null;
   sourceTitle: string | null;
   sourceType: string;
   summary: string | null;
@@ -125,10 +131,17 @@ export function evaluatePublicationReadiness(input: PublicationReadinessInput): 
     blockers.add("employer_missing");
   } else if (input.employer.status === "archived") {
     blockers.add("employer_missing");
+  } else if (
+    employerIdentityConflicts(
+      { name: input.sourceEmployerName, websiteUrl: input.sourceEmployerWebsiteUrl },
+      { name: input.employer.name, websiteUrl: input.employer.websiteUrl },
+    )
+  ) {
+    blockers.add("employer_identity_conflict");
   }
 
   const blockerList = [...blockers];
-  const totalChecks = 11;
+  const totalChecks = 12;
   const score = Math.max(0, Math.round(((totalChecks - blockerList.length) / totalChecks) * 100));
   return { blockers: blockerList, fieldConfidences, ready: blockerList.length === 0, score };
 }

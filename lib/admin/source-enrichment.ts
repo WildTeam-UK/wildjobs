@@ -17,6 +17,8 @@ import {
   normaliseResearchUrl,
   sameWebsiteHost,
 } from "./employer-research-validation";
+import { employerIdentityConflicts, employerIdentityMatches } from "./employer-identity";
+import { shouldGenerateAiSummary } from "./publication-summary";
 import { fetchApprovedVacancyPage, fetchEmployerPage, SourcePageError } from "./source-page-fetch";
 import {
   parseEmployerPage,
@@ -286,18 +288,27 @@ async function resolveEmployer(
     const result = await supabase.from("employers").select("*").eq("id", record.employer_id).maybeSingle();
     if (result.error) throw new Error("The matched employer could not be read.");
     employer = result.data;
+    if (
+      employer &&
+      employerIdentityConflicts(
+        { name, websiteUrl },
+        { name: employer.name, websiteUrl: employer.website_url },
+      )
+    ) {
+      employer = null;
+    }
   }
 
   if (!employer && (name || domain)) {
     const result = await supabase.from("employers").select("*").limit(2_000);
     if (result.error) throw new Error("Employers could not be matched.");
     employer =
-      (result.data ?? []).find((candidate) => domain && candidate.website_domain === domain) ??
-      (result.data ?? []).find(
-        (candidate) =>
-          name && candidate.name.trim().toLocaleLowerCase("en-GB") === name.trim().toLocaleLowerCase("en-GB"),
-      ) ??
-      null;
+      (result.data ?? []).find((candidate) =>
+        employerIdentityMatches(
+          { name, websiteUrl },
+          { name: candidate.name, websiteUrl: candidate.website_url },
+        ),
+      ) ?? null;
   }
 
   if (!employer && name) {
@@ -591,7 +602,7 @@ export async function enrichNextPendingSourceRecord(
       employer.name !== "Private Employer" &&
       !employer.reviewed_at,
     );
-    const shouldSummariseJob = !record.summary?.trim() || record.summary.trim().length < 20;
+    const shouldSummariseJob = shouldGenerateAiSummary(record.summary);
     const aiNeeded = Boolean(
       unresolved.length || shouldSummariseJob || employerPage.text || employerResearchNeeded,
     );

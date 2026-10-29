@@ -16,6 +16,7 @@ function readyInput(): PublicationReadinessInput {
     duplicateCount: 0,
     employer: {
       id: 7,
+      name: "Example Trust",
       mission: "Protect nature.",
       overview: "A conservation organisation working across the United Kingdom.",
       reviewedAt: null,
@@ -44,6 +45,8 @@ function readyInput(): PublicationReadinessInput {
     locationText: "Bristol",
     mappingStatus: "unmapped",
     sourceActive: true,
+    sourceEmployerName: "Example Trust",
+    sourceEmployerWebsiteUrl: "https://example.org",
     sourceTitle: "Senior Ranger",
     sourceType: "feed",
     summary: "Join the reserve team and help restore important habitats.",
@@ -55,7 +58,7 @@ describe("automated publication readiness", () => {
   it("allows a fully evidenced vacancy without fabricating optional fields", () => {
     const result = evaluatePublicationReadiness(readyInput());
 
-    expect(AUTOMATION_PUBLICATION_POLICY_VERSION).toBe("evidence-gated-v2");
+    expect(AUTOMATION_PUBLICATION_POLICY_VERSION).toBe("evidence-gated-v3");
     expect(result).toMatchObject({ blockers: [], ready: true, score: 100 });
   });
 
@@ -101,5 +104,34 @@ describe("automated publication readiness", () => {
       blockers: ["listing_expired"],
       ready: false,
     });
+  });
+
+  it("blocks a canonical employer that conflicts with the source-page identity", () => {
+    const input = readyInput();
+    input.sourceEmployerName = "Regional Flood & Coastal Committees";
+    input.sourceEmployerWebsiteUrl = "https://www.gov.uk/government/organisations/environment-agency";
+    input.employer = {
+      ...input.employer!,
+      name: "Natural England",
+      websiteUrl: "https://www.gov.uk/government/organisations/natural-england",
+    };
+
+    expect(evaluatePublicationReadiness(input)).toMatchObject({
+      blockers: ["employer_identity_conflict"],
+      ready: false,
+    });
+  });
+
+  it("accepts a recognised employer acronym when the website also agrees", () => {
+    const input = readyInput();
+    input.sourceEmployerName = "RSPB";
+    input.sourceEmployerWebsiteUrl = "https://www.rspb.org.uk/careers";
+    input.employer = {
+      ...input.employer!,
+      name: "Royal Society for the Protection of Birds",
+      websiteUrl: "https://www.rspb.org.uk",
+    };
+
+    expect(evaluatePublicationReadiness(input)).toMatchObject({ blockers: [], ready: true });
   });
 });
