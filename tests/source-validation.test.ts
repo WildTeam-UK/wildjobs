@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   validateSource,
+  validateSourceRecordLink,
   validateSourceRecordStatus,
   validateSourceStatus,
 } from "../lib/admin/source-validation";
@@ -91,6 +92,23 @@ describe("source record status validation", () => {
     });
     expect(validateSourceRecordStatus(sourceForm({ recordId: "42", status: "mapped" }))).toEqual({
       error: "invalid-status",
+    });
+  });
+});
+
+describe("source record link validation", () => {
+  it("accepts explicit positive record and job references", () => {
+    expect(validateSourceRecordLink(sourceForm({ jobId: "11", recordId: "42" }))).toEqual({
+      data: { jobId: 11, recordId: 42 },
+    });
+  });
+
+  it("rejects missing or invalid references", () => {
+    expect(validateSourceRecordLink(sourceForm({ jobId: "11", recordId: "nope" }))).toEqual({
+      error: "invalid-record",
+    });
+    expect(validateSourceRecordLink(sourceForm({ jobId: "0", recordId: "42" }))).toEqual({
+      error: "invalid-job",
     });
   });
 });

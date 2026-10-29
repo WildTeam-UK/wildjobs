@@ -9,6 +9,7 @@ import { parseCjsVacancyFeed } from "@/lib/admin/feed-source";
 import { getSourceConnector, type SourceConnector } from "@/lib/admin/source-connector";
 import {
   validateSource,
+  validateSourceRecordLink,
   validateSourceRecordStatus,
   validateSourceStatus,
 } from "@/lib/admin/source-validation";
@@ -139,6 +140,34 @@ export async function setSourceRecordStatus(formData: FormData) {
   revalidatePath("/admin");
   revalidatePath(`/admin/sources/${record.source_id}`);
   redirect(`/admin/sources/${record.source_id}?status=triaged&record=${record.id}`);
+}
+
+export async function linkSourceRecordToJob(formData: FormData) {
+  await requireAdministrator();
+  const result = validateSourceRecordLink(formData);
+  if (result.error) redirect("/admin/sources?error=invalid-record");
+
+  const supabase = await createClient();
+  const { data: record, error: recordError } = await supabase
+    .from("job_source_records")
+    .select("id, source_id")
+    .eq("id", result.data.recordId)
+    .maybeSingle();
+  if (recordError || !record) redirect("/admin/sources?error=invalid-record");
+
+  const { data: jobId, error } = await supabase.rpc("link_source_record_to_job", {
+    p_job_id: result.data.jobId,
+    p_source_record_id: record.id,
+  });
+  if (error || !jobId) {
+    redirect(`/admin/sources/${record.source_id}?error=link-unavailable&record=${record.id}`);
+  }
+
+  revalidatePath("/admin");
+  revalidatePath("/admin/jobs");
+  revalidatePath(`/admin/jobs/${jobId}`);
+  revalidatePath(`/admin/sources/${record.source_id}`);
+  redirect(`/admin/sources/${record.source_id}?status=linked&record=${record.id}`);
 }
 
 export async function runSourceDiscovery(formData: FormData) {

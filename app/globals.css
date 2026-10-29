@@ -2007,6 +2007,9 @@ select {
 .source-record-list__duplicate a:hover {
   color: var(--wt-color-brand-pink);
 }
+.source-record-list__duplicate form {
+  margin-top: 10px;
+}
 .source-record-list__actions {
   display: grid;
   justify-items: end;

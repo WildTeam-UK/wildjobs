@@ -2,7 +2,11 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-import { runSourceDiscovery, setSourceRecordStatus } from "@/app/admin/sources/actions";
+import {
+  linkSourceRecordToJob,
+  runSourceDiscovery,
+  setSourceRecordStatus,
+} from "@/app/admin/sources/actions";
 import { connectorActionLabel, getSourceConnector } from "@/lib/admin/source-connector";
 import { findDuplicateJob, findDuplicateSourceRecord } from "@/lib/admin/duplicate-match";
 import { requireStaff } from "@/lib/auth/staff";
@@ -179,9 +183,19 @@ export default async function SourcePage({ params, searchParams }: SourcePagePro
             Source record updated. Nothing was published.
           </p>
         ) : null}
+        {firstQueryValue(query.status) === "linked" ? (
+          <p className="staff-form-message" role="status">
+            Additional source linked to the existing WildJobs vacancy. No new public listing was created.
+          </p>
+        ) : null}
         {firstQueryValue(query.error) === "triage-unavailable" ? (
           <p className="staff-form-message staff-form-message--error" role="alert">
             That source record could not be updated. Please try again.
+          </p>
+        ) : null}
+        {firstQueryValue(query.error) === "link-unavailable" ? (
+          <p className="staff-form-message staff-form-message--error" role="alert">
+            That source could not be linked. It may have changed since the duplicate warning was shown.
           </p>
         ) : null}
         {firstQueryValue(query.run) && firstQueryValue(query.status) !== "checked" ? (
@@ -300,6 +314,15 @@ export default async function SourcePage({ params, searchParams }: SourcePagePro
                           </Link>
                           .
                         </p>
+                        {staff.role === "admin" ? (
+                          <form action={linkSourceRecordToJob}>
+                            <input name="recordId" type="hidden" value={record.id} />
+                            <input name="jobId" type="hidden" value={duplicate.job.id} />
+                            <button className="staff-source-toggle" type="submit">
+                              Link source to record #{duplicate.job.id}
+                            </button>
+                          </form>
+                        ) : null}
                       </aside>
                     ) : null}
                     {crossFeedDuplicate ? (

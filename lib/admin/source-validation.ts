@@ -25,6 +25,10 @@ export type SourceRecordStatusValidation =
   | { data: { recordId: number; status: SourceRecordStatus }; error?: never }
   | { data?: never; error: "invalid-record" | "invalid-status" };
 
+export type SourceRecordLinkValidation =
+  | { data: { jobId: number; recordId: number }; error?: never }
+  | { data?: never; error: "invalid-job" | "invalid-record" };
+
 export function validateSource(formData: FormData): SourceValidation {
   const nameValue = formData.get("name");
   const sourceTypeValue = formData.get("sourceType");
@@ -76,4 +80,14 @@ export function validateSourceRecordStatus(formData: FormData): SourceRecordStat
   }
 
   return { data: { recordId, status: statusValue as SourceRecordStatus } };
+}
+
+export function validateSourceRecordLink(formData: FormData): SourceRecordLinkValidation {
+  const recordId = Number(formData.get("recordId"));
+  const jobId = Number(formData.get("jobId"));
+
+  if (!Number.isSafeInteger(recordId) || recordId <= 0) return { error: "invalid-record" };
+  if (!Number.isSafeInteger(jobId) || jobId <= 0) return { error: "invalid-job" };
+
+  return { data: { jobId, recordId } };
 }

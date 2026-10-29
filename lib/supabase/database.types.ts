@@ -990,6 +990,13 @@ export type Database = {
         };
         Returns: number;
       };
+      link_source_record_to_job: {
+        Args: {
+          p_job_id: number;
+          p_source_record_id: number;
+        };
+        Returns: number;
+      };
       publish_job_review_draft: {
         Args: { p_job_id: number };
         Returns: string;
