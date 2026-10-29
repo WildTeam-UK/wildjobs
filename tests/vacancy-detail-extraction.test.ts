@@ -101,6 +101,7 @@ describe("vacancy detail extraction", () => {
       "Salary: Up to £33,000 pro rata depending on skills and experience Fixed Term Contract Until 31 March 2030",
       "Up to £33,000 pro rata depending on skills and experience",
     ],
+    ["Salary: £27,952.67 Working Hours: 37", "£27,952.67"],
   ])("stops salary evidence before following vacancy copy", (source, expected) => {
     expect(extractVacancyDetails(source).salaryText).toBe(expected);
   });

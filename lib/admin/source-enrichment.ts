@@ -19,6 +19,7 @@ import {
   SOURCE_PAGE_EXTRACTOR_VERSION,
   type VacancyPageExtraction,
 } from "./vacancy-page-extraction";
+import { combineEvidenceChanges } from "./vacancy-evidence-selection";
 import type { VacancyFieldEvidence, VacancyFieldName } from "./vacancy-detail-extraction";
 import type { Database } from "../supabase/database.types";
 
@@ -624,7 +625,10 @@ export async function enrichNextPendingSourceRecord(
       aiResult.status === "completed"
         ? mergeEvidence([...deterministic.byField.values()], aiResult.evidence)
         : deterministic;
-    const changedEvidence = aiResult.status === "completed" ? finalEvidence.selected : deterministic.selected;
+    const changedEvidence =
+      aiResult.status === "completed"
+        ? combineEvidenceChanges(deterministic.selected, finalEvidence.selected)
+        : deterministic.selected;
     if (changedEvidence.length) {
       const savedAt = new Date().toISOString();
       const { error: saveEvidenceError } = await supabase.from("job_source_field_evidence").upsert(

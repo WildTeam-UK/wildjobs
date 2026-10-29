@@ -4,7 +4,7 @@ import { extractVacancyFieldEvidence, type VacancyFieldEvidence } from "./vacanc
 
 type JsonRecord = Record<string, unknown>;
 
-export const SOURCE_PAGE_EXTRACTOR_VERSION = "source-page-rules-v2";
+export const SOURCE_PAGE_EXTRACTOR_VERSION = "source-page-rules-v3";
 
 export type VacancyPageExtraction = {
   applicationUrl: string | null;
