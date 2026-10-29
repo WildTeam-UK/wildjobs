@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { EmployerLogo } from "@/components/employer-logo";
 import { SaveJobControl, type JobSaveState } from "@/components/save-job-control";
 import { formatDate, listingAgeLabel, type Job } from "@/lib/jobs";
 
@@ -19,13 +20,29 @@ export function JobCard({
 
   return (
     <article className="job-card">
-      <div className="job-card__topline">
-        <span>{job.category}</span>
-        {job.engagementType ? <span>{job.engagementType}</span> : null}
-        <span>{job.locationType}</span>
-      </div>
+      <header className="job-card__header">
+        <EmployerLogo
+          imageClassName="job-card__logo"
+          logoUrl={job.employerLogoUrl}
+          monogramClassName="job-card__monogram"
+          name={job.organisation}
+        />
+        <div className="job-card__identity">
+          <p className="job-card__organisation">
+            {job.employerSlug ? (
+              <Link href={`/employers/${job.employerSlug}`}>{job.organisation}</Link>
+            ) : (
+              job.organisation
+            )}
+          </p>
+          <div className="job-card__topline">
+            <span>{job.category}</span>
+            {job.engagementType ? <span>{job.engagementType}</span> : null}
+            <span>{job.locationType}</span>
+          </div>
+        </div>
+      </header>
       <div className="job-card__body">
-        <p className="job-card__organisation">{job.organisation}</p>
         <h2>
           {job.availability && job.availability !== "current" ? (
             job.title
@@ -60,8 +77,8 @@ export function JobCard({
             {job.availability === "expired" ? "Applications closed" : "No longer available"}
           </span>
         ) : (
-          <Link className="text-link" href={`/jobs/${job.slug}`}>
-            View listing <span aria-hidden="true">→</span>
+          <Link className="action" href={`/jobs/${job.slug}`}>
+            View job <span aria-hidden="true">→</span>
           </Link>
         )}
         {showSaveAction ? (

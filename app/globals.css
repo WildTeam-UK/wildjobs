@@ -732,17 +732,61 @@ select {
 }
 .job-list {
   display: grid;
+  gap: 18px;
+  margin-top: 24px;
 }
 .job-card {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(190px, 0.52fr);
-  gap: 22px 40px;
-  padding: 30px 0;
-  border-bottom: 1px solid var(--wt-color-rule);
+  gap: 22px;
+  padding: 25px;
+  border: 1px solid var(--wt-color-rule);
+  border-radius: var(--wt-radius-panel);
+  background: var(--wt-color-paper);
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease,
+    transform 160ms ease;
+}
+.job-card:hover {
+  border-color: color-mix(in srgb, var(--wt-color-brand-purple) 42%, var(--wt-color-rule));
+  box-shadow: 0 18px 38px rgb(31 21 28 / 8%);
+  transform: translateY(-2px);
+}
+.job-card__header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.job-card__logo,
+.job-card__monogram {
+  display: grid;
+  width: 58px;
+  aspect-ratio: 1;
+  flex: 0 0 auto;
+  place-items: center;
+  overflow: hidden;
+  border-radius: var(--wt-radius-panel);
+  background: var(--wt-color-cream);
+}
+.job-card__logo img {
+  width: 100%;
+  height: 100%;
+  padding: 8px;
+  object-fit: contain;
+}
+.job-card__monogram {
+  background: var(--wt-color-brand-purple);
+  color: var(--wt-color-paper);
+  font-size: 0.75rem;
+  font-weight: var(--wt-font-weight-black);
+}
+.job-card__identity {
+  display: grid;
+  min-width: 0;
+  gap: 8px;
 }
 .job-card__topline {
   display: flex;
-  grid-column: 1 / -1;
   flex-wrap: wrap;
   align-items: center;
   gap: 8px;
@@ -774,15 +818,18 @@ select {
   color: var(--wt-color-paper);
 }
 .job-card__organisation {
-  margin: 0 0 9px;
-  color: var(--wt-color-muted);
-  font-size: 0.8rem;
+  margin: 0;
+  color: var(--wt-color-ink);
+  font-size: 0.86rem;
   font-weight: var(--wt-font-weight-bold);
+}
+.job-card__organisation a:hover {
+  color: var(--wt-color-brand-pink);
 }
 .job-card h2 {
   margin: 0;
-  font-size: clamp(1.65rem, 3vw, 2.25rem);
-  line-height: 1.02;
+  font-size: clamp(1.65rem, 3vw, 2.15rem);
+  line-height: 1.04;
   letter-spacing: -0.02em;
 }
 .job-card h2 a:hover {
@@ -791,9 +838,13 @@ select {
 .job-card__summary {
   max-width: 680px;
   margin: 14px 0 0;
+  display: -webkit-box;
+  overflow: hidden;
   color: var(--wt-color-muted);
   font-size: 0.94rem;
   line-height: 1.58;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
 }
 .ai-summary-label {
   width: fit-content;
@@ -810,10 +861,24 @@ select {
 }
 .job-card__facts {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  align-content: start;
-  gap: 16px 22px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0;
   margin: 0;
+  padding: 16px 0;
+  border-top: 1px solid var(--wt-color-rule);
+  border-bottom: 1px solid var(--wt-color-rule);
+}
+.job-card__facts > div {
+  min-width: 0;
+  padding: 0 18px;
+  border-left: 1px solid var(--wt-color-rule);
+}
+.job-card__facts > div:first-child {
+  padding-left: 0;
+  border-left: 0;
+}
+.job-card__facts > div:last-child {
+  padding-right: 0;
 }
 .job-card__facts dt,
 .job-facts-card dt {
@@ -830,13 +895,16 @@ select {
   font-size: 0.82rem;
   font-weight: var(--wt-font-weight-bold);
   line-height: 1.35;
+  overflow-wrap: anywhere;
 }
 .job-card__actions {
   display: flex;
-  grid-column: 1 / -1;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start;
   gap: 20px;
+}
+.job-card__actions .save-action {
+  min-height: 46px;
 }
 .save-action {
   display: inline-flex;
@@ -3744,7 +3812,31 @@ select {
   .job-card {
     grid-template-columns: 1fr;
     gap: 19px;
-    padding: 27px 0;
+    padding: 22px 20px;
+  }
+  .job-card__facts {
+    grid-template-columns: 1fr 1fr;
+    gap: 16px 0;
+  }
+  .job-card__facts > div {
+    padding: 0 16px;
+  }
+  .job-card__facts > div:nth-child(odd) {
+    padding-left: 0;
+    border-left: 0;
+  }
+  .job-card__facts > div:nth-child(even) {
+    padding-right: 0;
+  }
+  .job-card__actions {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 9px;
+  }
+  .job-card__actions .action,
+  .job-card__actions .save-action {
+    width: 100%;
+    justify-content: center;
   }
   .training-callout__inner,
   .inline-cta {
@@ -4003,7 +4095,11 @@ select {
   }
   .action,
   .primary-action,
-  .wt-button {
+  .wt-button,
+  .job-card {
     transition: none;
+  }
+  .job-card:hover {
+    transform: none;
   }
 }
