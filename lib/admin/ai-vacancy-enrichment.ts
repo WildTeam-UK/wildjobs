@@ -13,7 +13,7 @@ import {
 import type { VacancyFieldEvidence, VacancyFieldName } from "./vacancy-detail-extraction";
 
 const MODEL = "gpt-6-luna";
-export const AI_ENRICHMENT_POLICY_VERSION = "ai-structured-v3";
+export const AI_ENRICHMENT_POLICY_VERSION = "ai-structured-v4";
 
 const supportedFields = [
   "contract_type",

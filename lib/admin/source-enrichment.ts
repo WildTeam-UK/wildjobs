@@ -11,7 +11,11 @@ import {
   type AiEmployerSuggestion,
 } from "./ai-vacancy-enrichment";
 import { evaluateAndMaybePublishSourceRecord } from "./automation-publication";
-import { evidenceAppearsInText, sameWebsiteHost } from "./employer-research-validation";
+import {
+  evidenceAppearsInText,
+  isEmployerResearchPending,
+  sameWebsiteHost,
+} from "./employer-research-validation";
 import { fetchApprovedVacancyPage, fetchEmployerPage, SourcePageError } from "./source-page-fetch";
 import {
   parseEmployerPage,
@@ -413,6 +417,31 @@ async function persistEmployerEnrichment(
   return data;
 }
 
+async function fetchEmployerContext(websiteUrl: string, fallbackLogoUrl: string | null) {
+  const homepage = await fetchEmployerPage(websiteUrl);
+  const parsedHomepage = parseEmployerPage(homepage.html, homepage.url);
+  const fallback = {
+    logoUrl: parsedHomepage.logoUrl ?? fallbackLogoUrl,
+    sourceUrl: homepage.url,
+    text: parsedHomepage.text,
+  };
+  const researchUrl = parsedHomepage.researchUrls[0];
+  if (!researchUrl) return fallback;
+
+  try {
+    const researchPage = await fetchEmployerPage(researchUrl);
+    const parsedResearchPage = parseEmployerPage(researchPage.html, researchPage.url);
+    if (parsedResearchPage.text.length < 80) return fallback;
+    return {
+      logoUrl: parsedHomepage.logoUrl ?? parsedResearchPage.logoUrl ?? fallbackLogoUrl,
+      sourceUrl: researchPage.url,
+      text: parsedResearchPage.text,
+    };
+  } catch {
+    return fallback;
+  }
+}
+
 function explicitPageEvidence(record: SourceRecord, page: VacancyPageExtraction) {
   return [
     evidence("application_url", page.applicationUrl, "source_page", 100, "source-page-structured-v1"),
@@ -509,7 +538,7 @@ export async function enrichNextPendingSourceRecord(
       return { publication, recordId: record.id, runId, status: "skipped" };
     }
 
-    const employer = await resolveEmployer(supabase, record, page);
+    let employer = await resolveEmployer(supabase, record, page);
     let employerWebsiteUrl = page.employerWebsiteUrl ?? employer?.website_url ?? null;
     let employerPage: { logoUrl: string | null; sourceUrl: string | null; text: string } = {
       logoUrl: page.employerLogoUrl,
@@ -524,13 +553,7 @@ export async function enrichNextPendingSourceRecord(
       !employer?.reviewed_at
     ) {
       try {
-        const fetchedEmployer = await fetchEmployerPage(employerWebsiteUrl);
-        const parsedEmployer = parseEmployerPage(fetchedEmployer.html, fetchedEmployer.url);
-        employerPage = {
-          logoUrl: parsedEmployer.logoUrl ?? page.employerLogoUrl,
-          sourceUrl: fetchedEmployer.url,
-          text: parsedEmployer.text,
-        };
+        employerPage = await fetchEmployerContext(employerWebsiteUrl, page.employerLogoUrl);
       } catch {
         // Employer research is optional. The vacancy can still be enriched and reviewed.
       }
@@ -650,13 +673,14 @@ export async function enrichNextPendingSourceRecord(
     }
 
     if (employer) {
-      await persistEmployerEnrichment(supabase, employer, {
+      employer = await persistEmployerEnrichment(supabase, employer, {
         logoUrl: employerPage.logoUrl,
         sourceUrl: employerPage.sourceUrl,
         suggestions: aiResult.status === "completed" ? aiResult.employerSuggestions : [],
         websiteUrl: employerWebsiteUrl,
       });
     }
+    const employerProfilePending = employer ? isEmployerResearchPending(employer) : false;
 
     const evidenceMap = finalEvidence.byField;
     const resolved = CORE_FIELDS.filter(
@@ -670,8 +694,9 @@ export async function enrichNextPendingSourceRecord(
       page.detailText,
     );
     const status = mandatoryComplete ? "complete" : "needs_review";
-    const enrichmentPolicyVersion =
-      !aiNeeded || aiResult.status === "completed"
+    const enrichmentPolicyVersion = employerProfilePending
+      ? `${AI_ENRICHMENT_POLICY_VERSION}-employer-pending`
+      : !aiNeeded || aiResult.status === "completed"
         ? isAiEnrichmentEnabled()
           ? AI_ENRICHMENT_POLICY_VERSION
           : DETERMINISTIC_ENRICHMENT_POLICY_VERSION
@@ -694,7 +719,10 @@ export async function enrichNextPendingSourceRecord(
         employer_name: page.employerName ?? record.employer_name,
         employer_website_url: employerWebsiteUrl,
         enriched_content_hash:
-          !aiNeeded || aiResult.status === "completed" || !isAiEnrichmentEnabled() ? detailContentHash : null,
+          !employerProfilePending &&
+          (!aiNeeded || aiResult.status === "completed" || !isAiEnrichmentEnabled())
+            ? detailContentHash
+            : null,
         enrichment_completed_at: finishedAt,
         enrichment_error_code: aiError ? "ai_unavailable" : null,
         enrichment_policy_version: enrichmentPolicyVersion,

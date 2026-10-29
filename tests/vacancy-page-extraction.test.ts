@@ -78,6 +78,28 @@ describe("vacancy page extraction", () => {
     expect(result.text).toContain("We restore habitats with communities.");
   });
 
+  it("ranks one same-site employer research page without following unrelated links", () => {
+    const result = parseEmployerPage(
+      `
+        <html><body><nav>
+          <a href="https://elsewhere.example.org/about">External about</a>
+          <a href="/jobs">Jobs</a>
+          <a href="/privacy">Privacy</a>
+          <a href="/our-work?utm_source=nav">Our work</a>
+          <a href="/about-us#team">About us</a>
+          <a href="/our-mission">Mission and vision</a>
+        </nav><main><p>We restore habitats with communities.</p></main></body></html>
+      `,
+      "https://www.nature.example.org/",
+    );
+
+    expect(result.researchUrls).toEqual([
+      "https://www.nature.example.org/our-mission",
+      "https://www.nature.example.org/about-us",
+      "https://www.nature.example.org/our-work",
+    ]);
+  });
+
   it("keeps a richer advertised salary range and rejects incidental remote wording", () => {
     const result = parseVacancyPage(
       `

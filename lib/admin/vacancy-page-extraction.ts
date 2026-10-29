@@ -22,6 +22,7 @@ export type VacancyPageExtraction = {
 
 export type EmployerPageExtraction = {
   logoUrl: string | null;
+  researchUrls: string[];
   text: string;
   title: string | null;
 };
@@ -242,9 +243,39 @@ export function parseEmployerPage(html: string, pageUrl: string): EmployerPageEx
     safeHttpsUrl(asRecord(organisation?.logo)?.url ?? organisation?.logo, pageUrl) ??
     safeHttpsUrl($("link[rel='apple-touch-icon']").first().attr("href"), pageUrl) ??
     safeHttpsUrl($("link[rel~='icon']").first().attr("href"), pageUrl);
+  const currentUrl = new URL(pageUrl);
+  const currentHost = currentUrl.hostname.replace(/^www\./, "").toLocaleLowerCase("en-GB");
+  const candidates: { order: number; score: number; url: string }[] = [];
+  $("a[href]").each((order, element) => {
+    const candidate = safeHttpsUrl($(element).attr("href"), pageUrl);
+    if (!candidate) return;
+    const url = new URL(candidate);
+    const host = url.hostname.replace(/^www\./, "").toLocaleLowerCase("en-GB");
+    if (host !== currentHost) return;
+    url.hash = "";
+    url.search = "";
+    const normalised = url.toString();
+    if (normalised === currentUrl.toString()) return;
+
+    const label = clean($(element).text(), 160).toLocaleLowerCase("en-GB");
+    const signal = `${url.pathname.toLocaleLowerCase("en-GB")} ${label}`;
+    if (/\b(?:career|contact|cookie|donat|job|login|privacy|shop|vacanc)/.test(signal)) return;
+    const score = /\b(?:mission|purpose|vision)\b/.test(signal)
+      ? 100
+      : /\b(?:about|about-us|who-we-are)\b/.test(signal)
+        ? 90
+        : /\b(?:what-we-do|our-work)\b/.test(signal)
+          ? 80
+          : 0;
+    if (score) candidates.push({ order, score, url: normalised });
+  });
+  const researchUrls = [...new Map(candidates.map((candidate) => [candidate.url, candidate])).values()]
+    .sort((left, right) => right.score - left.score || left.order - right.order)
+    .slice(0, 3)
+    .map((candidate) => candidate.url);
   $("script, style, noscript, svg, nav, footer").remove();
   const text = clean($("main").first().text() || $("body").text(), 30_000);
   const title = clean(organisation?.name, 200) || clean($("title").text(), 200) || null;
 
-  return { logoUrl, text, title };
+  return { logoUrl, researchUrls, text, title };
 }

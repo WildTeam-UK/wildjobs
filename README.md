@@ -36,7 +36,9 @@ AI enrichment uses the official OpenAI SDK and Responses API only for unresolved
 the server-only `OPENAI_API_KEY` in the same pattern as WildNews. Daily request and token limits are enforced
 in the application. When a new employer has no known website, the same bounded response may use low-context
 OpenAI web search once. A result is accepted only when its official HTTPS page appears in the returned sources,
-passes safe-fetch checks and contains the quoted evidence. `AUTO_PUBLISH_ENABLED` remains false until shadow
+passes safe-fetch checks and contains the quoted evidence. Known official sites are checked using the homepage and,
+when available, one same-site mission or About page. An incomplete newly discovered profile can receive another
+bounded pass within the existing three-attempt ceiling. `AUTO_PUBLISH_ENABLED` remains false until shadow
 decisions have been reviewed; even in live mode, a service-only atomic database function publishes only records
 that pass the evidence, source, duplicate, date and employer-profile policy.
 

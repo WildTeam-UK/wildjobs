@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   evidenceAppearsInText,
   isAllowedEmployerWebsite,
+  isEmployerResearchPending,
   isReturnedSearchSource,
   normaliseResearchUrl,
   sameWebsiteHost,
@@ -42,5 +43,27 @@ describe("employer research validation", () => {
       ),
     ).toBe(true);
     expect(evidenceAppearsInText("We protect oceans.", "We protect rivers.")).toBe(false);
+  });
+
+  it("stages only incomplete, unreviewed employer profiles for another bounded pass", () => {
+    const employer = {
+      mission: null,
+      name: "Example Nature Trust",
+      overview: null,
+      reviewed_at: null,
+      status: "draft",
+      website_url: "https://example.org/",
+    };
+
+    expect(isEmployerResearchPending(employer)).toBe(true);
+    expect(isEmployerResearchPending({ ...employer, name: "Private Employer" })).toBe(false);
+    expect(isEmployerResearchPending({ ...employer, reviewed_at: "2026-10-29T10:00:00Z" })).toBe(false);
+    expect(
+      isEmployerResearchPending({
+        ...employer,
+        mission: "We protect rivers.",
+        overview: "A conservation charity working with communities.",
+      }),
+    ).toBe(false);
   });
 });

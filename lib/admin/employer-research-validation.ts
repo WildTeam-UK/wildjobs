@@ -61,3 +61,21 @@ export function evidenceAppearsInText(evidence: string, sourceText: string) {
   const normalisedEvidence = clean(evidence);
   return normalisedEvidence.length >= 2 && clean(sourceText).includes(normalisedEvidence);
 }
+
+export function isEmployerResearchPending(employer: {
+  mission: string | null;
+  name: string;
+  overview: string | null;
+  reviewed_at: string | null;
+  status: string;
+  website_url: string | null;
+}) {
+  if (
+    employer.name.trim().toLocaleLowerCase("en-GB") === "private employer" ||
+    employer.status === "published" ||
+    employer.reviewed_at
+  ) {
+    return false;
+  }
+  return !employer.website_url?.trim() || !employer.mission?.trim() || !employer.overview?.trim();
+}
