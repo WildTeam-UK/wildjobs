@@ -60,15 +60,15 @@ export default function ForEmployersPage() {
         <div className="shell employer-callout__inner">
           <div>
             <p className="eyebrow">Beta access</p>
-            <h2>Preview the controlled submission journey.</h2>
+            <h2>Controlled submissions are now invitation-only.</h2>
           </div>
           <div>
             <p>
-              The form is a design preview only. Pricing, beta access and the first approved submission
-              process still need a product decision.
+              WildTeam sends each approved employer contact a secure, seven-day link. Every submission is
+              reviewed before it can become a public listing.
             </p>
             <Link className="action action--white" href="/for-employers/submit">
-              Preview job submission →
+              I have an invitation →
             </Link>
           </div>
         </div>

@@ -1115,6 +1115,22 @@ export type Database = {
         Args: { p_job_id: number };
         Returns: string;
       };
+      redeem_employer_submission_invite: {
+        Args: {
+          p_application_url: string;
+          p_closing_date: string;
+          p_contact_email: string;
+          p_contact_name: string;
+          p_location_text: string;
+          p_organisation_name: string;
+          p_role_summary: string;
+          p_role_title: string;
+          p_salary_text: string;
+          p_token_hash: string;
+          p_workplace_type: string;
+        };
+        Returns: number;
+      };
       replace_candidate_preferences: {
         Args: {
           p_career_area_ids: number[];

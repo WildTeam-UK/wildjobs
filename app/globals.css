@@ -1217,6 +1217,17 @@ select {
   min-height: 130px;
   resize: vertical;
 }
+.submission-form small {
+  color: var(--wt-color-muted);
+  font-size: 0.68rem;
+}
+.submission-form__honeypot {
+  position: absolute;
+  left: -10000px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
 .submission-actions {
   display: flex;
   align-items: center;
@@ -1259,6 +1270,25 @@ select {
   margin: 0;
   padding-top: 20px;
   border-top: 1px solid rgb(255 255 255 / 28%);
+}
+.submission-state {
+  max-width: 920px;
+  padding-top: clamp(58px, 9vw, 100px);
+  padding-bottom: clamp(80px, 12vw, 140px);
+  text-align: center;
+}
+.submission-state h2 {
+  max-width: 780px;
+  margin: 12px auto 18px;
+  font-size: clamp(2.4rem, 5vw, 4.4rem);
+  line-height: 0.98;
+}
+.submission-state > p:not(.eyebrow) {
+  max-width: 650px;
+  margin: 0 auto 28px;
+  color: var(--wt-color-muted);
+  font-size: 1.05rem;
+  line-height: 1.55;
 }
 
 /* Candidate account design preview */

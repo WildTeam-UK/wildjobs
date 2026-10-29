@@ -2,7 +2,7 @@
 
 **Status:** Approved on 2026-10-28
 
-**Implementation:** The empty hosted beta schema was created and verified on 2026-10-28. The application is not connected and no vacancy, candidate or submission data has been seeded.
+**Implementation:** The hosted beta schema was created and verified on 2026-10-28. The application now connects public jobs, candidate accounts, staff operations and controlled employer submissions to it. Employer invitation redemption is atomic: a valid invitation creates exactly one private review record and is marked used in the same transaction.
 
 This design translates the approved beta foundation into an independent WildJobs database. It is deliberately limited to trustworthy vacancy publication, public course-aware discovery, candidate saves and preferences, and controlled staff moderation.
 
@@ -182,7 +182,7 @@ Key fields include:
 
 The initial statuses are `new`, `changes_requested`, `ready_for_job_review`, `accepted` and `rejected`. Acceptance creates or updates a separate reviewed job; it does not turn the submission row into public content.
 
-The public form submits to a protected Next.js Route Handler. The handler validates the invitation, input, rate limit and authority confirmation before using server-only database access. There is no anonymous direct-table insert policy.
+The public form submits to a protected Next.js Route Handler. The handler validates the request origin, invitation, input, request size and authority confirmation before using server-only database access. A honeypot and the atomic single-use invitation limit reduce beta abuse without retaining visitor IP addresses; an edge rate limit must be approved before access is widened. There is no anonymous direct-table insert policy.
 
 ### Staff and audit evidence
 

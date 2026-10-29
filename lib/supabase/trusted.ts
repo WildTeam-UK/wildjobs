@@ -5,7 +5,7 @@ import { createClient } from "@supabase/supabase-js";
 import { getSupabaseConfig } from "./config";
 import type { Database } from "./database.types";
 
-export function createIngestionClient() {
+export function createTrustedClient() {
   const { url } = getSupabaseConfig();
   const secretKey = process.env.SUPABASE_SECRET_KEY;
   if (!secretKey?.startsWith("sb_secret_")) {

@@ -1,7 +1,7 @@
 import { isAutomationRequestAuthorized } from "@/lib/admin/automation-auth";
 import { importApprovedSource } from "@/lib/admin/source-import";
 import { getSourceConnector } from "@/lib/admin/source-connector";
-import { createIngestionClient } from "@/lib/supabase/ingestion";
+import { createTrustedClient } from "@/lib/supabase/trusted";
 
 export const maxDuration = 60;
 
@@ -11,7 +11,7 @@ export async function POST(request: Request) {
   }
 
   try {
-    const supabase = createIngestionClient();
+    const supabase = createTrustedClient();
     const { data: claimed, error: claimError } = await supabase.rpc("claim_periodic_source_import", {
       interval_hours: 2,
     });

@@ -2,9 +2,9 @@
 
 import { revalidatePath } from "next/cache";
 
-import { createSubmissionInviteToken } from "@/lib/admin/submission-invite-token";
 import { validateSubmissionInvite } from "@/lib/admin/submission-invite-validation";
 import { requireStaff } from "@/lib/auth/staff";
+import { createSubmissionInviteToken } from "@/lib/employer-submissions/token";
 import { getRequestOrigin } from "@/lib/request-origin";
 import { createClient } from "@/lib/supabase/server";
 
