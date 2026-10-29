@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { publishJobReview } from "@/app/admin/jobs/actions";
+import { JobLifecycleActions } from "@/components/admin/job-lifecycle-actions";
 import { PublishJobForm } from "@/components/admin/publish-job-form";
 import { requireStaff } from "@/lib/auth/staff";
 import { formatDate } from "@/lib/jobs";
@@ -20,6 +21,7 @@ const labels: Record<string, string> = {
   created: "Draft created",
   developing: "Developing",
   entry: "Entry",
+  expired: "Expired",
   experienced: "Experienced",
   fixed_term: "Fixed term",
   flexible: "Flexible",
@@ -36,6 +38,7 @@ const labels: Record<string, string> = {
   remote: "Remote",
   temporary: "Temporary",
   updated: "Review updated",
+  withdrawn: "Withdrawn",
 };
 
 function label(value: string | null) {
@@ -84,9 +87,12 @@ export default async function ReviewJobPage({ params, searchParams }: ReviewPage
   const created = query.status === "created";
   const updated = query.status === "updated";
   const published = query.status === "published";
+  const expired = query.status === "expired";
+  const withdrawn = query.status === "withdrawn";
   const publicationError = query.error === "publication-check";
   const statusLabel = label(job.status);
   const isPublished = job.status === "published";
+  const isClosed = job.status === "expired" || job.status === "withdrawn";
   const publish = publishJobReview.bind(null, id);
 
   return (
@@ -117,6 +123,22 @@ export default async function ReviewJobPage({ params, searchParams }: ReviewPage
         <div className="shell">
           <p className="staff-form-message" role="status">
             Vacancy approved and published to the live catalogue.
+          </p>
+        </div>
+      ) : null}
+
+      {expired ? (
+        <div className="shell">
+          <p className="staff-form-message" role="status">
+            Vacancy marked expired and removed from public discovery. Saved-job history remains intact.
+          </p>
+        </div>
+      ) : null}
+
+      {withdrawn ? (
+        <div className="shell">
+          <p className="staff-form-message" role="status">
+            Vacancy withdrawn and removed from public discovery. The reason is preserved in the audit history.
           </p>
         </div>
       ) : null}
@@ -293,12 +315,31 @@ export default async function ReviewJobPage({ params, searchParams }: ReviewPage
         </article>
 
         <aside className="review-actions" aria-label="Review actions">
-          <p className="eyebrow">{isPublished ? "Live catalogue" : "Private review draft"}</p>
-          <h2>{isPublished ? "This record is approved." : "Nothing is public yet."}</h2>
+          <p className="eyebrow">
+            {isPublished ? "Live catalogue" : isClosed ? "Closed vacancy" : "Private review draft"}
+          </p>
+          <h2>
+            {isPublished
+              ? "This vacancy is public."
+              : isClosed
+                ? "This vacancy is no longer public."
+                : "Nothing is public yet."}
+          </h2>
           {isPublished ? (
+            <>
+              <p>The vacancy and employer passed publication checks and are visible in the live catalogue.</p>
+              {staff.role === "admin" ? (
+                <JobLifecycleActions jobId={id} />
+              ) : (
+                <p className="review-permission-note">
+                  An administrator must expire or withdraw a published vacancy.
+                </p>
+              )}
+            </>
+          ) : isClosed ? (
             <p>
-              The vacancy and employer have passed the publication checks. The next build stage connects the
-              public job pages to this live catalogue.
+              It remains available to staff for audit and may remain visible in a candidate’s saved-job
+              history, but it cannot appear in public discovery.
             </p>
           ) : (
             <>

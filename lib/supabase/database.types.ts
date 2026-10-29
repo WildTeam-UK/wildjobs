@@ -1074,6 +1074,14 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
+      change_job_lifecycle: {
+        Args: {
+          p_action: string;
+          p_job_id: number;
+          p_review_note: string;
+        };
+        Returns: string;
+      };
       claim_periodic_source_import: {
         Args: { interval_hours?: number };
         Returns: boolean;

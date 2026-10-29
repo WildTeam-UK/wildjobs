@@ -2511,6 +2511,56 @@ select {
 .review-publication form {
   margin-top: 16px;
 }
+.job-lifecycle-actions {
+  display: grid;
+  gap: 18px;
+  margin: 22px 0 14px;
+  padding-top: 20px;
+  border-top: 1px solid var(--wt-color-rule);
+}
+.job-lifecycle-actions section {
+  display: grid;
+  gap: 10px;
+}
+.job-lifecycle-actions section + section {
+  padding-top: 18px;
+  border-top: 1px solid var(--wt-color-rule);
+}
+.job-lifecycle-actions p {
+  margin: 0;
+  color: var(--wt-color-muted);
+  font-size: 0.7rem;
+  line-height: 1.5;
+}
+.job-lifecycle-actions form {
+  display: grid;
+  gap: 10px;
+}
+.job-lifecycle-actions label {
+  font-size: 0.72rem;
+  font-weight: var(--wt-font-weight-bold);
+}
+.job-lifecycle-actions textarea {
+  width: 100%;
+  padding: 11px 12px;
+  border: 1px solid var(--wt-color-rule);
+  border-radius: var(--wt-radius-control);
+  background: var(--wt-color-paper);
+  color: var(--wt-color-ink);
+  font: inherit;
+  font-size: 0.76rem;
+  line-height: 1.45;
+  resize: vertical;
+}
+.job-lifecycle-actions textarea:focus-visible {
+  border-color: var(--wt-color-brand-purple);
+  outline: 3px solid color-mix(in srgb, var(--wt-color-brand-purple) 25%, transparent);
+  outline-offset: 2px;
+}
+.job-lifecycle-actions .action,
+.job-lifecycle-actions .staff-danger-action {
+  width: 100%;
+}
 .staff-danger-action {
   min-height: 46px;
   padding: 12px 18px;

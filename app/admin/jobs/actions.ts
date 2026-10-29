@@ -3,11 +3,13 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
+import { type JobLifecycleAction, validateJobLifecycleReviewNote } from "@/lib/admin/job-lifecycle";
 import { validateJobReview } from "@/lib/admin/job-review-validation";
 import { requireAdministrator, requireStaff } from "@/lib/auth/staff";
 import { createClient } from "@/lib/supabase/server";
 
 export type JobReviewActionState = { error: string | null };
+export type JobLifecycleActionState = { error: string | null };
 
 function validJobId(jobId: number) {
   return Number.isSafeInteger(jobId) && jobId > 0;
@@ -87,4 +89,60 @@ export async function publishJobReview(jobId: number) {
   revalidatePath("/admin/jobs");
   revalidatePath(`/admin/jobs/${jobId}`);
   redirect(`/admin/jobs/${jobId}?status=published`);
+}
+
+async function changePublishedJobLifecycle(
+  jobId: number,
+  action: JobLifecycleAction,
+  formData: FormData,
+): Promise<JobLifecycleActionState> {
+  await requireAdministrator();
+  if (!validJobId(jobId)) return { error: "The vacancy record is invalid." };
+
+  const result = validateJobLifecycleReviewNote(formData);
+  if (!result.data) return { error: result.error };
+
+  const supabase = await createClient();
+  const { data: jobSlug, error } = await supabase.rpc("change_job_lifecycle", {
+    p_action: action,
+    p_job_id: jobId,
+    p_review_note: result.data.reviewNote,
+  });
+
+  if (error || !jobSlug) {
+    if (error?.code === "23514") {
+      return {
+        error:
+          action === "expired"
+            ? "This vacancy can be marked expired only after its closing date."
+            : "Only a published vacancy can be withdrawn.",
+      };
+    }
+    return { error: "The vacancy status could not be changed. Nothing was removed from public view." };
+  }
+
+  revalidatePath("/");
+  revalidatePath("/jobs");
+  revalidatePath(`/jobs/${jobSlug}`);
+  revalidatePath("/account");
+  revalidatePath("/admin");
+  revalidatePath("/admin/jobs");
+  revalidatePath(`/admin/jobs/${jobId}`);
+  redirect(`/admin/jobs/${jobId}?status=${action}`);
+}
+
+export async function expirePublishedJob(
+  jobId: number,
+  _previousState: JobLifecycleActionState,
+  formData: FormData,
+) {
+  return changePublishedJobLifecycle(jobId, "expired", formData);
+}
+
+export async function withdrawPublishedJob(
+  jobId: number,
+  _previousState: JobLifecycleActionState,
+  formData: FormData,
+) {
+  return changePublishedJobLifecycle(jobId, "withdrawn", formData);
 }
