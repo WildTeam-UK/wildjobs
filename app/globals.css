@@ -2599,6 +2599,112 @@ select {
   display: grid;
   gap: 10px;
 }
+.submission-invite-workspace {
+  display: grid;
+  gap: 18px;
+}
+.submission-invite-form {
+  width: 100%;
+}
+.submission-invite-result {
+  display: grid;
+  gap: 14px;
+  max-width: 980px;
+  margin: 0 auto;
+  padding: clamp(26px, 4vw, 42px);
+  border-radius: var(--wt-radius-panel);
+  background: var(--wt-color-brand-purple);
+  color: var(--wt-color-paper);
+}
+.submission-invite-result .eyebrow {
+  color: var(--wt-color-brand-pink);
+}
+.submission-invite-result h2,
+.submission-invite-result p {
+  margin: 0;
+}
+.submission-invite-result h2 {
+  font-size: clamp(2rem, 4vw, 3.4rem);
+  line-height: 1;
+}
+.submission-invite-result label {
+  margin-top: 8px;
+  font-size: 0.78rem;
+  font-weight: var(--wt-font-weight-bold);
+}
+.submission-invite-result input {
+  width: 100%;
+  min-height: 48px;
+  padding: 12px 14px;
+  border: 1px solid transparent;
+  border-radius: var(--wt-radius-control);
+  background: var(--wt-color-paper);
+  color: var(--wt-color-ink);
+  font: inherit;
+}
+.submission-invite-result .action {
+  justify-self: start;
+}
+.submission-invite-result__status {
+  min-height: 1.4em;
+  color: #f0e8ef;
+  font-size: 0.76rem;
+}
+.submission-invite-result .submission-invite-result__warning {
+  margin-top: 8px;
+  padding: 14px 16px;
+  border: 1px solid color-mix(in srgb, var(--wt-color-paper) 38%, transparent);
+  border-radius: var(--wt-radius-control);
+  background: color-mix(in srgb, var(--wt-color-paper) 10%, transparent);
+  font-size: 0.8rem;
+  font-weight: var(--wt-font-weight-bold);
+}
+.submission-invitation-list {
+  display: grid;
+  gap: 10px;
+}
+.submission-invitation-list article {
+  display: grid;
+  grid-template-columns: minmax(150px, 0.25fr) minmax(260px, 0.65fr) minmax(300px, 0.5fr);
+  align-items: center;
+  gap: 26px;
+  padding: 24px;
+  border: 1px solid var(--wt-color-rule);
+  border-radius: var(--wt-radius-panel);
+  background: var(--wt-color-paper);
+}
+.submission-invitation-list article > div:first-child p,
+.submission-invitation-list article > div:nth-child(2) p {
+  margin: 7px 0 0;
+  color: var(--wt-color-muted);
+  font-size: 0.7rem;
+}
+.submission-invitation-list h3 {
+  margin: 0;
+  font-size: 1.3rem;
+  line-height: 1.1;
+  overflow-wrap: anywhere;
+}
+.submission-invitation-list dl {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin: 0;
+}
+.submission-invitation-list dt {
+  margin-bottom: 3px;
+  color: var(--wt-color-muted);
+  font-size: 0.6rem;
+  font-weight: var(--wt-font-weight-bold);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.submission-invitation-list dd {
+  margin: 0;
+  font-size: 0.76rem;
+  font-weight: var(--wt-font-weight-bold);
+  line-height: 1.35;
+}
 .submission-review-list article {
   display: grid;
   grid-template-columns: minmax(150px, 0.28fr) minmax(260px, 0.62fr) minmax(220px, 0.4fr) auto;
@@ -3176,7 +3282,8 @@ select {
     grid-column: auto;
   }
   .submission-review-list article,
-  .employer-review-list article {
+  .employer-review-list article,
+  .submission-invitation-list article {
     grid-template-columns: 1fr 1fr;
   }
   .submission-review-list .action,
@@ -3193,8 +3300,15 @@ select {
   }
   .form-grid,
   .submission-review-list article,
-  .employer-review-list article {
+  .employer-review-list article,
+  .submission-invitation-list article {
     grid-template-columns: 1fr;
+  }
+  .submission-invitation-list dl {
+    grid-template-columns: 1fr;
+  }
+  .submission-invite-result .action {
+    width: 100%;
   }
   .submission-actions {
     align-items: stretch;

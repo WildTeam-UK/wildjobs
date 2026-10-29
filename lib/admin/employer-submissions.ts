@@ -72,3 +72,24 @@ export const getEmployerSubmission = cache(async (id: number) => {
     submission: submissionResult.data,
   };
 });
+
+export const getSubmissionInvitationWorkspace = cache(async () => {
+  await requireStaff();
+  const supabase = await createClient();
+  const [employersResult, invitationsResult] = await Promise.all([
+    supabase.from("employers").select("id, name").neq("status", "archived").order("name"),
+    supabase
+      .from("submission_invites")
+      .select("id, invitee_email, expires_at, used_at, revoked_at, created_at, employers(id, name)")
+      .order("created_at", { ascending: false })
+      .limit(50),
+  ]);
+
+  const error = employersResult.error ?? invitationsResult.error;
+  if (error) throw submissionReadError("load", error);
+
+  return {
+    employers: employersResult.data ?? [],
+    invitations: invitationsResult.data ?? [],
+  };
+});

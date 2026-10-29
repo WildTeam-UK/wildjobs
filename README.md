@@ -2,7 +2,7 @@
 
 WildJobs is WildTeam's independent conservation careers platform, intended for `jobs.wildteam.org.uk`.
 
-The application is connected to its independent Supabase project. Public job discovery and employer profiles read approved live records; candidate authentication, private saved jobs and explicit job preferences are connected; and authorised staff can curate, review and publish jobs. Source connectors check WWT's public vacancy page and the reviewed Countryside Jobs Service RSS feed, automatically every two hours or on demand, and route discoveries into manual review without automatic publication. The staff employer-submission queue reads protected live records, while the public invitation form and career area still contain clearly labelled prototype content. Analytics and marketing integrations are not implemented yet.
+The application is connected to its independent Supabase project. Public job discovery and employer profiles read approved live records; candidate authentication, private saved jobs and explicit job preferences are connected; and authorised staff can curate, review and publish jobs. Source connectors check WWT's public vacancy page and the reviewed Countryside Jobs Service RSS feed, automatically every two hours or on demand, and route discoveries into manual review without automatic publication. The protected staff workspace reads live employer submissions and can create seven-day, single-use invitation links whose plain tokens are never stored. The public submission form is not connected yet, and the career area still contains clearly labelled prototype content. Analytics and marketing integrations are not implemented yet.
 
 The approved beta direction is documented in `docs/IMPLEMENTATION_PLAN.md` and `docs/EXPERIENCE_BLUEPRINT.md`.
 
@@ -42,7 +42,7 @@ pnpm check
 
 - Published jobs and their source provenance live in Supabase; fixture jobs in `lib/jobs.ts` remain design references only.
 - Source discovery is restricted to explicitly reviewed endpoints. WWT HTML and Countryside Jobs Service RSS are checked every two hours by the protected automation heartbeat and can also be checked manually by an administrator; neither route publishes a vacancy automatically.
-- Employer, career, course and submission experiences are not yet fully connected to production data.
+- Employer, career, course and submission experiences are not yet fully connected to production data. Staff invitation creation and submission review are connected, but the public invitation redemption and submission route remain inactive.
 - The site is marked `noindex` until approved data and a production domain are connected.
 - Shared design tokens are pinned to the private `@wildteam-uk/tokens` package released through GitHub Packages. Local development requires a personal package login; CI uses its repository-scoped `GITHUB_TOKEN`.
 - Read `docs/IMPLEMENTATION_PLAN.md`, `docs/EXPERIENCE_BLUEPRINT.md`, `docs/PRODUCT_SCOPE.md`, `docs/ARCHITECTURE.md`, and `docs/DATA_OWNERSHIP.md` before implementation.

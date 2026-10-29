@@ -30,7 +30,9 @@ export default async function SubmissionsPage() {
             <p className="eyebrow">Live Supabase records</p>
             <h2>{needsAttention} awaiting attention</h2>
           </div>
-          <p>The latest 100 submissions are shown.</p>
+          <Link className="action" href="/admin/submissions/invitations">
+            Manage invitations
+          </Link>
         </div>
         {submissions.length ? (
           <div className="submission-review-list">

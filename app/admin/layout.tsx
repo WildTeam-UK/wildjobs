@@ -17,8 +17,7 @@ export default async function AdminLayout({ children }: { children: ReactNode })
       <aside className="staff-preview-notice">
         <div className="shell">
           <strong>Secure staff workspace:</strong> Signed in as {staff.email ?? "WildJobs staff"} (
-          {staff.role}). The submission screen still contains clearly labelled examples until its next build
-          stage.
+          {staff.role}). Employer submissions and invitation records are protected staff-only data.
         </div>
       </aside>
       <nav className="staff-nav shell" aria-label="Staff workspace">

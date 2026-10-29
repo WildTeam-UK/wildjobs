@@ -1,7 +1,6 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
 import { ensureCandidateProfile } from "@/lib/auth/candidate-profile";
@@ -10,26 +9,8 @@ import { buildAuthPath, getSafeNextPath } from "@/lib/auth/redirects";
 import { addSaveStatus, getSaveJobIntent } from "@/lib/auth/save-intent";
 import { saveRequestedJob } from "@/lib/auth/save-request";
 import { hasAcceptedTerms, validateCredentials } from "@/lib/auth/validation";
+import { getRequestOrigin } from "@/lib/request-origin";
 import { createClient } from "@/lib/supabase/server";
-
-async function getRequestOrigin() {
-  const requestHeaders = await headers();
-  const origin = requestHeaders.get("origin");
-
-  if (origin) {
-    try {
-      const parsedOrigin = new URL(origin);
-      if (parsedOrigin.protocol === "https:" || parsedOrigin.hostname === "localhost") {
-        return parsedOrigin.origin;
-      }
-    } catch {
-      // Fall through to the platform-provided deployment URL.
-    }
-  }
-
-  const vercelUrl = process.env.VERCEL_PROJECT_PRODUCTION_URL ?? process.env.VERCEL_URL;
-  return vercelUrl ? `https://${vercelUrl}` : "http://localhost:3000";
-}
 
 export async function signIn(formData: FormData) {
   const next = getSafeNextPath(formData.get("next"));
