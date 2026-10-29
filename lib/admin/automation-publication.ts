@@ -43,7 +43,7 @@ async function evaluateAndMaybePublishSourceRecordUnsafe(
   const { data: record, error } = await supabase
     .from("job_source_records")
     .select(
-      "id, job_id, mapping_status, canonical_url, application_url, closes_at, source_title, summary, detail_text, location_text, enrichment_status, job_sources(name, source_type, is_active, default_country_code), employers(id, name, status, website_url, mission, overview, reviewed_at, employer_field_evidence(field_name, confidence)), job_source_field_evidence(field_name, resolution_status, value, confidence)",
+      "id, job_id, mapping_status, canonical_url, application_url, closes_at, first_seen_at, source_title, summary, detail_text, location_text, enrichment_status, job_sources(name, source_type, is_active, default_country_code), employers(id, name, status, website_url, mission, overview, reviewed_at, employer_field_evidence(field_name, confidence)), job_source_field_evidence(field_name, resolution_status, value, confidence)",
     )
     .eq("id", sourceRecordId)
     .maybeSingle();
@@ -70,6 +70,7 @@ async function evaluateAndMaybePublishSourceRecordUnsafe(
     employerEvidence: record.employers?.employer_field_evidence ?? [],
     enrichmentStatus: record.enrichment_status,
     evidence: record.job_source_field_evidence,
+    firstSeenAt: record.first_seen_at,
     jobId: record.job_id,
     locationText: record.location_text,
     mappingStatus: record.mapping_status,
@@ -115,7 +116,7 @@ async function evaluateAndMaybePublishSourceRecordUnsafe(
   }
 
   const slug = toSlug(
-    `${record.source_title ?? "vacancy"}-${record.employers?.name ?? "employer"}-${record.closes_at ?? "open"}-${record.id}`,
+    `${record.source_title ?? "vacancy"}-${record.employers?.name ?? "employer"}-${record.closes_at ?? record.first_seen_at.slice(0, 10)}-${record.id}`,
   );
   const { data: jobId, error: publishError } = await supabase.rpc("publish_automated_source_record", {
     p_job_slug: slug,

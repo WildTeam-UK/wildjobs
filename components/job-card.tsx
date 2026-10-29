@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { SaveJobControl, type JobSaveState } from "@/components/save-job-control";
-import { formatDate, type Job } from "@/lib/jobs";
+import { formatDate, listingAgeLabel, type Job } from "@/lib/jobs";
 
 export function JobCard({
   job,
@@ -33,6 +33,7 @@ export function JobCard({
             <Link href={`/jobs/${job.slug}`}>{job.title}</Link>
           )}
         </h2>
+        {job.summarySource === "ai" ? <p className="ai-summary-label">AI-generated summary</p> : null}
         <p className="job-card__summary">{job.summary}</p>
       </div>
       <dl className="job-card__facts">
@@ -50,7 +51,7 @@ export function JobCard({
         </div>
         <div>
           <dt>Closes</dt>
-          <dd>{formatDate(job.closesAt)}</dd>
+          <dd>{job.closesAt ? formatDate(job.closesAt) : listingAgeLabel(job.postedAt)}</dd>
         </div>
       </dl>
       <div className="job-card__actions">

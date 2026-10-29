@@ -39,6 +39,7 @@ function readyInput(): PublicationReadinessInput {
       { confidence: 95, field_name: "location_text", resolution_status: "extracted", value: "Bristol" },
       { confidence: 90, field_name: "engagement_type", resolution_status: "extracted", value: "paid" },
     ],
+    firstSeenAt: "2026-10-20T09:00:00Z",
     jobId: null,
     locationText: "Bristol",
     mappingStatus: "unmapped",
@@ -54,11 +55,11 @@ describe("automated publication readiness", () => {
   it("allows a fully evidenced vacancy without fabricating optional fields", () => {
     const result = evaluatePublicationReadiness(readyInput());
 
-    expect(AUTOMATION_PUBLICATION_POLICY_VERSION).toBe("evidence-gated-v1");
+    expect(AUTOMATION_PUBLICATION_POLICY_VERSION).toBe("evidence-gated-v2");
     expect(result).toMatchObject({ blockers: [], ready: true, score: 100 });
   });
 
-  it("blocks possible duplicates and weak required evidence", () => {
+  it("blocks possible duplicates but not absent optional classification evidence", () => {
     const input = readyInput();
     input.duplicateCount = 1;
     input.evidence = input.evidence.filter((item) => item.field_name !== "engagement_type");
@@ -66,16 +67,39 @@ describe("automated publication readiness", () => {
     const result = evaluatePublicationReadiness(input);
 
     expect(result.ready).toBe(false);
-    expect(result.blockers).toEqual(expect.arrayContaining(["duplicate_risk", "engagement_evidence_weak"]));
+    expect(result.blockers).toEqual(["duplicate_risk"]);
   });
 
-  it("requires an evidence-backed employer profile unless staff already reviewed it", () => {
+  it("does not block on an incomplete employer profile", () => {
     const input = readyInput();
     input.employerEvidence = [];
+    input.employer = {
+      ...input.employer!,
+      mission: null,
+      overview: null,
+      websiteUrl: null,
+    };
 
-    expect(evaluatePublicationReadiness(input).blockers).toContain("employer_profile_incomplete");
+    expect(evaluatePublicationReadiness(input)).toMatchObject({ blockers: [], ready: true });
+  });
 
-    input.employer = { ...input.employer!, reviewedAt: "2026-10-29T12:00:00Z" };
-    expect(evaluatePublicationReadiness(input).blockers).not.toContain("employer_profile_incomplete");
+  it("uses the canonical vacancy page when a separate application address is absent", () => {
+    const input = readyInput();
+    input.applicationUrl = null;
+
+    expect(evaluatePublicationReadiness(input)).toMatchObject({ blockers: [], ready: true });
+  });
+
+  it("allows an unknown closing date for 30 days and then expires the listing", () => {
+    const input = readyInput();
+    input.closesAt = null;
+
+    expect(evaluatePublicationReadiness(input)).toMatchObject({ blockers: [], ready: true });
+
+    input.today = "2026-11-20";
+    expect(evaluatePublicationReadiness(input)).toMatchObject({
+      blockers: ["listing_expired"],
+      ready: false,
+    });
   });
 });

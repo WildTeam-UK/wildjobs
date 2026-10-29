@@ -45,8 +45,9 @@ describe("employer research validation", () => {
     expect(evidenceAppearsInText("We protect oceans.", "We protect rivers.")).toBe(false);
   });
 
-  it("stages only incomplete, unreviewed employer profiles for another bounded pass", () => {
+  it("stages only employers without usable profile copy for another bounded pass", () => {
     const employer = {
+      ai_summary: null,
       mission: null,
       name: "Example Nature Trust",
       overview: null,
@@ -58,11 +59,12 @@ describe("employer research validation", () => {
     expect(isEmployerResearchPending(employer)).toBe(true);
     expect(isEmployerResearchPending({ ...employer, name: "Private Employer" })).toBe(false);
     expect(isEmployerResearchPending({ ...employer, reviewed_at: "2026-10-29T10:00:00Z" })).toBe(false);
+    expect(isEmployerResearchPending({ ...employer, status: "published" })).toBe(true);
+    expect(isEmployerResearchPending({ ...employer, website_url: null })).toBe(true);
     expect(
       isEmployerResearchPending({
         ...employer,
-        mission: "We protect rivers.",
-        overview: "A conservation charity working with communities.",
+        ai_summary: "A conservation charity working with communities.",
       }),
     ).toBe(false);
   });

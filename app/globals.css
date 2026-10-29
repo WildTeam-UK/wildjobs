@@ -795,6 +795,19 @@ select {
   font-size: 0.94rem;
   line-height: 1.58;
 }
+.ai-summary-label {
+  width: fit-content;
+  margin: 14px 0 0;
+  color: var(--wt-color-brand-purple);
+  font-size: 0.68rem;
+  font-weight: var(--wt-font-weight-bold);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.ai-summary-label + .job-card__summary,
+.ai-summary-label + .job-detail-hero__summary {
+  margin-top: 7px;
+}
 .job-card__facts {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -1162,6 +1175,17 @@ select {
   margin: 0 0 18px;
   color: var(--wt-color-muted);
   line-height: 1.65;
+}
+.employer-profile-content section > .ai-summary-note {
+  margin-top: 26px;
+  padding: 16px 18px;
+  border-radius: var(--wt-radius-panel);
+  background: var(--wt-color-cream);
+  color: var(--wt-color-ink);
+  font-size: 0.86rem;
+}
+.ai-summary-note a {
+  font-weight: var(--wt-font-weight-bold);
 }
 .benefit-list {
   display: grid;

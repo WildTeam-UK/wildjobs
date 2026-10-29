@@ -62,7 +62,8 @@ Key fields:
 
 - `id`, `slug`, `name`, `short_name`
 - `status`: `draft`, `in_review`, `published` or `archived`
-- `website_url`, `website_domain`, `focus`, `mission`, `overview`, `culture`
+- `website_url`, `website_domain`, `focus`, official `mission`, official `overview`, `culture`
+- a separately stored AI summary with its source URL and generation time
 - `logo_url` with its source URL, profile source URL and last enrichment time
 - `locations` and `benefits` as ordered text arrays for display-only content
 - `reviewed_at`, `published_at`, `created_at`, `updated_at`
@@ -75,17 +76,22 @@ Owns the reviewed WildJobs version of a vacancy.
 
 Key fields:
 
-- `id`, `slug`, `employer_id`, `title`, `summary`
+- `id`, `slug`, `employer_id`, `title`, `summary`, `summary_source`
 - `description`, `responsibilities`, `requirements` as accessible Markdown text
 - `status`: `draft`, `in_review`, `published`, `expired`, `withdrawn` or `rejected`
 - `location_text`, `country_code`, `region`, `workplace_type`
 - `engagement_type`, `contract_type`, `hours_type`, `experience_level`, `is_field_based`
 - `salary_text`, `salary_min`, `salary_max`, `salary_currency`, `salary_period`
 - separate `source_name`, `source_url`, `application_url`, `application_notes`
-- `posted_at`, `closes_at`, `published_at`, `withdrawn_at`
+- `posted_at`, source-provided `closes_at`, fallback `expires_at`, `published_at`, `withdrawn_at`
 - `created_at`, `updated_at`
 
-`workplace_type`, `contract_type`, `hours_type`, `experience_level`, `salary_period` and lifecycle status use named check constraints. Salary uses exact numeric fields for filtering and a reviewed display string for honest presentation. `closes_at`, salary text, location, application URL and an employer are required before publication.
+`workplace_type`, `contract_type`, `hours_type`, `experience_level`, `salary_period`, summary provenance and
+lifecycle status use named check constraints. Salary uses exact numeric fields for filtering and a reviewed display
+string for honest presentation. Publication requires a usable summary and description, a secure destination, a
+canonical employer and an effective lifetime. Salary, classification, location, employer website and official
+employer copy remain valuable enrichment but do not block an otherwise trustworthy vacancy. When `closes_at` is
+unknown, `expires_at` is set to 30 days after first discovery.
 
 A stored `tsvector` search column combines the job title, summary, description, responsibilities, requirements and location. Employer names are searched through the indexed employer record rather than copied into every job.
 
@@ -155,6 +161,7 @@ Key fields:
 - mapping and duplicate-review status
 - canonical employer match, application and employer URLs
 - bounded detail text and hashes used to skip unchanged pages
+- separately stored generated vacancy summary and generation time when source copy is insufficient
 - enrichment status, attempt count, timestamps and a constrained safe error code
 - enrichment and automatic-publication policy versions
 - current publication readiness, score, blocker codes and evaluation time
@@ -231,7 +238,8 @@ Publication and status changes should be written transactionally with their mode
 
 Policy requirements:
 
-- `anon` and normal `authenticated` users can select a job only when its status is `published`, its publication time has arrived, its closing date has not passed and it is not withdrawn.
+- `anon` and normal `authenticated` users can select a job only when its status is `published`, its publication
+  time has arrived, its source closing date—or 30-day fallback expiry—has not passed and it is not withdrawn.
 - Public employer and taxonomy reads are similarly limited to published or active records.
 - Candidate ownership policies use `(select auth.uid()) = user_id`, backed by indexes.
 - Candidate updates include both `using` and `with check`; the ownership key cannot be reassigned.

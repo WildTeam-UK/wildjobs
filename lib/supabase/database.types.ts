@@ -519,6 +519,9 @@ export type Database = {
       };
       employers: {
         Row: {
+          ai_summary: string | null;
+          ai_summary_generated_at: string | null;
+          ai_summary_source_url: string | null;
           benefits: string[];
           created_at: string;
           culture: string | null;
@@ -543,6 +546,9 @@ export type Database = {
           website_url: string | null;
         };
         Insert: {
+          ai_summary?: string | null;
+          ai_summary_generated_at?: string | null;
+          ai_summary_source_url?: string | null;
           benefits?: string[];
           created_at?: string;
           culture?: string | null;
@@ -567,6 +573,9 @@ export type Database = {
           website_url?: string | null;
         };
         Update: {
+          ai_summary?: string | null;
+          ai_summary_generated_at?: string | null;
+          ai_summary_source_url?: string | null;
           benefits?: string[];
           created_at?: string;
           culture?: string | null;
@@ -766,6 +775,8 @@ export type Database = {
       };
       job_source_records: {
         Row: {
+          ai_summary: string | null;
+          ai_summary_generated_at: string | null;
           application_url: string | null;
           automation_blockers: string[];
           automation_evaluated_at: string | null;
@@ -804,6 +815,8 @@ export type Database = {
           verified_at: string | null;
         };
         Insert: {
+          ai_summary?: string | null;
+          ai_summary_generated_at?: string | null;
           application_url?: string | null;
           automation_blockers?: string[];
           automation_evaluated_at?: string | null;
@@ -842,6 +855,8 @@ export type Database = {
           verified_at?: string | null;
         };
         Update: {
+          ai_summary?: string | null;
+          ai_summary_generated_at?: string | null;
           application_url?: string | null;
           automation_blockers?: string[];
           automation_evaluated_at?: string | null;
@@ -948,6 +963,7 @@ export type Database = {
           engagement_type: string | null;
           employer_id: number;
           experience_level: string | null;
+          expires_at: string | null;
           hours_type: string | null;
           id: number;
           is_field_based: boolean;
@@ -968,6 +984,7 @@ export type Database = {
           source_url: string | null;
           status: string;
           summary: string | null;
+          summary_source: string;
           title: string;
           updated_at: string;
           withdrawn_at: string | null;
@@ -984,6 +1001,7 @@ export type Database = {
           engagement_type?: string | null;
           employer_id: number;
           experience_level?: string | null;
+          expires_at?: string | null;
           hours_type?: string | null;
           id?: never;
           is_field_based?: boolean;
@@ -1004,6 +1022,7 @@ export type Database = {
           source_url?: string | null;
           status?: string;
           summary?: string | null;
+          summary_source?: string;
           title: string;
           updated_at?: string;
           withdrawn_at?: string | null;
@@ -1020,6 +1039,7 @@ export type Database = {
           engagement_type?: string | null;
           employer_id?: number;
           experience_level?: string | null;
+          expires_at?: string | null;
           hours_type?: string | null;
           id?: never;
           is_field_based?: boolean;
@@ -1040,6 +1060,7 @@ export type Database = {
           source_url?: string | null;
           status?: string;
           summary?: string | null;
+          summary_source?: string;
           title?: string;
           updated_at?: string;
           withdrawn_at?: string | null;

@@ -8,6 +8,9 @@ import { getPublicJobs } from "./public-jobs";
 import { createPublicClient } from "./supabase/public";
 
 const publicEmployerFields = `
+  ai_summary,
+  ai_summary_generated_at,
+  ai_summary_source_url,
   slug,
   name,
   short_name,

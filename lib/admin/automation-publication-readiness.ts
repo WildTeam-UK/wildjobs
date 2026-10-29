@@ -1,4 +1,4 @@
-export const AUTOMATION_PUBLICATION_POLICY_VERSION = "evidence-gated-v1";
+export const AUTOMATION_PUBLICATION_POLICY_VERSION = "evidence-gated-v2";
 
 export const automationBlockerLabels = {
   already_linked: "This source record is already linked to a WildJobs vacancy.",
@@ -17,6 +17,7 @@ export const automationBlockerLabels = {
   enrichment_incomplete: "Vacancy enrichment has not completed cleanly.",
   location_evidence_weak: "The location is not supported by strong evidence.",
   location_missing: "The vacancy location is missing.",
+  listing_expired: "The vacancy has closed or exceeded its 30-day fallback lifetime.",
   source_inactive: "The source is paused.",
   source_not_automatable: "This source type is not approved for automatic publication.",
   summary_missing: "A usable vacancy summary could not be prepared.",
@@ -55,6 +56,7 @@ export type PublicationReadinessInput = {
   employerEvidence: readonly EmployerEvidence[];
   enrichmentStatus: string;
   evidence: readonly Evidence[];
+  firstSeenAt: string;
   jobId: number | null;
   locationText: string | null;
   mappingStatus: string;
@@ -85,6 +87,12 @@ function usableText(value: string | null, minimum: number) {
   return Boolean(value?.trim() && value.trim().length >= minimum);
 }
 
+function addDays(value: string, days: number) {
+  const date = new Date(`${value.slice(0, 10)}T00:00:00Z`);
+  date.setUTCDate(date.getUTCDate() + days);
+  return date.toISOString().slice(0, 10);
+}
+
 function strongestEvidence(evidence: readonly Evidence[]) {
   const confidences: Record<string, number> = {};
   for (const item of evidence) {
@@ -97,10 +105,7 @@ function strongestEvidence(evidence: readonly Evidence[]) {
 export function evaluatePublicationReadiness(input: PublicationReadinessInput): PublicationReadiness {
   const blockers = new Set<AutomationBlockerCode>();
   const fieldConfidences = strongestEvidence(input.evidence);
-  const employerConfidences = Object.fromEntries(
-    input.employerEvidence.map((item) => [item.field_name, item.confidence]),
-  );
-  const summaryCandidate = input.summary?.trim() || input.detailText?.trim().slice(0, 500) || "";
+  const effectiveExpiry = input.closesAt ?? addDays(input.firstSeenAt, 30);
 
   if (!input.sourceActive) blockers.add("source_inactive");
   if (!["feed", "api"].includes(input.sourceType)) blockers.add("source_not_automatable");
@@ -109,36 +114,21 @@ export function evaluatePublicationReadiness(input: PublicationReadinessInput): 
   if (input.mappingStatus !== "unmapped" || input.duplicateCount > 0) blockers.add("duplicate_risk");
   if (!["complete", "skipped"].includes(input.enrichmentStatus)) blockers.add("enrichment_incomplete");
   if (!isHttpsUrl(input.canonicalUrl)) blockers.add("canonical_url_missing");
-  if (!isHttpsUrl(input.applicationUrl)) blockers.add("application_url_missing");
-  if (!input.closesAt || input.closesAt < input.today) blockers.add("closing_date_missing");
+  if (!isHttpsUrl(input.applicationUrl) && !isHttpsUrl(input.canonicalUrl)) {
+    blockers.add("application_url_missing");
+  }
+  if (effectiveExpiry < input.today) blockers.add("listing_expired");
   if (!usableText(input.sourceTitle, 2)) blockers.add("title_missing");
-  if (!usableText(summaryCandidate, 20)) blockers.add("summary_missing");
   if (!usableText(input.detailText, 80)) blockers.add("description_missing");
-  if (!usableText(input.locationText, 2)) blockers.add("location_missing");
-
-  if ((fieldConfidences.application_url ?? 0) < 95) blockers.add("application_evidence_weak");
-  if ((fieldConfidences.closes_at ?? 0) < 90) blockers.add("closing_evidence_weak");
-  if ((fieldConfidences.employer_name ?? 0) < 80) blockers.add("employer_evidence_weak");
-  if ((fieldConfidences.location_text ?? 0) < 80) blockers.add("location_evidence_weak");
-  if ((fieldConfidences.engagement_type ?? 0) < 80) blockers.add("engagement_evidence_weak");
 
   if (!input.employer) {
     blockers.add("employer_missing");
-  } else {
-    const profileComplete =
-      input.employer.status !== "archived" &&
-      isHttpsUrl(input.employer.websiteUrl) &&
-      usableText(input.employer.mission, 2) &&
-      usableText(input.employer.overview, 20);
-    const profileEvidenceStrong =
-      Boolean(input.employer.reviewedAt) ||
-      input.employer.status === "published" ||
-      ((employerConfidences.mission ?? 0) >= 80 && (employerConfidences.overview ?? 0) >= 80);
-    if (!profileComplete || !profileEvidenceStrong) blockers.add("employer_profile_incomplete");
+  } else if (input.employer.status === "archived") {
+    blockers.add("employer_missing");
   }
 
   const blockerList = [...blockers];
-  const totalChecks = 18;
+  const totalChecks = 11;
   const score = Math.max(0, Math.round(((totalChecks - blockerList.length) / totalChecks) * 100));
   return { blockers: blockerList, fieldConfidences, ready: blockerList.length === 0, score };
 }

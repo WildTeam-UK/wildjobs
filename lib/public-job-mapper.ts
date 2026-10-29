@@ -26,6 +26,7 @@ export type PublicJobRecord = Readonly<{
   engagement_type: string | null;
   employers: PublicEmployerRecord | null;
   experience_level: string | null;
+  expires_at: string | null;
   hours_type: string | null;
   job_career_areas: readonly PublicCareerAreaRecord[];
   location_text: string | null;
@@ -41,6 +42,7 @@ export type PublicJobRecord = Readonly<{
   slug: string;
   status: string;
   summary: string | null;
+  summary_source: string;
   title: string;
   withdrawn_at: string | null;
   workplace_type: string | null;
@@ -103,7 +105,8 @@ function dateOnly(value: string | null) {
 
 function availability(record: PublicJobRecord) {
   if (record.withdrawn_at || record.status === "withdrawn") return "withdrawn" as const;
-  if (record.closes_at && record.closes_at < new Date().toISOString().slice(0, 10)) {
+  const effectiveExpiry = record.closes_at ?? record.expires_at;
+  if (effectiveExpiry && effectiveExpiry < new Date().toISOString().slice(0, 10)) {
     return "expired" as const;
   }
   if (record.status !== "published") return "unavailable" as const;
@@ -157,7 +160,7 @@ export function mapPublicJob(record: PublicJobRecord): Job {
     careerAreas: careerAreas.flatMap((relation) =>
       relation.career_areas ? [relation.career_areas.title] : [],
     ),
-    closesAt: dateOnly(record.closes_at) ?? "",
+    closesAt: dateOnly(record.closes_at),
     contractType,
     countryCode: record.country_code ?? undefined,
     description: description.length ? description : [summary],
@@ -182,6 +185,9 @@ export function mapPublicJob(record: PublicJobRecord): Job {
     sourceName: record.source_name?.trim() || "Original vacancy",
     sourceUrl: record.source_url ?? undefined,
     summary,
+    summarySource: ["ai", "excerpt", "source"].includes(record.summary_source)
+      ? (record.summary_source as "ai" | "excerpt" | "source")
+      : "source",
     title: record.title,
   };
 }

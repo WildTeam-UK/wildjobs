@@ -13,7 +13,7 @@ import {
 import type { VacancyFieldEvidence, VacancyFieldName } from "./vacancy-detail-extraction";
 
 const MODEL = "gpt-6-luna";
-export const AI_ENRICHMENT_POLICY_VERSION = "ai-structured-v5";
+export const AI_ENRICHMENT_POLICY_VERSION = "ai-structured-v6";
 
 const supportedFields = [
   "contract_type",
@@ -60,6 +60,9 @@ const outputSchema = z.object({
     }),
     location_text: textField,
     salary_text: textField,
+    summary: textField.describe(
+      "A concise one or two sentence summary of the vacancy, grounded only in the supplied advert.",
+    ),
     workplace_type: z.object({
       confidence: confidenceSchema,
       evidence: evidenceSchema,
@@ -76,10 +79,10 @@ const outputSchema = z.object({
     ),
     locations: z.array(researchedEmployerField).max(8),
     mission: researchedEmployerField.describe(
-      "A concise, faithful summary of the employer's stated mission, purpose or vision, supported by an exact quote.",
+      "The employer's own stated mission, purpose or vision as an exact quote; otherwise null.",
     ),
-    overview: researchedEmployerField.describe(
-      "A concise factual summary of what the employer is and does, supported by an exact quote from the official text.",
+    summary: researchedEmployerField.describe(
+      "An AI-generated factual overview of what the organisation is and does, supported by an exact quote from supplied evidence.",
     ),
     website_url: z.object({
       confidence: confidenceSchema,
@@ -92,7 +95,7 @@ const outputSchema = z.object({
 export type AiEmployerSuggestion = {
   confidence: number;
   evidence: string;
-  fieldName: "benefits" | "culture" | "focus" | "locations" | "mission" | "overview";
+  fieldName: "benefits" | "culture" | "focus" | "locations" | "mission" | "summary";
   sourceUrl: string | null;
   value: string;
 };
@@ -104,6 +107,7 @@ export type AiEnrichmentResult =
       evidence: VacancyFieldEvidence[];
       generationId: string | null;
       inputTokens: number;
+      jobSummary: { evidence: string; value: string } | null;
       model: string;
       outputTokens: number;
       researchedEmployerWebsiteUrl: string | null;
@@ -144,16 +148,20 @@ function vacancyEvidence(
 
 function employerSuggestions(
   output: z.infer<typeof outputSchema>["employer"],
-  sourceText: string,
-  sourceUrl: string | null,
+  employerText: string,
+  employerSourceUrl: string | null,
+  listingText: string,
+  listingSourceUrl: string,
   searchedWebsiteUrl: string | null,
   searchSourceUrls: readonly string[],
 ) {
   const suggestions: AiEmployerSuggestion[] = [];
-  const singular = ["culture", "focus", "mission", "overview"] as const;
+  const singular = ["culture", "focus", "mission", "summary"] as const;
   for (const fieldName of singular) {
     const field = output[fieldName];
-    const localEvidence = exactEvidence(field.value, field.evidence, sourceText);
+    const employerEvidence = exactEvidence(field.value, field.evidence, employerText);
+    const listingEvidence =
+      fieldName === "summary" ? exactEvidence(field.value, field.evidence, listingText) : null;
     const webEvidence =
       searchedWebsiteUrl &&
       field.value &&
@@ -163,20 +171,24 @@ function employerSuggestions(
       sameWebsiteHost(field.source_url, searchedWebsiteUrl)
         ? field.evidence.replace(/\s+/g, " ").trim()
         : null;
-    const evidence = localEvidence ?? webEvidence;
+    const evidence = employerEvidence ?? listingEvidence ?? webEvidence;
     if (field.value && evidence && field.confidence >= 60) {
       suggestions.push({
         confidence: field.confidence,
         evidence,
         fieldName,
-        sourceUrl: localEvidence ? sourceUrl : normaliseResearchUrl(field.source_url),
-        value: field.value,
+        sourceUrl: employerEvidence
+          ? employerSourceUrl
+          : listingEvidence
+            ? listingSourceUrl
+            : normaliseResearchUrl(field.source_url),
+        value: fieldName === "mission" ? evidence : field.value,
       });
     }
   }
   for (const fieldName of ["benefits", "locations"] as const) {
     for (const field of output[fieldName]) {
-      const localEvidence = exactEvidence(field.value, field.evidence, sourceText);
+      const localEvidence = exactEvidence(field.value, field.evidence, employerText);
       const webEvidence =
         searchedWebsiteUrl &&
         field.value &&
@@ -192,7 +204,7 @@ function employerSuggestions(
           confidence: field.confidence,
           evidence,
           fieldName,
-          sourceUrl: localEvidence ? sourceUrl : normaliseResearchUrl(field.source_url),
+          sourceUrl: localEvidence ? employerSourceUrl : normaliseResearchUrl(field.source_url),
           value: field.value,
         });
       }
@@ -240,7 +252,9 @@ export async function enrichWithAi(input: {
   employerName: string | null;
   employerSourceUrl: string | null;
   employerText: string | null;
+  listingSourceUrl: string;
   listingText: string;
+  shouldSummariseJob: boolean;
   unresolvedFields: readonly VacancyFieldName[];
 }): Promise<AiEnrichmentResult> {
   if (!isAiEnrichmentEnabled()) return { status: "disabled" };
@@ -253,18 +267,20 @@ export async function enrichWithAi(input: {
     "Never estimate salary. Return null when the advertised salary is absent.",
     "Every non-null value must include a short exact evidence quote copied from the supplied text.",
     "Always inspect the supplied official employer text even when no vacancy fields need resolving.",
-    "Populate employer mission when the text states a mission, purpose, vision, aim or commitment; value may be a concise faithful summary, but evidence must be an exact quote.",
-    "Populate employer overview when the text explains what the organisation is and does; value may be a concise factual summary, but evidence must be an exact quote.",
-    "Mission and overview may use the same evidence quote when that quote genuinely supports both fields.",
+    "Populate employer mission only when the employer explicitly states a mission, purpose or vision; both value and evidence must use the employer's exact words.",
+    "Populate employer summary with a concise factual AI-generated overview grounded in the official employer text, or in the vacancy text when official employer text is unavailable.",
+    "Do not call an AI-generated employer summary an official mission statement.",
+    "When requested, produce a concise one or two sentence vacancy summary grounded only in the vacancy text.",
     input.allowEmployerWebResearch
       ? "Use at most one bounded web research step to locate the employer's official website. Use only pages on that official website for employer facts."
-      : "Employer facts may only use the supplied official employer text section.",
+      : "Use the supplied official employer text for employer facts. If it is unavailable, only the AI-generated employer summary may use the vacancy text; leave mission and all other employer fields empty.",
     "For every web-researched employer fact, source_url must be the exact official page returned by web search that supports it.",
     "Never use a job board, social network, directory, Wikipedia or applicant-tracking system as the employer website.",
     "Return null or an empty list when evidence is missing.",
   ].join(" ");
   const prompt = [
     `Only resolve these vacancy fields: ${input.unresolvedFields.join(", ") || "none"}.`,
+    `Create a vacancy summary: ${input.shouldSummariseJob ? "yes" : "no; return null"}.`,
     `Employer name: ${input.employerName ?? "Not supplied"}.`,
     "VACANCY SOURCE TEXT:",
     listingText,
@@ -272,7 +288,7 @@ export async function enrichWithAi(input: {
     employerText ||
       (input.allowEmployerWebResearch
         ? "Not supplied. Use the bounded web search only for the official employer website and evidence-backed employer facts."
-        : "Not available. Leave every employer field empty."),
+        : "Not available. Use vacancy text only for an AI-generated employer summary; leave mission and every other employer field empty."),
     `OFFICIAL EMPLOYER SOURCE URL: ${input.employerSourceUrl ?? "Not supplied"}.`,
   ].join("\n\n");
   const response = await getOpenAIClient().responses.create({
@@ -314,12 +330,26 @@ export async function enrichWithAi(input: {
       output.employer,
       employerText,
       input.employerSourceUrl,
+      listingText,
+      input.listingSourceUrl,
       searchedWebsiteUrl,
       searchSourceUrls,
     ),
     evidence: vacancyEvidence(output.vacancy, input.unresolvedFields, listingText),
     generationId: response.id,
     inputTokens: response.usage?.input_tokens ?? 0,
+    jobSummary: input.shouldSummariseJob
+      ? (() => {
+          const evidence = exactEvidence(
+            output.vacancy.summary.value,
+            output.vacancy.summary.evidence,
+            listingText,
+          );
+          return output.vacancy.summary.value && evidence && output.vacancy.summary.confidence >= 60
+            ? { evidence, value: output.vacancy.summary.value }
+            : null;
+        })()
+      : null,
     model: MODEL,
     outputTokens: response.usage?.output_tokens ?? 0,
     researchedEmployerWebsiteUrl: searchedWebsiteUrl,

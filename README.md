@@ -40,7 +40,10 @@ passes safe-fetch checks and contains the quoted evidence. Known official sites 
 when available, one same-site mission or About page. An incomplete newly discovered profile can receive another
 bounded pass within the existing three-attempt ceiling. `AUTO_PUBLISH_ENABLED` remains false until shadow
 decisions have been reviewed; even in live mode, a service-only atomic database function publishes only records
-that pass the evidence, source, duplicate, date and employer-profile policy.
+that pass essential source, duplicate, identity, destination and lifetime checks. Optional classification and
+employer-profile enrichment continue without delaying a usable listing. AI-generated job and employer summaries
+are stored separately from source and official copy and are labelled in the public experience. When a source has
+no closing date, the listing remains eligible for 30 days from first discovery and visibly reports its age.
 
 Run the complete local checks with:
 

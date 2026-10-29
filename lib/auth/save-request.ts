@@ -17,7 +17,9 @@ export async function saveRequestedJob(
     .eq("slug", intent.jobSlug)
     .eq("status", "published")
     .lte("published_at", now.toISOString())
-    .gte("closes_at", now.toISOString().slice(0, 10))
+    .or(
+      `closes_at.gte.${now.toISOString().slice(0, 10)},and(closes_at.is.null,expires_at.gte.${now.toISOString().slice(0, 10)})`,
+    )
     .is("withdrawn_at", null)
     .maybeSingle();
 

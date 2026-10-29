@@ -71,11 +71,30 @@ export default async function EmployerPage({ params }: EmployerPageProps) {
       <div className="shell employer-profile-layout">
         <article className="employer-profile-content">
           <section>
-            <p className="eyebrow">About the organisation</p>
+            <p className="eyebrow">
+              {employer.overviewIsAi ? "AI-generated overview" : "About the organisation"}
+            </p>
             <h2>About {employer.name}</h2>
             {employer.overview.map((paragraph) => (
               <p key={paragraph}>{paragraph}</p>
             ))}
+            {!employer.overview.length ? (
+              <p>More information about this organisation is still being gathered.</p>
+            ) : null}
+            {employer.overviewIsAi ? (
+              <p className="ai-summary-note">
+                This summary was generated from the vacancy and available public information. It is not the
+                organisation’s official mission statement.
+                {employer.aiSummarySourceUrl ? (
+                  <>
+                    {" "}
+                    <a href={employer.aiSummarySourceUrl} rel="noreferrer" target="_blank">
+                      View supporting source <span aria-hidden="true">↗</span>
+                    </a>
+                  </>
+                ) : null}
+              </p>
+            ) : null}
           </section>
           {employer.culture || employer.benefits.length ? (
             <section>
@@ -124,8 +143,10 @@ export default async function EmployerPage({ params }: EmployerPageProps) {
             ) : null}
           </dl>
           <p className="employer-profile-facts__source">
-            Profile context reviewed by WildJobs against the organisation’s official information. Vacancy
-            details remain attributed to their original listing.
+            {employer.reviewedAt
+              ? "Profile context reviewed by WildJobs against the organisation’s available information."
+              : "Profile research is still in progress and will not delay usable vacancy listings."}{" "}
+            Vacancies remain attributed to their original listing.
           </p>
         </aside>
       </div>

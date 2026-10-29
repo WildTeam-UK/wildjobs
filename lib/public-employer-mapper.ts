@@ -1,6 +1,9 @@
 import type { Job } from "./jobs";
 
 export type PublicEmployerRecord = Readonly<{
+  ai_summary: string | null;
+  ai_summary_generated_at: string | null;
+  ai_summary_source_url: string | null;
   benefits: readonly string[];
   culture: string | null;
   focus: string | null;
@@ -17,6 +20,7 @@ export type PublicEmployerRecord = Readonly<{
 }>;
 
 export type PublicEmployer = Readonly<{
+  aiSummarySourceUrl?: string;
   benefits: readonly string[];
   culture?: string;
   focus: string;
@@ -26,6 +30,7 @@ export type PublicEmployer = Readonly<{
   name: string;
   openRoles: readonly Job[];
   overview: readonly string[];
+  overviewIsAi: boolean;
   publishedAt?: string;
   reviewedAt?: string;
   shortName: string;
@@ -68,7 +73,11 @@ export function mapPublicEmployer(record: PublicEmployerRecord, jobs: readonly J
     ...new Set([...record.locations.map((location) => location.trim()), ...roleLocations]),
   ].filter(Boolean);
 
+  const officialOverview = paragraphs(record.overview);
+  const aiOverview = paragraphs(record.ai_summary);
+
   return {
+    aiSummarySourceUrl: record.ai_summary_source_url?.trim() || undefined,
     benefits: record.benefits.map((benefit) => benefit.trim()).filter(Boolean),
     culture: record.culture?.trim() || undefined,
     focus: record.focus?.trim() || "Conservation employer",
@@ -77,7 +86,8 @@ export function mapPublicEmployer(record: PublicEmployerRecord, jobs: readonly J
     mission: record.mission?.trim() || "Explore this organisation’s current conservation opportunities.",
     name: record.name,
     openRoles,
-    overview: paragraphs(record.overview),
+    overview: officialOverview.length ? officialOverview : aiOverview,
+    overviewIsAi: !officialOverview.length && aiOverview.length > 0,
     publishedAt: dateOnly(record.published_at),
     reviewedAt: dateOnly(record.reviewed_at),
     shortName: record.short_name?.trim() || initials(record.name),

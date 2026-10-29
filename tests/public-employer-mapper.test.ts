@@ -4,6 +4,9 @@ import type { Job } from "../lib/jobs";
 import { mapPublicEmployer, type PublicEmployerRecord } from "../lib/public-employer-mapper";
 
 const employer: PublicEmployerRecord = {
+  ai_summary: null,
+  ai_summary_generated_at: null,
+  ai_summary_source_url: null,
   benefits: ["Flexible working"],
   culture: "A collaborative conservation team.",
   focus: null,
@@ -62,6 +65,25 @@ describe("public employer mapping", () => {
       mission: "Explore this organisation’s current conservation opportunities.",
       overview: [],
       websiteUrl: undefined,
+    });
+  });
+
+  it("uses a clearly identified AI overview when official copy is unavailable", () => {
+    const result = mapPublicEmployer(
+      {
+        ...employer,
+        ai_summary: "A conservation charity working with communities to restore local habitats.",
+        ai_summary_generated_at: "2026-10-29T12:00:00Z",
+        ai_summary_source_url: "https://example.org/jobs/ranger",
+        overview: null,
+      },
+      [],
+    );
+
+    expect(result).toMatchObject({
+      aiSummarySourceUrl: "https://example.org/jobs/ranger",
+      overview: ["A conservation charity working with communities to restore local habitats."],
+      overviewIsAi: true,
     });
   });
 

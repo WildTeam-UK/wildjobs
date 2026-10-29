@@ -91,7 +91,11 @@ Optional analytics must not run before the applicable consent state permits them
 - CV or document storage.
 - Hosting job applications inside WildJobs.
 - Employer payments and fully automated self-service publishing.
-- Unbounded AI research, salary estimates, ranking or generated job content. The prototype may use one bounded structured extraction call for unresolved evidence-backed fields, behind an off-switch and usage ledger.
+- Unbounded AI research, salary estimates or ranking. The prototype may use one bounded structured call for
+  unresolved evidence-backed fields and clearly labelled job or employer summaries, behind an off-switch and
+  usage ledger. Optional richness must not block a trustworthy listing.
+- A personalised job-match score. The future concept is documented in the experience blueprint and requires
+  explainable signals, verified course completion and explicit privacy decisions before implementation.
 - Verified LearnWorlds account linking and automatic use of completed-course data. Public course-based discovery remains in the beta scope.
 - Shared WildTeam single sign-on.
 - A central cross-application analytics backend or unified user dashboard.

@@ -14,6 +14,7 @@ import { evaluateAndMaybePublishSourceRecord } from "./automation-publication";
 import {
   evidenceAppearsInText,
   isEmployerResearchPending,
+  normaliseResearchUrl,
   sameWebsiteHost,
 } from "./employer-research-validation";
 import { fetchApprovedVacancyPage, fetchEmployerPage, SourcePageError } from "./source-page-fetch";
@@ -329,7 +330,7 @@ async function persistEmployerEnrichment(
     websiteUrl: string | null;
   },
 ) {
-  if (employer.status === "published" || employer.reviewed_at) return employer;
+  if (employer.reviewed_at) return employer;
   const suggestions = new Map(input.suggestions.map((item) => [item.fieldName, item]));
   const locations = input.suggestions
     .filter((item) => item.fieldName === "locations")
@@ -338,6 +339,10 @@ async function persistEmployerEnrichment(
     .filter((item) => item.fieldName === "benefits")
     .map((item) => item.value);
   const update: Database["public"]["Tables"]["employers"]["Update"] = {
+    ai_summary: employer.ai_summary ?? suggestions.get("summary")?.value ?? null,
+    ai_summary_generated_at:
+      employer.ai_summary_generated_at ?? (suggestions.get("summary") ? new Date().toISOString() : null),
+    ai_summary_source_url: employer.ai_summary_source_url ?? suggestions.get("summary")?.sourceUrl ?? null,
     benefits: employer.benefits.length ? employer.benefits : [...new Set(benefits)],
     culture: employer.culture ?? suggestions.get("culture")?.value ?? null,
     enriched_at: new Date().toISOString(),
@@ -346,7 +351,7 @@ async function persistEmployerEnrichment(
     logo_source_url: employer.logo_source_url ?? (input.logoUrl ? input.sourceUrl : null),
     logo_url: employer.logo_url ?? input.logoUrl,
     mission: employer.mission ?? suggestions.get("mission")?.value ?? null,
-    overview: employer.overview ?? suggestions.get("overview")?.value ?? null,
+    overview: employer.overview,
     profile_source_url: employer.profile_source_url ?? input.sourceUrl,
     website_domain: employer.website_domain ?? domainFromUrl(input.websiteUrl),
     website_url: employer.website_url ?? input.websiteUrl,
@@ -390,7 +395,8 @@ async function persistEmployerEnrichment(
     suggestionGroups.set(suggestion.fieldName, [...existing, suggestion]);
   }
   for (const [fieldName, items] of suggestionGroups) {
-    if (!input.sourceUrl || !items.length) continue;
+    const evidenceSourceUrl = items.find((item) => item.sourceUrl)?.sourceUrl ?? input.sourceUrl;
+    if (!evidenceSourceUrl || !items.length) continue;
     evidenceRows.push({
       confidence: Math.max(...items.map((item) => item.confidence)),
       employer_id: employer.id,
@@ -400,8 +406,8 @@ async function persistEmployerEnrichment(
         .slice(0, 1_000),
       extraction_method: "ai",
       extractor_version: AI_ENRICHMENT_POLICY_VERSION,
-      field_name: fieldName,
-      source_url: items.find((item) => item.sourceUrl)?.sourceUrl ?? input.sourceUrl,
+      field_name: fieldName === "summary" ? "ai_summary" : fieldName,
+      source_url: evidenceSourceUrl,
       value: items
         .map((item) => item.value)
         .join("\n")
@@ -548,8 +554,10 @@ export async function enrichNextPendingSourceRecord(
     if (
       employerWebsiteUrl &&
       (!employer?.enriched_at ||
-        (isAiEnrichmentEnabled() && (!employer?.mission?.trim() || !employer?.overview?.trim()))) &&
-      employer?.status !== "published" &&
+        (isAiEnrichmentEnabled() &&
+          !employer?.ai_summary?.trim() &&
+          !employer?.mission?.trim() &&
+          !employer?.overview?.trim())) &&
       !employer?.reviewed_at
     ) {
       try {
@@ -575,9 +583,18 @@ export async function enrichNextPendingSourceRecord(
     let aiResult: Awaited<ReturnType<typeof enrichWithAi>> = { status: "disabled" };
     let aiError = false;
     const employerResearchNeeded = Boolean(
-      employer?.name && !employerWebsiteUrl && employer.name !== "Private Employer",
+      employer?.name &&
+      !employerWebsiteUrl &&
+      !employer.ai_summary?.trim() &&
+      !employer.mission?.trim() &&
+      !employer.overview?.trim() &&
+      employer.name !== "Private Employer" &&
+      !employer.reviewed_at,
     );
-    const aiNeeded = Boolean(unresolved.length || employerPage.text || employerResearchNeeded);
+    const shouldSummariseJob = !record.summary?.trim() || record.summary.trim().length < 20;
+    const aiNeeded = Boolean(
+      unresolved.length || shouldSummariseJob || employerPage.text || employerResearchNeeded,
+    );
     if (aiNeeded && aiBudget.allowed) {
       try {
         aiResult = await enrichWithAi({
@@ -585,7 +602,9 @@ export async function enrichNextPendingSourceRecord(
           employerName: employer?.name ?? page.employerName ?? record.employer_name,
           employerSourceUrl: employerPage.sourceUrl,
           employerText: employerPage.text || null,
+          listingSourceUrl: detail.url,
           listingText: page.detailText,
+          shouldSummariseJob,
           unresolvedFields: unresolved,
         });
       } catch (error) {
@@ -603,6 +622,10 @@ export async function enrichNextPendingSourceRecord(
       !employerWebsiteUrl &&
       aiResult.researchedEmployerWebsiteUrl
     ) {
+      const listingSummaryIsVerified = (suggestion: AiEmployerSuggestion) =>
+        suggestion.fieldName === "summary" &&
+        normaliseResearchUrl(suggestion.sourceUrl) === normaliseResearchUrl(detail.url) &&
+        evidenceAppearsInText(suggestion.evidence, page.detailText);
       employerWebsiteUrl = aiResult.researchedEmployerWebsiteUrl;
       const researchUrls = [
         employerWebsiteUrl,
@@ -630,6 +653,9 @@ export async function enrichNextPendingSourceRecord(
         aiResult = {
           ...aiResult,
           employerSuggestions: aiResult.employerSuggestions.flatMap((suggestion) => {
+            if (listingSummaryIsVerified(suggestion)) {
+              return [suggestion];
+            }
             const matchingPage = researchedPages.find(
               (item) =>
                 sameWebsiteHost(item.url, suggestion.sourceUrl) &&
@@ -640,7 +666,10 @@ export async function enrichNextPendingSourceRecord(
         };
       } else {
         employerWebsiteUrl = null;
-        aiResult = { ...aiResult, employerSuggestions: [] };
+        aiResult = {
+          ...aiResult,
+          employerSuggestions: aiResult.employerSuggestions.filter(listingSummaryIsVerified),
+        };
       }
     }
 
@@ -687,11 +716,7 @@ export async function enrichNextPendingSourceRecord(
       (fieldName) => evidenceMap.get(fieldName)?.resolution_status === "extracted",
     ).length;
     const mandatoryComplete = Boolean(
-      (page.employerName ?? record.employer_name) &&
-      (page.locationText ?? record.location_text) &&
-      (page.closesAt ?? record.closes_at) &&
-      page.applicationUrl &&
-      page.detailText,
+      (page.employerName ?? record.employer_name) && (page.applicationUrl ?? detail.url) && page.detailText,
     );
     const status = mandatoryComplete ? "complete" : "needs_review";
     const enrichmentPolicyVersion = employerProfilePending
@@ -710,6 +735,14 @@ export async function enrichNextPendingSourceRecord(
     const { error: recordUpdateError } = await supabase
       .from("job_source_records")
       .update({
+        ai_summary:
+          aiResult.status === "completed" && aiResult.jobSummary
+            ? aiResult.jobSummary.value
+            : record.ai_summary,
+        ai_summary_generated_at:
+          aiResult.status === "completed" && aiResult.jobSummary
+            ? finishedAt
+            : record.ai_summary_generated_at,
         application_url: page.applicationUrl,
         closes_at: page.closesAt ?? record.closes_at,
         detail_content_hash: detailContentHash,

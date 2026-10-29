@@ -21,7 +21,7 @@ WildJobs helps conservation professionals discover trustworthy opportunities and
 - Saved jobs, job alerts and recommendations.
 - Employer self-service and paid listings.
 - LearnWorlds account linking or central single sign-on.
-- AI matching, ranking or content generation.
+- AI matching or ranking. Bounded, labelled summary generation is permitted for prototype enrichment.
 - Brevo subscriptions and marketing automation.
 - Shared cross-domain consent.
 - Dashboard reporting integrations.
@@ -32,7 +32,11 @@ WildJobs helps conservation professionals discover trustworthy opportunities and
 - The first live source must use an approved API, feed or curated import process.
 - Preserve the source's canonical URL, attribution and material usage restrictions.
 - Expired or withdrawn vacancies must stop appearing in active search.
-- Never fabricate salary, closing date, location or employer information.
+- Never fabricate salary, closing date, location, working arrangement or employer claims.
+- A generated job or employer summary must be grounded in the source material, stored separately from official
+  copy and visibly labelled as an AI summary. It must never be presented as the employer’s mission statement.
+- Missing optional detail must not hide an otherwise trustworthy vacancy. Unknown closing dates use a visible
+  listing-age message and a 30-day fallback lifetime.
 
 ## Success criteria for the scaffold
 

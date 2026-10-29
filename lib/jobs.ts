@@ -31,11 +31,12 @@ export type Job = Readonly<{
   salary: string;
   salaryMinimum?: number;
   summary: string;
+  summarySource?: "ai" | "excerpt" | "source";
   description: readonly string[];
   responsibilities: readonly string[];
   requirements: readonly string[];
   postedAt: string;
-  closesAt: string;
+  closesAt?: string;
   sourceName: string;
   sourceUrl?: string;
   employerSlug?: string;
@@ -235,4 +236,12 @@ export function formatDate(value: string) {
   return new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "long", year: "numeric" }).format(
     new Date(`${value}T12:00:00Z`),
   );
+}
+
+export function listingAgeLabel(value: string, today = new Date()) {
+  const listed = new Date(`${value}T00:00:00Z`);
+  const current = new Date(today);
+  current.setUTCHours(0, 0, 0, 0);
+  const days = Math.max(0, Math.floor((current.valueOf() - listed.valueOf()) / 86_400_000));
+  return `Unknown · listing is ${days} ${days === 1 ? "day" : "days"} old`;
 }

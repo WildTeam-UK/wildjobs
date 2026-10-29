@@ -3,7 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { SaveJobControl } from "@/components/save-job-control";
 import { getCandidateSaveState } from "@/lib/candidate-saved-jobs";
-import { formatDate } from "@/lib/jobs";
+import { formatDate, listingAgeLabel } from "@/lib/jobs";
 import { getPublicJobBySlug } from "@/lib/public-jobs";
 
 type JobPageProps = {
@@ -52,7 +52,7 @@ export default async function JobPage({ params, searchParams }: JobPageProps) {
     description: [...job.description, ...job.responsibilities, ...job.requirements].join(" "),
     identifier: { "@type": "PropertyValue", name: "WildJobs", value: job.slug },
     datePosted: job.postedAt,
-    validThrough: `${job.closesAt}T23:59:59Z`,
+    validThrough: job.closesAt ? `${job.closesAt}T23:59:59Z` : undefined,
     employmentType: structuredEmploymentType(job),
     hiringOrganization: { "@type": "Organization", name: job.organisation },
     jobLocationType: job.locationType === "Remote" ? "TELECOMMUTE" : undefined,
@@ -107,6 +107,7 @@ export default async function JobPage({ params, searchParams }: JobPageProps) {
           )}
         </p>
         <h1>{job.title}</h1>
+        {job.summarySource === "ai" ? <p className="ai-summary-label">AI-generated summary</p> : null}
         <p className="job-detail-hero__summary">{job.summary}</p>
       </header>
 
@@ -182,7 +183,7 @@ export default async function JobPage({ params, searchParams }: JobPageProps) {
               </div>
               <div>
                 <dt>Closes</dt>
-                <dd>{formatDate(job.closesAt)}</dd>
+                <dd>{job.closesAt ? formatDate(job.closesAt) : listingAgeLabel(job.postedAt)}</dd>
               </div>
               <div>
                 <dt>Source</dt>

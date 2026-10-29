@@ -17,6 +17,7 @@ const record: PublicJobRecord = {
     website_url: "https://example.org",
   },
   experience_level: "developing",
+  expires_at: "2026-11-01",
   hours_type: "full_time",
   job_career_areas: [
     { career_areas: { slug: "fieldwork", title: "Fieldwork" }, is_primary: false },
@@ -38,6 +39,7 @@ const record: PublicJobRecord = {
   source_url: "https://example.org/jobs/wetland-researcher",
   status: "published",
   summary: "Support an ecological monitoring programme.",
+  summary_source: "source",
   title: "Wetland Researcher",
   withdrawn_at: null,
   workplace_type: "on_site",
@@ -90,11 +92,26 @@ describe("public job mapping", () => {
     expect(job.description).toEqual(["View the full vacancy details."]);
   });
 
+  it("preserves an AI summary label and an unknown closing date", () => {
+    const job = mapPublicJob({
+      ...record,
+      closes_at: null,
+      expires_at: "2026-11-27",
+      summary_source: "ai",
+    });
+
+    expect(job).toMatchObject({ closesAt: undefined, summarySource: "ai" });
+  });
+
   it("marks saved roles that are no longer available", () => {
     expect(
       mapPublicJob({ ...record, status: "withdrawn", withdrawn_at: "2026-10-29T09:00:00Z" }),
     ).toMatchObject({
       availability: "withdrawn",
+    });
+
+    expect(mapPublicJob({ ...record, closes_at: null, expires_at: "2026-10-28" })).toMatchObject({
+      availability: "expired",
     });
   });
 });

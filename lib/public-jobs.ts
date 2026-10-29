@@ -12,6 +12,7 @@ export const publicJobFields = `
   slug,
   title,
   summary,
+  summary_source,
   description,
   responsibilities,
   requirements,
@@ -19,6 +20,7 @@ export const publicJobFields = `
   country_code,
   region,
   experience_level,
+  expires_at,
   workplace_type,
   contract_type,
   hours_type,
@@ -56,7 +58,9 @@ export const getPublicJobs = cache(async (): Promise<readonly Job[]> => {
     .select(publicJobFields)
     .eq("status", "published")
     .lte("published_at", now.toISOString())
-    .gte("closes_at", now.toISOString().slice(0, 10))
+    .or(
+      `closes_at.gte.${now.toISOString().slice(0, 10)},and(closes_at.is.null,expires_at.gte.${now.toISOString().slice(0, 10)})`,
+    )
     .is("withdrawn_at", null)
     .order("published_at", { ascending: false });
 
@@ -75,7 +79,9 @@ export const getPublicJobBySlug = cache(async (slug: string): Promise<Job | unde
     .eq("slug", slug)
     .eq("status", "published")
     .lte("published_at", now.toISOString())
-    .gte("closes_at", now.toISOString().slice(0, 10))
+    .or(
+      `closes_at.gte.${now.toISOString().slice(0, 10)},and(closes_at.is.null,expires_at.gte.${now.toISOString().slice(0, 10)})`,
+    )
     .is("withdrawn_at", null)
     .maybeSingle();
 

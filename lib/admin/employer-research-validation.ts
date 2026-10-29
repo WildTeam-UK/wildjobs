@@ -63,6 +63,7 @@ export function evidenceAppearsInText(evidence: string, sourceText: string) {
 }
 
 export function isEmployerResearchPending(employer: {
+  ai_summary: string | null;
   mission: string | null;
   name: string;
   overview: string | null;
@@ -70,12 +71,8 @@ export function isEmployerResearchPending(employer: {
   status: string;
   website_url: string | null;
 }) {
-  if (
-    employer.name.trim().toLocaleLowerCase("en-GB") === "private employer" ||
-    employer.status === "published" ||
-    employer.reviewed_at
-  ) {
+  if (employer.name.trim().toLocaleLowerCase("en-GB") === "private employer" || employer.reviewed_at) {
     return false;
   }
-  return !employer.website_url?.trim() || !employer.mission?.trim() || !employer.overview?.trim();
+  return !employer.ai_summary?.trim() && !employer.mission?.trim() && !employer.overview?.trim();
 }

@@ -222,6 +222,19 @@ After a separately approved account-linking integration, a learner can choose to
 
 LearnWorlds currently documents API access to course, user and certification data and supports course-completion events through webhooks. Before implementation, confirm the WildTeam school plan, current API endpoints, stable course and user identifiers, webhook payloads, rate limits and disconnection behaviour.
 
+#### Future transparent job-match score — idea only
+
+A later candidate experience may show **How matched to this job are you? ?** before enough consented information
+exists, then calculate an explainable score when the person chooses to use relevant signals. Verified completed
+WildTeam courses should be the primary signal. A candidate could later opt in to adding profile or CV skills and,
+only with clear consent, relevant topic exploration such as articles read.
+
+This is not implemented. It requires shared identity, verified LearnWorlds linking, an approved event vocabulary,
+purpose-specific consent, retention and deletion rules, an opt-out and a plain-language explanation of every
+signal affecting the result. No score must mean “not enough information”, not a poor match. The score must support
+exploration rather than silently ranking candidates, making employment claims or disadvantaging people who have
+not supplied data or taken WildTeam training.
+
 ### For employers and submission
 
 The public employer area should explain:
@@ -347,6 +360,11 @@ The production record should distinguish:
 - Derived display values.
 
 Unknown information remains unknown. WildJobs must never invent salary, location, closing date, experience level or working arrangement to make a listing appear complete.
+
+Generated summaries are the limited exception for presentation, not facts: they must be grounded in available
+source material, stored with provenance and visibly identified as AI-generated. A generated employer overview is
+never described as the organisation’s official mission. If a closing date is unknown, show the listing age and
+remove it from active discovery after 30 days rather than inventing a date.
 
 ## Measurement checkpoints
 
