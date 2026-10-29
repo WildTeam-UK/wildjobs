@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 
 import { runSourceDiscovery, setSourceRecordStatus } from "@/app/admin/sources/actions";
 import { connectorActionLabel, getSourceConnector } from "@/lib/admin/source-connector";
-import { findDuplicateJob } from "@/lib/admin/duplicate-match";
+import { findDuplicateJob, findDuplicateSourceRecord } from "@/lib/admin/duplicate-match";
 import { requireStaff } from "@/lib/auth/staff";
 import { createClient } from "@/lib/supabase/server";
 
@@ -87,13 +87,13 @@ export default async function SourcePage({ params, searchParams }: SourcePagePro
   let recordsQuery = supabase
     .from("job_source_records")
     .select(
-      "id, external_id, canonical_url, mapping_status, job_id, first_seen_at, last_seen_at, source_title, employer_name, location_text, closes_at",
+      "id, source_id, external_id, canonical_url, mapping_status, job_id, first_seen_at, last_seen_at, source_title, employer_name, location_text, closes_at",
     )
     .eq("source_id", sourceId)
     .order("last_seen_at", { ascending: false });
   if (mappingStatus) recordsQuery = recordsQuery.eq("mapping_status", mappingStatus);
 
-  const [sourceResult, recordsResult, jobsResult] = await Promise.all([
+  const [sourceResult, recordsResult, jobsResult, otherSourceRecordsResult] = await Promise.all([
     supabase
       .from("job_sources")
       .select("id, name, source_type, authoritative_base_url, is_active")
@@ -103,7 +103,15 @@ export default async function SourcePage({ params, searchParams }: SourcePagePro
     supabase
       .from("jobs")
       .select("id, title, status, employers(name), job_source_records(canonical_url)")
-      .order("updated_at", { ascending: false }),
+      .order("updated_at", { ascending: false })
+      .limit(1_000),
+    supabase
+      .from("job_source_records")
+      .select("id, source_id, canonical_url, employer_name, source_title, job_sources(name)")
+      .neq("source_id", sourceId)
+      .is("job_id", null)
+      .in("mapping_status", ["unmapped", "possible_duplicate"])
+      .limit(1_000),
   ]);
   if (sourceResult.error || !sourceResult.data) notFound();
 
@@ -126,6 +134,14 @@ export default async function SourcePage({ params, searchParams }: SourcePagePro
     id: job.id,
     status: job.status,
     title: job.title,
+  }));
+  const crossFeedCandidates = (otherSourceRecordsResult.data ?? []).map((record) => ({
+    canonicalUrl: record.canonical_url,
+    employerName: record.employer_name,
+    id: record.id,
+    sourceId: record.source_id,
+    sourceName: record.job_sources.name,
+    sourceTitle: record.source_title,
   }));
 
   return (
@@ -185,6 +201,11 @@ export default async function SourcePage({ params, searchParams }: SourcePagePro
             draft.
           </p>
         ) : null}
+        {otherSourceRecordsResult.error ? (
+          <p className="staff-form-message staff-form-message--error" role="alert">
+            Cross-feed matching is temporarily unavailable. Review records carefully before creating a draft.
+          </p>
+        ) : null}
 
         <div className="staff-section__heading">
           <div>
@@ -240,6 +261,8 @@ export default async function SourcePage({ params, searchParams }: SourcePagePro
                 record.job_id === null &&
                 ["unmapped", "possible_duplicate"].includes(record.mapping_status);
               const duplicate = canReview ? findDuplicateJob(record, duplicateCandidates) : null;
+              const crossFeedDuplicate =
+                canReview && !duplicate ? findDuplicateSourceRecord(record, crossFeedCandidates) : null;
               return (
                 <article key={record.id}>
                   <div>
@@ -276,6 +299,31 @@ export default async function SourcePage({ params, searchParams }: SourcePagePro
                             record #{duplicate.job.id} ({jobStatusLabel(duplicate.job.status)})
                           </Link>
                           .
+                        </p>
+                      </aside>
+                    ) : null}
+                    {crossFeedDuplicate ? (
+                      <aside className="source-record-list__duplicate">
+                        <strong>Possible cross-feed match</strong>
+                        <p>
+                          {crossFeedDuplicate.reason === "same_address"
+                            ? "The authoritative vacancy address also appears in"
+                            : "The employer and role title also match a record from"}{" "}
+                          <Link
+                            href={{
+                              pathname: `/admin/sources/${crossFeedDuplicate.sourceRecord.sourceId}`,
+                              query: {
+                                q:
+                                  crossFeedDuplicate.sourceRecord.sourceTitle ??
+                                  crossFeedDuplicate.sourceRecord.employerName ??
+                                  "",
+                                status: "all",
+                              },
+                            }}
+                          >
+                            {crossFeedDuplicate.sourceRecord.sourceName}
+                          </Link>
+                          . Review both before choosing which record creates the WildJobs job.
                         </p>
                       </aside>
                     ) : null}
