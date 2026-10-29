@@ -4,11 +4,14 @@ import { notFound } from "next/navigation";
 
 import {
   linkSourceRecordToJob,
+  prepareSourceRecordDraft,
   runSourceDiscovery,
   setSourceRecordStatus,
 } from "@/app/admin/sources/actions";
+import { SubmitButton } from "@/components/submit-button";
 import { connectorActionLabel, getSourceConnector } from "@/lib/admin/source-connector";
 import { findDuplicateJob, findDuplicateSourceRecord } from "@/lib/admin/duplicate-match";
+import { buildSourceRecordDraftDefaults, prepareSourceRecordJobInput } from "@/lib/admin/source-record-draft";
 import { requireStaff } from "@/lib/auth/staff";
 import { createClient } from "@/lib/supabase/server";
 
@@ -91,7 +94,7 @@ export default async function SourcePage({ params, searchParams }: SourcePagePro
   let recordsQuery = supabase
     .from("job_source_records")
     .select(
-      "id, source_id, external_id, canonical_url, mapping_status, job_id, first_seen_at, last_seen_at, source_title, employer_name, location_text, closes_at",
+      "id, source_id, external_id, canonical_url, mapping_status, job_id, first_seen_at, last_seen_at, source_title, employer_name, location_text, closes_at, source_updated_at, summary",
     )
     .eq("source_id", sourceId)
     .order("last_seen_at", { ascending: false });
@@ -203,6 +206,18 @@ export default async function SourcePage({ params, searchParams }: SourcePagePro
             That source could not be linked. It may have changed since the duplicate warning was shown.
           </p>
         ) : null}
+        {firstQueryValue(query.error) === "duplicate-review" ? (
+          <p className="staff-form-message staff-form-message--error" role="alert">
+            Automatic preparation stopped because this vacancy may already exist. Review and link the matching
+            record instead.
+          </p>
+        ) : null}
+        {firstQueryValue(query.error) === "prepare-unavailable" ? (
+          <p className="staff-form-message staff-form-message--error" role="alert">
+            The private review draft could not be prepared. Nothing was published; try again or review the
+            source details manually.
+          </p>
+        ) : null}
         {firstQueryValue(query.run) && firstQueryValue(query.status) !== "checked" ? (
           <p className="staff-form-message" role="status">
             Showing the current records for import run {firstQueryValue(query.run)}. The run counts remain in
@@ -282,6 +297,19 @@ export default async function SourcePage({ params, searchParams }: SourcePagePro
               const duplicate = canReview ? findDuplicateJob(record, duplicateCandidates) : null;
               const crossFeedDuplicate =
                 canReview && !duplicate ? findDuplicateSourceRecord(record, crossFeedCandidates) : null;
+              const automaticDraft =
+                canReview &&
+                record.mapping_status === "unmapped" &&
+                record.canonical_url &&
+                !duplicate &&
+                !crossFeedDuplicate
+                  ? prepareSourceRecordJobInput(
+                      buildSourceRecordDraftDefaults({
+                        ...record,
+                        employer_name: record.employer_name ?? source.name,
+                      }),
+                    ).data
+                  : undefined;
               return (
                 <article key={record.id}>
                   <div>
@@ -362,9 +390,18 @@ export default async function SourcePage({ params, searchParams }: SourcePagePro
                         Open original vacancy <span aria-hidden="true">↗</span>
                       </a>
                     ) : null}
-                    {canReview ? (
+                    {automaticDraft ? (
+                      <form action={prepareSourceRecordDraft}>
+                        <input name="recordId" type="hidden" value={record.id} />
+                        <SubmitButton
+                          className="staff-source-toggle"
+                          idleLabel="Prepare private draft"
+                          pendingLabel="Preparing private draft…"
+                        />
+                      </form>
+                    ) : canReview ? (
                       <Link className="staff-source-toggle" href={`/admin/jobs/new?recordId=${record.id}`}>
-                        Create review draft
+                        Review missing details
                       </Link>
                     ) : record.job_id ? (
                       <Link href={`/admin/jobs/${record.job_id}`}>Open WildJobs record</Link>

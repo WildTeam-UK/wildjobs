@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 
-import { buildSourceRecordDraftDefaults } from "../lib/admin/source-record-draft";
+import {
+  buildSourceRecordDraftDefaults,
+  prepareSourceRecordJobInput,
+} from "../lib/admin/source-record-draft";
 
 const sourceRecord = {
   canonical_url: "https://example.org/jobs/ecologist",
@@ -57,5 +60,26 @@ describe("source record draft defaults", () => {
     const defaults = buildSourceRecordDraftDefaults({ ...sourceRecord, summary: "a".repeat(600) });
 
     expect(defaults.summary).toHaveLength(500);
+  });
+
+  it("prepares a private draft when the feed contains every core fact", () => {
+    const result = prepareSourceRecordJobInput(buildSourceRecordDraftDefaults(sourceRecord), "2026-10-29");
+
+    expect(result.data).toMatchObject({
+      contractType: null,
+      employerName: "Elan Valley Trust",
+      salaryText: null,
+      sourceId: 9,
+      workplaceType: null,
+    });
+  });
+
+  it("routes incomplete records to manual review instead of inventing a location", () => {
+    const result = prepareSourceRecordJobInput(
+      buildSourceRecordDraftDefaults({ ...sourceRecord, location_text: null }),
+      "2026-10-29",
+    );
+
+    expect(result).toEqual({ error: "Enter the location shown by the employer." });
   });
 });

@@ -1,3 +1,4 @@
+import { validateJobIntake } from "./job-intake-validation";
 import { extractVacancyDetails, extractVacancyFieldEvidence } from "./vacancy-detail-extraction";
 
 type SourceRecordDraftInput = {
@@ -41,4 +42,37 @@ export function buildSourceRecordDraftDefaults(record: SourceRecordDraftInput) {
     title: record.source_title?.slice(0, 180) || undefined,
     ...extractedDetails,
   };
+}
+
+export function prepareSourceRecordJobInput(
+  defaults: ReturnType<typeof buildSourceRecordDraftDefaults>,
+  today = new Date().toISOString().slice(0, 10),
+) {
+  const formData = new FormData();
+  const values = {
+    applicationUrl: defaults.applicationUrl ?? "",
+    canonicalUrl: defaults.canonicalUrl ?? "",
+    closesAt: defaults.closesAt ?? "",
+    contractType: defaults.contractType ?? "not_specified",
+    countryCode: defaults.countryCode,
+    description: defaults.description ?? "",
+    employerName: defaults.employerName ?? "",
+    employerWebsiteUrl: "",
+    experienceLevel: defaults.experienceLevel ?? "not_specified",
+    hoursType: defaults.hoursType ?? "not_specified",
+    locationText: defaults.locationText ?? "",
+    postedAt: defaults.postedAt ?? "",
+    requirements: "",
+    responsibilities: "",
+    salaryText: defaults.salaryText ?? "",
+    sourceId: String(defaults.sourceId),
+    summary: defaults.summary ?? "",
+    title: defaults.title ?? "",
+    workplaceType: defaults.workplaceType ?? "not_specified",
+  };
+
+  for (const [key, value] of Object.entries(values)) formData.set(key, value);
+  if (!defaults.salaryText) formData.set("salaryNotStated", "on");
+
+  return validateJobIntake(formData, today);
 }

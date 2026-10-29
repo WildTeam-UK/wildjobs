@@ -9,7 +9,7 @@ export const contractTypes = [
 export const hoursTypes = ["full_time", "part_time", "flexible"] as const;
 export const experienceLevels = ["entry", "developing", "experienced", "leadership", "open"] as const;
 
-type JobIntakeInput = {
+export type JobIntakeInput = {
   applicationUrl: string;
   canonicalUrl: string;
   closesAt: string;

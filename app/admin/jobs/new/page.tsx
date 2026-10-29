@@ -9,13 +9,14 @@ import { createClient } from "@/lib/supabase/server";
 export const metadata: Metadata = { title: "Add vacancy" };
 
 type NewAdminJobPageProps = {
-  searchParams: Promise<{ recordId?: string }>;
+  searchParams: Promise<{ auto?: string; recordId?: string }>;
 };
 
 export default async function NewAdminJobPage({ searchParams }: NewAdminJobPageProps) {
   await requireAdministrator();
   const supabase = await createClient();
-  const recordId = Number((await searchParams).recordId);
+  const query = await searchParams;
+  const recordId = Number(query.recordId);
   const [sourcesResult, recordResult] = await Promise.all([
     supabase.from("job_sources").select("id, name").eq("is_active", true).order("name"),
     Number.isSafeInteger(recordId) && recordId > 0
@@ -65,6 +66,12 @@ export default async function NewAdminJobPage({ searchParams }: NewAdminJobPageP
       </header>
 
       <section className="staff-section shell">
+        {query.auto === "needs-review" && defaults ? (
+          <p className="staff-form-message" role="status">
+            The feed is missing a core fact needed to prepare this draft automatically. Check the original
+            vacancy and complete the remaining details below; no assumptions have been added.
+          </p>
+        ) : null}
         {error || recordResult.error ? (
           <p className="staff-form-message staff-form-message--error" role="alert">
             The approved source details could not be loaded. Please return to the queue and try again.

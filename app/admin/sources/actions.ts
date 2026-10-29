@@ -3,8 +3,11 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
+import { createJobDraft } from "@/lib/admin/create-job-draft";
+import { findDuplicateJob, findDuplicateSourceRecord } from "@/lib/admin/duplicate-match";
 import { importApprovedSource } from "@/lib/admin/source-import";
 import { getSourceConnector } from "@/lib/admin/source-connector";
+import { buildSourceRecordDraftDefaults, prepareSourceRecordJobInput } from "@/lib/admin/source-record-draft";
 import {
   validateSource,
   validateSourceRecordLink,
@@ -17,6 +20,11 @@ import { createClient } from "@/lib/supabase/server";
 function readSourceId(formData: FormData) {
   const sourceId = Number(formData.get("sourceId"));
   return Number.isSafeInteger(sourceId) && sourceId > 0 ? sourceId : null;
+}
+
+function readRecordId(formData: FormData) {
+  const recordId = Number(formData.get("recordId"));
+  return Number.isSafeInteger(recordId) && recordId > 0 ? recordId : null;
 }
 
 export async function addSource(formData: FormData) {
@@ -125,6 +133,99 @@ export async function linkSourceRecordToJob(formData: FormData) {
   revalidatePath(`/admin/jobs/${jobId}`);
   revalidatePath(`/admin/sources/${record.source_id}`);
   redirect(`/admin/sources/${record.source_id}?status=linked&record=${record.id}`);
+}
+
+export async function prepareSourceRecordDraft(formData: FormData) {
+  await requireAdministrator();
+  const recordId = readRecordId(formData);
+  if (!recordId) redirect("/admin/sources?error=invalid-record");
+
+  const supabase = await createClient();
+  const { data: record, error: recordError } = await supabase
+    .from("job_source_records")
+    .select(
+      "id, source_id, canonical_url, mapping_status, job_id, source_title, employer_name, location_text, closes_at, source_updated_at, summary, job_sources(name, is_active)",
+    )
+    .eq("id", recordId)
+    .maybeSingle();
+
+  if (
+    recordError ||
+    !record ||
+    !record.canonical_url ||
+    record.job_id !== null ||
+    !record.job_sources?.is_active ||
+    !["unmapped", "possible_duplicate"].includes(record.mapping_status)
+  ) {
+    redirect("/admin/sources?error=invalid-record");
+  }
+  if (record.mapping_status === "possible_duplicate") {
+    redirect(`/admin/sources/${record.source_id}?error=duplicate-review&record=${record.id}`);
+  }
+
+  const [jobsResult, otherRecordsResult] = await Promise.all([
+    supabase
+      .from("jobs")
+      .select("id, title, status, employers(name), job_source_records(canonical_url)")
+      .order("updated_at", { ascending: false })
+      .limit(1_000),
+    supabase
+      .from("job_source_records")
+      .select("id, source_id, canonical_url, employer_name, source_title, job_sources(name)")
+      .neq("source_id", record.source_id)
+      .is("job_id", null)
+      .in("mapping_status", ["unmapped", "possible_duplicate"])
+      .limit(1_000),
+  ]);
+  if (jobsResult.error || otherRecordsResult.error) {
+    redirect(`/admin/sources/${record.source_id}?error=prepare-unavailable&record=${record.id}`);
+  }
+
+  const duplicateJob = findDuplicateJob(
+    record,
+    (jobsResult.data ?? []).map((job) => ({
+      canonicalUrls: job.job_source_records.flatMap((sourceRecord) =>
+        sourceRecord.canonical_url ? [sourceRecord.canonical_url] : [],
+      ),
+      employerName: job.employers.name,
+      id: job.id,
+      status: job.status,
+      title: job.title,
+    })),
+  );
+  const duplicateSource = findDuplicateSourceRecord(
+    record,
+    (otherRecordsResult.data ?? []).map((sourceRecord) => ({
+      canonicalUrl: sourceRecord.canonical_url,
+      employerName: sourceRecord.employer_name,
+      id: sourceRecord.id,
+      sourceId: sourceRecord.source_id,
+      sourceName: sourceRecord.job_sources.name,
+      sourceTitle: sourceRecord.source_title,
+    })),
+  );
+  if (duplicateJob || duplicateSource) {
+    redirect(`/admin/sources/${record.source_id}?error=duplicate-review&record=${record.id}`);
+  }
+
+  const defaults = buildSourceRecordDraftDefaults({
+    ...record,
+    employer_name: record.employer_name ?? record.job_sources.name,
+  });
+  const result = prepareSourceRecordJobInput(defaults);
+  if (!result.data) {
+    redirect(`/admin/jobs/new?recordId=${record.id}&auto=needs-review`);
+  }
+
+  const { data: jobId, error } = await createJobDraft(supabase, result.data);
+  if (error || !jobId) {
+    redirect(`/admin/sources/${record.source_id}?error=prepare-unavailable&record=${record.id}`);
+  }
+
+  revalidatePath("/admin");
+  revalidatePath("/admin/jobs");
+  revalidatePath(`/admin/sources/${record.source_id}`);
+  redirect(`/admin/jobs/${jobId}?status=created`);
 }
 
 export async function runSourceDiscovery(formData: FormData) {
