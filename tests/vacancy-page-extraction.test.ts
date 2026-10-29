@@ -74,7 +74,10 @@ describe("vacancy page extraction", () => {
       "https://nature.example.org/about",
     );
 
-    expect(result.logoUrl).toBe("https://nature.example.org/assets/brand.svg");
+    expect(result).toMatchObject({
+      logoSourceUrl: "https://nature.example.org/about",
+      logoUrl: "https://nature.example.org/assets/brand.svg",
+    });
     expect(result.text).toContain("We restore habitats with communities.");
   });
 
@@ -99,7 +102,10 @@ describe("vacancy page extraction", () => {
       "https://nature.example.org/",
     );
 
-    expect(result.logoUrl).toBe("https://nature.example.org/assets/full-logo.svg");
+    expect(result).toMatchObject({
+      logoSourceUrl: "https://nature.example.org/",
+      logoUrl: "https://nature.example.org/assets/full-logo.svg",
+    });
   });
 
   it("ranks one same-site employer research page without following unrelated links", () => {

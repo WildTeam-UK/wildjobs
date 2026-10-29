@@ -4,7 +4,7 @@ import { extractVacancyFieldEvidence, type VacancyFieldEvidence } from "./vacanc
 
 type JsonRecord = Record<string, unknown>;
 
-export const SOURCE_PAGE_EXTRACTOR_VERSION = "source-page-rules-v5";
+export const SOURCE_PAGE_EXTRACTOR_VERSION = "source-page-rules-v6";
 
 export type VacancyPageExtraction = {
   applicationUrl: string | null;
@@ -21,6 +21,7 @@ export type VacancyPageExtraction = {
 };
 
 export type EmployerPageExtraction = {
+  logoSourceUrl: string | null;
   logoUrl: string | null;
   researchUrls: string[];
   text: string;
@@ -257,7 +258,9 @@ export function parseEmployerPage(html: string, pageUrl: string): EmployerPageEx
   const jsonLd = readJsonLd(html);
   const organisation = jsonLd.map((value) => findTypedObject(value, "Organization")).find(Boolean) ?? null;
   let visibleLogoUrl: string | null = null;
-  $("img[src], img[data-src]").each((_index, element) => {
+  $(
+    "header img[src], header img[data-src], [role='banner'] img[src], [role='banner'] img[data-src], img.site-logo[src], img.custom-logo[src], img.brand-logo[src]",
+  ).each((_index, element) => {
     if (visibleLogoUrl) return;
     const identity = [$(element).attr("alt"), $(element).attr("class"), $(element).attr("id")]
       .filter(Boolean)
@@ -305,5 +308,5 @@ export function parseEmployerPage(html: string, pageUrl: string): EmployerPageEx
   const text = clean($("main").first().text() || $("body").text(), 30_000);
   const title = clean(organisation?.name, 200) || clean($("title").text(), 200) || null;
 
-  return { logoUrl, researchUrls, text, title };
+  return { logoSourceUrl: logoUrl ? pageUrl : null, logoUrl, researchUrls, text, title };
 }

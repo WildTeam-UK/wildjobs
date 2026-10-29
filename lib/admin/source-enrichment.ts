@@ -339,6 +339,7 @@ async function persistEmployerEnrichment(
   supabase: SupabaseClient<Database>,
   employer: Employer,
   input: {
+    logoSourceUrl: string | null;
     logoUrl: string | null;
     sourceUrl: string | null;
     suggestions: readonly AiEmployerSuggestion[];
@@ -366,7 +367,7 @@ async function persistEmployerEnrichment(
     logo_source_url:
       input.logoUrl &&
       (!employer.logo_url || (looksLikeFavicon(employer.logo_url) && !looksLikeFavicon(input.logoUrl)))
-        ? input.sourceUrl
+        ? input.logoSourceUrl
         : employer.logo_source_url,
     logo_url:
       input.logoUrl &&
@@ -400,7 +401,7 @@ async function persistEmployerEnrichment(
       value: input.websiteUrl,
     });
   }
-  if (input.logoUrl && input.sourceUrl) {
+  if (input.logoUrl && input.logoSourceUrl) {
     evidenceRows.push({
       confidence: 90,
       employer_id: employer.id,
@@ -408,7 +409,7 @@ async function persistEmployerEnrichment(
       extraction_method: "deterministic",
       extractor_version: "official-site-v1",
       field_name: "logo_url",
-      source_url: input.sourceUrl,
+      source_url: input.logoSourceUrl,
       value: input.logoUrl,
     });
   }
@@ -446,10 +447,15 @@ async function persistEmployerEnrichment(
   return data;
 }
 
-async function fetchEmployerContext(websiteUrl: string, fallbackLogoUrl: string | null) {
+async function fetchEmployerContext(
+  websiteUrl: string,
+  fallbackLogoUrl: string | null,
+  fallbackLogoSourceUrl: string | null,
+) {
   const homepage = await fetchEmployerPage(websiteUrl);
   const parsedHomepage = parseEmployerPage(homepage.html, homepage.url);
   const fallback = {
+    logoSourceUrl: parsedHomepage.logoSourceUrl ?? fallbackLogoSourceUrl,
     logoUrl: parsedHomepage.logoUrl ?? fallbackLogoUrl,
     sourceUrl: homepage.url,
     text: parsedHomepage.text,
@@ -462,6 +468,8 @@ async function fetchEmployerContext(websiteUrl: string, fallbackLogoUrl: string 
     const parsedResearchPage = parseEmployerPage(researchPage.html, researchPage.url);
     if (parsedResearchPage.text.length < 80) return fallback;
     return {
+      logoSourceUrl:
+        parsedHomepage.logoSourceUrl ?? parsedResearchPage.logoSourceUrl ?? fallbackLogoSourceUrl,
       logoUrl: parsedHomepage.logoUrl ?? parsedResearchPage.logoUrl ?? fallbackLogoUrl,
       sourceUrl: researchPage.url,
       text: parsedResearchPage.text,
@@ -569,7 +577,13 @@ export async function enrichNextPendingSourceRecord(
 
     let employer = await resolveEmployer(supabase, record, page);
     let employerWebsiteUrl = page.employerWebsiteUrl ?? employer?.website_url ?? null;
-    let employerPage: { logoUrl: string | null; sourceUrl: string | null; text: string } = {
+    let employerPage: {
+      logoSourceUrl: string | null;
+      logoUrl: string | null;
+      sourceUrl: string | null;
+      text: string;
+    } = {
+      logoSourceUrl: page.employerLogoUrl ? detail.url : null,
       logoUrl: page.employerLogoUrl,
       sourceUrl: page.employerLogoUrl ? detail.url : null,
       text: "",
@@ -586,7 +600,11 @@ export async function enrichNextPendingSourceRecord(
       !employer?.reviewed_at
     ) {
       try {
-        employerPage = await fetchEmployerContext(employerWebsiteUrl, page.employerLogoUrl);
+        employerPage = await fetchEmployerContext(
+          employerWebsiteUrl,
+          page.employerLogoUrl,
+          page.employerLogoUrl ? detail.url : null,
+        );
       } catch {
         // Employer research is optional. The vacancy can still be enriched and reviewed.
       }
@@ -659,18 +677,31 @@ export async function enrichNextPendingSourceRecord(
         .filter((value, index, values) => values.indexOf(value) === index)
         .filter((value) => sameWebsiteHost(value, employerWebsiteUrl))
         .slice(0, 2);
-      const researchedPages: { logoUrl: string | null; text: string; url: string }[] = [];
+      const researchedPages: {
+        logoSourceUrl: string | null;
+        logoUrl: string | null;
+        text: string;
+        url: string;
+      }[] = [];
       for (const researchUrl of researchUrls) {
         try {
           const fetched = await fetchEmployerPage(researchUrl);
           const parsed = parseEmployerPage(fetched.html, fetched.url);
-          researchedPages.push({ logoUrl: parsed.logoUrl, text: parsed.text, url: fetched.url });
+          researchedPages.push({
+            logoSourceUrl: parsed.logoSourceUrl,
+            logoUrl: parsed.logoUrl,
+            text: parsed.text,
+            url: fetched.url,
+          });
         } catch {
           // Web research remains optional and fails closed when an official page cannot be verified safely.
         }
       }
       if (researchedPages.length) {
         employerPage = {
+          logoSourceUrl:
+            researchedPages.find((item) => item.logoUrl)?.logoSourceUrl ??
+            (page.employerLogoUrl ? detail.url : null),
           logoUrl: researchedPages.find((item) => item.logoUrl)?.logoUrl ?? page.employerLogoUrl,
           sourceUrl: researchedPages[0].url,
           text: researchedPages.map((item) => item.text).join("\n\n"),
@@ -728,6 +759,7 @@ export async function enrichNextPendingSourceRecord(
 
     if (employer) {
       employer = await persistEmployerEnrichment(supabase, employer, {
+        logoSourceUrl: employerPage.logoSourceUrl,
         logoUrl: employerPage.logoUrl,
         sourceUrl: employerPage.sourceUrl,
         suggestions: aiResult.status === "completed" ? aiResult.employerSuggestions : [],
