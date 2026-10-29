@@ -111,4 +111,34 @@ describe("vacancy page extraction", () => {
       value: null,
     });
   });
+
+  it("drops an implausible hourly period without guessing an annual one", () => {
+    const result = parseVacancyPage(
+      `
+        <html>
+          <head>
+            <script type="application/ld+json">
+              {
+                "@type": "JobPosting",
+                "title": "Wildlife Education Warden",
+                "description": "Connect people with nature on protected heathlands.",
+                "baseSalary": {
+                  "@type": "MonetaryAmount",
+                  "currency": "GBP",
+                  "value": {"@type": "QuantitativeValue", "value": 28910, "unitText": "HOUR"}
+                }
+              }
+            </script>
+          </head>
+          <body><main><h1>Wildlife Education Warden</h1></main></body>
+        </html>
+      `,
+      pageUrl,
+    );
+
+    expect(result.salaryText).toBe("£28,910");
+    expect(result.evidence.find((item) => item.fieldName === "salary_text")).toMatchObject({
+      value: "£28,910",
+    });
+  });
 });

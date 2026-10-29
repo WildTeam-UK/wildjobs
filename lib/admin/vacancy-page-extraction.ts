@@ -4,7 +4,7 @@ import { extractVacancyFieldEvidence, type VacancyFieldEvidence } from "./vacanc
 
 type JsonRecord = Record<string, unknown>;
 
-export const SOURCE_PAGE_EXTRACTOR_VERSION = "source-page-rules-v3";
+export const SOURCE_PAGE_EXTRACTOR_VERSION = "source-page-rules-v4";
 
 export type VacancyPageExtraction = {
   applicationUrl: string | null;
@@ -102,10 +102,12 @@ function structuredSalary(jobPosting: JsonRecord | null) {
   if (!salary) return null;
   const value = asRecord(salary.value);
   const currency = clean(salary.currency, 8);
-  const unit = clean(value?.unitText, 40).toLocaleLowerCase("en-GB");
+  const advertisedUnit = clean(value?.unitText, 40).toLocaleLowerCase("en-GB");
   const minimum = typeof value?.minValue === "number" ? value.minValue : null;
   const maximum = typeof value?.maxValue === "number" ? value.maxValue : null;
   const single = typeof value?.value === "number" ? value.value : null;
+  const amounts = [minimum, maximum, single].filter((amount): amount is number => amount !== null);
+  const unit = advertisedUnit === "hour" && amounts.some((amount) => amount >= 1_000) ? "" : advertisedUnit;
   const formatter = new Intl.NumberFormat("en-GB", { maximumFractionDigits: 2 });
   const symbol = currency === "GBP" ? "£" : currency ? `${currency} ` : "";
 
