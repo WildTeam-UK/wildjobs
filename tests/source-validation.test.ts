@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 
-import { validateSource, validateSourceStatus } from "../lib/admin/source-validation";
+import {
+  validateSource,
+  validateSourceRecordStatus,
+  validateSourceStatus,
+} from "../lib/admin/source-validation";
 
 function sourceForm(values: Record<string, string>) {
   const formData = new FormData();
@@ -69,6 +73,23 @@ describe("source status validation", () => {
 
   it("rejects implicit or unknown statuses", () => {
     expect(validateSourceStatus(sourceForm({ sourceId: "7", status: "deleted" }))).toEqual({
+      error: "invalid-status",
+    });
+  });
+});
+
+describe("source record status validation", () => {
+  it("accepts an explicit triage status", () => {
+    expect(validateSourceRecordStatus(sourceForm({ recordId: "42", status: "possible_duplicate" }))).toEqual({
+      data: { recordId: 42, status: "possible_duplicate" },
+    });
+  });
+
+  it("rejects invalid records and mapped status changes", () => {
+    expect(validateSourceRecordStatus(sourceForm({ recordId: "nope", status: "ignored" }))).toEqual({
+      error: "invalid-record",
+    });
+    expect(validateSourceRecordStatus(sourceForm({ recordId: "42", status: "mapped" }))).toEqual({
       error: "invalid-status",
     });
   });

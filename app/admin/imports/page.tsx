@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 
 import { requireStaff } from "@/lib/auth/staff";
 import { createClient } from "@/lib/supabase/server";
@@ -26,7 +27,7 @@ export default async function ImportRunsPage() {
   const { data: runs, error } = await supabase
     .from("import_runs")
     .select(
-      "id, status, started_at, finished_at, records_seen, records_created, records_updated, records_flagged, error_summary, job_sources(name, source_type)",
+      "id, source_id, status, started_at, finished_at, records_seen, records_created, records_updated, records_flagged, error_summary, job_sources(name, source_type)",
     )
     .order("started_at", { ascending: false })
     .limit(50);
@@ -63,8 +64,18 @@ export default async function ImportRunsPage() {
                   <p className="eyebrow">
                     RUN-{run.id} · {formatTimestamp(run.started_at)}
                   </p>
-                  <h2>{run.job_sources?.name ?? "Unknown source"}</h2>
+                  <h2>
+                    <Link href={`/admin/sources/${run.source_id}?run=${run.id}`}>
+                      {run.job_sources?.name ?? "Unknown source"}
+                    </Link>
+                  </h2>
                   {run.error_summary ? <p className="import-list__error">{run.error_summary}</p> : null}
+                  <Link
+                    className="import-list__records"
+                    href={`/admin/sources/${run.source_id}?run=${run.id}`}
+                  >
+                    View current source records <span aria-hidden="true">→</span>
+                  </Link>
                 </div>
                 <span className={`status-badge status-badge--${run.status}`}>
                   {statusLabels[run.status] ?? run.status}

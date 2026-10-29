@@ -7,7 +7,11 @@ import { redirect } from "next/navigation";
 
 import { parseCjsVacancyFeed } from "@/lib/admin/feed-source";
 import { getSourceConnector, type SourceConnector } from "@/lib/admin/source-connector";
-import { validateSource, validateSourceStatus } from "@/lib/admin/source-validation";
+import {
+  validateSource,
+  validateSourceRecordStatus,
+  validateSourceStatus,
+} from "@/lib/admin/source-validation";
 import { parseWwtVacancies } from "@/lib/admin/wwt-source";
 import { requireAdministrator } from "@/lib/auth/staff";
 import { createClient } from "@/lib/supabase/server";
@@ -100,6 +104,41 @@ export async function setSourceStatus(formData: FormData) {
   revalidatePath("/admin");
   revalidatePath("/admin/sources");
   redirect(`/admin/sources?status=${result.data.isActive ? "activated" : "paused"}`);
+}
+
+export async function setSourceRecordStatus(formData: FormData) {
+  await requireAdministrator();
+  const result = validateSourceRecordStatus(formData);
+  if (result.error) redirect("/admin/sources?error=invalid-record");
+
+  const supabase = await createClient();
+  const { data: record, error: recordError } = await supabase
+    .from("job_source_records")
+    .select("id, source_id, job_id, mapping_status")
+    .eq("id", result.data.recordId)
+    .maybeSingle();
+
+  if (recordError || !record || record.job_id !== null || record.mapping_status === "mapped") {
+    redirect("/admin/sources?error=invalid-record");
+  }
+
+  const { data: updatedRecord, error: updateError } = await supabase
+    .from("job_source_records")
+    .update({ mapping_status: result.data.status })
+    .eq("id", record.id)
+    .eq("source_id", record.source_id)
+    .is("job_id", null)
+    .neq("mapping_status", "mapped")
+    .select("id")
+    .maybeSingle();
+
+  if (updateError || !updatedRecord) {
+    redirect(`/admin/sources/${record.source_id}?error=triage-unavailable`);
+  }
+
+  revalidatePath("/admin");
+  revalidatePath(`/admin/sources/${record.source_id}`);
+  redirect(`/admin/sources/${record.source_id}?status=triaged&record=${record.id}`);
 }
 
 export async function runSourceDiscovery(formData: FormData) {

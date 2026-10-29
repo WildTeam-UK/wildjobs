@@ -17,6 +17,14 @@ export type SourceStatusValidation =
   | { data: { isActive: boolean; sourceId: number }; error?: never }
   | { data?: never; error: "invalid-source" | "invalid-status" };
 
+const sourceRecordStatuses = ["ignored", "possible_duplicate", "unmapped"] as const;
+
+export type SourceRecordStatus = (typeof sourceRecordStatuses)[number];
+
+export type SourceRecordStatusValidation =
+  | { data: { recordId: number; status: SourceRecordStatus }; error?: never }
+  | { data?: never; error: "invalid-record" | "invalid-status" };
+
 export function validateSource(formData: FormData): SourceValidation {
   const nameValue = formData.get("name");
   const sourceTypeValue = formData.get("sourceType");
@@ -55,4 +63,17 @@ export function validateSourceStatus(formData: FormData): SourceStatusValidation
   if (statusValue !== "active" && statusValue !== "paused") return { error: "invalid-status" };
 
   return { data: { isActive: statusValue === "active", sourceId } };
+}
+
+export function validateSourceRecordStatus(formData: FormData): SourceRecordStatusValidation {
+  const recordIdValue = formData.get("recordId");
+  const statusValue = formData.get("status");
+  const recordId = typeof recordIdValue === "string" ? Number(recordIdValue) : Number.NaN;
+
+  if (!Number.isSafeInteger(recordId) || recordId <= 0) return { error: "invalid-record" };
+  if (typeof statusValue !== "string" || !sourceRecordStatuses.includes(statusValue as SourceRecordStatus)) {
+    return { error: "invalid-status" };
+  }
+
+  return { data: { recordId, status: statusValue as SourceRecordStatus } };
 }

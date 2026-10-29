@@ -1896,6 +1896,43 @@ select {
   display: grid;
   gap: 12px;
 }
+.source-record-filters {
+  display: grid;
+  grid-template-columns: minmax(220px, 1fr) minmax(190px, 0.42fr) auto auto;
+  align-items: end;
+  gap: 14px;
+  margin: -6px 0 28px;
+  padding: 18px;
+  border: 1px solid var(--wt-color-rule);
+  border-radius: var(--wt-radius-panel);
+  background: var(--wt-color-paper);
+}
+.source-record-filters > div {
+  display: grid;
+  gap: 6px;
+}
+.source-record-filters label {
+  font-size: 0.7rem;
+  font-weight: var(--wt-font-weight-bold);
+}
+.source-record-filters input,
+.source-record-filters select {
+  width: 100%;
+  min-height: 42px;
+  padding: 8px 10px;
+  border: 1px solid #6f6871;
+  border-radius: var(--wt-radius-control);
+  background: var(--wt-color-paper);
+  color: var(--wt-color-ink);
+  font: inherit;
+}
+.source-record-filters > a {
+  min-height: 42px;
+  padding: 10px 4px;
+  color: var(--wt-color-brand-purple);
+  font-size: 0.75rem;
+  font-weight: var(--wt-font-weight-bold);
+}
 .source-record-list article {
   display: flex;
   align-items: center;
@@ -1951,6 +1988,12 @@ select {
   justify-items: end;
   gap: 12px;
   text-align: right;
+}
+.source-record-list__triage {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
 }
 .source-record-list__actions a:not(.staff-source-toggle) {
   color: var(--wt-color-brand-purple);
@@ -2392,6 +2435,19 @@ select {
 .import-list h2 {
   margin: 0;
   font-size: 1.35rem;
+}
+.import-list h2 a {
+  color: inherit;
+}
+.import-list h2 a:hover {
+  color: var(--wt-color-brand-pink);
+}
+.import-list__records {
+  display: inline-block;
+  margin-top: 8px;
+  color: var(--wt-color-brand-purple);
+  font-size: 0.75rem;
+  font-weight: var(--wt-font-weight-bold);
 }
 .import-list dl {
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -2961,6 +3017,12 @@ select {
   .source-record-list__actions {
     justify-items: start;
     text-align: left;
+  }
+  .source-record-list__triage {
+    justify-content: flex-start;
+  }
+  .source-record-filters {
+    grid-template-columns: 1fr;
   }
   .import-list article {
     grid-template-columns: 1fr auto;
