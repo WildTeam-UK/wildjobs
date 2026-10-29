@@ -15,7 +15,9 @@ type ManualJobDefaults = {
   contractType?: string;
   countryCode?: string;
   description?: string;
+  engagementType?: string;
   employerName?: string;
+  employerWebsiteUrl?: string;
   experienceLevel?: string;
   fieldEvidence?: VacancyFieldEvidence[];
   hoursType?: string;
@@ -31,8 +33,14 @@ type ManualJobDefaults = {
 const initialState: JobIntakeActionState = { error: null };
 const evidenceLabels: Record<VacancyFieldEvidence["fieldName"], string> = {
   contract_type: "Contract",
+  application_url: "Application address",
+  closes_at: "Closing date",
+  employer_name: "Employer",
+  employer_website_url: "Employer website",
+  engagement_type: "Paid or volunteer",
   experience_level: "Experience",
   hours_type: "Hours",
+  location_text: "Location",
   salary_text: "Salary",
   workplace_type: "Workplace",
 };
@@ -128,7 +136,13 @@ export function ManualJobForm({
             <label htmlFor="employer-website-url">
               Employer website <span>(optional)</span>
             </label>
-            <input id="employer-website-url" name="employerWebsiteUrl" placeholder="https://…" type="url" />
+            <input
+              defaultValue={defaults?.employerWebsiteUrl}
+              id="employer-website-url"
+              name="employerWebsiteUrl"
+              placeholder="https://…"
+              type="url"
+            />
           </div>
         </div>
       </fieldset>
@@ -215,6 +229,20 @@ export function ManualJobForm({
               <option value="remote">Remote</option>
               <option value="hybrid">Hybrid</option>
               <option value="on_site">On-site</option>
+              <option value="not_specified">Not specified</option>
+            </select>
+          </div>
+          <div>
+            <label htmlFor="engagement-type">Opportunity</label>
+            <select
+              defaultValue={defaults ? (defaults.engagementType ?? "not_specified") : ""}
+              id="engagement-type"
+              name="engagementType"
+              required
+            >
+              <option value="">Choose one</option>
+              <option value="paid">Paid</option>
+              <option value="volunteer">Volunteer</option>
               <option value="not_specified">Not specified</option>
             </select>
           </div>

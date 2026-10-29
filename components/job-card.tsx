@@ -21,6 +21,7 @@ export function JobCard({
     <article className="job-card">
       <div className="job-card__topline">
         <span>{job.category}</span>
+        {job.engagementType ? <span>{job.engagementType}</span> : null}
         <span>{job.locationType}</span>
       </div>
       <div className="job-card__body">

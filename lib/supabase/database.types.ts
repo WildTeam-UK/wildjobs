@@ -416,18 +416,69 @@ export type Database = {
           },
         ];
       };
+      employer_field_evidence: {
+        Row: {
+          confidence: number;
+          created_at: string;
+          employer_id: number;
+          evidence_text: string | null;
+          extraction_method: string;
+          extractor_version: string;
+          field_name: string;
+          source_url: string;
+          updated_at: string;
+          value: string;
+        };
+        Insert: {
+          confidence: number;
+          created_at?: string;
+          employer_id: number;
+          evidence_text?: string | null;
+          extraction_method: string;
+          extractor_version: string;
+          field_name: string;
+          source_url: string;
+          updated_at?: string;
+          value: string;
+        };
+        Update: {
+          confidence?: number;
+          created_at?: string;
+          employer_id?: number;
+          evidence_text?: string | null;
+          extraction_method?: string;
+          extractor_version?: string;
+          field_name?: string;
+          source_url?: string;
+          updated_at?: string;
+          value?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "employer_field_evidence_employer_id_fkey";
+            columns: ["employer_id"];
+            isOneToOne: false;
+            referencedRelation: "employers";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       employers: {
         Row: {
           benefits: string[];
           created_at: string;
           culture: string | null;
+          enriched_at: string | null;
           focus: string | null;
           id: number;
           locations: string[];
+          logo_source_url: string | null;
+          logo_url: string | null;
           mission: string | null;
           name: string;
           overview: string | null;
           published_at: string | null;
+          profile_source_url: string | null;
           reviewed_at: string | null;
           search_vector: unknown;
           short_name: string | null;
@@ -441,13 +492,17 @@ export type Database = {
           benefits?: string[];
           created_at?: string;
           culture?: string | null;
+          enriched_at?: string | null;
           focus?: string | null;
           id?: never;
           locations?: string[];
+          logo_source_url?: string | null;
+          logo_url?: string | null;
           mission?: string | null;
           name: string;
           overview?: string | null;
           published_at?: string | null;
+          profile_source_url?: string | null;
           reviewed_at?: string | null;
           search_vector?: unknown;
           short_name?: string | null;
@@ -461,13 +516,17 @@ export type Database = {
           benefits?: string[];
           created_at?: string;
           culture?: string | null;
+          enriched_at?: string | null;
           focus?: string | null;
           id?: never;
           locations?: string[];
+          logo_source_url?: string | null;
+          logo_url?: string | null;
           mission?: string | null;
           name?: string;
           overview?: string | null;
           published_at?: string | null;
+          profile_source_url?: string | null;
           reviewed_at?: string | null;
           search_vector?: unknown;
           short_name?: string | null;
@@ -653,11 +712,23 @@ export type Database = {
       };
       job_source_records: {
         Row: {
+          application_url: string | null;
           canonical_url: string | null;
           closes_at: string | null;
           content_hash: string | null;
           created_at: string;
+          detail_content_hash: string | null;
+          detail_fetched_at: string | null;
+          detail_text: string | null;
+          employer_id: number | null;
           employer_name: string | null;
+          employer_website_url: string | null;
+          enriched_content_hash: string | null;
+          enrichment_attempts: number;
+          enrichment_completed_at: string | null;
+          enrichment_error_code: string | null;
+          enrichment_last_attempted_at: string | null;
+          enrichment_status: string;
           external_id: string | null;
           first_seen_at: string;
           id: number;
@@ -673,11 +744,23 @@ export type Database = {
           verified_at: string | null;
         };
         Insert: {
+          application_url?: string | null;
           canonical_url?: string | null;
           closes_at?: string | null;
           content_hash?: string | null;
           created_at?: string;
+          detail_content_hash?: string | null;
+          detail_fetched_at?: string | null;
+          detail_text?: string | null;
+          employer_id?: number | null;
           employer_name?: string | null;
+          employer_website_url?: string | null;
+          enriched_content_hash?: string | null;
+          enrichment_attempts?: number;
+          enrichment_completed_at?: string | null;
+          enrichment_error_code?: string | null;
+          enrichment_last_attempted_at?: string | null;
+          enrichment_status?: string;
           external_id?: string | null;
           first_seen_at?: string;
           id?: never;
@@ -693,11 +776,23 @@ export type Database = {
           verified_at?: string | null;
         };
         Update: {
+          application_url?: string | null;
           canonical_url?: string | null;
           closes_at?: string | null;
           content_hash?: string | null;
           created_at?: string;
+          detail_content_hash?: string | null;
+          detail_fetched_at?: string | null;
+          detail_text?: string | null;
+          employer_id?: number | null;
           employer_name?: string | null;
+          employer_website_url?: string | null;
+          enriched_content_hash?: string | null;
+          enrichment_attempts?: number;
+          enrichment_completed_at?: string | null;
+          enrichment_error_code?: string | null;
+          enrichment_last_attempted_at?: string | null;
+          enrichment_status?: string;
           external_id?: string | null;
           first_seen_at?: string;
           id?: never;
@@ -713,6 +808,13 @@ export type Database = {
           verified_at?: string | null;
         };
         Relationships: [
+          {
+            foreignKeyName: "job_source_records_employer_id_fkey";
+            columns: ["employer_id"];
+            isOneToOne: false;
+            referencedRelation: "employers";
+            referencedColumns: ["id"];
+          },
           {
             foreignKeyName: "job_source_records_job_id_fkey";
             columns: ["job_id"];
@@ -768,6 +870,7 @@ export type Database = {
           country_code: string | null;
           created_at: string;
           description: string | null;
+          engagement_type: string | null;
           employer_id: number;
           experience_level: string | null;
           hours_type: string | null;
@@ -786,6 +889,8 @@ export type Database = {
           salary_text: string | null;
           search_vector: unknown;
           slug: string;
+          source_name: string | null;
+          source_url: string | null;
           status: string;
           summary: string | null;
           title: string;
@@ -801,6 +906,7 @@ export type Database = {
           country_code?: string | null;
           created_at?: string;
           description?: string | null;
+          engagement_type?: string | null;
           employer_id: number;
           experience_level?: string | null;
           hours_type?: string | null;
@@ -819,6 +925,8 @@ export type Database = {
           salary_text?: string | null;
           search_vector?: unknown;
           slug: string;
+          source_name?: string | null;
+          source_url?: string | null;
           status?: string;
           summary?: string | null;
           title: string;
@@ -834,6 +942,7 @@ export type Database = {
           country_code?: string | null;
           created_at?: string;
           description?: string | null;
+          engagement_type?: string | null;
           employer_id?: number;
           experience_level?: string | null;
           hours_type?: string | null;
@@ -852,6 +961,8 @@ export type Database = {
           salary_text?: string | null;
           search_vector?: unknown;
           slug?: string;
+          source_name?: string | null;
+          source_url?: string | null;
           status?: string;
           summary?: string | null;
           title?: string;
@@ -967,6 +1078,77 @@ export type Database = {
             isOneToOne: false;
             referencedRelation: "candidate_profiles";
             referencedColumns: ["user_id"];
+          },
+        ];
+      };
+      source_enrichment_runs: {
+        Row: {
+          ai_attempted: boolean;
+          ai_generation_id: string | null;
+          ai_model: string | null;
+          content_hash: string | null;
+          created_at: string;
+          employer_page_fetched: boolean;
+          error_code: string | null;
+          fields_resolved: number;
+          fields_unresolved: number;
+          finished_at: string | null;
+          id: number;
+          input_tokens: number;
+          output_tokens: number;
+          source_page_fetched: boolean;
+          source_record_id: number;
+          started_at: string;
+          status: string;
+          trigger_type: string;
+        };
+        Insert: {
+          ai_attempted?: boolean;
+          ai_generation_id?: string | null;
+          ai_model?: string | null;
+          content_hash?: string | null;
+          created_at?: string;
+          employer_page_fetched?: boolean;
+          error_code?: string | null;
+          fields_resolved?: number;
+          fields_unresolved?: number;
+          finished_at?: string | null;
+          id?: never;
+          input_tokens?: number;
+          output_tokens?: number;
+          source_page_fetched?: boolean;
+          source_record_id: number;
+          started_at?: string;
+          status?: string;
+          trigger_type: string;
+        };
+        Update: {
+          ai_attempted?: boolean;
+          ai_generation_id?: string | null;
+          ai_model?: string | null;
+          content_hash?: string | null;
+          created_at?: string;
+          employer_page_fetched?: boolean;
+          error_code?: string | null;
+          fields_resolved?: number;
+          fields_unresolved?: number;
+          finished_at?: string | null;
+          id?: never;
+          input_tokens?: number;
+          output_tokens?: number;
+          source_page_fetched?: boolean;
+          source_record_id?: number;
+          started_at?: string;
+          status?: string;
+          trigger_type?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "source_enrichment_runs_source_record_id_fkey";
+            columns: ["source_record_id"];
+            isOneToOne: false;
+            referencedRelation: "job_source_records";
+            referencedColumns: ["id"];
           },
         ];
       };
@@ -1094,6 +1276,7 @@ export type Database = {
           p_contract_type: string;
           p_country_code: string;
           p_description: string;
+          p_engagement_type: string | null;
           p_employer_name: string;
           p_employer_slug: string;
           p_employer_website_url: string | null;
@@ -1183,6 +1366,7 @@ export type Database = {
           p_contract_type: string;
           p_country_code: string;
           p_description: string;
+          p_engagement_type: string | null;
           p_employer_mission: string;
           p_employer_overview: string;
           p_employer_website_url: string | null;

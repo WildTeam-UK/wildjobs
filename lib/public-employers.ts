@@ -18,6 +18,7 @@ const publicEmployerFields = `
   culture,
   locations,
   benefits,
+  logo_url,
   reviewed_at,
   published_at
 `;

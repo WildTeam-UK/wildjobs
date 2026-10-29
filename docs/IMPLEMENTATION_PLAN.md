@@ -47,6 +47,7 @@ The existing fixture-based prototype is a design and interaction reference only.
 - An editorial homepage with featured opportunities, timely collections and clear routes into conservation career areas.
 - Search across approved active vacancies.
 - Useful filters for category, location, remote or hybrid status, employment type, experience level and salary where the source provides it.
+- The first filter bar includes text search, paid or volunteer, advertised location suggestions, cause, contract type, salary, work location and course-aware discovery. True distance-radius search waits for reviewed coordinates rather than pretending that location text is geographic data.
 - Curated collection pages such as early-career roles, remote opportunities, field roles and closing soon.
 - Course-aware discovery that lets anyone select a WildTeam course and find roles related to the capabilities it covers.
 - Rich job detail pages with structured metadata and visible source attribution.
@@ -90,7 +91,7 @@ Optional analytics must not run before the applicable consent state permits them
 - CV or document storage.
 - Hosting job applications inside WildJobs.
 - Employer payments and fully automated self-service publishing.
-- AI matching, ranking or generated job content.
+- Unbounded AI research, salary estimates, ranking or generated job content. The prototype may use one bounded structured extraction call for unresolved evidence-backed fields, behind an off-switch and usage ledger.
 - Verified LearnWorlds account linking and automatic use of completed-course data. Public course-based discovery remains in the beta scope.
 - Shared WildTeam single sign-on.
 - A central cross-application analytics backend or unified user dashboard.

@@ -1,10 +1,30 @@
 import { validateJobIntake } from "./job-intake-validation";
-import { extractVacancyDetails, extractVacancyFieldEvidence } from "./vacancy-detail-extraction";
+import {
+  extractVacancyDetails,
+  extractVacancyFieldEvidence,
+  type VacancyFieldEvidence,
+  type VacancyFieldName,
+} from "./vacancy-detail-extraction";
+
+type StoredEvidence = {
+  confidence: number;
+  evidence_text: string | null;
+  extraction_method: string;
+  extractor_version: string;
+  field_name: string;
+  resolution_status: string;
+  source_kind: string;
+  value: string | null;
+};
 
 type SourceRecordDraftInput = {
+  application_url?: string | null;
   canonical_url: string | null;
   closes_at: string | null;
+  detail_text?: string | null;
   employer_name: string | null;
+  employer_website_url?: string | null;
+  job_source_field_evidence?: StoredEvidence[];
   location_text: string | null;
   source_id: number;
   source_title: string | null;
@@ -22,33 +42,96 @@ function excerpt(value: string, maximum: number) {
   return `${candidate.slice(0, cutoff).trimEnd()}…`;
 }
 
+function normaliseStoredEvidence(items: StoredEvidence[] | undefined): VacancyFieldEvidence[] {
+  return (items ?? []).flatMap((item) => {
+    const fieldName = item.field_name as VacancyFieldName;
+    if (
+      ![
+        "application_url",
+        "closes_at",
+        "contract_type",
+        "employer_name",
+        "employer_website_url",
+        "engagement_type",
+        "experience_level",
+        "hours_type",
+        "location_text",
+        "salary_text",
+        "workplace_type",
+      ].includes(fieldName)
+    ) {
+      return [];
+    }
+
+    return [
+      {
+        confidence: item.confidence,
+        evidenceText: item.evidence_text,
+        extractionMethod: item.extraction_method as VacancyFieldEvidence["extractionMethod"],
+        extractorVersion: item.extractor_version,
+        fieldName,
+        resolutionStatus: item.resolution_status as VacancyFieldEvidence["resolutionStatus"],
+        sourceKind: item.source_kind as VacancyFieldEvidence["sourceKind"],
+        value: item.value,
+      },
+    ];
+  });
+}
+
+function acceptedValue(evidence: VacancyFieldEvidence[], fieldName: VacancyFieldName) {
+  const item = evidence.find(
+    (candidate) =>
+      candidate.fieldName === fieldName &&
+      candidate.resolutionStatus === "extracted" &&
+      candidate.confidence >= 70 &&
+      candidate.value,
+  );
+  return item?.value ?? undefined;
+}
+
 export function buildSourceRecordDraftDefaults(record: SourceRecordDraftInput) {
   const sourceSummary = record.summary?.trim() || undefined;
-  const extractedDetails = extractVacancyDetails(sourceSummary ?? null);
-  const fieldEvidence = extractVacancyFieldEvidence(sourceSummary ?? null);
+  const detailText = record.detail_text?.trim() || sourceSummary;
+  const extractedDetails = extractVacancyDetails(detailText ?? null);
+  const storedEvidence = normaliseStoredEvidence(record.job_source_field_evidence);
+  const fieldEvidence = storedEvidence.length
+    ? storedEvidence
+    : extractVacancyFieldEvidence(detailText ?? null);
+  const summarySource = sourceSummary && sourceSummary.length >= 20 ? sourceSummary : detailText;
 
   return {
-    applicationUrl: record.canonical_url ?? undefined,
+    applicationUrl:
+      record.application_url ??
+      acceptedValue(fieldEvidence, "application_url") ??
+      record.canonical_url ??
+      undefined,
     canonicalUrl: record.canonical_url ?? undefined,
-    closesAt: record.closes_at ?? undefined,
+    closesAt: acceptedValue(fieldEvidence, "closes_at") ?? record.closes_at ?? undefined,
+    contractType: acceptedValue(fieldEvidence, "contract_type") ?? extractedDetails.contractType,
     countryCode: "GB",
-    description: sourceSummary,
-    employerName: record.employer_name?.slice(0, 160) || undefined,
-    locationText: record.location_text ?? undefined,
-    postedAt: record.source_updated_at?.slice(0, 10),
-    sourceId: record.source_id,
+    description: detailText ? excerpt(detailText, 20_000) : undefined,
+    engagementType: acceptedValue(fieldEvidence, "engagement_type") ?? extractedDetails.engagementType,
+    employerName:
+      (acceptedValue(fieldEvidence, "employer_name") ?? record.employer_name)?.slice(0, 160) || undefined,
+    employerWebsiteUrl:
+      record.employer_website_url ?? acceptedValue(fieldEvidence, "employer_website_url") ?? undefined,
+    experienceLevel: acceptedValue(fieldEvidence, "experience_level") ?? extractedDetails.experienceLevel,
     fieldEvidence,
-    summary: sourceSummary && sourceSummary.length >= 20 ? excerpt(sourceSummary, 500) : undefined,
+    hoursType: acceptedValue(fieldEvidence, "hours_type") ?? extractedDetails.hoursType,
+    locationText: acceptedValue(fieldEvidence, "location_text") ?? record.location_text ?? undefined,
+    postedAt: record.source_updated_at?.slice(0, 10),
+    salaryText: acceptedValue(fieldEvidence, "salary_text") ?? extractedDetails.salaryText,
+    sourceId: record.source_id,
+    summary: summarySource && summarySource.length >= 20 ? excerpt(summarySource, 500) : undefined,
     title: record.source_title?.slice(0, 180) || undefined,
-    ...extractedDetails,
+    workplaceType: acceptedValue(fieldEvidence, "workplace_type") ?? extractedDetails.workplaceType,
   };
 }
 
 export function prepareSourceRecordJobInput(
   defaults: ReturnType<typeof buildSourceRecordDraftDefaults>,
-  today = new Date().toISOString().slice(0, 10),
+  today?: string,
 ) {
-  const formData = new FormData();
   const values = {
     applicationUrl: defaults.applicationUrl ?? "",
     canonicalUrl: defaults.canonicalUrl ?? "",
@@ -56,8 +139,9 @@ export function prepareSourceRecordJobInput(
     contractType: defaults.contractType ?? "not_specified",
     countryCode: defaults.countryCode,
     description: defaults.description ?? "",
+    engagementType: defaults.engagementType ?? "not_specified",
     employerName: defaults.employerName ?? "",
-    employerWebsiteUrl: "",
+    employerWebsiteUrl: defaults.employerWebsiteUrl ?? "",
     experienceLevel: defaults.experienceLevel ?? "not_specified",
     hoursType: defaults.hoursType ?? "not_specified",
     locationText: defaults.locationText ?? "",
@@ -70,6 +154,7 @@ export function prepareSourceRecordJobInput(
     title: defaults.title ?? "",
     workplaceType: defaults.workplaceType ?? "not_specified",
   };
+  const formData = new FormData();
 
   for (const [key, value] of Object.entries(values)) formData.set(key, value);
   if (!defaults.salaryText) formData.set("salaryNotStated", "on");

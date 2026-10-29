@@ -5,6 +5,7 @@ export type PublicEmployerRecord = Readonly<{
   culture: string | null;
   focus: string | null;
   locations: readonly string[];
+  logo_url: string | null;
   mission: string | null;
   name: string;
   overview: string | null;
@@ -20,6 +21,7 @@ export type PublicEmployer = Readonly<{
   culture?: string;
   focus: string;
   locations: readonly string[];
+  logoUrl?: string;
   mission: string;
   name: string;
   openRoles: readonly Job[];
@@ -71,6 +73,7 @@ export function mapPublicEmployer(record: PublicEmployerRecord, jobs: readonly J
     culture: record.culture?.trim() || undefined,
     focus: record.focus?.trim() || "Conservation employer",
     locations,
+    logoUrl: record.logo_url?.trim() || undefined,
     mission: record.mission?.trim() || "Explore this organisation’s current conservation opportunities.",
     name: record.name,
     openRoles,

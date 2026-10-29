@@ -9,6 +9,7 @@ const validValues = {
   contractType: "fixed_term",
   countryCode: "gb",
   description: "A complete description of this conservation vacancy and the work involved.",
+  engagementType: "paid",
   employerMission: "Restore important habitats and help wildlife and communities thrive together.",
   employerOverview: "Example Nature Trust is a conservation charity working with communities and partners.",
   employerWebsiteUrl: "https://example.org",
@@ -52,6 +53,7 @@ describe("job review validation", () => {
     const result = validateJobReview(
       reviewForm({
         contractType: "not_specified",
+        engagementType: "not_specified",
         experienceLevel: "not_specified",
         hoursType: "not_specified",
         salaryNotStated: "on",
@@ -63,6 +65,7 @@ describe("job review validation", () => {
 
     expect(result.data).toMatchObject({
       contractType: null,
+      engagementType: null,
       experienceLevel: null,
       hoursType: null,
       salaryText: null,

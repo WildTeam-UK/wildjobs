@@ -8,6 +8,7 @@ const employer: PublicEmployerRecord = {
   culture: "A collaborative conservation team.",
   focus: null,
   locations: ["Slimbridge"],
+  logo_url: "https://example.org/logo.svg",
   mission: "Protect wetlands and the wildlife and communities that depend on them.",
   name: "Wetland Wildlife Trust",
   overview: "First paragraph.\n\nSecond paragraph.",
@@ -30,6 +31,7 @@ describe("public employer mapping", () => {
 
     expect(result).toMatchObject({
       focus: "Conservation employer",
+      logoUrl: "https://example.org/logo.svg",
       reviewedAt: "2026-10-27",
       shortName: "WWT",
       websiteUrl: "https://example.org",

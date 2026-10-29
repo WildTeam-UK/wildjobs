@@ -1,4 +1,5 @@
 import { isAutomationRequestAuthorized } from "@/lib/admin/automation-auth";
+import { enrichNextPendingSourceRecord } from "@/lib/admin/source-enrichment";
 import { importApprovedSource } from "@/lib/admin/source-import";
 import { getSourceConnector } from "@/lib/admin/source-connector";
 import { createTrustedClient } from "@/lib/supabase/trusted";
@@ -18,7 +19,12 @@ export async function POST(request: Request) {
     if (claimError) throw new Error("The scheduled source check could not be claimed.");
 
     if (!claimed) {
-      return Response.json({ action: "idle", ok: true });
+      const enrichment = await enrichNextPendingSourceRecord(supabase, "automation");
+      return Response.json({
+        action: enrichment.status === "idle" ? "idle" : "enriched",
+        enrichment,
+        ok: enrichment.status !== "failed",
+      });
     }
 
     const { data: sources, error } = await supabase

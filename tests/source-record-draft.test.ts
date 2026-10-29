@@ -34,7 +34,7 @@ describe("source record draft defaults", () => {
         "Help restore habitats across the Elan Valley while supporting long-term ecological monitoring.",
       title: "Ecologist with Elan Valley Trust",
     });
-    expect(defaults.fieldEvidence).toHaveLength(5);
+    expect(defaults.fieldEvidence).toHaveLength(6);
     expect(defaults.fieldEvidence.every((item) => item.resolutionStatus === "unresolved")).toBe(true);
   });
 

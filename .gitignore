@@ -1,6 +1,7 @@
 .next/
 .vercel/
 node_modules/
+.pnpm-store/
 coverage/
 *.log
 *.tsbuildinfo

@@ -13,6 +13,7 @@ export async function createJobDraft(supabase: SupabaseClient<Database>, input: 
     p_contract_type: input.contractType ?? "",
     p_country_code: input.countryCode,
     p_description: input.description,
+    p_engagement_type: input.engagementType,
     p_employer_name: input.employerName,
     p_employer_slug: input.employerSlug,
     p_employer_website_url: input.employerWebsiteUrl,

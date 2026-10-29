@@ -26,7 +26,7 @@ export default async function EditReviewPage({ params }: EditReviewPageProps) {
     supabase
       .from("jobs")
       .select(
-        "id, title, summary, description, responsibilities, requirements, status, location_text, country_code, workplace_type, contract_type, hours_type, experience_level, salary_text, application_url, posted_at, closes_at, employers(name, website_url, mission, overview)",
+        "id, title, summary, description, responsibilities, requirements, status, location_text, country_code, workplace_type, engagement_type, contract_type, hours_type, experience_level, salary_text, application_url, posted_at, closes_at, employers(name, website_url, mission, overview)",
       )
       .eq("id", id)
       .maybeSingle(),
@@ -50,6 +50,7 @@ export default async function EditReviewPage({ params }: EditReviewPageProps) {
     contractType: text(job.contract_type),
     countryCode: text(job.country_code),
     description: text(job.description),
+    engagementType: text(job.engagement_type),
     employerMission: text(job.employers.mission),
     employerName: job.employers.name,
     employerOverview: text(job.employers.overview),

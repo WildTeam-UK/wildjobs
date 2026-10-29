@@ -6,27 +6,19 @@ import { JobCard } from "@/components/job-card";
 import { courseBySlug, courses } from "@/lib/courses";
 import type { CandidateSaveState } from "@/lib/candidate-saved-jobs";
 import { filterJobs, jobCategories } from "@/lib/job-filtering";
-import type { EmploymentType, Job, LocationType } from "@/lib/jobs";
+import type { EmploymentType, EngagementType, Job, LocationType } from "@/lib/jobs";
 
 const locationTypes: readonly LocationType[] = ["Remote", "Hybrid", "On-site", "Not specified"];
-const employmentTypes: readonly EmploymentType[] = [
-  "Full time",
-  "Part time",
-  "Flexible",
-  "Permanent",
-  "Fixed term",
-  "Temporary",
-  "Internship",
-  "Apprenticeship",
-  "Not stated",
-];
-
 type BrowserFilters = Readonly<{
   query: string;
+  locationQuery: string;
   locationType: LocationType | "";
+  engagementType: EngagementType | "";
   employmentType: EmploymentType | "";
+  contractType: string;
   category: string;
   courseSlug: string;
+  minimumSalary: number;
 }>;
 
 export function JobBrowser({
@@ -39,25 +31,61 @@ export function JobBrowser({
   initialFilters?: Partial<BrowserFilters>;
 }) {
   const [query, setQuery] = useState(initialFilters.query ?? "");
+  const [locationQuery, setLocationQuery] = useState(initialFilters.locationQuery ?? "");
   const [locationType, setLocationType] = useState<LocationType | "">(initialFilters.locationType ?? "");
+  const [engagementType, setEngagementType] = useState<EngagementType | "">(
+    initialFilters.engagementType ?? "",
+  );
   const [employmentType, setEmploymentType] = useState<EmploymentType | "">(
     initialFilters.employmentType ?? "",
   );
   const [category, setCategory] = useState(initialFilters.category ?? "");
+  const [contractType, setContractType] = useState(initialFilters.contractType ?? "");
   const [courseSlug, setCourseSlug] = useState(initialFilters.courseSlug ?? "");
-  const filteredJobs = filterJobs(jobs, { query, locationType, employmentType, category, courseSlug });
+  const [minimumSalary, setMinimumSalary] = useState(initialFilters.minimumSalary ?? 0);
+  const filteredJobs = filterJobs(jobs, {
+    category,
+    contractType,
+    courseSlug,
+    employmentType,
+    engagementType,
+    locationQuery,
+    locationType,
+    minimumSalary,
+    query,
+  });
   const categories = jobCategories(jobs);
-  const hasFilters = Boolean(query || locationType || employmentType || category || courseSlug);
+  const contractTypes = [
+    ...new Set(jobs.flatMap((job) => (job.contractType ? [job.contractType] : []))),
+  ].toSorted();
+  const locations = [
+    ...new Set(jobs.map((job) => job.location).filter((value) => value !== "Location not stated")),
+  ].toSorted();
+  const hasFilters = Boolean(
+    query ||
+    locationQuery ||
+    locationType ||
+    engagementType ||
+    employmentType ||
+    contractType ||
+    category ||
+    courseSlug ||
+    minimumSalary,
+  );
   const selectedCourse = courseBySlug(courseSlug);
   const savedJobIds = new Set(candidateSaveState.savedJobIds);
 
   function syncUrl(filters: BrowserFilters) {
     const params = new URLSearchParams();
     if (filters.query) params.set("q", filters.query);
+    if (filters.locationQuery) params.set("place", filters.locationQuery);
     if (filters.locationType) params.set("location", filters.locationType);
+    if (filters.engagementType) params.set("opportunity", filters.engagementType);
     if (filters.employmentType) params.set("type", filters.employmentType);
+    if (filters.contractType) params.set("contract", filters.contractType);
     if (filters.category) params.set("category", filters.category);
     if (filters.courseSlug) params.set("course", filters.courseSlug);
+    if (filters.minimumSalary) params.set("salary", String(filters.minimumSalary));
     const queryString = params.toString();
     window.history.replaceState(
       null,
@@ -67,26 +95,51 @@ export function JobBrowser({
   }
 
   function currentFilters(overrides: Partial<BrowserFilters> = {}): BrowserFilters {
-    return { query, locationType, employmentType, category, courseSlug, ...overrides };
+    return {
+      category,
+      contractType,
+      courseSlug,
+      employmentType,
+      engagementType,
+      locationQuery,
+      locationType,
+      minimumSalary,
+      query,
+      ...overrides,
+    };
   }
 
   function clearFilters() {
     setQuery("");
+    setLocationQuery("");
     setLocationType("");
+    setEngagementType("");
     setEmploymentType("");
+    setContractType("");
     setCategory("");
     setCourseSlug("");
-    syncUrl({ query: "", locationType: "", employmentType: "", category: "", courseSlug: "" });
+    setMinimumSalary(0);
+    syncUrl({
+      category: "",
+      contractType: "",
+      courseSlug: "",
+      employmentType: "",
+      engagementType: "",
+      locationQuery: "",
+      locationType: "",
+      minimumSalary: 0,
+      query: "",
+    });
   }
 
   return (
     <section className="job-browser" aria-labelledby="available-jobs-heading">
       <div className="shell job-browser__layout">
-        <aside className="filter-panel" aria-label="Filter jobs">
+        <div className="filter-panel" aria-label="Filter jobs">
           <div className="filter-panel__heading">
             <div>
               <p className="eyebrow">Refine your search</p>
-              <h2>Find your fit</h2>
+              <h2>Find the right opportunity</h2>
             </div>
             {hasFilters ? (
               <Button type="button" variant="quiet" onClick={clearFilters}>
@@ -105,9 +158,42 @@ export function JobBrowser({
             }}
             placeholder="Role, organisation or skill"
           />
+          <div className="filter-panel__control">
+            <label htmlFor="location-search">Location</label>
+            <input
+              id="location-search"
+              list="job-locations"
+              onChange={(event) => {
+                setLocationQuery(event.target.value);
+                syncUrl(currentFilters({ locationQuery: event.target.value }));
+              }}
+              placeholder="City, region or country"
+              type="search"
+              value={locationQuery}
+            />
+            <datalist id="job-locations">
+              {locations.map((value) => (
+                <option key={value} value={value} />
+              ))}
+            </datalist>
+          </div>
+          <Select
+            id="engagement-type"
+            label="Paid or volunteer"
+            value={engagementType}
+            onChange={(event) => {
+              const value = event.target.value as EngagementType | "";
+              setEngagementType(value);
+              syncUrl(currentFilters({ engagementType: value }));
+            }}
+          >
+            <option value="">All opportunities</option>
+            <option value="Paid">Paid</option>
+            <option value="Volunteer">Volunteer</option>
+          </Select>
           <Select
             id="location-type"
-            label="Location type"
+            label="Work location"
             value={locationType}
             onChange={(event) => {
               const value = event.target.value as LocationType | "";
@@ -123,17 +209,16 @@ export function JobBrowser({
             ))}
           </Select>
           <Select
-            id="job-type"
-            label="Job type"
-            value={employmentType}
+            id="contract-type"
+            label="Contract type"
+            value={contractType}
             onChange={(event) => {
-              const value = event.target.value as EmploymentType | "";
-              setEmploymentType(value);
-              syncUrl(currentFilters({ employmentType: value }));
+              setContractType(event.target.value);
+              syncUrl(currentFilters({ contractType: event.target.value }));
             }}
           >
-            <option value="">All job types</option>
-            {employmentTypes.map((value) => (
+            <option value="">All contracts</option>
+            {contractTypes.map((value) => (
               <option value={value} key={value}>
                 {value}
               </option>
@@ -156,6 +241,23 @@ export function JobBrowser({
             ))}
           </Select>
           <Select
+            id="minimum-salary"
+            label="Minimum advertised salary"
+            value={minimumSalary ? String(minimumSalary) : ""}
+            onChange={(event) => {
+              const value = Number(event.target.value) || 0;
+              setMinimumSalary(value);
+              syncUrl(currentFilters({ minimumSalary: value }));
+            }}
+          >
+            <option value="">Any salary</option>
+            <option value="20000">£20,000+</option>
+            <option value="25000">£25,000+</option>
+            <option value="30000">£30,000+</option>
+            <option value="40000">£40,000+</option>
+            <option value="50000">£50,000+</option>
+          </Select>
+          <Select
             id="course"
             label="Related WildTeam course"
             value={courseSlug}
@@ -171,7 +273,7 @@ export function JobBrowser({
               </option>
             ))}
           </Select>
-        </aside>
+        </div>
 
         <div className="job-results">
           <div className="job-results__heading">

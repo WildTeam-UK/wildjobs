@@ -1,5 +1,6 @@
 export type ExtractedVacancyDetails = {
   contractType?: "apprenticeship" | "fixed_term" | "internship" | "permanent" | "temporary";
+  engagementType?: "paid" | "volunteer";
   experienceLevel?: "developing" | "entry" | "experienced" | "leadership" | "open";
   hoursType?: "flexible" | "full_time" | "part_time";
   salaryText?: string;
@@ -7,20 +8,26 @@ export type ExtractedVacancyDetails = {
 };
 
 export type VacancyFieldName =
+  | "application_url"
+  | "closes_at"
   | "contract_type"
+  | "employer_name"
+  | "employer_website_url"
+  | "engagement_type"
   | "experience_level"
   | "hours_type"
+  | "location_text"
   | "salary_text"
   | "workplace_type";
 
 export type VacancyFieldEvidence = {
   confidence: number;
   evidenceText: string | null;
-  extractionMethod: "deterministic";
-  extractorVersion: "feed-rules-v1";
+  extractionMethod: "ai" | "deterministic" | "manual";
+  extractorVersion: string;
   fieldName: VacancyFieldName;
   resolutionStatus: "extracted" | "unresolved";
-  sourceKind: "feed";
+  sourceKind: "document" | "employer_site" | "feed" | "source_page" | "staff";
   value: string | null;
 };
 
@@ -32,6 +39,7 @@ function clean(value: string) {
 
 function salaryBoundary(value: string) {
   const boundaries = [
+    /(?=[.;]\s+(?:permanent|fixed[- ]term|temporary|full[- ]time|part[- ]time|hybrid|remote|on[- ]site)\b)/i,
     /\s+(?=(?:based|contract(?:\s+type)?|hours?|location|start\s+date|terms|type)\s*:)/i,
     /\s+(?=(?:do you|join\b|we(?:’|')?re|we are|we need)\b)/i,
     /\s+(?=(?:hybrid|home[- ]?based|remote)\s+working\b)/i,
@@ -126,6 +134,16 @@ function extractExperienceLevel(value: string): MatchResult {
   );
 }
 
+function extractEngagementType(value: string): MatchResult {
+  return (
+    firstMatch(value, [/\bvolunteer(?:ing|s)?\b/i, /\bunpaid\b/i], "volunteer") ??
+    firstMatch(value, [/\bpaid\s+(?:role|position|opportunity)\b/i, /\bsalaried\b/i], "paid") ??
+    (/£\s?\d/.test(value)
+      ? { evidenceText: clean(/£\s?[\d,.]+/.exec(value)?.[0] ?? "salary stated"), value: "paid" }
+      : undefined)
+  );
+}
+
 function evidence(
   fieldName: VacancyFieldName,
   result: MatchResult,
@@ -143,15 +161,26 @@ function evidence(
   };
 }
 
-export function extractVacancyFieldEvidence(sourceText: string | null): VacancyFieldEvidence[] {
+export function extractVacancyFieldEvidence(
+  sourceText: string | null,
+  options: {
+    extractorVersion?: string;
+    sourceKind?: VacancyFieldEvidence["sourceKind"];
+  } = {},
+): VacancyFieldEvidence[] {
   const text = sourceText?.trim() ? clean(sourceText) : "";
   return [
     evidence("contract_type", text ? extractContractType(text) : undefined, 90),
+    evidence("engagement_type", text ? extractEngagementType(text) : undefined, 90),
     evidence("experience_level", text ? extractExperienceLevel(text) : undefined, 75),
     evidence("hours_type", text ? extractHoursType(text) : undefined, 90),
     evidence("salary_text", text ? extractSalary(text) : undefined, 95),
     evidence("workplace_type", text ? extractWorkplaceType(text) : undefined, 85),
-  ];
+  ].map((item) => ({
+    ...item,
+    extractorVersion: options.extractorVersion ?? item.extractorVersion,
+    sourceKind: options.sourceKind ?? item.sourceKind,
+  }));
 }
 
 export function extractVacancyDetails(sourceText: string | null): ExtractedVacancyDetails {
@@ -161,6 +190,7 @@ export function extractVacancyDetails(sourceText: string | null): ExtractedVacan
 
   return {
     contractType: values.get("contract_type") as ExtractedVacancyDetails["contractType"],
+    engagementType: values.get("engagement_type") as ExtractedVacancyDetails["engagementType"],
     experienceLevel: values.get("experience_level") as ExtractedVacancyDetails["experienceLevel"],
     hoursType: values.get("hours_type") as ExtractedVacancyDetails["hoursType"],
     salaryText: values.get("salary_text"),

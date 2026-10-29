@@ -1,9 +1,13 @@
-import type { EmploymentType, Job, LocationType } from "./jobs";
+import type { EmploymentType, EngagementType, Job, LocationType } from "./jobs";
 
 export type JobFilters = Readonly<{
   query: string;
+  locationQuery: string;
   locationType: LocationType | "";
+  engagementType: EngagementType | "";
   employmentType: EmploymentType | "";
+  contractType: string;
+  minimumSalary: number;
   category: string;
   courseSlug: string;
 }>;
@@ -14,6 +18,7 @@ function normalise(value: string) {
 
 export function filterJobs(items: readonly Job[], filters: JobFilters) {
   const query = normalise(filters.query);
+  const locationQuery = normalise(filters.locationQuery);
 
   return items.filter((job) => {
     const searchable = normalise(
@@ -32,7 +37,11 @@ export function filterJobs(items: readonly Job[], filters: JobFilters) {
 
     return (
       (!query || searchable.includes(query)) &&
+      (!locationQuery || normalise(job.location).includes(locationQuery)) &&
       (!filters.locationType || job.locationType === filters.locationType) &&
+      (!filters.engagementType || job.engagementType === filters.engagementType) &&
+      (!filters.contractType || job.contractType === filters.contractType) &&
+      (!filters.minimumSalary || (job.salaryMinimum ?? 0) >= filters.minimumSalary) &&
       (!filters.employmentType ||
         [job.employmentType, job.contractType, job.hoursType].includes(filters.employmentType)) &&
       (!filters.category || job.category === filters.category) &&

@@ -32,12 +32,14 @@ const labels: Record<string, string> = {
   leadership: "Leadership",
   on_site: "On-site",
   open: "Open",
+  paid: "Paid",
   part_time: "Part time",
   permanent: "Permanent",
   published: "Published",
   remote: "Remote",
   temporary: "Temporary",
   updated: "Review updated",
+  volunteer: "Volunteer",
   withdrawn: "Withdrawn",
 };
 
@@ -63,7 +65,7 @@ export default async function ReviewJobPage({ params, searchParams }: ReviewPage
     supabase
       .from("jobs")
       .select(
-        "id, title, summary, description, responsibilities, requirements, status, location_text, country_code, workplace_type, contract_type, hours_type, experience_level, salary_text, application_url, posted_at, closes_at, employers(id, name, website_url, mission, overview, status)",
+        "id, title, summary, description, responsibilities, requirements, status, location_text, country_code, workplace_type, engagement_type, contract_type, hours_type, experience_level, salary_text, application_url, posted_at, closes_at, employers(id, name, website_url, mission, overview, status)",
       )
       .eq("id", id)
       .maybeSingle(),
@@ -200,6 +202,10 @@ export default async function ReviewJobPage({ params, searchParams }: ReviewPage
               <div>
                 <dt>Workplace</dt>
                 <dd>{label(job.workplace_type)}</dd>
+              </div>
+              <div>
+                <dt>Opportunity</dt>
+                <dd>{label(job.engagement_type)}</dd>
               </div>
               <div>
                 <dt>Contract</dt>

@@ -12,6 +12,7 @@ export type ReviewFormValues = {
   contractType: string;
   countryCode: string;
   description: string;
+  engagementType: string;
   employerMission: string;
   employerName: string;
   employerOverview: string;
@@ -195,6 +196,19 @@ export function JobReviewForm({
               <option value="remote">Remote</option>
               <option value="hybrid">Hybrid</option>
               <option value="on_site">On-site</option>
+              <option value="not_specified">Not specified</option>
+            </select>
+          </div>
+          <div>
+            <label htmlFor="engagement-type">Opportunity</label>
+            <select
+              defaultValue={values.engagementType || "not_specified"}
+              id="engagement-type"
+              name="engagementType"
+              required
+            >
+              <option value="paid">Paid</option>
+              <option value="volunteer">Volunteer</option>
               <option value="not_specified">Not specified</option>
             </select>
           </div>

@@ -165,6 +165,10 @@ export default async function JobPage({ params, searchParams }: JobPageProps) {
                 <dd>{job.locationType}</dd>
               </div>
               <div>
+                <dt>Opportunity</dt>
+                <dd>{job.engagementType ?? "Not specified"}</dd>
+              </div>
+              <div>
                 <dt>Job type</dt>
                 <dd>{jobType || job.employmentType}</dd>
               </div>
@@ -194,12 +198,12 @@ export default async function JobPage({ params, searchParams }: JobPageProps) {
               </div>
             </dl>
             <p className="job-facts-card__notice">
-              WildJobs has reviewed this listing against the original vacancy. Applications are handled by the
-              employer on their website.
+              WildJobs has reviewed this listing against the original vacancy. Applications are handled on the
+              linked application site.
             </p>
             {job.applicationUrl ? (
               <a className="primary-action" href={job.applicationUrl} rel="noreferrer" target="_blank">
-                Apply on employer website <span aria-hidden="true">↗</span>
+                {job.applicationLabel ?? "Open application page"} <span aria-hidden="true">↗</span>
               </a>
             ) : null}
             <SaveJobControl

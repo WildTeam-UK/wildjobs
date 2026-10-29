@@ -23,6 +23,7 @@ export type PublicJobRecord = Readonly<{
   country_code: string | null;
   created_at: string;
   description: string | null;
+  engagement_type: string | null;
   employers: PublicEmployerRecord | null;
   experience_level: string | null;
   hours_type: string | null;
@@ -34,6 +35,9 @@ export type PublicJobRecord = Readonly<{
   requirements: string | null;
   responsibilities: string | null;
   salary_text: string | null;
+  salary_min: number | null;
+  source_name: string | null;
+  source_url: string | null;
   slug: string;
   status: string;
   summary: string | null;
@@ -46,6 +50,11 @@ const workplaceLabels = {
   hybrid: "Hybrid",
   on_site: "On-site",
   remote: "Remote",
+} as const;
+
+const engagementLabels = {
+  paid: "Paid",
+  volunteer: "Volunteer",
 } as const;
 
 const jobTypeLabels = {
@@ -101,6 +110,34 @@ function availability(record: PublicJobRecord) {
   return "current" as const;
 }
 
+function applicationLabel(record: PublicJobRecord) {
+  if (!record.application_url) return undefined;
+  try {
+    if (
+      record.source_url &&
+      new URL(record.source_url).hostname === new URL(record.application_url).hostname
+    ) {
+      return `Apply on ${record.source_name?.trim() || "original vacancy site"}`;
+    }
+  } catch {
+    // Valid HTTPS values are enforced by the database; retain a safe generic label if old data differs.
+  }
+  return "Apply on employer website";
+}
+
+function salaryMinimum(record: PublicJobRecord) {
+  if (record.salary_min !== null) return record.salary_min;
+  const match = record.salary_text?.replaceAll(",", "").match(/£\s*(\d{4,6})/);
+  return match ? Number(match[1]) : undefined;
+}
+
+function engagementType(record: PublicJobRecord) {
+  return (
+    engagementLabels[record.engagement_type as keyof typeof engagementLabels] ??
+    (record.salary_text && /£\s?\d/.test(record.salary_text) ? "Paid" : undefined)
+  );
+}
+
 export function mapPublicJob(record: PublicJobRecord): Job {
   const description = paragraphs(record.description);
   const careerAreas = record.job_career_areas
@@ -115,6 +152,7 @@ export function mapPublicJob(record: PublicJobRecord): Job {
   return {
     availability: availability(record),
     applicationUrl: record.application_url ?? undefined,
+    applicationLabel: applicationLabel(record),
     category,
     careerAreas: careerAreas.flatMap((relation) =>
       relation.career_areas ? [relation.career_areas.title] : [],
@@ -125,6 +163,7 @@ export function mapPublicJob(record: PublicJobRecord): Job {
     description: description.length ? description : [summary],
     employerSlug: employer?.slug,
     employmentType: hoursType ?? contractType ?? "Not stated",
+    engagementType: engagementType(record),
     experienceLevel: record.experience_level ?? undefined,
     hoursType,
     id: record.id,
@@ -138,9 +177,10 @@ export function mapPublicJob(record: PublicJobRecord): Job {
     requirements: listItems(record.requirements),
     responsibilities: listItems(record.responsibilities),
     salary: record.salary_text?.trim() || "Salary not stated",
+    salaryMinimum: salaryMinimum(record),
     slug: record.slug,
-    sourceName: employer?.short_name?.trim() || employer?.name?.trim() || "Original vacancy",
-    sourceUrl: record.application_url ?? undefined,
+    sourceName: record.source_name?.trim() || "Original vacancy",
+    sourceUrl: record.source_url ?? undefined,
     summary,
     title: record.title,
   };

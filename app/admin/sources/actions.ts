@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 import { createJobDraft } from "@/lib/admin/create-job-draft";
 import { findDuplicateJob, findDuplicateSourceRecord } from "@/lib/admin/duplicate-match";
 import { importApprovedSource } from "@/lib/admin/source-import";
+import { enrichNextPendingSourceRecord } from "@/lib/admin/source-enrichment";
 import { getSourceConnector } from "@/lib/admin/source-connector";
 import { buildSourceRecordDraftDefaults, prepareSourceRecordJobInput } from "@/lib/admin/source-record-draft";
 import {
@@ -16,6 +17,7 @@ import {
 } from "@/lib/admin/source-validation";
 import { requireAdministrator } from "@/lib/auth/staff";
 import { createClient } from "@/lib/supabase/server";
+import { createTrustedClient } from "@/lib/supabase/trusted";
 
 function readSourceId(formData: FormData) {
   const sourceId = Number(formData.get("sourceId"));
@@ -135,6 +137,26 @@ export async function linkSourceRecordToJob(formData: FormData) {
   redirect(`/admin/sources/${record.source_id}?status=linked&record=${record.id}`);
 }
 
+export async function enrichSourceRecord(formData: FormData) {
+  await requireAdministrator();
+  const recordId = readRecordId(formData);
+  if (!recordId) redirect("/admin/sources?error=invalid-record");
+
+  const supabase = createTrustedClient();
+  const { data: record, error } = await supabase
+    .from("job_source_records")
+    .select("id, source_id")
+    .eq("id", recordId)
+    .maybeSingle();
+  if (error || !record) redirect("/admin/sources?error=invalid-record");
+
+  const result = await enrichNextPendingSourceRecord(supabase, "manual", record.id);
+  revalidatePath("/admin");
+  revalidatePath("/admin/imports");
+  revalidatePath(`/admin/sources/${record.source_id}`);
+  redirect(`/admin/sources/${record.source_id}?enrichment=${result.status}&record=${record.id}`);
+}
+
 export async function prepareSourceRecordDraft(formData: FormData) {
   await requireAdministrator();
   const recordId = readRecordId(formData);
@@ -144,7 +166,7 @@ export async function prepareSourceRecordDraft(formData: FormData) {
   const { data: record, error: recordError } = await supabase
     .from("job_source_records")
     .select(
-      "id, source_id, canonical_url, mapping_status, job_id, source_title, employer_name, location_text, closes_at, source_updated_at, summary, job_sources(name, is_active)",
+      "id, source_id, canonical_url, mapping_status, job_id, source_title, employer_name, location_text, closes_at, source_updated_at, summary, application_url, detail_text, employer_website_url, enrichment_status, job_source_field_evidence(field_name, resolution_status, value, confidence, source_kind, extraction_method, evidence_text, extractor_version), job_sources(name, is_active)",
     )
     .eq("id", recordId)
     .maybeSingle();
@@ -154,6 +176,7 @@ export async function prepareSourceRecordDraft(formData: FormData) {
     !record ||
     !record.canonical_url ||
     record.job_id !== null ||
+    !["complete", "needs_review", "skipped"].includes(record.enrichment_status) ||
     !record.job_sources?.is_active ||
     !["unmapped", "possible_duplicate"].includes(record.mapping_status)
   ) {

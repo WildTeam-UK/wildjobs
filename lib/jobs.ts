@@ -9,23 +9,27 @@ export type EmploymentType =
   | "Part time"
   | "Permanent"
   | "Temporary";
+export type EngagementType = "Paid" | "Volunteer";
 
 export type Job = Readonly<{
   id?: number;
   availability?: "current" | "expired" | "unavailable" | "withdrawn";
   slug: string;
   applicationUrl?: string;
+  applicationLabel?: string;
   title: string;
   organisation: string;
   location: string;
   locationType: LocationType;
   employmentType: EmploymentType;
+  engagementType?: EngagementType;
   contractType?: string;
   experienceLevel?: string;
   hoursType?: string;
   category: string;
   careerAreas?: readonly string[];
   salary: string;
+  salaryMinimum?: number;
   summary: string;
   description: readonly string[];
   responsibilities: readonly string[];

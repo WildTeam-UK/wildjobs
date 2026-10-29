@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { JobBrowser } from "@/components/job-browser";
 import { getCandidateSaveState } from "@/lib/candidate-saved-jobs";
-import type { EmploymentType, LocationType } from "@/lib/jobs";
+import type { EmploymentType, EngagementType, LocationType } from "@/lib/jobs";
 import { getPublicJobs } from "@/lib/public-jobs";
 
 export const metadata: Metadata = {
@@ -20,6 +20,7 @@ const employmentTypes: readonly EmploymentType[] = [
   "Apprenticeship",
   "Not stated",
 ];
+const engagementTypes: readonly EngagementType[] = ["Paid", "Volunteer"];
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 function valueOf(value: string | string[] | undefined) {
   return typeof value === "string" ? value : "";
@@ -33,6 +34,8 @@ export default async function JobsPage({ searchParams }: { searchParams: SearchP
   ]);
   const location = valueOf(params.location);
   const employment = valueOf(params.type);
+  const engagement = valueOf(params.opportunity);
+  const salary = Number(valueOf(params.salary));
   return (
     <main>
       <section className="interior-hero">
@@ -49,12 +52,18 @@ export default async function JobsPage({ searchParams }: { searchParams: SearchP
         jobs={jobs}
         initialFilters={{
           query: valueOf(params.q),
+          locationQuery: valueOf(params.place),
           locationType: locationTypes.includes(location as LocationType) ? (location as LocationType) : "",
+          engagementType: engagementTypes.includes(engagement as EngagementType)
+            ? (engagement as EngagementType)
+            : "",
           employmentType: employmentTypes.includes(employment as EmploymentType)
             ? (employment as EmploymentType)
             : "",
+          contractType: valueOf(params.contract),
           category: valueOf(params.category),
           courseSlug: valueOf(params.course),
+          minimumSalary: Number.isFinite(salary) && salary > 0 ? salary : 0,
         }}
       />
     </main>

@@ -8,6 +8,7 @@ export const contractTypes = [
 ] as const;
 export const hoursTypes = ["full_time", "part_time", "flexible"] as const;
 export const experienceLevels = ["entry", "developing", "experienced", "leadership", "open"] as const;
+export const engagementTypes = ["paid", "volunteer"] as const;
 
 export type JobIntakeInput = {
   applicationUrl: string;
@@ -16,6 +17,7 @@ export type JobIntakeInput = {
   contractType: (typeof contractTypes)[number] | null;
   countryCode: string;
   description: string;
+  engagementType: (typeof engagementTypes)[number] | null;
   employerName: string;
   employerSlug: string;
   employerWebsiteUrl: string | null;
@@ -83,6 +85,7 @@ export function validateJobIntake(
   const title = textValue(formData, "title");
   const summary = textValue(formData, "summary");
   const description = textValue(formData, "description");
+  const engagementType = textValue(formData, "engagementType");
   const responsibilities = textValue(formData, "responsibilities");
   const requirements = textValue(formData, "requirements");
   const locationText = textValue(formData, "locationText");
@@ -112,6 +115,7 @@ export function validateJobIntake(
   const normalisedContractType = optionalChoice(contractType, contractTypes);
   const normalisedHoursType = optionalChoice(hoursType, hoursTypes);
   const normalisedExperienceLevel = optionalChoice(experienceLevel, experienceLevels);
+  const normalisedEngagementType = optionalChoice(engagementType, engagementTypes);
   if (normalisedWorkplaceType === undefined) {
     return { error: "Choose how the role is based." };
   }
@@ -123,6 +127,9 @@ export function validateJobIntake(
   }
   if (normalisedExperienceLevel === undefined) {
     return { error: "Choose the experience level." };
+  }
+  if (normalisedEngagementType === undefined) {
+    return { error: "Choose whether this is a paid or volunteer opportunity." };
   }
   if (!salaryNotStated && !hasLength(salaryText, 2, 240)) {
     return { error: "Enter the advertised salary or mark it as not stated." };
@@ -145,6 +152,7 @@ export function validateJobIntake(
       contractType: normalisedContractType,
       countryCode,
       description,
+      engagementType: normalisedEngagementType,
       employerName,
       employerSlug,
       employerWebsiteUrl: employerWebsiteUrl || null,

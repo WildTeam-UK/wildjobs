@@ -51,9 +51,15 @@ export default async function EmployerPage({ params }: EmployerPageProps) {
 
       <header className="employer-profile-hero shell">
         <div className="employer-profile-hero__identity">
-          <div className="employer-profile-monogram" aria-hidden="true">
-            {employer.shortName}
-          </div>
+          {employer.logoUrl ? (
+            <div className="employer-profile-logo">
+              <img alt={`${employer.name} logo`} src={employer.logoUrl} />
+            </div>
+          ) : (
+            <div className="employer-profile-monogram" aria-hidden="true">
+              {employer.shortName}
+            </div>
+          )}
           <div>
             <p className="eyebrow">{employer.focus}</p>
             <h1>{employer.name}</h1>

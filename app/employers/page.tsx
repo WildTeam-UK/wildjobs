@@ -35,9 +35,15 @@ export default async function EmployersPage() {
                 const openRoles = employer.openRoles.length;
                 return (
                   <article key={employer.slug}>
-                    <div className="employer-monogram" aria-hidden="true">
-                      {employer.shortName}
-                    </div>
+                    {employer.logoUrl ? (
+                      <div className="employer-logo">
+                        <img alt={`${employer.name} logo`} src={employer.logoUrl} />
+                      </div>
+                    ) : (
+                      <div className="employer-monogram" aria-hidden="true">
+                        {employer.shortName}
+                      </div>
+                    )}
                     <p className="eyebrow">{employer.focus}</p>
                     <h2>{employer.name}</h2>
                     <p>{employer.mission}</p>

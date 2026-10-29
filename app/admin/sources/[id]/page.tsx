@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import {
+  enrichSourceRecord,
   linkSourceRecordToJob,
   prepareSourceRecordDraft,
   runSourceDiscovery,
@@ -21,6 +22,7 @@ type SourcePageProps = {
   params: Promise<{ id: string }>;
   searchParams: Promise<{
     error?: string | string[];
+    enrichment?: string | string[];
     q?: string | string[];
     record?: string | string[];
     run?: string | string[];
@@ -33,6 +35,15 @@ const mappingLabels: Record<string, string> = {
   mapped: "In review or published",
   possible_duplicate: "Check duplicate",
   unmapped: "Needs review",
+};
+
+const enrichmentLabels: Record<string, string> = {
+  complete: "Enriched",
+  failed: "Enrichment failed",
+  needs_review: "Enriched · check gaps",
+  pending: "Ready to enrich",
+  running: "Enriching",
+  skipped: "Already current",
 };
 
 const filterStatuses = ["review", "duplicate", "mapped", "ignored", "all"] as const;
@@ -94,7 +105,7 @@ export default async function SourcePage({ params, searchParams }: SourcePagePro
   let recordsQuery = supabase
     .from("job_source_records")
     .select(
-      "id, source_id, external_id, canonical_url, mapping_status, job_id, first_seen_at, last_seen_at, source_title, employer_name, location_text, closes_at, source_updated_at, summary",
+      "id, source_id, external_id, canonical_url, mapping_status, job_id, first_seen_at, last_seen_at, source_title, employer_name, location_text, closes_at, source_updated_at, summary, application_url, detail_fetched_at, detail_text, employer_id, employer_website_url, enrichment_attempts, enrichment_completed_at, enrichment_error_code, enrichment_status, job_source_field_evidence(field_name, resolution_status, value, confidence, source_kind, extraction_method, evidence_text, extractor_version)",
     )
     .eq("source_id", sourceId)
     .order("last_seen_at", { ascending: false });
@@ -194,6 +205,27 @@ export default async function SourcePage({ params, searchParams }: SourcePagePro
         {firstQueryValue(query.status) === "linked" ? (
           <p className="staff-form-message" role="status">
             Additional source linked to the existing WildJobs vacancy. No new public listing was created.
+          </p>
+        ) : null}
+        {firstQueryValue(query.enrichment) === "completed" ? (
+          <p className="staff-form-message" role="status">
+            Vacancy details enriched. Check the extracted evidence before creating a private draft.
+          </p>
+        ) : null}
+        {firstQueryValue(query.enrichment) === "needs_review" ? (
+          <p className="staff-form-message" role="status">
+            Enrichment finished, but one or more required facts still need a person to check them.
+          </p>
+        ) : null}
+        {firstQueryValue(query.enrichment) === "skipped" ? (
+          <p className="staff-form-message" role="status">
+            This vacancy is already enriched from the current page content.
+          </p>
+        ) : null}
+        {firstQueryValue(query.enrichment) === "failed" ? (
+          <p className="staff-form-message staff-form-message--error" role="alert">
+            The vacancy could not be enriched this time. Its feed record is unchanged and nothing was
+            published.
           </p>
         ) : null}
         {firstQueryValue(query.error) === "triage-unavailable" ? (
@@ -297,8 +329,16 @@ export default async function SourcePage({ params, searchParams }: SourcePagePro
               const duplicate = canReview ? findDuplicateJob(record, duplicateCandidates) : null;
               const crossFeedDuplicate =
                 canReview && !duplicate ? findDuplicateSourceRecord(record, crossFeedCandidates) : null;
+              const resolvedEvidence = record.job_source_field_evidence.filter(
+                (item) => item.resolution_status === "extracted" && item.value,
+              );
+              const canEnrich =
+                canReview &&
+                ["pending", "failed", "needs_review"].includes(record.enrichment_status) &&
+                record.enrichment_attempts < 3;
               const automaticDraft =
                 canReview &&
+                ["complete", "needs_review", "skipped"].includes(record.enrichment_status) &&
                 record.mapping_status === "unmapped" &&
                 record.canonical_url &&
                 !duplicate &&
@@ -315,6 +355,9 @@ export default async function SourcePage({ params, searchParams }: SourcePagePro
                   <div>
                     <span className="status-badge">
                       {mappingLabels[record.mapping_status] ?? record.mapping_status}
+                    </span>
+                    <span className="status-badge">
+                      {enrichmentLabels[record.enrichment_status] ?? record.enrichment_status}
                     </span>
                     <h2>{record.source_title ?? "Untitled source vacancy"}</h2>
                     <dl className="source-record-list__details">
@@ -335,6 +378,27 @@ export default async function SourcePage({ params, searchParams }: SourcePagePro
                       First seen {formatTimestamp(record.first_seen_at)} · last checked{" "}
                       {formatTimestamp(record.last_seen_at)}
                     </p>
+                    {record.detail_fetched_at ? (
+                      <p className="source-record-list__seen">
+                        Detail page checked {formatTimestamp(record.detail_fetched_at)} ·{" "}
+                        {resolvedEvidence.length} fields supported by evidence
+                      </p>
+                    ) : null}
+                    {resolvedEvidence.length ? (
+                      <aside className="source-record-list__duplicate">
+                        <strong>Extracted evidence</strong>
+                        <ul>
+                          {resolvedEvidence.map((item) => (
+                            <li key={item.field_name}>
+                              <strong>{item.field_name.replaceAll("_", " ")}:</strong> {item.value}{" "}
+                              <small>
+                                ({item.confidence}% · {item.source_kind.replaceAll("_", " ")})
+                              </small>
+                            </li>
+                          ))}
+                        </ul>
+                      </aside>
+                    ) : null}
                     {duplicate ? (
                       <aside className="source-record-list__duplicate">
                         <strong>Possible WildJobs match</strong>
@@ -390,6 +454,16 @@ export default async function SourcePage({ params, searchParams }: SourcePagePro
                         Open original vacancy <span aria-hidden="true">↗</span>
                       </a>
                     ) : null}
+                    {canEnrich ? (
+                      <form action={enrichSourceRecord}>
+                        <input name="recordId" type="hidden" value={record.id} />
+                        <SubmitButton
+                          className="staff-source-toggle"
+                          idleLabel={record.enrichment_attempts ? "Try enrichment again" : "Enrich vacancy"}
+                          pendingLabel="Enriching vacancy…"
+                        />
+                      </form>
+                    ) : null}
                     {automaticDraft ? (
                       <form action={prepareSourceRecordDraft}>
                         <input name="recordId" type="hidden" value={record.id} />
@@ -399,7 +473,8 @@ export default async function SourcePage({ params, searchParams }: SourcePagePro
                           pendingLabel="Preparing private draft…"
                         />
                       </form>
-                    ) : canReview ? (
+                    ) : canReview &&
+                      ["complete", "needs_review", "skipped"].includes(record.enrichment_status) ? (
                       <Link className="staff-source-toggle" href={`/admin/jobs/new?recordId=${record.id}`}>
                         Review missing details
                       </Link>

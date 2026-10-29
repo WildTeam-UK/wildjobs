@@ -63,6 +63,7 @@ Key fields:
 - `id`, `slug`, `name`, `short_name`
 - `status`: `draft`, `in_review`, `published` or `archived`
 - `website_url`, `website_domain`, `focus`, `mission`, `overview`, `culture`
+- `logo_url` with its source URL, profile source URL and last enrichment time
 - `locations` and `benefits` as ordered text arrays for display-only content
 - `reviewed_at`, `published_at`, `created_at`, `updated_at`
 
@@ -78,9 +79,9 @@ Key fields:
 - `description`, `responsibilities`, `requirements` as accessible Markdown text
 - `status`: `draft`, `in_review`, `published`, `expired`, `withdrawn` or `rejected`
 - `location_text`, `country_code`, `region`, `workplace_type`
-- `contract_type`, `hours_type`, `experience_level`, `is_field_based`
+- `engagement_type`, `contract_type`, `hours_type`, `experience_level`, `is_field_based`
 - `salary_text`, `salary_min`, `salary_max`, `salary_currency`, `salary_period`
-- `application_url`, `application_notes`
+- separate `source_name`, `source_url`, `application_url`, `application_notes`
 - `posted_at`, `closes_at`, `published_at`, `withdrawn_at`
 - `created_at`, `updated_at`
 
@@ -144,7 +145,7 @@ Staff-managed source definitions with `name`, `source_type`, authoritative base 
 
 #### `job_source_records`
 
-Preserves provenance without retaining an unnecessary raw copy of third-party content.
+Preserves provenance and the bounded vacancy-page text needed for private review and evidence-backed extraction.
 
 Key fields:
 
@@ -152,8 +153,17 @@ Key fields:
 - `external_id`, `canonical_url`, `content_hash`
 - `source_updated_at`, `first_seen_at`, `last_seen_at`, `verified_at`
 - mapping and duplicate-review status
+- canonical employer match, application and employer URLs
+- bounded detail text and hashes used to skip unchanged pages
+- enrichment status, attempt count, timestamps and a constrained safe error code
 
 Partial unique indexes prevent duplicates for non-null external identifiers and canonical URLs within a source.
+
+#### `job_source_field_evidence`, `source_enrichment_runs` and `employer_field_evidence`
+
+Field evidence records the extracted value, exact supporting text, source kind, method, confidence and extractor version. One current evidence record exists per source-record field; staff-reviewed evidence is never overwritten by automated enrichment.
+
+The enrichment-run ledger records the trigger, result, page-fetch flags, resolved and unresolved field counts, model and generation identifiers, and input/output token totals. It contains no prompts, secrets or unrestricted third-party payloads. Employer evidence is stored once against the canonical employer so later vacancies reuse reviewed organisation data.
 
 #### `import_runs`
 

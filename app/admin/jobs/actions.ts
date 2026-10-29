@@ -43,6 +43,7 @@ export async function updateJobReview(
     p_contract_type: input.contractType ?? "",
     p_country_code: input.countryCode,
     p_description: input.description,
+    p_engagement_type: input.engagementType,
     p_employer_mission: input.employerMission,
     p_employer_overview: input.employerOverview,
     p_employer_website_url: input.employerWebsiteUrl,

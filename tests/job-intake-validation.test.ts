@@ -9,6 +9,7 @@ const validValues = {
   contractType: "fixed_term",
   countryCode: "gb",
   description: "A complete description of this conservation vacancy and the work involved.",
+  engagementType: "paid",
   employerName: "Example Nature Trust",
   employerWebsiteUrl: "https://example.org",
   experienceLevel: "developing",
@@ -62,6 +63,7 @@ describe("manual job intake validation", () => {
     const result = validateJobIntake(
       jobForm({
         contractType: "not_specified",
+        engagementType: "not_specified",
         experienceLevel: "not_specified",
         hoursType: "not_specified",
         salaryNotStated: "on",
@@ -73,6 +75,7 @@ describe("manual job intake validation", () => {
 
     expect(result.data).toMatchObject({
       contractType: null,
+      engagementType: null,
       experienceLevel: null,
       hoursType: null,
       salaryText: null,

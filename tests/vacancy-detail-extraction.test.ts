@@ -10,6 +10,7 @@ describe("vacancy detail extraction", () => {
       ),
     ).toEqual({
       contractType: "permanent",
+      engagementType: "paid",
       experienceLevel: "experienced",
       hoursType: undefined,
       salaryText: "£26,250",
@@ -24,6 +25,7 @@ describe("vacancy detail extraction", () => {
       ),
     ).toEqual({
       contractType: "fixed_term",
+      engagementType: "paid",
       experienceLevel: undefined,
       hoursType: "part_time",
       salaryText:
@@ -39,6 +41,7 @@ describe("vacancy detail extraction", () => {
       ),
     ).toEqual({
       contractType: "permanent",
+      engagementType: "paid",
       experienceLevel: undefined,
       hoursType: "flexible",
       salaryText: "Project Officer: from £28,383 / Senior Project Officer: from £34,367",
@@ -49,6 +52,7 @@ describe("vacancy detail extraction", () => {
   it("keeps uncertain details empty rather than inferring them", () => {
     expect(extractVacancyDetails("Help restore habitats with local partners.")).toEqual({
       contractType: undefined,
+      engagementType: undefined,
       experienceLevel: undefined,
       hoursType: undefined,
       salaryText: undefined,

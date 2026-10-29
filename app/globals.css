@@ -544,6 +544,26 @@ select {
   margin-top: auto;
   padding-top: 26px;
 }
+.employer-logo,
+.employer-monogram {
+  display: grid;
+  width: 76px;
+  height: 76px;
+  place-items: center;
+  overflow: hidden;
+  border-radius: var(--wt-radius-panel);
+  background: var(--wt-color-cream);
+}
+.employer-logo img {
+  width: 100%;
+  height: 100%;
+  padding: 10px;
+  object-fit: contain;
+}
+.employer-monogram {
+  color: var(--wt-color-brand-purple);
+  font-weight: var(--wt-font-weight-black);
+}
 .employer-proposition {
   display: grid;
   grid-template-columns: minmax(280px, 0.48fr) minmax(0, 0.52fr);
@@ -640,16 +660,13 @@ select {
   padding: clamp(58px, 8vw, 92px) 0;
 }
 .job-browser__layout {
-  display: grid;
-  grid-template-columns: minmax(240px, 0.34fr) minmax(0, 1fr);
-  align-items: start;
-  gap: clamp(36px, 6vw, 72px);
+  display: block;
 }
 .filter-panel {
-  position: sticky;
-  top: 24px;
   display: grid;
-  gap: 19px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 18px;
+  margin-bottom: clamp(42px, 6vw, 64px);
   padding: 27px;
   border: 0;
   border-radius: var(--wt-radius-panel);
@@ -663,11 +680,34 @@ select {
   gap: 16px;
   padding-bottom: 18px;
   border-bottom: 1px solid #ddcbbb;
+  grid-column: 1 / -1;
 }
 .filter-panel h2 {
   margin: 0;
   font-size: 1.55rem;
   line-height: 1;
+}
+.filter-panel__control {
+  display: grid;
+  gap: 8px;
+}
+.filter-panel__control label {
+  font-size: 0.82rem;
+  font-weight: var(--wt-font-weight-bold);
+}
+.filter-panel__control input {
+  width: 100%;
+  min-height: 48px;
+  padding: 0 14px;
+  border: 1px solid var(--wt-color-rule);
+  border-radius: var(--wt-radius-control);
+  background: var(--wt-color-paper);
+  color: var(--wt-color-ink);
+  font: inherit;
+}
+.job-results {
+  max-width: 860px;
+  margin-inline: auto;
 }
 .job-results__heading {
   display: flex;
@@ -1062,6 +1102,23 @@ select {
   font-size: clamp(1.4rem, 3vw, 2.2rem);
   font-weight: var(--wt-font-weight-black);
   letter-spacing: -0.03em;
+}
+.employer-profile-logo {
+  display: grid;
+  width: clamp(92px, 12vw, 138px);
+  aspect-ratio: 1;
+  flex: 0 0 auto;
+  place-items: center;
+  overflow: hidden;
+  border: 1px solid var(--wt-color-rule);
+  border-radius: var(--wt-radius-panel);
+  background: var(--wt-color-paper);
+}
+.employer-profile-logo img {
+  width: 100%;
+  height: 100%;
+  padding: 14px;
+  object-fit: contain;
 }
 .employer-profile-hero h1 {
   max-width: 760px;

@@ -106,7 +106,9 @@ export async function importApprovedSource(
       fetchSourceVacancies(connector, source.authoritative_base_url),
       supabase
         .from("job_source_records")
-        .select("id, external_id, canonical_url, content_hash, mapping_status")
+        .select(
+          "id, external_id, canonical_url, content_hash, mapping_status, enrichment_status, enrichment_attempts",
+        )
         .eq("source_id", source.id),
     ]);
 
@@ -151,6 +153,13 @@ export async function importApprovedSource(
             source_title: vacancy.title,
             source_updated_at: vacancy.publishedAt,
             summary: vacancy.summary,
+            ...(changed && ["unmapped", "possible_duplicate"].includes(existing.mapping_status)
+              ? {
+                  enrichment_attempts: 0,
+                  enrichment_error_code: null,
+                  enrichment_status: "pending",
+                }
+              : {}),
           })
           .eq("id", existing.id);
         if (error) throw new Error("A source record could not be updated.");

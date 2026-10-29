@@ -1,4 +1,10 @@
-import { contractTypes, experienceLevels, hoursTypes, workplaceTypes } from "./job-intake-validation";
+import {
+  contractTypes,
+  engagementTypes,
+  experienceLevels,
+  hoursTypes,
+  workplaceTypes,
+} from "./job-intake-validation";
 
 type JobReviewInput = {
   applicationUrl: string;
@@ -7,6 +13,7 @@ type JobReviewInput = {
   contractType: (typeof contractTypes)[number] | null;
   countryCode: string;
   description: string;
+  engagementType: (typeof engagementTypes)[number] | null;
   employerMission: string;
   employerOverview: string;
   employerWebsiteUrl: string;
@@ -61,6 +68,7 @@ export function validateJobReview(
   const title = textValue(formData, "title");
   const summary = textValue(formData, "summary");
   const description = textValue(formData, "description");
+  const engagementType = textValue(formData, "engagementType");
   const responsibilities = textValue(formData, "responsibilities");
   const requirements = textValue(formData, "requirements");
   const locationText = textValue(formData, "locationText");
@@ -92,6 +100,7 @@ export function validateJobReview(
   const normalisedContractType = optionalChoice(contractType, contractTypes);
   const normalisedHoursType = optionalChoice(hoursType, hoursTypes);
   const normalisedExperienceLevel = optionalChoice(experienceLevel, experienceLevels);
+  const normalisedEngagementType = optionalChoice(engagementType, engagementTypes);
   if (normalisedWorkplaceType === undefined) {
     return { error: "Choose how the role is based." };
   }
@@ -103,6 +112,9 @@ export function validateJobReview(
   }
   if (normalisedExperienceLevel === undefined) {
     return { error: "Choose the experience level." };
+  }
+  if (normalisedEngagementType === undefined) {
+    return { error: "Choose whether this is a paid or volunteer opportunity." };
   }
   if (!salaryNotStated && !hasLength(salaryText, 2, 240)) {
     return { error: "Enter the advertised salary or mark it as not stated." };
@@ -122,6 +134,7 @@ export function validateJobReview(
       contractType: normalisedContractType,
       countryCode,
       description,
+      engagementType: normalisedEngagementType,
       employerMission,
       employerOverview,
       employerWebsiteUrl,

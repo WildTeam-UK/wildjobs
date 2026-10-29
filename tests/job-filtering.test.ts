@@ -1,41 +1,40 @@
 import { describe, expect, it } from "vitest";
-import { filterJobs, jobCategories } from "../lib/job-filtering";
+import { filterJobs, jobCategories, type JobFilters } from "../lib/job-filtering";
 import { jobs } from "../lib/jobs";
+
+function filters(overrides: Partial<JobFilters> = {}): JobFilters {
+  return {
+    category: "",
+    contractType: "",
+    courseSlug: "",
+    employmentType: "",
+    engagementType: "",
+    locationQuery: "",
+    locationType: "",
+    minimumSalary: 0,
+    query: "",
+    ...overrides,
+  };
+}
 
 describe("job filtering", () => {
   it("searches across role, organisation, location and summary text", () => {
-    expect(
-      filterJobs(jobs, {
-        query: "ecological datasets",
-        locationType: "",
-        employmentType: "",
-        category: "",
-        courseSlug: "",
-      }).map((job) => job.slug),
-    ).toEqual(["biodiversity-data-analyst"]);
+    expect(filterJobs(jobs, filters({ query: "ecological datasets" })).map((job) => job.slug)).toEqual([
+      "biodiversity-data-analyst",
+    ]);
   });
 
   it("combines structured filters", () => {
     expect(
-      filterJobs(jobs, {
-        query: "",
-        locationType: "Hybrid",
-        employmentType: "Full time",
-        category: "",
-        courseSlug: "",
-      }).map((job) => job.slug),
+      filterJobs(jobs, filters({ locationType: "Hybrid", employmentType: "Full time" })).map(
+        (job) => job.slug,
+      ),
     ).toEqual(["community-conservation-coordinator", "forest-programme-manager"]);
   });
 
   it("finds roles related to a WildTeam course", () => {
     expect(
-      filterJobs(jobs, {
-        query: "",
-        locationType: "",
-        employmentType: "",
-        category: "",
-        courseSlug: "monitoring-and-evaluation",
-      }).map((job) => job.slug),
+      filterJobs(jobs, filters({ courseSlug: "monitoring-and-evaluation" })).map((job) => job.slug),
     ).toEqual(["marine-restoration-officer", "biodiversity-data-analyst", "forest-programme-manager"]);
   });
 
@@ -46,15 +45,28 @@ describe("job filtering", () => {
       hoursType: "Full time",
     };
 
+    expect(filterJobs([liveJob], filters({ employmentType: "Fixed term" }))).toEqual([liveJob]);
+  });
+
+  it("filters by opportunity, advertised location, contract and salary", () => {
+    const paidJob = {
+      ...jobs[0],
+      contractType: "Permanent",
+      engagementType: "Paid" as const,
+      salaryMinimum: 31_000,
+    };
+
     expect(
-      filterJobs([liveJob], {
-        query: "",
-        locationType: "",
-        employmentType: "Fixed term",
-        category: "",
-        courseSlug: "",
-      }),
-    ).toEqual([liveJob]);
+      filterJobs(
+        [paidJob, jobs[1]],
+        filters({
+          contractType: "Permanent",
+          engagementType: "Paid",
+          locationQuery: "Bristol",
+          minimumSalary: 30_000,
+        }),
+      ),
+    ).toEqual([paidJob]);
   });
 
   it("returns stable alphabetical categories", () => {
