@@ -75,6 +75,11 @@ export default async function AdminPage() {
             <h3>Employer submissions</h3>
             <p>Keep employer evidence and the final publishing decision separate.</p>
           </Link>
+          <Link href="/admin/automation">
+            <span>05</span>
+            <h3>Review automation</h3>
+            <p>Inspect AI enrichment, evidence gaps, usage and shadow publication decisions.</p>
+          </Link>
         </div>
       </section>
     </main>
