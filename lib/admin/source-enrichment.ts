@@ -18,6 +18,7 @@ import {
   sameWebsiteHost,
 } from "./employer-research-validation";
 import { employerIdentityConflicts, employerIdentityMatches } from "./employer-identity";
+import { looksLikeFavicon, selectEmployerLogo } from "./employer-logo-selection";
 import { shouldGenerateAiSummary } from "./publication-summary";
 import { fetchApprovedVacancyPage, fetchEmployerPage, SourcePageError } from "./source-page-fetch";
 import {
@@ -105,10 +106,6 @@ function domainFromUrl(value: string | null) {
   } catch {
     return null;
   }
-}
-
-function looksLikeFavicon(value: string | null) {
-  return Boolean(value && /(?:favicon|apple-touch-icon|icon[-_.]?\d*)/i.test(value));
 }
 
 function slugify(value: string) {
@@ -348,6 +345,12 @@ async function persistEmployerEnrichment(
 ) {
   if (employer.reviewed_at) return employer;
   const suggestions = new Map(input.suggestions.map((item) => [item.fieldName, item]));
+  const selectedLogo = selectEmployerLogo({
+    candidateLogoSourceUrl: input.logoSourceUrl,
+    candidateLogoUrl: input.logoUrl,
+    existingLogoSourceUrl: employer.logo_source_url,
+    existingLogoUrl: employer.logo_url,
+  });
   const locations = input.suggestions
     .filter((item) => item.fieldName === "locations")
     .map((item) => item.value);
@@ -364,16 +367,8 @@ async function persistEmployerEnrichment(
     enriched_at: new Date().toISOString(),
     focus: employer.focus ?? suggestions.get("focus")?.value ?? null,
     locations: employer.locations.length ? employer.locations : [...new Set(locations)],
-    logo_source_url:
-      input.logoUrl &&
-      (!employer.logo_url || (looksLikeFavicon(employer.logo_url) && !looksLikeFavicon(input.logoUrl)))
-        ? input.logoSourceUrl
-        : employer.logo_source_url,
-    logo_url:
-      input.logoUrl &&
-      (!employer.logo_url || (looksLikeFavicon(employer.logo_url) && !looksLikeFavicon(input.logoUrl)))
-        ? input.logoUrl
-        : employer.logo_url,
+    logo_source_url: selectedLogo.logoSourceUrl,
+    logo_url: selectedLogo.logoUrl,
     mission: employer.mission ?? suggestions.get("mission")?.value ?? null,
     overview: employer.overview,
     profile_source_url: employer.profile_source_url ?? input.sourceUrl,
@@ -401,16 +396,16 @@ async function persistEmployerEnrichment(
       value: input.websiteUrl,
     });
   }
-  if (input.logoUrl && input.logoSourceUrl) {
+  if (selectedLogo.logoUrl && selectedLogo.logoSourceUrl) {
     evidenceRows.push({
       confidence: 90,
       employer_id: employer.id,
-      evidence_text: input.logoUrl,
+      evidence_text: selectedLogo.logoUrl,
       extraction_method: "deterministic",
-      extractor_version: "official-site-v1",
+      extractor_version: "verified-logo-source-v2",
       field_name: "logo_url",
-      source_url: input.logoSourceUrl,
-      value: input.logoUrl,
+      source_url: selectedLogo.logoSourceUrl,
+      value: selectedLogo.logoUrl,
     });
   }
   const suggestionGroups = new Map<string, typeof input.suggestions>();
