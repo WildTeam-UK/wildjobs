@@ -141,7 +141,7 @@ Composite primary keys prevent duplicates. Each table cascades when the candidat
 
 #### `job_sources`
 
-Staff-managed source definitions with `name`, `source_type`, authoritative base URL, active flag and timestamps. The initial types are `manual_curation`, `employer_submission`, `feed` and `api`; only explicitly approved sources are active.
+Staff-managed source definitions with `name`, `source_type`, authoritative base URL, default country, active flag and timestamps. The initial types are `manual_curation`, `employer_submission`, `feed` and `api`; only explicitly approved sources are active.
 
 #### `job_source_records`
 
@@ -156,6 +156,8 @@ Key fields:
 - canonical employer match, application and employer URLs
 - bounded detail text and hashes used to skip unchanged pages
 - enrichment status, attempt count, timestamps and a constrained safe error code
+- enrichment and automatic-publication policy versions
+- current publication readiness, score, blocker codes and evaluation time
 
 Partial unique indexes prevent duplicates for non-null external identifiers and canonical URLs within a source.
 
@@ -164,6 +166,10 @@ Partial unique indexes prevent duplicates for non-null external identifiers and 
 Field evidence records the extracted value, exact supporting text, source kind, method, confidence and extractor version. One current evidence record exists per source-record field; staff-reviewed evidence is never overwritten by automated enrichment.
 
 The enrichment-run ledger records the trigger, result, page-fetch flags, resolved and unresolved field counts, model and generation identifiers, and input/output token totals. It contains no prompts, secrets or unrestricted third-party payloads. Employer evidence is stored once against the canonical employer so later vacancies reuse reviewed organisation data.
+
+#### `automation_publication_decisions`
+
+An append-only decision ledger records shadow and live policy evaluations. Each row stores the source record, optional resulting job, decision, score, policy version, exact blocker codes and a compact field-confidence snapshot. It does not store prompts or copied source text. Staff can read the ledger; only trusted server automation can write it or call the atomic publisher.
 
 #### `import_runs`
 
@@ -221,7 +227,7 @@ Publication and status changes should be written transactionally with their mode
 | Sources, source records and import runs              | None           | None                   | Read and review        | Ingest and manage                         |
 | Submission invites and employer submissions          | None           | None                   | Review and manage      | Validate invitation and create submission |
 | Staff membership                                     | None           | Own active record only | Own active record only | Admin provisioning only                   |
-| Moderation events                                    | None           | None                   | Read and append        | Append during trusted operations          |
+| Moderation and automated publication decisions       | None           | None                   | Read and append        | Append during trusted operations          |
 
 Policy requirements:
 

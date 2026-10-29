@@ -4,7 +4,13 @@ import { createHash } from "node:crypto";
 
 import type { SupabaseClient } from "@supabase/supabase-js";
 
-import { enrichWithAi, type AiEmployerSuggestion } from "./ai-vacancy-enrichment";
+import {
+  AI_ENRICHMENT_POLICY_VERSION,
+  enrichWithAi,
+  isAiEnrichmentEnabled,
+  type AiEmployerSuggestion,
+} from "./ai-vacancy-enrichment";
+import { evaluateAndMaybePublishSourceRecord } from "./automation-publication";
 import { fetchApprovedVacancyPage, fetchEmployerPage, SourcePageError } from "./source-page-fetch";
 import {
   parseEmployerPage,
@@ -39,7 +45,45 @@ type Employer = Database["public"]["Tables"]["employers"]["Row"];
 
 export type SourceEnrichmentResult =
   | { status: "idle" }
-  | { recordId: number; runId: number; status: "completed" | "failed" | "needs_review" | "skipped" };
+  | {
+      publication?: Awaited<ReturnType<typeof evaluateAndMaybePublishSourceRecord>>;
+      recordId: number;
+      runId: number;
+      status: "completed" | "failed" | "needs_review" | "skipped";
+    };
+
+const DETERMINISTIC_ENRICHMENT_POLICY_VERSION = `${SOURCE_PAGE_EXTRACTOR_VERSION}-only`;
+
+function positiveLimit(value: string | undefined, fallback: number, maximum: number) {
+  const parsed = Number(value);
+  return Number.isSafeInteger(parsed) && parsed > 0 ? Math.min(parsed, maximum) : fallback;
+}
+
+async function readAiBudget(supabase: SupabaseClient<Database>) {
+  if (!isAiEnrichmentEnabled()) return { allowed: false, reason: "disabled" as const };
+  const start = new Date();
+  start.setUTCHours(0, 0, 0, 0);
+  const { data, error } = await supabase
+    .from("source_enrichment_runs")
+    .select("input_tokens, output_tokens")
+    .eq("ai_attempted", true)
+    .gte("started_at", start.toISOString());
+  if (error) throw new Error("AI usage could not be checked safely.");
+  const requestLimit = positiveLimit(process.env.AI_DAILY_REQUEST_LIMIT, 25, 1_000);
+  const inputLimit = positiveLimit(process.env.AI_DAILY_INPUT_TOKEN_LIMIT, 250_000, 10_000_000);
+  const outputLimit = positiveLimit(process.env.AI_DAILY_OUTPUT_TOKEN_LIMIT, 40_000, 2_000_000);
+  const usage = (data ?? []).reduce(
+    (total, run) => ({
+      input: total.input + run.input_tokens,
+      output: total.output + run.output_tokens,
+    }),
+    { input: 0, output: 0 },
+  );
+  return {
+    allowed: (data?.length ?? 0) < requestLimit && usage.input < inputLimit && usage.output < outputLimit,
+    reason: "daily_limit" as const,
+  };
+}
 
 function digest(value: unknown) {
   return createHash("sha256").update(JSON.stringify(value)).digest("hex");
@@ -138,20 +182,34 @@ function mergeEvidence(
 async function claimSourceRecord(
   supabase: SupabaseClient<Database>,
   trigger: EnrichmentTrigger,
+  allowAiBackfill: boolean,
   requestedRecordId?: number,
 ) {
-  let query = supabase
-    .from("job_source_records")
-    .select("*, job_sources!inner(name, source_type, authoritative_base_url, is_active)")
-    .is("job_id", null)
-    .in("mapping_status", ["unmapped", "possible_duplicate"])
-    .lt("enrichment_attempts", 3);
+  const baseQuery = () =>
+    supabase
+      .from("job_source_records")
+      .select("*, job_sources!inner(name, source_type, authoritative_base_url, is_active)")
+      .is("job_id", null)
+      .in("mapping_status", ["unmapped", "possible_duplicate"])
+      .lt("enrichment_attempts", 3);
 
-  query = requestedRecordId
-    ? query.eq("id", requestedRecordId).in("enrichment_status", ["pending", "needs_review", "failed"])
-    : query.eq("enrichment_status", "pending").order("first_seen_at").limit(1);
+  let candidateResult = requestedRecordId
+    ? await baseQuery()
+        .eq("id", requestedRecordId)
+        .in("enrichment_status", ["pending", "needs_review", "failed", "complete", "skipped"])
+        .maybeSingle()
+    : await baseQuery().eq("enrichment_status", "pending").order("first_seen_at").limit(1).maybeSingle();
 
-  const { data: candidate, error } = await query.maybeSingle();
+  if (!candidateResult.data && !requestedRecordId && allowAiBackfill) {
+    candidateResult = await baseQuery()
+      .in("enrichment_status", ["complete", "needs_review", "skipped"])
+      .or(`enrichment_policy_version.is.null,enrichment_policy_version.neq.${AI_ENRICHMENT_POLICY_VERSION}`)
+      .order("first_seen_at")
+      .limit(1)
+      .maybeSingle();
+  }
+
+  const { data: candidate, error } = candidateResult;
   if (error) throw new Error("Pending enrichment records could not be read.");
   if (!candidate) return null;
 
@@ -405,7 +463,8 @@ export async function enrichNextPendingSourceRecord(
   trigger: EnrichmentTrigger,
   requestedRecordId?: number,
 ): Promise<SourceEnrichmentResult> {
-  const claimed = await claimSourceRecord(supabase, trigger, requestedRecordId);
+  const aiBudget = await readAiBudget(supabase);
+  const claimed = await claimSourceRecord(supabase, trigger, aiBudget.allowed, requestedRecordId);
   if (!claimed) return { status: "idle" };
   const { record, runId } = claimed;
   const source = record.job_sources;
@@ -427,6 +486,9 @@ export async function enrichNextPendingSourceRecord(
       detailText: page.detailText,
       employerWebsiteUrl: page.employerWebsiteUrl,
       extractorVersion: SOURCE_PAGE_EXTRACTOR_VERSION,
+      policyVersion: isAiEnrichmentEnabled()
+        ? AI_ENRICHMENT_POLICY_VERSION
+        : DETERMINISTIC_ENRICHMENT_POLICY_VERSION,
     });
 
     if (record.enriched_content_hash === detailContentHash) {
@@ -441,7 +503,8 @@ export async function enrichNextPendingSourceRecord(
           .update({ finished_at: finishedAt, source_page_fetched: true, status: "skipped" })
           .eq("id", runId),
       ]);
-      return { recordId: record.id, runId, status: "skipped" };
+      const publication = await evaluateAndMaybePublishSourceRecord(supabase, record.id);
+      return { publication, recordId: record.id, runId, status: "skipped" };
     }
 
     const employer = await resolveEmployer(supabase, record, page);
@@ -453,7 +516,8 @@ export async function enrichNextPendingSourceRecord(
     };
     if (
       employerWebsiteUrl &&
-      !employer?.enriched_at &&
+      (!employer?.enriched_at ||
+        (isAiEnrichmentEnabled() && (!employer?.mission?.trim() || !employer?.overview?.trim()))) &&
       employer?.status !== "published" &&
       !employer?.reviewed_at
     ) {
@@ -485,7 +549,8 @@ export async function enrichNextPendingSourceRecord(
 
     let aiResult: Awaited<ReturnType<typeof enrichWithAi>> = { status: "disabled" };
     let aiError = false;
-    if (unresolved.length || employerPage.text) {
+    const aiNeeded = Boolean(unresolved.length || employerPage.text);
+    if (aiNeeded && aiBudget.allowed) {
       try {
         aiResult = await enrichWithAi({
           employerName: employer?.name ?? page.employerName ?? record.employer_name,
@@ -551,6 +616,17 @@ export async function enrichNextPendingSourceRecord(
       page.detailText,
     );
     const status = mandatoryComplete ? "complete" : "needs_review";
+    const enrichmentPolicyVersion =
+      !aiNeeded || aiResult.status === "completed"
+        ? isAiEnrichmentEnabled()
+          ? AI_ENRICHMENT_POLICY_VERSION
+          : DETERMINISTIC_ENRICHMENT_POLICY_VERSION
+        : DETERMINISTIC_ENRICHMENT_POLICY_VERSION;
+    const aiSkipReason = !aiNeeded
+      ? "not_needed"
+      : aiResult.status === "completed" || aiError
+        ? null
+        : aiBudget.reason;
     const finishedAt = new Date().toISOString();
     const { error: recordUpdateError } = await supabase
       .from("job_source_records")
@@ -563,9 +639,11 @@ export async function enrichNextPendingSourceRecord(
         employer_id: employer?.id ?? record.employer_id,
         employer_name: page.employerName ?? record.employer_name,
         employer_website_url: employerWebsiteUrl,
-        enriched_content_hash: detailContentHash,
+        enriched_content_hash:
+          !aiNeeded || aiResult.status === "completed" || !isAiEnrichmentEnabled() ? detailContentHash : null,
         enrichment_completed_at: finishedAt,
         enrichment_error_code: aiError ? "ai_unavailable" : null,
+        enrichment_policy_version: enrichmentPolicyVersion,
         enrichment_status: status,
         location_text: page.locationText ?? record.location_text,
       })
@@ -578,6 +656,7 @@ export async function enrichNextPendingSourceRecord(
         ai_attempted: aiResult.status === "completed" || aiError,
         ai_generation_id: aiResult.status === "completed" ? aiResult.generationId : null,
         ai_model: aiResult.status === "completed" ? aiResult.model : null,
+        ai_skip_reason: aiSkipReason,
         employer_page_fetched: Boolean(employerPage.text),
         error_code: aiError ? "ai_unavailable" : null,
         fields_resolved: resolved,
@@ -591,7 +670,13 @@ export async function enrichNextPendingSourceRecord(
       .eq("id", runId);
     if (runUpdateError) throw new Error("The enrichment run could not be completed.");
 
-    return { recordId: record.id, runId, status: status === "complete" ? "completed" : status };
+    const publication = await evaluateAndMaybePublishSourceRecord(supabase, record.id);
+    return {
+      publication,
+      recordId: record.id,
+      runId,
+      status: status === "complete" ? "completed" : status,
+    };
   } catch (error) {
     const errorCode = error instanceof SourcePageError ? error.code : "persistence_failed";
     await finishFailed(supabase, record.id, runId, errorCode);

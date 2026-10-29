@@ -10,6 +10,10 @@ import {
   setSourceRecordStatus,
 } from "@/app/admin/sources/actions";
 import { SubmitButton } from "@/components/submit-button";
+import {
+  automationBlockerLabels,
+  type AutomationBlockerCode,
+} from "@/lib/admin/automation-publication-readiness";
 import { connectorActionLabel, getSourceConnector } from "@/lib/admin/source-connector";
 import { findDuplicateJob, findDuplicateSourceRecord } from "@/lib/admin/duplicate-match";
 import { buildSourceRecordDraftDefaults, prepareSourceRecordJobInput } from "@/lib/admin/source-record-draft";
@@ -44,6 +48,14 @@ const enrichmentLabels: Record<string, string> = {
   pending: "Ready to enrich",
   running: "Enriching",
   skipped: "Already current",
+};
+
+const automationLabels: Record<string, string> = {
+  blocked: "Automation check · review needed",
+  failed: "Automation check failed safely",
+  pending: "Automation check pending",
+  published: "Published automatically",
+  ready: "Automation check · ready",
 };
 
 const filterStatuses = ["review", "duplicate", "mapped", "ignored", "all"] as const;
@@ -105,7 +117,7 @@ export default async function SourcePage({ params, searchParams }: SourcePagePro
   let recordsQuery = supabase
     .from("job_source_records")
     .select(
-      "id, source_id, external_id, canonical_url, mapping_status, job_id, first_seen_at, last_seen_at, source_title, employer_name, location_text, closes_at, source_updated_at, summary, application_url, detail_fetched_at, detail_text, employer_id, employer_website_url, enrichment_attempts, enrichment_completed_at, enrichment_error_code, enrichment_status, job_source_field_evidence(field_name, resolution_status, value, confidence, source_kind, extraction_method, evidence_text, extractor_version)",
+      "id, source_id, external_id, canonical_url, mapping_status, job_id, first_seen_at, last_seen_at, source_title, employer_name, location_text, closes_at, source_updated_at, summary, application_url, detail_fetched_at, detail_text, employer_id, employer_website_url, enrichment_attempts, enrichment_completed_at, enrichment_error_code, enrichment_status, automation_status, automation_blockers, automation_score, automation_evaluated_at, automation_policy_version, job_source_field_evidence(field_name, resolution_status, value, confidence, source_kind, extraction_method, evidence_text, extractor_version)",
     )
     .eq("source_id", sourceId)
     .order("last_seen_at", { ascending: false });
@@ -114,7 +126,7 @@ export default async function SourcePage({ params, searchParams }: SourcePagePro
   const [sourceResult, recordsResult, jobsResult, otherSourceRecordsResult] = await Promise.all([
     supabase
       .from("job_sources")
-      .select("id, name, source_type, authoritative_base_url, is_active")
+      .select("id, name, source_type, authoritative_base_url, is_active, default_country_code")
       .eq("id", sourceId)
       .maybeSingle(),
     recordsQuery,
@@ -175,8 +187,8 @@ export default async function SourcePage({ params, searchParams }: SourcePagePro
           <h1>{source.name}</h1>
         </div>
         <p>
-          Every discovery stays private here until a staff member checks the original vacancy and creates a
-          review draft.
+          Every discovery is enriched, checked against the publication policy and either published safely or
+          held here with an exact reason.
         </p>
       </header>
 
@@ -359,6 +371,9 @@ export default async function SourcePage({ params, searchParams }: SourcePagePro
                     <span className="status-badge">
                       {enrichmentLabels[record.enrichment_status] ?? record.enrichment_status}
                     </span>
+                    <span className="status-badge">
+                      {automationLabels[record.automation_status] ?? record.automation_status}
+                    </span>
                     <h2>{record.source_title ?? "Untitled source vacancy"}</h2>
                     <dl className="source-record-list__details">
                       <div>
@@ -383,6 +398,35 @@ export default async function SourcePage({ params, searchParams }: SourcePagePro
                         Detail page checked {formatTimestamp(record.detail_fetched_at)} ·{" "}
                         {resolvedEvidence.length} fields supported by evidence
                       </p>
+                    ) : null}
+                    {record.automation_evaluated_at ? (
+                      <p className="source-record-list__seen">
+                        Automation score {record.automation_score ?? 0}% · checked{" "}
+                        {formatTimestamp(record.automation_evaluated_at)}
+                        {record.automation_policy_version ? ` · ${record.automation_policy_version}` : ""}
+                      </p>
+                    ) : null}
+                    {record.automation_status === "ready" ? (
+                      <aside className="source-record-list__duplicate">
+                        <strong>Ready for automatic publication</strong>
+                        <p>
+                          Every required evidence check passed. Automatic publication is{" "}
+                          {process.env.AUTO_PUBLISH_ENABLED === "true" ? "enabled" : "still in shadow mode"}.
+                        </p>
+                      </aside>
+                    ) : null}
+                    {record.automation_blockers.length ? (
+                      <aside className="source-record-list__duplicate">
+                        <strong>Why automation stopped</strong>
+                        <ul>
+                          {record.automation_blockers.map((blocker) => (
+                            <li key={blocker}>
+                              {automationBlockerLabels[blocker as AutomationBlockerCode] ??
+                                blocker.replaceAll("_", " ")}
+                            </li>
+                          ))}
+                        </ul>
+                      </aside>
                     ) : null}
                     {resolvedEvidence.length ? (
                       <aside className="source-record-list__duplicate">

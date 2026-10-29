@@ -2,7 +2,7 @@
 
 WildJobs is WildTeam's independent conservation careers platform, intended for `jobs.wildteam.org.uk`.
 
-The application is connected to its independent Supabase project. Public job discovery, employer profiles and career-area discovery read approved live records; candidate authentication, private saved jobs and explicit job preferences are connected; and authorised staff can curate, review, publish, expire and withdraw jobs with an audit trail. Source connectors check WWT's public vacancy page and the reviewed Countryside Jobs Service RSS feed, automatically every two hours or on demand, and route discoveries into manual review without automatic publication. The controlled employer journey creates seven-day, single-use invitation links, validates and consumes them through a protected server route, and sends complete submissions into the staff-only review queue without automatic publication. Course matching still contains clearly labelled prototype content. Analytics and marketing integrations are not implemented yet.
+The application is connected to its independent Supabase project. Public job discovery, employer profiles and career-area discovery read approved live records; candidate authentication, private saved jobs and explicit job preferences are connected; and authorised staff can curate, review, publish, expire and withdraw jobs with an audit trail. Source connectors check WWT's public vacancy page and the reviewed Countryside Jobs Service RSS feed, automatically every two hours or on demand. Between imports, a bounded enrichment pipeline extracts evidence, builds canonical employer context and records an automatic-publication decision. AI enrichment and live automatic publication have independent master switches and both default off; publication checks run in shadow mode until explicitly enabled. The controlled employer journey creates seven-day, single-use invitation links, validates and consumes them through a protected server route, and sends complete submissions into the staff-only review queue. Course matching still contains clearly labelled prototype content. Analytics and marketing integrations are not implemented yet.
 
 The approved beta direction is documented in `docs/IMPLEMENTATION_PLAN.md` and `docs/EXPERIENCE_BLUEPRINT.md`.
 
@@ -32,6 +32,11 @@ server-only Vercel environment variables. The same automation-secret value is st
 Vault as `wildjobs_automation_secret`. Supabase calls the protected heartbeat every minute; an
 atomic database claim releases source-import work once every two hours.
 
+AI enrichment uses a current Vercel AI Gateway model only for unresolved fields. Daily request and token
+limits are enforced in the application. `AUTO_PUBLISH_ENABLED` remains false until shadow decisions have
+been reviewed; even in live mode, a service-only atomic database function publishes only records that pass
+the evidence, source, duplicate, date and employer-profile policy.
+
 Run the complete local checks with:
 
 ```sh
@@ -41,7 +46,7 @@ pnpm check
 ## Current boundaries
 
 - Published jobs and their source provenance live in Supabase; fixture jobs in `lib/jobs.ts` remain design references only.
-- Source discovery is restricted to explicitly reviewed endpoints. WWT HTML and Countryside Jobs Service RSS are checked every two hours by the protected automation heartbeat and can also be checked manually by an administrator; neither route publishes a vacancy automatically.
+- Source discovery is restricted to explicitly reviewed endpoints. WWT HTML and Countryside Jobs Service RSS are checked every two hours by the protected automation heartbeat and can also be checked manually by an administrator. Enrichment and publication readiness are automated, while live publication remains feature-flagged and evidence-gated.
 - Employer invitations, protected employer submission and staff submission review are connected to production data. Career-area pages use reviewed production taxonomy and live vacancy relationships; course experiences are not yet connected to an approved LearnWorlds catalogue.
 - The site is marked `noindex` until approved data and a production domain are connected.
 - Shared design tokens are pinned to the private `@wildteam-uk/tokens` package released through GitHub Packages. Local development requires a personal package login; CI uses its repository-scoped `GITHUB_TOKEN`.

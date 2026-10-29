@@ -14,6 +14,7 @@ browser
        -> protected invitation redemption into the private submission queue
        -> administrator-triggered and protected scheduled source discovery
        -> bounded vacancy and employer enrichment with field-level evidence
+       -> shadow or live automatic-publication decisions with exact blocker reasons
   -> no optional analytics or marketing integration
 ```
 
@@ -35,7 +36,9 @@ browser
             -> private discovery queue
             -> approved vacancy-page fetch and canonical employer matching
             -> deterministic extraction, then optional evidence-bound AI extraction
-            -> manual review before publication
+            -> evidence, duplicate, date and employer-profile publication policy
+            -> atomic automatic publication when live mode is explicitly enabled
+            -> staff exception review for every blocked record
 ```
 
 The first production backend should use normal request-driven Vercel Functions. Do not introduce Services, Queues or durable Workflows until workload evidence requires them.
@@ -60,9 +63,11 @@ The independent `wildjobs` Supabase project and beta schema were created in the 
 
 The schema includes employers, jobs, career areas, course-capability mappings, provenance, import runs, controlled employer submissions, candidate profiles, saved jobs, preferences and staff moderation. All changes remain ordered migrations in `supabase/migrations`.
 
-Every table in an exposed schema has RLS. Public access is limited to active, approved listings. Staff access requires an active staff record. Current connectors permit only reviewed source endpoints. Administrators can run them on demand. Supabase `pg_cron` calls a protected Vercel heartbeat every minute through `pg_net`, using a bearer secret stored in Supabase Vault. An atomic database claim releases source-import work once every two hours. Between imports, each heartbeat may enrich one pending vacancy. The route uses a server-only Supabase secret key, rejects requests without the matching automation secret, prevents overlapping work and never publishes vacancies automatically.
+Every table in an exposed schema has RLS. Public access is limited to active, approved listings. Staff access requires an active staff record. Current connectors permit only reviewed source endpoints. Administrators can run them on demand. Supabase `pg_cron` calls a protected Vercel heartbeat every minute through `pg_net`, using a bearer secret stored in Supabase Vault. An atomic database claim releases source-import work once every two hours. Between imports, each heartbeat may enrich one pending vacancy and record its publication readiness. The route uses a server-only Supabase secret key, rejects requests without the matching automation secret and prevents overlapping work. `AUTO_PUBLISH_ENABLED` defaults off, so readiness initially runs in shadow mode.
 
-Enrichment is deliberately bounded. WildJobs fetches only an approved vacancy URL and, when present, one public HTTPS employer page protected by private-network and size checks. Deterministic rules run first. An optional Vercel AI Gateway structured-output call receives only unresolved fields plus bounded source text, must return exact evidence and cannot estimate salary or assume an on-site role. `AI_ENRICHMENT_ENABLED` is the master off-switch; the default is off. Each record receives at most three attempts, every run records token usage and model metadata, and unchanged page content is skipped. Once an employer has enrichment evidence, later vacancies reuse the canonical employer rather than researching it again.
+Enrichment is deliberately bounded. WildJobs fetches only an approved vacancy URL and, when present, one public HTTPS employer page protected by private-network and size checks. Deterministic rules run first. An optional Vercel AI Gateway structured-output call receives only unresolved fields plus bounded source text, must return exact evidence and cannot estimate salary or assume an on-site role. `AI_ENRICHMENT_ENABLED` is the master off-switch; the default is off. Each record receives at most three attempts, every AI call has a timeout and output cap, and daily request/input/output limits stop runaway spend. Every run records token usage and model metadata, and unchanged page content is skipped. Once an employer has enrichment evidence, later vacancies reuse the canonical employer rather than researching it again.
+
+Automatic publication is a separate, versioned policy. It requires an active feed or API source, no duplicate risk, a future closing date, secure source and application links, strong evidence for the employer, location, closing date and paid/volunteer status, and a complete evidence-backed employer profile. Salary, workplace, contract, hours and experience may remain genuinely unstated; automation never fabricates them. Every decision records its score, blocker codes and evidence confidences. Only the service role can call the atomic publication function, and every resulting job receives automation-authored moderation events.
 
 Public jobs keep `source_url` and `application_url` separate. The source link preserves where WildJobs found the listing; the application link may point directly to the employer or remain on a job board. Employer profiles use the canonical employer website independently of both.
 

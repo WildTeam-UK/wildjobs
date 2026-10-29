@@ -6,7 +6,7 @@ import { z } from "zod";
 import type { VacancyFieldEvidence, VacancyFieldName } from "./vacancy-detail-extraction";
 
 const DEFAULT_MODEL = "openai/gpt-5.4-nano";
-const EXTRACTOR_VERSION = "ai-structured-v1";
+export const AI_ENRICHMENT_POLICY_VERSION = "ai-structured-v1";
 
 const supportedFields = [
   "contract_type",
@@ -107,7 +107,7 @@ function vacancyEvidence(
         confidence: field.confidence,
         evidenceText: evidence,
         extractionMethod: "ai" as const,
-        extractorVersion: EXTRACTOR_VERSION,
+        extractorVersion: AI_ENRICHMENT_POLICY_VERSION,
         fieldName,
         resolutionStatus: "extracted" as const,
         sourceKind: "source_page" as const,
@@ -152,7 +152,7 @@ export async function enrichWithAi(input: {
   listingText: string;
   unresolvedFields: readonly VacancyFieldName[];
 }): Promise<AiEnrichmentResult> {
-  if (process.env.AI_ENRICHMENT_ENABLED !== "true") return { status: "disabled" };
+  if (!isAiEnrichmentEnabled()) return { status: "disabled" };
   const model = process.env.AI_GATEWAY_MODEL?.trim() || DEFAULT_MODEL;
   const listingText = input.listingText.slice(0, 24_000);
   const employerText = input.employerText?.slice(0, 12_000) ?? "";
@@ -194,4 +194,8 @@ export async function enrichWithAi(input: {
     outputTokens: result.usage.outputTokens ?? 0,
     status: "completed",
   };
+}
+
+export function isAiEnrichmentEnabled() {
+  return process.env.AI_ENRICHMENT_ENABLED === "true";
 }

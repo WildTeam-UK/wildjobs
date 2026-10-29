@@ -8,6 +8,60 @@ export type Database = {
   };
   public: {
     Tables: {
+      automation_publication_decisions: {
+        Row: {
+          blocker_codes: string[];
+          created_at: string;
+          decision: string;
+          field_confidences: Json;
+          id: number;
+          job_id: number | null;
+          mode: string;
+          policy_version: string;
+          score: number;
+          source_record_id: number;
+        };
+        Insert: {
+          blocker_codes?: string[];
+          created_at?: string;
+          decision: string;
+          field_confidences?: Json;
+          id?: never;
+          job_id?: number | null;
+          mode: string;
+          policy_version: string;
+          score: number;
+          source_record_id: number;
+        };
+        Update: {
+          blocker_codes?: string[];
+          created_at?: string;
+          decision?: string;
+          field_confidences?: Json;
+          id?: never;
+          job_id?: number | null;
+          mode?: string;
+          policy_version?: string;
+          score?: number;
+          source_record_id?: number;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "automation_publication_decisions_job_id_fkey";
+            columns: ["job_id"];
+            isOneToOne: false;
+            referencedRelation: "jobs";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "automation_publication_decisions_source_record_id_fkey";
+            columns: ["source_record_id"];
+            isOneToOne: false;
+            referencedRelation: "job_source_records";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       candidate_career_area_preferences: {
         Row: {
           career_area_id: number;
@@ -713,6 +767,11 @@ export type Database = {
       job_source_records: {
         Row: {
           application_url: string | null;
+          automation_blockers: string[];
+          automation_evaluated_at: string | null;
+          automation_policy_version: string | null;
+          automation_score: number | null;
+          automation_status: string;
           canonical_url: string | null;
           closes_at: string | null;
           content_hash: string | null;
@@ -728,6 +787,7 @@ export type Database = {
           enrichment_completed_at: string | null;
           enrichment_error_code: string | null;
           enrichment_last_attempted_at: string | null;
+          enrichment_policy_version: string | null;
           enrichment_status: string;
           external_id: string | null;
           first_seen_at: string;
@@ -745,6 +805,11 @@ export type Database = {
         };
         Insert: {
           application_url?: string | null;
+          automation_blockers?: string[];
+          automation_evaluated_at?: string | null;
+          automation_policy_version?: string | null;
+          automation_score?: number | null;
+          automation_status?: string;
           canonical_url?: string | null;
           closes_at?: string | null;
           content_hash?: string | null;
@@ -760,6 +825,7 @@ export type Database = {
           enrichment_completed_at?: string | null;
           enrichment_error_code?: string | null;
           enrichment_last_attempted_at?: string | null;
+          enrichment_policy_version?: string | null;
           enrichment_status?: string;
           external_id?: string | null;
           first_seen_at?: string;
@@ -777,6 +843,11 @@ export type Database = {
         };
         Update: {
           application_url?: string | null;
+          automation_blockers?: string[];
+          automation_evaluated_at?: string | null;
+          automation_policy_version?: string | null;
+          automation_score?: number | null;
+          automation_status?: string;
           canonical_url?: string | null;
           closes_at?: string | null;
           content_hash?: string | null;
@@ -792,6 +863,7 @@ export type Database = {
           enrichment_completed_at?: string | null;
           enrichment_error_code?: string | null;
           enrichment_last_attempted_at?: string | null;
+          enrichment_policy_version?: string | null;
           enrichment_status?: string;
           external_id?: string | null;
           first_seen_at?: string;
@@ -835,6 +907,7 @@ export type Database = {
         Row: {
           authoritative_base_url: string | null;
           created_at: string;
+          default_country_code: string | null;
           id: number;
           is_active: boolean;
           name: string;
@@ -844,6 +917,7 @@ export type Database = {
         Insert: {
           authoritative_base_url?: string | null;
           created_at?: string;
+          default_country_code?: string | null;
           id?: never;
           is_active?: boolean;
           name: string;
@@ -853,6 +927,7 @@ export type Database = {
         Update: {
           authoritative_base_url?: string | null;
           created_at?: string;
+          default_country_code?: string | null;
           id?: never;
           is_active?: boolean;
           name?: string;
@@ -983,7 +1058,8 @@ export type Database = {
       moderation_events: {
         Row: {
           action: string;
-          actor_user_id: string;
+          actor_type: string;
+          actor_user_id: string | null;
           created_at: string;
           employer_id: number | null;
           employer_submission_id: number | null;
@@ -995,7 +1071,8 @@ export type Database = {
         };
         Insert: {
           action: string;
-          actor_user_id: string;
+          actor_type?: string;
+          actor_user_id?: string | null;
           created_at?: string;
           employer_id?: number | null;
           employer_submission_id?: number | null;
@@ -1007,7 +1084,8 @@ export type Database = {
         };
         Update: {
           action?: string;
-          actor_user_id?: string;
+          actor_type?: string;
+          actor_user_id?: string | null;
           created_at?: string;
           employer_id?: number | null;
           employer_submission_id?: number | null;
@@ -1086,6 +1164,7 @@ export type Database = {
           ai_attempted: boolean;
           ai_generation_id: string | null;
           ai_model: string | null;
+          ai_skip_reason: string | null;
           content_hash: string | null;
           created_at: string;
           employer_page_fetched: boolean;
@@ -1106,6 +1185,7 @@ export type Database = {
           ai_attempted?: boolean;
           ai_generation_id?: string | null;
           ai_model?: string | null;
+          ai_skip_reason?: string | null;
           content_hash?: string | null;
           created_at?: string;
           employer_page_fetched?: boolean;
@@ -1126,6 +1206,7 @@ export type Database = {
           ai_attempted?: boolean;
           ai_generation_id?: string | null;
           ai_model?: string | null;
+          ai_skip_reason?: string | null;
           content_hash?: string | null;
           created_at?: string;
           employer_page_fetched?: boolean;
@@ -1313,6 +1394,15 @@ export type Database = {
       publish_job_review_draft: {
         Args: { p_job_id: number };
         Returns: string;
+      };
+      publish_automated_source_record: {
+        Args: {
+          p_job_slug: string;
+          p_policy_version: string;
+          p_score: number;
+          p_source_record_id: number;
+        };
+        Returns: number;
       };
       redeem_employer_submission_invite: {
         Args: {

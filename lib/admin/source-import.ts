@@ -155,8 +155,14 @@ export async function importApprovedSource(
             summary: vacancy.summary,
             ...(changed && ["unmapped", "possible_duplicate"].includes(existing.mapping_status)
               ? {
+                  automation_blockers: [],
+                  automation_evaluated_at: null,
+                  automation_policy_version: null,
+                  automation_score: null,
+                  automation_status: "pending",
                   enrichment_attempts: 0,
                   enrichment_error_code: null,
+                  enrichment_policy_version: null,
                   enrichment_status: "pending",
                 }
               : {}),
