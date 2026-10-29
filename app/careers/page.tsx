@@ -43,12 +43,26 @@ export default async function CareersPage() {
               const jobCount = jobCounts.get(area.title) ?? 0;
 
               return (
-                <Link href={`/careers/${area.slug}`} key={area.id}>
-                  <span>0{index + 1}</span>
-                  <h3>{area.title}</h3>
-                  <p>{area.description}</p>
+                <Link className="career-pathway-card" href={`/careers/${area.slug}`} key={area.id}>
+                  <div className="career-pathway-card__topline">
+                    <span className="career-pathway-card__number">0{index + 1}</span>
+                    <span
+                      className={
+                        jobCount
+                          ? "career-pathway-card__status career-pathway-card__status--live"
+                          : "career-pathway-card__status"
+                      }
+                    >
+                      {jobCount ? `${jobCount} live ${jobCount === 1 ? "role" : "roles"}` : "Career guide"}
+                    </span>
+                  </div>
+                  <div className="career-pathway-card__body">
+                    <h3>{area.title}</h3>
+                    <p>{area.description}</p>
+                  </div>
                   <strong>
-                    {jobCount} current {jobCount === 1 ? "role" : "roles"} →
+                    {jobCount ? "Explore roles and pathway" : "Explore this pathway"}{" "}
+                    <span aria-hidden="true">→</span>
                   </strong>
                 </Link>
               );

@@ -470,15 +470,44 @@ select {
 .pathway-grid > a {
   display: flex;
   flex-direction: column;
+  gap: 28px;
 }
-.pathway-grid span {
+.career-pathway-card__topline {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+}
+.career-pathway-card__number {
   color: var(--wt-color-brand-pink);
   font-size: 0.7rem;
   font-weight: var(--wt-font-weight-bold);
 }
+.career-pathway-card__status {
+  display: inline-flex;
+  min-height: 29px;
+  align-items: center;
+  padding: 6px 10px;
+  border: 1px solid var(--wt-color-rule);
+  border-radius: var(--wt-radius-pill);
+  color: var(--wt-color-muted);
+  font-size: 0.64rem;
+  font-weight: var(--wt-font-weight-bold);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.career-pathway-card__status--live {
+  border-color: var(--wt-color-brand-purple);
+  color: var(--wt-color-brand-purple);
+}
+.career-pathway-card__body {
+  display: grid;
+  gap: 12px;
+}
 .pathway-grid h3,
 .employer-grid h2 {
-  margin: 36px 0 12px;
+  margin: 0;
   font-size: 2rem;
   line-height: 1;
 }
@@ -489,7 +518,6 @@ select {
 }
 .pathway-grid strong {
   margin-top: auto;
-  padding-top: 30px;
   color: var(--wt-color-brand-pink);
   font-size: 0.76rem;
 }
@@ -498,9 +526,11 @@ select {
   background: var(--wt-color-brand-pink);
   color: var(--wt-color-paper);
 }
-.pathway-grid > a:hover span,
+.pathway-grid > a:hover .career-pathway-card__number,
+.pathway-grid > a:hover .career-pathway-card__status,
 .pathway-grid > a:hover p,
 .pathway-grid > a:hover strong {
+  border-color: var(--wt-color-paper);
   color: var(--wt-color-paper);
 }
 .career-area-back {
