@@ -33,7 +33,7 @@ const textField = z.object({
   value: z.string().trim().min(1).max(500).nullable(),
 });
 const researchedEmployerField = textField.extend({
-  source_url: z.string().trim().url().max(2_000).nullable(),
+  source_url: z.string().trim().min(1).max(2_000).nullable(),
 });
 
 const outputSchema = z.object({
@@ -75,8 +75,8 @@ const outputSchema = z.object({
     overview: researchedEmployerField,
     website_url: z.object({
       confidence: confidenceSchema,
-      source_url: z.string().trim().url().max(2_000).nullable(),
-      value: z.string().trim().url().max(2_000).nullable(),
+      source_url: z.string().trim().min(1).max(2_000).nullable(),
+      value: z.string().trim().min(1).max(2_000).nullable(),
     }),
   }),
 });
