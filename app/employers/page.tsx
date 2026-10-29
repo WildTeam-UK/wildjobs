@@ -1,11 +1,14 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { EmployerLogo } from "@/components/employer-logo";
 import { getPublicEmployers } from "@/lib/public-employers";
 
 export const metadata: Metadata = { title: "Conservation employers" };
 
 export default async function EmployersPage() {
   const employers = await getPublicEmployers();
+  const recruitingEmployers = employers.filter((employer) => employer.openRoles.length > 0).length;
+  const openRoleCount = employers.reduce((total, employer) => total + employer.openRoles.length, 0);
 
   return (
     <main>
@@ -22,8 +25,12 @@ export default async function EmployersPage() {
         <div className="shell">
           <div className="section-heading section-heading--with-link">
             <div>
-              <p className="eyebrow">Currently recruiting</p>
+              <p className="eyebrow">Employer directory</p>
               <h2>Explore conservation organisations.</h2>
+              <p className="employer-directory-summary">
+                {employers.length} organisations · {recruitingEmployers} currently hiring · {openRoleCount}{" "}
+                live {openRoleCount === 1 ? "role" : "roles"}
+              </p>
             </div>
             <Link className="text-link" href="/jobs">
               See all jobs →
@@ -34,21 +41,35 @@ export default async function EmployersPage() {
               {employers.map((employer) => {
                 const openRoles = employer.openRoles.length;
                 return (
-                  <article key={employer.slug}>
-                    {employer.logoUrl ? (
-                      <div className="employer-logo">
-                        <img alt={`${employer.name} logo`} src={employer.logoUrl} />
-                      </div>
-                    ) : (
-                      <div className="employer-monogram" aria-hidden="true">
-                        {employer.shortName}
-                      </div>
-                    )}
-                    <p className="eyebrow">{employer.focus}</p>
-                    <h2>{employer.name}</h2>
-                    <p>{employer.mission}</p>
+                  <article className="employer-directory-card" key={employer.slug}>
+                    <header className="employer-directory-card__header">
+                      <EmployerLogo
+                        imageClassName="employer-logo"
+                        logoUrl={employer.logoUrl}
+                        monogramClassName="employer-monogram"
+                        name={employer.name}
+                      />
+                      <span
+                        className={
+                          openRoles
+                            ? "employer-directory-card__status employer-directory-card__status--live"
+                            : "employer-directory-card__status"
+                        }
+                      >
+                        {openRoles
+                          ? `${openRoles} live ${openRoles === 1 ? "role" : "roles"}`
+                          : "No live roles"}
+                      </span>
+                    </header>
+                    <div className="employer-directory-card__body">
+                      <p className="eyebrow">{employer.focus}</p>
+                      <h2>
+                        <Link href={`/employers/${employer.slug}`}>{employer.name}</Link>
+                      </h2>
+                      <p className="employer-directory-card__summary">{employer.mission}</p>
+                    </div>
                     <Link className="text-link" href={`/employers/${employer.slug}`}>
-                      View profile · {openRoles} {openRoles === 1 ? "role" : "roles"} →
+                      View organisation <span aria-hidden="true">→</span>
                     </Link>
                   </article>
                 );
