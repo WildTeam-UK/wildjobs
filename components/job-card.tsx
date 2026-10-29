@@ -4,11 +4,13 @@ import { SaveJobControl, type JobSaveState } from "@/components/save-job-control
 import { formatDate, listingAgeLabel, type Job } from "@/lib/jobs";
 
 export function JobCard({
+  compact = false,
   job,
   saveReturnTo,
   saveState = "signed-out",
   showSaveAction = true,
 }: {
+  compact?: boolean;
   job: Job;
   saveReturnTo?: string;
   saveState?: JobSaveState;
@@ -19,7 +21,7 @@ export function JobCard({
     .join(" · ");
 
   return (
-    <article className="job-card">
+    <article className={`job-card${compact ? " job-card--compact" : ""}`}>
       <header className="job-card__header">
         <EmployerLogo
           imageClassName="job-card__logo"
@@ -50,8 +52,10 @@ export function JobCard({
             <Link href={`/jobs/${job.slug}`}>{job.title}</Link>
           )}
         </h2>
-        {job.summarySource === "ai" ? <p className="ai-summary-label">AI-generated summary</p> : null}
-        <p className="job-card__summary">{job.summary}</p>
+        {!compact && job.summarySource === "ai" ? (
+          <p className="ai-summary-label">AI-generated summary</p>
+        ) : null}
+        {!compact ? <p className="job-card__summary">{job.summary}</p> : null}
       </div>
       <dl className="job-card__facts">
         <div>

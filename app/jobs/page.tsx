@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { JobBrowser } from "@/components/job-browser";
+import { JobBrowser, type JobSortOrder } from "@/components/job-browser";
 import { getCandidateSaveState } from "@/lib/candidate-saved-jobs";
 import type { EmploymentType, EngagementType, LocationType } from "@/lib/jobs";
 import { getPublicJobs } from "@/lib/public-jobs";
@@ -21,6 +21,7 @@ const employmentTypes: readonly EmploymentType[] = [
   "Not stated",
 ];
 const engagementTypes: readonly EngagementType[] = ["Paid", "Volunteer"];
+const sortOrders: readonly JobSortOrder[] = ["relevance", "newest", "closing"];
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 function valueOf(value: string | string[] | undefined) {
   return typeof value === "string" ? value : "";
@@ -35,16 +36,17 @@ export default async function JobsPage({ searchParams }: { searchParams: SearchP
   const location = valueOf(params.location);
   const employment = valueOf(params.type);
   const engagement = valueOf(params.opportunity);
+  const sort = valueOf(params.sort);
   const salary = Number(valueOf(params.salary));
   return (
     <main>
-      <section className="interior-hero">
-        <div className="shell interior-hero__layout">
+      <section className="jobs-page-header">
+        <div className="shell jobs-page-header__layout">
           <div>
             <p className="eyebrow">Find jobs</p>
-            <h1>Discover your next conservation role.</h1>
+            <h1>Conservation opportunities, all in one place.</h1>
           </div>
-          <p>Search by role, working pattern, career area or a WildTeam course you know.</p>
+          <p>Search current roles and narrow the list to what matters to you.</p>
         </div>
       </section>
       <JobBrowser
@@ -64,6 +66,7 @@ export default async function JobsPage({ searchParams }: { searchParams: SearchP
           category: valueOf(params.category),
           courseSlug: valueOf(params.course),
           minimumSalary: Number.isFinite(salary) && salary > 0 ? salary : 0,
+          sortOrder: sortOrders.includes(sort as JobSortOrder) ? (sort as JobSortOrder) : "relevance",
         }}
       />
     </main>
