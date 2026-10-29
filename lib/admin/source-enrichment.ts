@@ -571,10 +571,7 @@ export async function enrichNextPendingSourceRecord(
       aiResult.status === "completed"
         ? mergeEvidence([...deterministic.byField.values()], aiResult.evidence)
         : deterministic;
-    const changedEvidence = [
-      ...deterministic.selected,
-      ...(aiResult.status === "completed" ? finalEvidence.selected : []),
-    ];
+    const changedEvidence = aiResult.status === "completed" ? finalEvidence.selected : deterministic.selected;
     if (changedEvidence.length) {
       const savedAt = new Date().toISOString();
       const { error: saveEvidenceError } = await supabase.from("job_source_field_evidence").upsert(
