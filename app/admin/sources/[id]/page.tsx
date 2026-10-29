@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 
 import { runSourceDiscovery, setSourceRecordStatus } from "@/app/admin/sources/actions";
 import { connectorActionLabel, getSourceConnector } from "@/lib/admin/source-connector";
+import { findDuplicateJob } from "@/lib/admin/duplicate-match";
 import { requireStaff } from "@/lib/auth/staff";
 import { createClient } from "@/lib/supabase/server";
 
@@ -57,6 +58,18 @@ function formatDate(value: string) {
   }).format(new Date(`${value}T12:00:00Z`));
 }
 
+function jobStatusLabel(status: string) {
+  const labels: Record<string, string> = {
+    draft: "draft",
+    expired: "expired",
+    in_review: "in review",
+    published: "published",
+    rejected: "rejected",
+    withdrawn: "withdrawn",
+  };
+  return labels[status] ?? status.replaceAll("_", " ");
+}
+
 export default async function SourcePage({ params, searchParams }: SourcePageProps) {
   const staff = await requireStaff();
   const sourceId = Number((await params).id);
@@ -80,13 +93,17 @@ export default async function SourcePage({ params, searchParams }: SourcePagePro
     .order("last_seen_at", { ascending: false });
   if (mappingStatus) recordsQuery = recordsQuery.eq("mapping_status", mappingStatus);
 
-  const [sourceResult, recordsResult] = await Promise.all([
+  const [sourceResult, recordsResult, jobsResult] = await Promise.all([
     supabase
       .from("job_sources")
       .select("id, name, source_type, authoritative_base_url, is_active")
       .eq("id", sourceId)
       .maybeSingle(),
     recordsQuery,
+    supabase
+      .from("jobs")
+      .select("id, title, status, employers(name), job_source_records(canonical_url)")
+      .order("updated_at", { ascending: false }),
   ]);
   if (sourceResult.error || !sourceResult.data) notFound();
 
@@ -101,6 +118,15 @@ export default async function SourcePage({ params, searchParams }: SourcePagePro
   });
   const checkSource = runSourceDiscovery;
   const connector = getSourceConnector(source.source_type, source.authoritative_base_url);
+  const duplicateCandidates = (jobsResult.data ?? []).map((job) => ({
+    canonicalUrls: job.job_source_records.flatMap((record) =>
+      record.canonical_url ? [record.canonical_url] : [],
+    ),
+    employerName: job.employers.name,
+    id: job.id,
+    status: job.status,
+    title: job.title,
+  }));
 
   return (
     <main className="staff-page">
@@ -151,6 +177,12 @@ export default async function SourcePage({ params, searchParams }: SourcePagePro
         {recordsResult.error ? (
           <p className="staff-form-message staff-form-message--error" role="alert">
             Discovered vacancies are temporarily unavailable.
+          </p>
+        ) : null}
+        {jobsResult.error ? (
+          <p className="staff-form-message staff-form-message--error" role="alert">
+            Existing vacancy matching is temporarily unavailable. Review records carefully before creating a
+            draft.
           </p>
         ) : null}
 
@@ -207,6 +239,7 @@ export default async function SourcePage({ params, searchParams }: SourcePagePro
                 staff.role === "admin" &&
                 record.job_id === null &&
                 ["unmapped", "possible_duplicate"].includes(record.mapping_status);
+              const duplicate = canReview ? findDuplicateJob(record, duplicateCandidates) : null;
               return (
                 <article key={record.id}>
                   <div>
@@ -232,6 +265,20 @@ export default async function SourcePage({ params, searchParams }: SourcePagePro
                       First seen {formatTimestamp(record.first_seen_at)} · last checked{" "}
                       {formatTimestamp(record.last_seen_at)}
                     </p>
+                    {duplicate ? (
+                      <aside className="source-record-list__duplicate">
+                        <strong>Possible WildJobs match</strong>
+                        <p>
+                          {duplicate.reason === "same_address"
+                            ? "The authoritative vacancy address is already linked"
+                            : "The employer and role title match"}{" "}
+                          <Link href={`/admin/jobs/${duplicate.job.id}`}>
+                            record #{duplicate.job.id} ({jobStatusLabel(duplicate.job.status)})
+                          </Link>
+                          .
+                        </p>
+                      </aside>
+                    ) : null}
                   </div>
                   <div className="source-record-list__actions">
                     {record.canonical_url ? (

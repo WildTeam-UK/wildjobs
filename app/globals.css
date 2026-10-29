@@ -1983,6 +1983,30 @@ select {
 .source-record-list .source-record-list__seen {
   font-size: 0.7rem;
 }
+.source-record-list__duplicate {
+  max-width: 48rem;
+  margin-top: 16px;
+  padding: 12px 14px;
+  border-left: 4px solid var(--wt-color-brand-pink);
+  border-radius: var(--wt-radius-control);
+  background: var(--wt-color-cream);
+}
+.source-record-list__duplicate strong {
+  display: block;
+  margin-bottom: 3px;
+  color: var(--wt-color-ink);
+  font-size: 0.75rem;
+}
+.source-record-list .source-record-list__duplicate p {
+  color: var(--wt-color-ink);
+}
+.source-record-list__duplicate a {
+  color: var(--wt-color-brand-purple);
+  font-weight: var(--wt-font-weight-bold);
+}
+.source-record-list__duplicate a:hover {
+  color: var(--wt-color-brand-pink);
+}
 .source-record-list__actions {
   display: grid;
   justify-items: end;
