@@ -11,10 +11,13 @@ type ManualJobDefaults = {
   applicationUrl?: string;
   canonicalUrl?: string;
   closesAt?: string;
+  countryCode?: string;
+  description?: string;
   employerName?: string;
   locationText?: string;
   postedAt?: string;
   sourceId?: number;
+  summary?: string;
   title?: string;
 };
 
@@ -37,6 +40,13 @@ export function ManualJobForm({
         <p aria-live="polite" className="staff-form-message staff-form-message--error" role="alert">
           {state.error}
         </p>
+      ) : null}
+
+      {defaults ? (
+        <div className="staff-form-message" role="status">
+          <strong>Imported details added.</strong> Check every field against the original vacancy before you
+          create the private review draft.
+        </div>
       ) : null}
 
       <fieldset>
@@ -94,12 +104,26 @@ export function ManualJobForm({
           </div>
           <div className="staff-job-form__wide">
             <label htmlFor="summary">Short summary</label>
-            <textarea id="summary" maxLength={500} name="summary" required rows={3} />
+            <textarea
+              defaultValue={defaults?.summary}
+              id="summary"
+              maxLength={500}
+              name="summary"
+              required
+              rows={3}
+            />
             <small>20–500 characters explaining the role clearly.</small>
           </div>
           <div className="staff-job-form__wide">
             <label htmlFor="description">Description</label>
-            <textarea id="description" maxLength={20000} name="description" required rows={8} />
+            <textarea
+              defaultValue={defaults?.description}
+              id="description"
+              maxLength={20000}
+              name="description"
+              required
+              rows={8}
+            />
           </div>
           <div className="staff-job-form__wide">
             <label htmlFor="responsibilities">
@@ -131,7 +155,14 @@ export function ManualJobForm({
           </div>
           <div>
             <label htmlFor="country-code">Country code</label>
-            <input id="country-code" maxLength={2} name="countryCode" placeholder="GB" required />
+            <input
+              defaultValue={defaults?.countryCode}
+              id="country-code"
+              maxLength={2}
+              name="countryCode"
+              placeholder="GB"
+              required
+            />
           </div>
           <div>
             <label htmlFor="workplace-type">Workplace</label>

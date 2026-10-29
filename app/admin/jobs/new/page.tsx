@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { ManualJobForm } from "@/components/admin/manual-job-form";
+import { buildSourceRecordDraftDefaults } from "@/lib/admin/source-record-draft";
 import { requireAdministrator } from "@/lib/auth/staff";
 import { createClient } from "@/lib/supabase/server";
 
@@ -21,7 +22,7 @@ export default async function NewAdminJobPage({ searchParams }: NewAdminJobPageP
       ? supabase
           .from("job_source_records")
           .select(
-            "id, source_id, canonical_url, mapping_status, job_id, source_title, employer_name, location_text, closes_at, source_updated_at, job_sources(name, is_active)",
+            "id, source_id, canonical_url, mapping_status, job_id, source_title, employer_name, location_text, closes_at, source_updated_at, summary, job_sources(name, is_active)",
           )
           .eq("id", recordId)
           .maybeSingle()
@@ -37,40 +38,46 @@ export default async function NewAdminJobPage({ searchParams }: NewAdminJobPageP
     sourceRecord.job_id === null &&
     sourceRecord.job_sources?.is_active &&
     ["unmapped", "possible_duplicate"].includes(sourceRecord.mapping_status)
-      ? {
-          applicationUrl: canonicalUrl,
-          canonicalUrl,
-          closesAt: sourceRecord.closes_at ?? undefined,
-          employerName: (sourceRecord.employer_name ?? sourceRecord.job_sources?.name)?.slice(0, 160),
-          locationText: sourceRecord.location_text ?? undefined,
-          postedAt: sourceRecord.source_updated_at?.slice(0, 10),
-          sourceId: sourceRecord.source_id,
-          title: sourceRecord.source_title?.slice(0, 180),
-        }
+      ? buildSourceRecordDraftDefaults({
+          ...sourceRecord,
+          employer_name: sourceRecord.employer_name ?? sourceRecord.job_sources?.name ?? null,
+        })
       : undefined;
+  const fromSourceRecord = Number.isSafeInteger(recordId) && recordId > 0;
 
   return (
     <main className="staff-page">
       <div className="shell">
-        <Link className="back-link" href="/admin/jobs">
-          <span aria-hidden="true">←</span> Job review queue
+        <Link className="back-link" href={defaults ? `/admin/sources/${defaults.sourceId}` : "/admin/jobs"}>
+          <span aria-hidden="true">←</span> {defaults ? "Source review queue" : "Job review queue"}
         </Link>
       </div>
       <header className="staff-hero shell">
         <div>
-          <p className="eyebrow">Manual curation</p>
-          <h1>Add a vacancy for review</h1>
+          <p className="eyebrow">{defaults ? "Imported vacancy" : "Manual curation"}</p>
+          <h1>{defaults ? "Review an imported vacancy" : "Add a vacancy for review"}</h1>
         </div>
         <p>
-          Capture one authoritative listing, preserve its source and keep it private until a staff decision.
+          {defaults
+            ? "Use the feed details as a starting point, verify the authoritative listing and keep it private until a staff decision."
+            : "Capture one authoritative listing, preserve its source and keep it private until a staff decision."}
         </p>
       </header>
 
       <section className="staff-section shell">
-        {error ? (
+        {error || recordResult.error ? (
           <p className="staff-form-message staff-form-message--error" role="alert">
-            The approved sources could not be loaded. Please return to the queue and try again.
+            The approved source details could not be loaded. Please return to the queue and try again.
           </p>
+        ) : fromSourceRecord && !defaults ? (
+          <div className="staff-empty-state">
+            <p className="eyebrow">Record unavailable</p>
+            <h2>That source record cannot create a new draft.</h2>
+            <p>It may already be linked to a WildJobs vacancy, ignored or no longer available for review.</p>
+            <Link className="action" href="/admin/sources">
+              Return to vacancy sources
+            </Link>
+          </div>
         ) : sources?.length ? (
           <ManualJobForm
             defaults={defaults}

@@ -170,6 +170,9 @@ export default async function SourcePage({ params, searchParams }: SourcePagePro
         </div>
 
         <form className="source-record-filters" method="get">
+          {firstQueryValue(query.run) ? (
+            <input name="run" type="hidden" value={firstQueryValue(query.run)} />
+          ) : null}
           <div>
             <label htmlFor="source-record-search">Search vacancies</label>
             <input
