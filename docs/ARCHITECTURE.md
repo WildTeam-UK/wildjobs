@@ -2,7 +2,7 @@
 
 ## Current implementation
 
-WildJobs is a Next.js App Router application written in strict TypeScript and independently deployed on Vercel. Public job and employer pages, candidate authentication, private saved jobs, explicit preferences and staff vacancy operations are connected to the independent WildJobs Supabase project. Career, course and submission areas still include prototype content.
+WildJobs is a Next.js App Router application written in strict TypeScript and independently deployed on Vercel. Public job and employer pages, candidate authentication, private saved jobs, explicit preferences, staff vacancy operations and the protected employer-submission review queue are connected to the independent WildJobs Supabase project. Career and course content and the public invitation submission form still include prototype content.
 
 ```text
 browser
