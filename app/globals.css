@@ -764,13 +764,15 @@ select {
   font-size: clamp(3rem, 7vw, 5.8rem);
   line-height: 0.94;
   letter-spacing: -0.045em;
+  text-align: center;
 }
 .job-search-hero__description {
   width: 100%;
-  margin: 0 0 clamp(30px, 4vw, 46px);
+  margin: 0 0 14px;
   color: var(--wt-color-muted);
   font-size: clamp(1rem, 1.6vw, 1.22rem);
   line-height: 1.55;
+  text-align: center;
 }
 .job-browser__layout {
   padding-top: clamp(28px, 4vw, 44px);
@@ -780,7 +782,7 @@ select {
   grid-template-columns: minmax(0, 1.25fr) minmax(240px, 0.75fr) auto;
   overflow: hidden;
   border: 1px solid color-mix(in srgb, var(--wt-color-brand-purple) 34%, var(--wt-color-rule));
-  border-radius: var(--wt-radius-pill);
+  border-radius: 999px;
   background: var(--wt-color-paper);
   box-shadow: 0 14px 34px rgb(31 21 28 / 7%);
 }
@@ -824,7 +826,7 @@ select {
   margin: 5px;
   padding: 0 24px;
   border: 0;
-  border-radius: var(--wt-radius-pill);
+  border-radius: 999px;
   background: var(--wt-color-brand-pink);
   color: var(--wt-color-paper);
   font: inherit;
@@ -844,6 +846,7 @@ select {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
+  justify-content: center;
   gap: 10px;
   margin-top: 14px;
 }
@@ -898,6 +901,7 @@ select {
   font-size: 0.78rem;
   font-weight: var(--wt-font-weight-bold);
   text-decoration: underline;
+  text-align: center;
   text-underline-offset: 3px;
   cursor: pointer;
 }
@@ -4098,7 +4102,7 @@ select {
     font-size: clamp(2.7rem, 14vw, 4rem);
   }
   .job-search-hero__description {
-    margin-bottom: 28px;
+    margin-bottom: 14px;
   }
   .job-search-strip {
     grid-template-columns: 1fr;
@@ -4113,7 +4117,7 @@ select {
     min-height: 56px;
     padding: 0 18px;
     border: 1px solid var(--wt-color-rule);
-    border-radius: var(--wt-radius-control);
+    border-radius: 999px;
     background: var(--wt-color-paper);
   }
   .job-search-field--location {
@@ -4126,7 +4130,7 @@ select {
   }
   .job-filter-pills {
     gap: 8px;
-    margin-top: 16px;
+    margin-top: 14px;
   }
   .job-filter-pill {
     flex: 1 1 auto;
@@ -4137,7 +4141,7 @@ select {
   .job-filter-clear {
     flex-basis: 100%;
     padding-left: 0;
-    text-align: left;
+    text-align: center;
   }
   .job-card {
     grid-template-columns: 1fr;
