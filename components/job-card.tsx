@@ -68,16 +68,33 @@ export function JobCard({
   const postedLabel = postedAgoLabel(job.publishedAt ?? job.postedAt);
   const aiSummaryExplanation =
     "WildJobs uses AI to turn the original job information into a short summary. Always check the full listing before applying.";
+  const employerLogo = (
+    <EmployerLogo
+      imageClassName="job-card__logo"
+      logoUrl={job.employerLogoUrl}
+      monogramClassName="job-card__monogram"
+      name={job.organisation}
+    />
+  );
 
   return (
     <article className={`job-card${compact ? " job-card--compact" : ""}`}>
       <header className="job-card__header">
-        <EmployerLogo
-          imageClassName="job-card__logo"
-          logoUrl={job.employerLogoUrl}
-          monogramClassName="job-card__monogram"
-          name={job.organisation}
-        />
+        {compact ? (
+          job.availability && job.availability !== "current" ? (
+            <span className="job-card__logo-anchor">{employerLogo}</span>
+          ) : (
+            <Link
+              aria-label={`View ${displayTitle}`}
+              className="job-card__logo-anchor"
+              href={`/jobs/${job.slug}`}
+            >
+              {employerLogo}
+            </Link>
+          )
+        ) : (
+          employerLogo
+        )}
         <div className="job-card__identity">
           {compact ? (
             <h2>
@@ -148,19 +165,22 @@ export function JobCard({
       {compact ? (
         <>
           <div className="job-card__summary-block">
-            <p className="job-card__summary">{job.summary}</p>
-            {job.summarySource === "ai" ? (
-              <p className="job-card__ai-disclosure-row">
-                <span
-                  aria-label={`This summary was provided by AI. ${aiSummaryExplanation}`}
-                  className="job-card__ai-disclosure"
-                  tabIndex={0}
-                  title={aiSummaryExplanation}
-                >
-                  This summary was provided by AI
-                </span>
-              </p>
-            ) : null}
+            <p className={`job-card__summary${job.summarySource === "ai" ? " job-card__summary--ai" : ""}`}>
+              {job.summary}
+              {job.summarySource === "ai" ? (
+                <>
+                  {" "}
+                  <span
+                    aria-label={`This summary was provided by AI. ${aiSummaryExplanation}`}
+                    className="job-card__ai-disclosure"
+                    tabIndex={0}
+                    title={aiSummaryExplanation}
+                  >
+                    This summary was provided by AI
+                  </span>
+                </>
+              ) : null}
+            </p>
           </div>
           <div className="job-card__meta-row">
             <ul className="job-card__compact-facts">
