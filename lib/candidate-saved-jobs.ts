@@ -4,7 +4,11 @@ import { cache } from "react";
 
 import { getCandidateSession, requireCandidate } from "@/lib/auth/candidate";
 import { mapPublicJob } from "@/lib/public-job-mapper";
-import { publicJobFields } from "@/lib/public-jobs";
+import {
+  isMissingStructuredLocationColumns,
+  legacyPublicJobFields,
+  publicJobFields,
+} from "@/lib/public-jobs";
 
 export type CandidateSaveState = Readonly<{
   isSignedIn: boolean;
@@ -41,6 +45,18 @@ export const getCandidateSavedJobs = cache(async () => {
     .select(`saved_at, jobs!inner(${publicJobFields})`)
     .eq("user_id", session.userId)
     .order("saved_at", { ascending: false });
+
+  if (error && isMissingStructuredLocationColumns(error)) {
+    const { data: legacyData, error: legacyError } = await session.supabase
+      .from("saved_jobs")
+      .select(`saved_at, jobs!inner(${legacyPublicJobFields})`)
+      .eq("user_id", session.userId)
+      .order("saved_at", { ascending: false });
+
+    if (legacyError) throw privateReadError("load", legacyError);
+
+    return legacyData.map((record) => mapPublicJob(record.jobs));
+  }
 
   if (error) throw privateReadError("load", error);
 
