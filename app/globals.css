@@ -511,7 +511,7 @@ select {
   gap: 12px;
 }
 .pathway-grid h3,
-.employer-grid h2 {
+.employer-grid h3 {
   margin: 0;
   font-size: 2rem;
   line-height: 1;
@@ -649,7 +649,7 @@ select {
   display: grid;
   gap: 10px;
 }
-.employer-directory-card__body h2 {
+.employer-directory-card__body h3 {
   margin: 0;
 }
 .employer-directory-card__summary {
@@ -726,6 +726,33 @@ select {
   background: var(--wt-color-cream);
   color: var(--wt-color-brand-purple);
   font-weight: var(--wt-font-weight-black);
+}
+.employer-hiring-carousel {
+  padding: 0 0 clamp(70px, 9vw, 112px);
+}
+.employer-hiring-carousel h2 {
+  margin: 0 0 28px;
+  color: var(--wt-color-surface-charcoal);
+  font-size: clamp(2rem, 4vw, 3rem);
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+.employer-hiring-carousel__track {
+  display: grid;
+  min-width: 0;
+  grid-auto-columns: calc((100% - 48px) / 3.2);
+  grid-auto-flow: column;
+  gap: 16px;
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
+  padding: 2px 2px 14px;
+  scroll-snap-type: inline proximity;
+  scrollbar-width: thin;
+}
+.employer-hiring-carousel__track .employer-directory-card {
+  min-height: 390px;
+  padding: 28px;
+  scroll-snap-align: start;
 }
 .employer-proposition {
   display: grid;
@@ -4854,6 +4881,17 @@ select {
 }
 
 @media (max-width: 640px) {
+  .employer-hiring-carousel h2 {
+    margin-bottom: 22px;
+    font-size: 2rem;
+  }
+  .employer-hiring-carousel__track {
+    grid-auto-columns: calc((100% - 16px) / 1.1);
+  }
+  .employer-hiring-carousel__track .employer-directory-card {
+    min-height: 370px;
+    padding: 22px;
+  }
   .job-training-promo__media {
     height: 210px;
   }

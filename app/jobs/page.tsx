@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
+import { EmployerHiringCarousel } from "@/components/employer-hiring-carousel";
 import { JobBrowser, type JobSortOrder } from "@/components/job-browser";
 import { getCandidateSaveState } from "@/lib/candidate-saved-jobs";
 import type { EmploymentType, EngagementType, LocationType } from "@/lib/jobs";
+import { getPublicEmployers } from "@/lib/public-employers";
 import { getPublicJobs } from "@/lib/public-jobs";
 
 export const metadata: Metadata = {
@@ -31,9 +33,10 @@ function valuesOf(value: string | string[] | undefined) {
 }
 
 export default async function JobsPage({ searchParams }: { searchParams: SearchParams }) {
-  const [params, jobs, candidateSaveState] = await Promise.all([
+  const [params, jobs, employers, candidateSaveState] = await Promise.all([
     searchParams,
     getPublicJobs(),
+    getPublicEmployers(),
     getCandidateSaveState(),
   ]);
   const location = valueOf(params.location);
@@ -65,6 +68,7 @@ export default async function JobsPage({ searchParams }: { searchParams: SearchP
           sortOrder: sortOrders.includes(sort as JobSortOrder) ? (sort as JobSortOrder) : "relevance",
         }}
       />
+      <EmployerHiringCarousel employers={employers} />
     </main>
   );
 }
