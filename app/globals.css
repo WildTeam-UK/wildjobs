@@ -1282,7 +1282,7 @@ select {
 .job-list {
   display: grid;
   min-width: 0;
-  gap: 18px;
+  gap: 22px;
   margin-top: 24px;
 }
 .job-pagination {
@@ -1358,6 +1358,14 @@ select {
         var(--wt-color-brand-purple)
       )
       border-box;
+  transition:
+    box-shadow 160ms ease,
+    transform 160ms ease;
+}
+.job-training-promo:hover,
+.job-training-promo:focus-within {
+  box-shadow: 0 18px 38px rgb(31 21 28 / 8%);
+  transform: translateY(-2px);
 }
 .job-training-promo__media {
   position: relative;
@@ -5310,6 +5318,7 @@ select {
   .primary-action,
   .wt-button,
   .job-card,
+  .job-training-promo,
   .job-search-hero,
   .job-search-hero__inner,
   .job-search-hero__intro,
@@ -5323,6 +5332,10 @@ select {
     transition: none;
   }
   .job-card:hover {
+    transform: none;
+  }
+  .job-training-promo:hover,
+  .job-training-promo:focus-within {
     transform: none;
   }
 }
