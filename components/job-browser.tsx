@@ -474,11 +474,13 @@ function LocationAutocomplete({
 
 export function JobBrowser({
   candidateSaveState,
+  hiringOrganisations,
   initialPage = 1,
   jobs,
   initialFilters = {},
 }: {
   candidateSaveState: CandidateSaveState;
+  hiringOrganisations?: ReactNode;
   initialPage?: number;
   jobs: readonly Job[];
   initialFilters?: Partial<BrowserFilters>;
@@ -906,6 +908,8 @@ export function JobBrowser({
           </div>
         </div>
       </div>
+
+      {hiringOrganisations}
 
       <div className="shell">
         <div className="job-browser__layout">

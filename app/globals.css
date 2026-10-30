@@ -850,6 +850,98 @@ select {
 .job-browser {
   padding: 0 0 clamp(58px, 8vw, 92px);
 }
+.employer-logo-carousel {
+  --employer-logo-gap: clamp(38px, 5vw, 76px);
+  overflow: hidden;
+  padding: clamp(26px, 3.5vw, 42px) 0 clamp(22px, 3vw, 34px);
+  border-bottom: 1px solid var(--wt-color-rule);
+  background: var(--wt-color-paper);
+}
+.employer-logo-carousel__viewport {
+  overflow: hidden;
+  mask-image: linear-gradient(90deg, transparent, #000 5%, #000 95%, transparent);
+}
+.employer-logo-carousel__track {
+  display: flex;
+  width: max-content;
+  animation: employer-logo-carousel-scroll 100s linear infinite;
+  will-change: transform;
+}
+.employer-logo-carousel__track:hover,
+.employer-logo-carousel__track:focus-within {
+  animation-play-state: paused;
+}
+.employer-logo-carousel__group {
+  display: flex;
+  align-items: center;
+  gap: var(--employer-logo-gap);
+  margin: 0;
+  padding: 0 var(--employer-logo-gap) 0 0;
+  list-style: none;
+}
+.employer-logo-carousel__group li,
+.employer-logo-carousel__group a {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+}
+.employer-logo-carousel__group a {
+  border-radius: var(--wt-radius-control);
+  transition: transform 180ms ease;
+}
+.employer-logo-carousel__group a:hover {
+  transform: scale(1.06);
+}
+.employer-logo-carousel__group a:focus-visible {
+  outline: 2px solid var(--wt-color-brand-purple);
+  outline-offset: 7px;
+}
+.employer-logo-carousel__logo {
+  display: flex;
+  width: auto;
+  height: clamp(42px, 4vw, 54px);
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+}
+.employer-logo-carousel__logo img {
+  display: block;
+  width: auto;
+  max-width: 190px;
+  height: 100%;
+  object-fit: contain;
+}
+.employer-logo-carousel__monogram {
+  display: grid;
+  width: clamp(42px, 4vw, 54px);
+  height: clamp(42px, 4vw, 54px);
+  flex: 0 0 auto;
+  place-items: center;
+  border-radius: var(--wt-radius-control);
+  background: var(--wt-color-cream);
+  color: var(--wt-color-brand-purple);
+  font-size: 0.76rem;
+  font-weight: var(--wt-font-weight-bold);
+}
+.employer-logo-carousel__summary {
+  margin: clamp(22px, 2.7vw, 32px) auto 0;
+  padding: 0 var(--wt-layout-page-gutter, 1.5rem);
+  color: var(--wt-color-muted);
+  font-size: clamp(0.92rem, 1.5vw, 1.08rem);
+  font-weight: var(--wt-font-weight-regular);
+  line-height: 1.5;
+  text-align: center;
+}
+.employer-logo-carousel__summary span {
+  color: var(--wt-color-brand-pink);
+  font-weight: inherit;
+}
+@keyframes employer-logo-carousel-scroll {
+  to {
+    transform: translateX(-50%);
+  }
+}
 .job-search-hero {
   position: sticky;
   z-index: 80;
@@ -5416,6 +5508,16 @@ select {
   }
   .job-search-hero h1 {
     animation: none;
+  }
+  .employer-logo-carousel__viewport {
+    overflow-x: auto;
+  }
+  .employer-logo-carousel__track {
+    animation: none;
+    will-change: auto;
+  }
+  .employer-logo-carousel__group[aria-hidden="true"] {
+    display: none;
   }
   .action,
   .primary-action,

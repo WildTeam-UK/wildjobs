@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { EmployerHiringCarousel } from "@/components/employer-hiring-carousel";
+import { EmployerLogoCarousel } from "@/components/employer-logo-carousel";
 import { JobBrowser, type JobSortOrder } from "@/components/job-browser";
 import { getCandidateSaveState } from "@/lib/candidate-saved-jobs";
 import type { EmploymentType, EngagementType, LocationType } from "@/lib/jobs";
@@ -55,6 +56,7 @@ export default async function HomePage({ searchParams }: { searchParams: SearchP
     <main>
       <JobBrowser
         candidateSaveState={candidateSaveState}
+        hiringOrganisations={<EmployerLogoCarousel employers={employers} />}
         initialPage={Number.isInteger(page) && page > 0 ? page : 1}
         jobs={jobs}
         initialFilters={{
