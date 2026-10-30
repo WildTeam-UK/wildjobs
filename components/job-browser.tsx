@@ -150,8 +150,11 @@ export function JobBrowser({
     <section className="job-browser" aria-labelledby="jobs-page-heading">
       <div className="job-search-hero">
         <div className="job-search-hero__inner shell">
-          <p className="eyebrow">Conservation careers</p>
-          <h1 id="jobs-page-heading">Find conservation jobs</h1>
+          <h1 id="jobs-page-heading">Do work that matters.</h1>
+          <p className="job-search-hero__description">
+            Discover your next meaningful career protecting wildlife, restoring nature and creating a better
+            future for our planet.
+          </p>
 
           <form
             className="job-search-strip"
