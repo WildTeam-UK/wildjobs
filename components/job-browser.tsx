@@ -350,6 +350,7 @@ export function JobBrowser({
     nature: natureEmojis[0],
     wildlife: wildlifeEmojis[0],
   });
+  const [trainingImageOffset, setTrainingImageOffset] = useState(0);
   const [isHeroCompact, setIsHeroCompact] = useState(false);
   const compactTransitionUntilRef = useRef(0);
   const expandedHeroHeightRef = useRef(0);
@@ -406,6 +407,7 @@ export function JobBrowser({
       nature: randomItem(natureEmojis),
       wildlife: randomItem(wildlifeEmojis),
     });
+    setTrainingImageOffset(Math.floor(Math.random() * 3));
   }, []);
 
   useEffect(() => {
@@ -801,7 +803,12 @@ export function JobBrowser({
                             : "signed-out"
                       }
                     />
-                    {index >= 2 && (index - 2) % 10 === 0 ? <JobTrainingPromo position={index + 1} /> : null}
+                    {index >= 2 && (index - 2) % 10 === 0 ? (
+                      <JobTrainingPromo
+                        imageIndex={(index - 2) / 10 + trainingImageOffset}
+                        position={index + 1}
+                      />
+                    ) : null}
                   </Fragment>
                 ))}
               </div>
