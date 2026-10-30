@@ -769,16 +769,22 @@ select {
   transition: padding 360ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 .job-search-hero__intro {
-  max-height: 240px;
+  display: grid;
+  grid-template-rows: 1fr;
   overflow: clip;
   opacity: 1;
   transform: translateY(0);
   transition:
-    max-height 360ms cubic-bezier(0.22, 1, 0.36, 1),
+    grid-template-rows 360ms cubic-bezier(0.22, 1, 0.36, 1),
     opacity 220ms ease,
     transform 320ms cubic-bezier(0.22, 1, 0.36, 1);
 }
+.job-search-hero__intro-content {
+  min-height: 0;
+  overflow: hidden;
+}
 .job-search-hero h1 {
+  padding-top: 0.08em;
   margin: 0 0 14px;
   color: var(--wt-color-brand-purple);
   font-size: clamp(3rem, 7vw, 5.8rem);
@@ -846,11 +852,11 @@ select {
 }
 .job-search-submit {
   min-width: 118px;
-  min-height: 50px;
-  margin: 5px;
+  min-height: 60px;
+  margin: 0;
   padding: 0 24px;
   border: 0;
-  border-radius: 999px;
+  border-radius: 0 999px 999px 0;
   background: var(--wt-color-brand-pink);
   color: var(--wt-color-paper);
   font: inherit;
@@ -947,7 +953,71 @@ select {
   background: color-mix(in srgb, var(--wt-color-brand-purple) 7%, var(--wt-color-paper));
   color: var(--wt-color-brand-purple);
 }
+.job-filter-pill--fancy {
+  border-color: transparent;
+  background:
+    linear-gradient(var(--wt-color-paper), var(--wt-color-paper)) padding-box,
+    linear-gradient(
+        90deg,
+        var(--wt-color-brand-purple),
+        var(--wt-color-brand-gradient-middle),
+        var(--wt-color-brand-pink)
+      )
+      border-box;
+  color: var(--wt-color-brand-pink);
+}
+.job-filter-pill--fancy .job-filter-pill__value {
+  background: linear-gradient(
+    90deg,
+    var(--wt-color-brand-purple),
+    var(--wt-color-brand-gradient-middle),
+    var(--wt-color-brand-pink)
+  );
+  background-clip: text;
+  color: transparent;
+  -webkit-background-clip: text;
+}
+.job-filter-pill--fancy:hover,
+.job-filter-pill--fancy.job-filter-pill--open {
+  border-color: var(--wt-color-brand-pink);
+  background: var(--wt-color-brand-pink);
+  color: var(--wt-color-paper);
+}
+.job-filter-pill--fancy:hover .job-filter-pill__value,
+.job-filter-pill--fancy.job-filter-pill--open .job-filter-pill__value {
+  background: none;
+  color: var(--wt-color-paper);
+}
+.job-filter-pill__icon--brand {
+  width: 19px;
+  height: 19px;
+  stroke: none;
+}
+.job-filter-pill__brand-heart {
+  fill: currentColor;
+}
+.job-filter-pill__brand-branches {
+  fill: none;
+  stroke: var(--wt-color-paper);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.55;
+}
+.job-filter-pill--fancy:hover .job-filter-pill__brand-branches,
+.job-filter-pill--fancy.job-filter-pill--open .job-filter-pill__brand-branches {
+  stroke: var(--wt-color-brand-pink);
+}
 .job-filter-pill--compact-only {
+  display: none;
+}
+.job-filter-pill--icon-only .job-filter-pill__trigger {
+  width: 40px;
+  justify-content: center;
+  gap: 0;
+  padding: 0;
+}
+.job-filter-pill--icon-only .job-filter-pill__value,
+.job-filter-pill--icon-only .job-filter-pill__chevron {
   display: none;
 }
 .job-filter-menu {
@@ -1019,7 +1089,7 @@ select {
   padding-bottom: 10px;
 }
 .job-search-hero--compact .job-search-hero__intro {
-  max-height: 0;
+  grid-template-rows: 0fr;
   opacity: 0;
   pointer-events: none;
   transform: translateY(-12px);
@@ -1035,11 +1105,11 @@ select {
   min-height: 48px;
 }
 .job-search-hero--compact .job-search-submit {
-  min-height: 40px;
+  min-height: 48px;
 }
 .job-search-hero--compact .job-filter-pills {
   flex-wrap: nowrap;
-  justify-content: flex-start;
+  justify-content: safe center;
   gap: 8px;
   margin-top: 10px;
   overflow-x: auto;
@@ -1083,6 +1153,22 @@ select {
 .job-sort-control {
   flex: 0 0 auto;
   min-width: 158px;
+}
+.job-sort-dropdown {
+  width: 100%;
+  min-height: 44px;
+  border-color: var(--wt-color-rule);
+  border-radius: var(--wt-radius-control);
+}
+.job-sort-dropdown .job-filter-pill__trigger {
+  width: 100%;
+  min-height: 42px;
+  justify-content: flex-start;
+  padding-right: 13px;
+  padding-left: 13px;
+}
+.job-sort-dropdown .job-filter-pill__value {
+  margin-right: auto;
 }
 .job-sort-control--results {
   transition:
@@ -4291,6 +4377,7 @@ select {
     width: 100%;
     min-height: 52px;
     margin: 0;
+    border-radius: 999px;
   }
   .job-filter-pills {
     gap: 8px;

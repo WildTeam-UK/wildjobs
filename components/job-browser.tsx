@@ -1,6 +1,6 @@
 "use client";
 
-import { Button, Select, VisuallyHidden } from "@wildteam-uk/ui";
+import { Button } from "@wildteam-uk/ui";
 import {
   type CSSProperties,
   type KeyboardEvent as ReactKeyboardEvent,
@@ -20,6 +20,7 @@ const locationTypes: readonly LocationType[] = ["Remote", "Hybrid", "On-site", "
 export type JobSortOrder = "closing" | "newest" | "relevance";
 type FilterIconName =
   | "briefcase"
+  | "brand"
   | "clock"
   | "course"
   | "leaf"
@@ -42,6 +43,30 @@ type BrowserFilters = Readonly<{
 }>;
 
 function FilterIcon({ name }: { name: FilterIconName }) {
+  if (name === "brand") {
+    return (
+      <svg
+        className="job-filter-pill__icon job-filter-pill__icon--brand"
+        aria-hidden="true"
+        viewBox="0 0 24 24"
+      >
+        <path
+          className="job-filter-pill__brand-heart"
+          d="M12 21C7.5 19.8 4.3 17.6 2.8 14.4 1 10.7 1.8 5.7 5.5 3.9 8.1 2.6 10.5 4.2 12 6.5c1.5-2.3 3.9-3.9 6.5-2.6 3.7 1.8 4.5 6.8 2.7 10.5C19.7 17.6 16.5 19.8 12 21Z"
+        />
+        <path className="job-filter-pill__brand-branches" d="M12 18.5v-10" />
+        <path
+          className="job-filter-pill__brand-branches"
+          d="M12 12.2c-2.3-.5-4-1.6-5.3-3.4M12 12.2c2.3-.5 4-1.6 5.3-3.4"
+        />
+        <path
+          className="job-filter-pill__brand-branches"
+          d="M12 16c-3-.6-5.2-2-6.8-4.2M12 16c3-.6 5.2-2 6.8-4.2"
+        />
+      </svg>
+    );
+  }
+
   const paths = {
     briefcase: (
       <>
@@ -91,7 +116,7 @@ function FilterIcon({ name }: { name: FilterIconName }) {
         <path d="m16 14 3 3 3-3M19 17V7" />
       </>
     ),
-  } satisfies Record<FilterIconName, ReactNode>;
+  } satisfies Record<Exclude<FilterIconName, "brand">, ReactNode>;
 
   return (
     <svg className="job-filter-pill__icon" aria-hidden="true" viewBox="0 0 24 24">
@@ -151,13 +176,13 @@ function FilterDropdown({
 
     document.addEventListener("pointerdown", closeOnOutsidePointer);
     document.addEventListener("keydown", closeOnEscape);
-    document.addEventListener("scroll", closeOnViewportChange, true);
-    window.addEventListener("resize", closeOnViewportChange);
+    document.addEventListener("wheel", closeOnViewportChange, true);
+    document.addEventListener("touchmove", closeOnViewportChange, true);
     return () => {
       document.removeEventListener("pointerdown", closeOnOutsidePointer);
       document.removeEventListener("keydown", closeOnEscape);
-      document.removeEventListener("scroll", closeOnViewportChange, true);
-      window.removeEventListener("resize", closeOnViewportChange);
+      document.removeEventListener("wheel", closeOnViewportChange, true);
+      document.removeEventListener("touchmove", closeOnViewportChange, true);
     };
   }, [isOpen]);
 
@@ -166,15 +191,17 @@ function FilterDropdown({
     if (trigger) {
       const triggerBounds = trigger.getBoundingClientRect();
       const menuWidth = Math.min(260, window.innerWidth - 32);
+      const menuHeight = Math.min(allOptions.length * 43 + 16, 320);
       const idealLeft = triggerBounds.left + triggerBounds.width / 2 - menuWidth / 2;
+      const fitsBelow = triggerBounds.bottom + 8 + menuHeight <= window.innerHeight - 16;
       setMenuPosition({
         left: Math.min(Math.max(16, idealLeft), window.innerWidth - menuWidth - 16),
-        top: triggerBounds.bottom + 8,
+        top: fitsBelow ? triggerBounds.bottom + 8 : Math.max(16, triggerBounds.top - menuHeight - 8),
         width: menuWidth,
       });
     }
     setIsOpen(true);
-    requestAnimationFrame(() => optionRefs.current[focusIndex]?.focus());
+    requestAnimationFrame(() => optionRefs.current[focusIndex]?.focus({ preventScroll: true }));
   }
 
   function navigateMenu(event: ReactKeyboardEvent<HTMLDivElement>) {
@@ -219,7 +246,7 @@ function FilterDropdown({
         type="button"
       >
         <FilterIcon name={icon} />
-        <span>{selectedLabel}</span>
+        <span className="job-filter-pill__value">{selectedLabel}</span>
         <svg className="job-filter-pill__chevron" aria-hidden="true" viewBox="0 0 12 8">
           <path d="m1 1.5 5 5 5-5" />
         </svg>
@@ -332,7 +359,9 @@ export function JobBrowser({
 
     const updateCompactState = () => {
       cancelAnimationFrame(animationFrame);
-      animationFrame = requestAnimationFrame(() => setIsHeroCompact(window.scrollY > 48));
+      animationFrame = requestAnimationFrame(() => {
+        setIsHeroCompact((isCompact) => (isCompact ? window.scrollY > 8 : window.scrollY > 96));
+      });
     };
 
     updateCompactState();
@@ -411,11 +440,13 @@ export function JobBrowser({
       <div className={`job-search-hero${isHeroCompact ? " job-search-hero--compact" : ""}`}>
         <div className="job-search-hero__inner shell">
           <div className="job-search-hero__intro">
-            <h1 id="jobs-page-heading">Do work that matters.</h1>
-            <p className="job-search-hero__description">
-              Discover your next meaningful career protecting wildlife, restoring nature and creating a better
-              future for our planet.
-            </p>
+            <div className="job-search-hero__intro-content">
+              <h1 id="jobs-page-heading">Do work that matters.</h1>
+              <p className="job-search-hero__description">
+                Discover your next meaningful career protecting wildlife, restoring nature and creating a
+                better future for our planet.
+              </p>
+            </div>
           </div>
 
           <form
@@ -568,8 +599,9 @@ export function JobBrowser({
             />
             <FilterDropdown
               accessibleLabel="Related WildTeam course"
+              className="job-filter-pill--fancy"
               clearLabel="Any related course"
-              icon="course"
+              icon="brand"
               onChange={(value) => {
                 setCourseSlug(value);
                 syncUrl(currentFilters({ courseSlug: value }));
@@ -580,7 +612,7 @@ export function JobBrowser({
             />
             <FilterDropdown
               accessibleLabel="Sort jobs"
-              className="job-filter-pill--compact-only"
+              className="job-filter-pill--compact-only job-filter-pill--icon-only"
               clearLabel="Recommended"
               icon="sort"
               onChange={(value) => {
@@ -612,20 +644,23 @@ export function JobBrowser({
                 {filteredJobs.length} Currently available {filteredJobs.length === 1 ? "role" : "roles"}
               </p>
               <div className="job-sort-control job-sort-control--results">
-                <Select
-                  id="job-sort"
-                  label={<VisuallyHidden>Sort jobs</VisuallyHidden>}
-                  value={sortOrder}
-                  onChange={(event) => {
-                    const value = event.target.value as JobSortOrder;
-                    setSortOrder(value);
-                    syncUrl(currentFilters({ sortOrder: value }));
+                <FilterDropdown
+                  accessibleLabel="Sort jobs"
+                  className="job-sort-dropdown"
+                  clearLabel="Recommended"
+                  icon="sort"
+                  onChange={(value) => {
+                    const nextValue = (value || "relevance") as JobSortOrder;
+                    setSortOrder(nextValue);
+                    syncUrl(currentFilters({ sortOrder: nextValue }));
                   }}
-                >
-                  <option value="relevance">Recommended</option>
-                  <option value="newest">Newest first</option>
-                  <option value="closing">Closing soon</option>
-                </Select>
+                  options={[
+                    { label: "Newest first", value: "newest" },
+                    { label: "Closing soon", value: "closing" },
+                  ]}
+                  placeholder="Recommended"
+                  value={sortOrder === "relevance" ? "" : sortOrder}
+                />
               </div>
             </div>
             {selectedCourse ? (
