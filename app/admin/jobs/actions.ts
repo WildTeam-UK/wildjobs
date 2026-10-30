@@ -88,7 +88,6 @@ export async function publishJobReview(jobId: number) {
   }
 
   revalidatePath("/");
-  revalidatePath("/jobs");
   revalidatePath("/admin");
   revalidatePath("/admin/jobs");
   revalidatePath(`/admin/jobs/${jobId}`);
@@ -126,7 +125,6 @@ async function changePublishedJobLifecycle(
   }
 
   revalidatePath("/");
-  revalidatePath("/jobs");
   revalidatePath(`/jobs/${jobSlug}`);
   revalidatePath("/account");
   revalidatePath("/admin");

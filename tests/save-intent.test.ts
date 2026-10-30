@@ -41,6 +41,6 @@ describe("addSaveStatus", () => {
   });
 
   it("does not permit an external return path", () => {
-    expect(addSaveStatus("https://example.com", "saved")).toBe("/jobs?save=saved");
+    expect(addSaveStatus("https://example.com", "saved")).toBe("/?save=saved");
   });
 });

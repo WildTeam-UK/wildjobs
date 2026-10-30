@@ -24,7 +24,7 @@ export function getSaveJobIntent(values: IntentValues): SaveJobIntent | null {
 }
 
 export function addSaveStatus(path: string, status: "error" | "removed" | "saved") {
-  const url = new URL(getSafeNextPath(path, "/jobs"), "https://wildjobs.invalid");
+  const url = new URL(getSafeNextPath(path, "/"), "https://wildjobs.invalid");
   url.searchParams.set("save", status);
   return `${url.pathname}${url.search}${url.hash}`;
 }

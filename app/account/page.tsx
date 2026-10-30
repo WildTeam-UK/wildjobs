@@ -65,7 +65,7 @@ export default async function AccountPage() {
                   : "More roles worth a closer look."}
               </h2>
             </div>
-            <Link className="text-link" href="/jobs">
+            <Link className="text-link" href="/">
               Explore all jobs →
             </Link>
           </div>

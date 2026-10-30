@@ -16,7 +16,7 @@ export async function updateSavedJob(
   returnTo: string,
   _formData: FormData,
 ) {
-  const next = getSafeNextPath(returnTo, "/jobs");
+  const next = getSafeNextPath(returnTo, "/");
   if (!Number.isSafeInteger(jobId) || jobId < 1 || !["remove", "save"].includes(operation)) {
     redirect(addSaveStatus(next, "error"));
   }
@@ -35,7 +35,6 @@ export async function updateSavedJob(
   }
 
   revalidatePath("/");
-  revalidatePath("/jobs");
   revalidatePath("/account");
   revalidatePath("/account/saved");
   redirect(addSaveStatus(next, operation === "save" ? "saved" : "removed"));

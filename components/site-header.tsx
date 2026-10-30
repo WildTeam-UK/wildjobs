@@ -28,7 +28,7 @@ export function SiteHeader() {
           <BrandWordmark className="brand__wordmark" product="JOBS" />
         </Link>
         <nav className="site-nav" aria-label="Main navigation">
-          <Link href="/jobs">Find jobs</Link>
+          <Link href="/">Find jobs</Link>
           <Link href="/careers">Explore careers</Link>
           <Link href="/employers">Employers</Link>
           <Link href="/for-employers">For employers</Link>

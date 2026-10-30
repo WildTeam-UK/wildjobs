@@ -98,7 +98,7 @@ export default async function JobPage({ params, searchParams }: JobPageProps) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData).replaceAll("<", "\\u003c") }}
       />
       <div className="shell">
-        <Link className="back-link" href="/jobs">
+        <Link className="back-link" href="/">
           <span aria-hidden="true">←</span> Back to all jobs
         </Link>
       </div>
@@ -291,7 +291,7 @@ export default async function JobPage({ params, searchParams }: JobPageProps) {
               WildJobs collected this vacancy from an approved source and checked its essential details
               against the original listing.
             </p>
-            <Link className="text-link job-facts-card__other-roles" href="/jobs">
+            <Link className="text-link job-facts-card__other-roles" href="/">
               Explore other roles <span aria-hidden="true">→</span>
             </Link>
           </div>
@@ -317,7 +317,7 @@ export default async function JobPage({ params, searchParams }: JobPageProps) {
           <div className="shell">
             <div className="job-results__heading">
               <h2>Other jobs you may like</h2>
-              <Link className="text-link" href="/jobs">
+              <Link className="text-link" href="/">
                 View all jobs <span aria-hidden="true">→</span>
               </Link>
             </div>

@@ -32,7 +32,7 @@ export default async function EmployersPage() {
                 live {openRoleCount === 1 ? "role" : "roles"}
               </p>
             </div>
-            <Link className="text-link" href="/jobs">
+            <Link className="text-link" href="/">
               See all jobs →
             </Link>
           </div>
@@ -47,7 +47,7 @@ export default async function EmployersPage() {
               <p className="eyebrow">Profiles are being prepared</p>
               <h2>Reviewed conservation employers will appear here.</h2>
               <p>You can still explore every current vacancy while we build the directory.</p>
-              <Link className="action action--outline" href="/jobs">
+              <Link className="action action--outline" href="/">
                 Browse current jobs
               </Link>
             </div>

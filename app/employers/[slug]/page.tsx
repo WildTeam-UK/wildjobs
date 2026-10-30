@@ -190,7 +190,7 @@ export default async function EmployerPage({ params }: EmployerPageProps) {
             <div className="staff-empty-state">
               <h2>No current vacancies</h2>
               <p>This employer has no live WildJobs listings at the moment.</p>
-              <Link className="action action--outline" href="/jobs">
+              <Link className="action action--outline" href="/">
                 Explore other roles
               </Link>
             </div>

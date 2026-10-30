@@ -63,7 +63,7 @@ export default async function CareerAreaPage({ params }: CareerAreaPageProps) {
               Compare current role titles, employers, locations, working patterns and pay information. Save
               useful roles to build a clearer picture of what interests you and what employers ask for.
             </p>
-            <Link className="text-link" href={`/jobs?category=${encodeURIComponent(area.title)}`}>
+            <Link className="text-link" href={`/?category=${encodeURIComponent(area.title)}`}>
               Search this career area <span aria-hidden="true">→</span>
             </Link>
           </div>
@@ -99,7 +99,7 @@ export default async function CareerAreaPage({ params }: CareerAreaPageProps) {
               <p className="eyebrow">No live matches today</p>
               <h2>There are no current vacancies in this area yet.</h2>
               <p>New reviewed roles will appear here automatically when they are published.</p>
-              <Link className="action action--outline" href="/jobs">
+              <Link className="action action--outline" href="/">
                 Browse all jobs
               </Link>
             </div>

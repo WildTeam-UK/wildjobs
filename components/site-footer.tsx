@@ -12,7 +12,7 @@ export function SiteFooter() {
           <p>Conservation opportunities presented clearly, with the source always visible.</p>
         </div>
         <nav aria-label="Footer navigation">
-          <Link href="/jobs">Find jobs</Link>
+          <Link href="/">Find jobs</Link>
           <Link href="/careers">Explore careers</Link>
           <Link href="/for-employers">For employers</Link>
           <a href="https://www.wildteam.org.uk/team" target="_blank" rel="noopener noreferrer">
