@@ -16,21 +16,6 @@ const trainingBenefits = [
   },
 ] as const;
 
-const trainingImages = [
-  {
-    alt: "Conservation trainees carrying out fieldwork beside a loch at golden hour",
-    src: "/images/job-training-cta.jpg",
-  },
-  {
-    alt: "Conservation explorers overlooking wildlife in a pastel mountain landscape",
-    src: "/images/job-training-cta-pastel.jpg",
-  },
-  {
-    alt: "Conservation explorers surveying a green mountain valley",
-    src: "/images/job-training-cta-eco.jpg",
-  },
-] as const;
-
 function TickIcon() {
   return (
     <svg aria-hidden="true" viewBox="0 0 24 24">
@@ -40,14 +25,18 @@ function TickIcon() {
   );
 }
 
-export function JobTrainingPromo({ imageIndex, position }: { imageIndex: number; position: number }) {
+export function JobTrainingPromo({ position }: { position: number }) {
   const headingId = `job-training-promo-title-${position}`;
-  const image = trainingImages[imageIndex % trainingImages.length];
 
   return (
     <aside className="job-training-promo" aria-labelledby={headingId}>
       <div className="job-training-promo__media">
-        <Image alt={image.alt} fill sizes="(max-width: 720px) calc(100vw - 32px), 390px" src={image.src} />
+        <Image
+          alt="Conservation explorers overlooking wildlife in a pastel mountain landscape"
+          fill
+          sizes="(max-width: 720px) calc(100vw - 32px), 390px"
+          src="/images/job-training-cta-pastel.jpg"
+        />
       </div>
       <div className="job-training-promo__content">
         <div className="job-training-promo__intro">
