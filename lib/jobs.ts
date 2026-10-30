@@ -55,8 +55,44 @@ export type Job = Readonly<{
 export function compactJobLocation(
   job: Pick<Job, "countryCode" | "location" | "locationLocality" | "locationRegion" | "locationType">,
 ) {
-  const lead = job.locationType === "Remote" ? "Remote" : (job.locationLocality ?? job.locationRegion);
-  return lead ? [lead, job.countryCode].filter(Boolean).join(", ") : job.location;
+  const rawAddressParts = job.location
+    .split(",")
+    .map((part) => part.trim())
+    .filter(Boolean);
+  const inferredCountryCode = rawAddressParts.findLast((part) => /^[A-Z]{2}$/.test(part));
+  const countryCode =
+    job.countryCode ??
+    inferredCountryCode ??
+    (rawAddressParts.some((part) => /^(?:United Kingdom|UK)$/i.test(part)) ? "GB" : undefined);
+  const addressParts = rawAddressParts.filter(
+    (part) =>
+      part &&
+      !/^[A-Z]{1,2}\d[A-Z\d]?\s*\d[A-Z]{2}$/i.test(part) &&
+      ![countryCode, "United Kingdom", "UK", "GB"].filter(Boolean).includes(part),
+  );
+  const addressLocality = addressParts.length > 1 ? addressParts.at(-2) : addressParts[0] || undefined;
+  const lead =
+    job.locationType === "Remote"
+      ? "Remote"
+      : (job.locationLocality ?? job.locationRegion ?? addressLocality);
+  return lead ? [lead, countryCode].filter(Boolean).join(", ") : job.location;
+}
+
+function daysFromToday(value: string, today: Date) {
+  const target = new Date(`${value}T00:00:00Z`);
+  const current = new Date(today);
+  current.setUTCHours(0, 0, 0, 0);
+  return Math.floor((target.valueOf() - current.valueOf()) / 86_400_000);
+}
+
+export function isNewJob(value: string, today = new Date()) {
+  const daysOld = -daysFromToday(value, today);
+  return daysOld >= 0 && daysOld < 7;
+}
+
+export function isClosingSoon(value: string, today = new Date()) {
+  const daysRemaining = daysFromToday(value, today);
+  return daysRemaining >= 0 && daysRemaining < 7;
 }
 
 export const jobs: readonly Job[] = [

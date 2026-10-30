@@ -1,9 +1,16 @@
 import Link from "next/link";
 import { EmployerLogo } from "@/components/employer-logo";
 import { SaveJobControl, type JobSaveState } from "@/components/save-job-control";
-import { compactJobLocation, formatDate, listingAgeLabel, type Job } from "@/lib/jobs";
+import {
+  compactJobLocation,
+  formatDate,
+  isClosingSoon,
+  isNewJob,
+  listingAgeLabel,
+  type Job,
+} from "@/lib/jobs";
 
-function JobFactIcon({ type }: { type: "location" | "salary" | "time" | "type" }) {
+function JobFactIcon({ type }: { type: "location" | "salary" | "type" }) {
   if (type === "location") {
     return (
       <svg aria-hidden="true" viewBox="0 0 24 24">
@@ -20,17 +27,9 @@ function JobFactIcon({ type }: { type: "location" | "salary" | "time" | "type" }
       </svg>
     );
   }
-  if (type === "salary") {
-    return (
-      <svg aria-hidden="true" viewBox="0 0 24 24">
-        <path d="M16.5 6.5a4 4 0 0 0-7.5 2v3.25A5.2 5.2 0 0 1 7 16h10M7 11.5h7" />
-      </svg>
-    );
-  }
   return (
     <svg aria-hidden="true" viewBox="0 0 24 24">
-      <circle cx="12" cy="12" r="9" />
-      <path d="M12 7v5l3.5 2" />
+      <path d="M16.5 6.5a4 4 0 0 0-7.5 2v3.25A5.2 5.2 0 0 1 7 16h10M7 11.5h7" />
     </svg>
   );
 }
@@ -58,14 +57,13 @@ export function JobCard({
       : job.title;
   const compactFacts = [
     { icon: "location", label: "Location", value: compactJobLocation(job) },
-    { icon: "type", label: "Job type", value: jobType || job.employmentType },
     { icon: "salary", label: "Salary", value: job.salary },
-    {
-      icon: "time",
-      label: "Closes",
-      value: job.closesAt ? formatDate(job.closesAt) : listingAgeLabel(job.postedAt),
-    },
+    { icon: "type", label: "Contract type", value: jobType || job.employmentType },
   ] as const;
+  const statusPills = [
+    isNewJob(job.publishedAt ?? job.postedAt) ? { className: "new", label: "New job" } : null,
+    job.closesAt && isClosingSoon(job.closesAt) ? { className: "closing", label: "Closing soon" } : null,
+  ].filter((pill): pill is { className: string; label: string } => Boolean(pill));
 
   return (
     <article className={`job-card${compact ? " job-card--compact" : ""}`}>
@@ -87,7 +85,7 @@ export function JobCard({
             </h2>
           ) : null}
           <p className="job-card__organisation">
-            {job.employerSlug ? (
+            {!compact && job.employerSlug ? (
               <Link href={`/employers/${job.employerSlug}`}>{job.organisation}</Link>
             ) : (
               job.organisation
@@ -101,16 +99,32 @@ export function JobCard({
             </div>
           ) : null}
         </div>
-        {compact && showSaveAction ? (
-          <div className="job-card__save">
-            <SaveJobControl
-              className="save-action save-action--icon"
-              iconOnly
-              jobId={job.id}
-              jobSlug={job.slug}
-              returnTo={saveReturnTo}
-              state={saveState}
-            />
+        {compact && (statusPills.length || showSaveAction) ? (
+          <div className="job-card__header-actions">
+            {statusPills.length ? (
+              <div className="job-card__status-pills" aria-label="Job notices">
+                {statusPills.map((pill) => (
+                  <span
+                    className={`job-card__status-pill job-card__status-pill--${pill.className}`}
+                    key={pill.label}
+                  >
+                    {pill.label}
+                  </span>
+                ))}
+              </div>
+            ) : null}
+            {showSaveAction ? (
+              <div className="job-card__save">
+                <SaveJobControl
+                  className="save-action save-action--icon"
+                  iconOnly
+                  jobId={job.id}
+                  jobSlug={job.slug}
+                  returnTo={saveReturnTo}
+                  state={saveState}
+                />
+              </div>
+            ) : null}
           </div>
         ) : null}
       </header>
@@ -128,17 +142,21 @@ export function JobCard({
         </div>
       ) : null}
       {compact ? (
-        <dl className="job-card__facts job-card__facts--icons">
-          {compactFacts.map((fact) => (
-            <div key={fact.label}>
-              <dt>
+        <>
+          <div className="job-card__summary-block">
+            {job.summarySource === "ai" ? <p className="job-card__ai-label">AI summary</p> : null}
+            <p className="job-card__summary">{job.summary}</p>
+          </div>
+          <ul className="job-card__compact-facts">
+            {compactFacts.map((fact) => (
+              <li key={fact.label}>
                 <JobFactIcon type={fact.icon} />
-                <span className="wt-visually-hidden">{fact.label}</span>
-              </dt>
-              <dd>{fact.value}</dd>
-            </div>
-          ))}
-        </dl>
+                <span className="wt-visually-hidden">{fact.label}: </span>
+                <span>{fact.value}</span>
+              </li>
+            ))}
+          </ul>
+        </>
       ) : (
         <dl className="job-card__facts">
           <div>
@@ -159,20 +177,22 @@ export function JobCard({
           </div>
         </dl>
       )}
-      <div className="job-card__actions">
-        {job.availability && job.availability !== "current" ? (
-          <span className="job-card__unavailable">
-            {job.availability === "expired" ? "Applications closed" : "No longer available"}
-          </span>
-        ) : (
-          <Link className="action" href={`/jobs/${job.slug}`}>
-            View job <span aria-hidden="true">→</span>
-          </Link>
-        )}
-        {showSaveAction && !compact ? (
-          <SaveJobControl jobId={job.id} jobSlug={job.slug} returnTo={saveReturnTo} state={saveState} />
-        ) : null}
-      </div>
+      {!compact ? (
+        <div className="job-card__actions">
+          {job.availability && job.availability !== "current" ? (
+            <span className="job-card__unavailable">
+              {job.availability === "expired" ? "Applications closed" : "No longer available"}
+            </span>
+          ) : (
+            <Link className="action" href={`/jobs/${job.slug}`}>
+              View job <span aria-hidden="true">→</span>
+            </Link>
+          )}
+          {showSaveAction && !compact ? (
+            <SaveJobControl jobId={job.id} jobSlug={job.slug} returnTo={saveReturnTo} state={saveState} />
+          ) : null}
+        </div>
+      ) : null}
     </article>
   );
 }

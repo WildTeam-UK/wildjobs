@@ -35,4 +35,13 @@ describe("compact job locations", () => {
       }),
     ).toBe("Remote, GB");
   });
+
+  it("derives a compact locality from a legacy advertised address", () => {
+    expect(
+      compactJobLocation({
+        location: "The Quays, Neath, Neath Port Talbot, SA11 2GG, GB",
+        locationType: "On-site",
+      }),
+    ).toBe("Neath, GB");
+  });
 });
