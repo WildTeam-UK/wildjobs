@@ -19,7 +19,10 @@ type JobReviewInput = {
   employerWebsiteUrl: string;
   experienceLevel: (typeof experienceLevels)[number] | null;
   hoursType: (typeof hoursTypes)[number] | null;
+  locationLocality: string | null;
+  locationRegion: string | null;
   locationText: string;
+  postalCode: string | null;
   postedAt: string | null;
   requirements: string;
   responsibilities: string;
@@ -72,6 +75,9 @@ export function validateJobReview(
   const responsibilities = textValue(formData, "responsibilities");
   const requirements = textValue(formData, "requirements");
   const locationText = textValue(formData, "locationText");
+  const locationLocality = textValue(formData, "locationLocality");
+  const locationRegion = textValue(formData, "locationRegion");
+  const postalCode = textValue(formData, "postalCode");
   const countryCode = textValue(formData, "countryCode").toUpperCase();
   const workplaceType = textValue(formData, "workplaceType");
   const contractType = textValue(formData, "contractType");
@@ -95,6 +101,13 @@ export function validateJobReview(
   if (!hasLength(summary, 20, 500)) return { error: "Add a summary between 20 and 500 characters." };
   if (!hasLength(description, 40, 20_000)) return { error: "Add a clear vacancy description." };
   if (!hasLength(locationText, 2, 240)) return { error: "Enter the location shown by the employer." };
+  if (locationLocality && !hasLength(locationLocality, 2, 120)) {
+    return { error: "Keep the town or city to 120 characters or fewer." };
+  }
+  if (locationRegion && !hasLength(locationRegion, 2, 120)) {
+    return { error: "Keep the county or region to 120 characters or fewer." };
+  }
+  if (postalCode.length > 40) return { error: "Keep the postcode to 40 characters or fewer." };
   if (!/^[A-Z]{2}$/.test(countryCode)) return { error: "Enter a two-letter country code, such as GB." };
   const normalisedWorkplaceType = optionalChoice(workplaceType, workplaceTypes);
   const normalisedContractType = optionalChoice(contractType, contractTypes);
@@ -140,7 +153,10 @@ export function validateJobReview(
       employerWebsiteUrl,
       experienceLevel: normalisedExperienceLevel,
       hoursType: normalisedHoursType,
+      locationLocality: locationLocality || null,
+      locationRegion: locationRegion || null,
       locationText,
+      postalCode: postalCode || null,
       postedAt: postedAt || null,
       requirements,
       responsibilities,

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { EmployerLogo } from "@/components/employer-logo";
 import { SaveJobControl, type JobSaveState } from "@/components/save-job-control";
-import { formatDate, listingAgeLabel, type Job } from "@/lib/jobs";
+import { compactJobLocation, formatDate, listingAgeLabel, type Job } from "@/lib/jobs";
 
 function JobFactIcon({ type }: { type: "location" | "salary" | "time" | "type" }) {
   if (type === "location") {
@@ -57,7 +57,7 @@ export function JobCard({
       ? job.title.slice(0, -employerSuffix.length)
       : job.title;
   const compactFacts = [
-    { icon: "location", label: "Location", value: job.location },
+    { icon: "location", label: "Location", value: compactJobLocation(job) },
     { icon: "type", label: "Job type", value: jobType || job.employmentType },
     { icon: "salary", label: "Salary", value: job.salary },
     {

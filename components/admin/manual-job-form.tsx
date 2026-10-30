@@ -21,7 +21,10 @@ type ManualJobDefaults = {
   experienceLevel?: string;
   fieldEvidence?: VacancyFieldEvidence[];
   hoursType?: string;
+  locationLocality?: string;
+  locationRegion?: string;
   locationText?: string;
+  postalCode?: string;
   postedAt?: string;
   salaryText?: string;
   sourceId?: number;
@@ -215,6 +218,40 @@ export function ManualJobForm({
               name="countryCode"
               placeholder="GB"
               required
+            />
+          </div>
+          <div>
+            <label htmlFor="location-locality">
+              Town or city <span>(optional)</span>
+            </label>
+            <input
+              defaultValue={defaults?.locationLocality}
+              id="location-locality"
+              maxLength={120}
+              name="locationLocality"
+            />
+          </div>
+          <div>
+            <label htmlFor="location-region">
+              County or region <span>(optional)</span>
+            </label>
+            <input
+              defaultValue={defaults?.locationRegion}
+              id="location-region"
+              maxLength={120}
+              name="locationRegion"
+            />
+          </div>
+          <div>
+            <label htmlFor="postal-code">
+              Postcode <span>(optional)</span>
+            </label>
+            <input
+              autoComplete="postal-code"
+              defaultValue={defaults?.postalCode}
+              id="postal-code"
+              maxLength={40}
+              name="postalCode"
             />
           </div>
           <div>

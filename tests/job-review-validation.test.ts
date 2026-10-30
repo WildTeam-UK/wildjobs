@@ -16,6 +16,9 @@ const validValues = {
   experienceLevel: "developing",
   hoursType: "full_time",
   locationText: "Bristol, United Kingdom",
+  locationLocality: "Bristol",
+  locationRegion: "City of Bristol",
+  postalCode: "BS1 5AH",
   postedAt: "2026-11-01",
   requirements: "Experience working with partners.",
   responsibilities: "Coordinate practical conservation projects.",
@@ -34,7 +37,13 @@ function reviewForm(overrides: Record<string, string> = {}) {
 describe("job review validation", () => {
   it("accepts a complete publication-ready review", () => {
     const result = validateJobReview(reviewForm(), "2026-10-28");
-    expect(result.data).toMatchObject({ countryCode: "GB", employerWebsiteUrl: "https://example.org" });
+    expect(result.data).toMatchObject({
+      countryCode: "GB",
+      employerWebsiteUrl: "https://example.org",
+      locationLocality: "Bristol",
+      locationRegion: "City of Bristol",
+      postalCode: "BS1 5AH",
+    });
   });
 
   it("requires a meaningful employer overview", () => {

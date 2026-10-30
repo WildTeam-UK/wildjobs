@@ -817,7 +817,11 @@ export async function enrichNextPendingSourceRecord(
         enrichment_error_code: aiError ? "ai_unavailable" : null,
         enrichment_policy_version: enrichmentPolicyVersion,
         enrichment_status: status,
+        country_code: page.locationCountryCode ?? record.country_code,
+        location_locality: page.locationLocality ?? record.location_locality,
+        location_region: page.locationRegion ?? record.location_region,
         location_text: page.locationText ?? record.location_text,
+        postal_code: page.postalCode ?? record.postal_code,
       })
       .eq("id", record.id);
     if (recordUpdateError) throw new Error("The enriched source record could not be saved.");

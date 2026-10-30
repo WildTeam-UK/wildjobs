@@ -15,6 +15,9 @@ const validValues = {
   experienceLevel: "developing",
   hoursType: "full_time",
   locationText: "Bristol, United Kingdom",
+  locationLocality: "Bristol",
+  locationRegion: "City of Bristol",
+  postalCode: "BS1 5AH",
   postedAt: "2026-11-01",
   requirements: "Experience working with partners.",
   responsibilities: "Coordinate practical conservation projects.",
@@ -39,6 +42,9 @@ describe("manual job intake validation", () => {
       countryCode: "GB",
       employerSlug: "example-nature-trust",
       jobSlug: "conservation-project-officer-example-nature-trust-2026-12-20",
+      locationLocality: "Bristol",
+      locationRegion: "City of Bristol",
+      postalCode: "BS1 5AH",
       sourceId: 4,
     });
   });

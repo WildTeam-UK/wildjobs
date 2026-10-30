@@ -19,7 +19,10 @@ export type ReviewFormValues = {
   employerWebsiteUrl: string;
   experienceLevel: string;
   hoursType: string;
+  locationLocality: string;
+  locationRegion: string;
   locationText: string;
+  postalCode: string;
   postedAt: string;
   requirements: string;
   responsibilities: string;
@@ -183,6 +186,40 @@ export function JobReviewForm({
               maxLength={2}
               name="countryCode"
               required
+            />
+          </div>
+          <div>
+            <label htmlFor="location-locality">
+              Town or city <span>(optional)</span>
+            </label>
+            <input
+              defaultValue={values.locationLocality}
+              id="location-locality"
+              maxLength={120}
+              name="locationLocality"
+            />
+          </div>
+          <div>
+            <label htmlFor="location-region">
+              County or region <span>(optional)</span>
+            </label>
+            <input
+              defaultValue={values.locationRegion}
+              id="location-region"
+              maxLength={120}
+              name="locationRegion"
+            />
+          </div>
+          <div>
+            <label htmlFor="postal-code">
+              Postcode <span>(optional)</span>
+            </label>
+            <input
+              autoComplete="postal-code"
+              defaultValue={values.postalCode}
+              id="postal-code"
+              maxLength={40}
+              name="postalCode"
             />
           </div>
           <div>

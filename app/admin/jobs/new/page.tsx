@@ -23,7 +23,7 @@ export default async function NewAdminJobPage({ searchParams }: NewAdminJobPageP
       ? supabase
           .from("job_source_records")
           .select(
-            "id, source_id, canonical_url, mapping_status, job_id, source_title, employer_name, location_text, closes_at, source_updated_at, summary, application_url, detail_text, employer_website_url, enrichment_status, job_source_field_evidence(field_name, resolution_status, value, confidence, source_kind, extraction_method, evidence_text, extractor_version), job_sources(name, is_active)",
+            "id, source_id, canonical_url, mapping_status, job_id, source_title, employer_name, location_text, location_locality, location_region, postal_code, country_code, closes_at, source_updated_at, summary, application_url, detail_text, employer_website_url, enrichment_status, job_source_field_evidence(field_name, resolution_status, value, confidence, source_kind, extraction_method, evidence_text, extractor_version), job_sources(name, is_active)",
           )
           .eq("id", recordId)
           .maybeSingle()

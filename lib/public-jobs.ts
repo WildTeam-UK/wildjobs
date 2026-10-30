@@ -17,6 +17,8 @@ export const publicJobFields = `
   responsibilities,
   requirements,
   location_text,
+  locality,
+  postal_code,
   country_code,
   region,
   experience_level,

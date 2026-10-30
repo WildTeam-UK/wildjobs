@@ -26,6 +26,8 @@ describe("vacancy page extraction", () => {
                 "jobLocation": {
                   "address": {
                     "addressLocality": "Bristol",
+                    "addressRegion": "City of Bristol",
+                    "postalCode": "BS1 5AH",
                     "addressCountry": "GB"
                   }
                 }
@@ -46,7 +48,11 @@ describe("vacancy page extraction", () => {
       employerLogoUrl: "https://nature.example.org/logo.png",
       employerName: "Example Nature Trust",
       employerWebsiteUrl: "https://nature.example.org/",
-      locationText: "Bristol, GB",
+      locationCountryCode: "GB",
+      locationLocality: "Bristol",
+      locationRegion: "City of Bristol",
+      locationText: "Bristol, City of Bristol, BS1 5AH, GB",
+      postalCode: "BS1 5AH",
       postedAt: "2026-10-28",
       title: "Conservation Officer",
     });
@@ -92,6 +98,28 @@ describe("vacancy page extraction", () => {
     );
 
     expect(result.detailText).toBe("Protect priority habitats.\n\nWork with local volunteers.");
+  });
+
+  it("does not invent one locality when an advert names multiple workplaces", () => {
+    const result = parseVacancyPage(
+      `<script type="application/ld+json">{
+        "@type":"JobPosting",
+        "title":"Regional Ranger",
+        "jobLocation":[
+          {"address":{"addressLocality":"Bristol","addressCountry":"United Kingdom"}},
+          {"address":{"addressLocality":"Bath","addressCountry":"United Kingdom"}}
+        ]
+      }</script>`,
+      pageUrl,
+    );
+
+    expect(result).toMatchObject({
+      locationCountryCode: "GB",
+      locationLocality: null,
+      locationRegion: null,
+      locationText: "Bristol, United Kingdom; Bath, United Kingdom",
+      postalCode: null,
+    });
   });
 
   it("prefers a visible brand logo over a small browser icon", () => {

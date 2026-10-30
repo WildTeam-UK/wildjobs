@@ -25,7 +25,11 @@ type SourceRecordDraftInput = {
   employer_name: string | null;
   employer_website_url?: string | null;
   job_source_field_evidence?: StoredEvidence[];
+  location_locality?: string | null;
+  location_region?: string | null;
   location_text: string | null;
+  postal_code?: string | null;
+  country_code?: string | null;
   source_id: number;
   source_title: string | null;
   source_updated_at: string | null;
@@ -108,7 +112,7 @@ export function buildSourceRecordDraftDefaults(record: SourceRecordDraftInput) {
     canonicalUrl: record.canonical_url ?? undefined,
     closesAt: acceptedValue(fieldEvidence, "closes_at") ?? record.closes_at ?? undefined,
     contractType: acceptedValue(fieldEvidence, "contract_type") ?? extractedDetails.contractType,
-    countryCode: "GB",
+    countryCode: record.country_code ?? "GB",
     description: detailText ? excerpt(detailText, 20_000) : undefined,
     engagementType: acceptedValue(fieldEvidence, "engagement_type") ?? extractedDetails.engagementType,
     employerName:
@@ -119,6 +123,9 @@ export function buildSourceRecordDraftDefaults(record: SourceRecordDraftInput) {
     fieldEvidence,
     hoursType: acceptedValue(fieldEvidence, "hours_type") ?? extractedDetails.hoursType,
     locationText: acceptedValue(fieldEvidence, "location_text") ?? record.location_text ?? undefined,
+    locationLocality: record.location_locality ?? undefined,
+    locationRegion: record.location_region ?? undefined,
+    postalCode: record.postal_code ?? undefined,
     postedAt: record.source_updated_at?.slice(0, 10),
     salaryText: acceptedValue(fieldEvidence, "salary_text") ?? extractedDetails.salaryText,
     sourceId: record.source_id,
@@ -145,6 +152,9 @@ export function prepareSourceRecordJobInput(
     experienceLevel: defaults.experienceLevel ?? "not_specified",
     hoursType: defaults.hoursType ?? "not_specified",
     locationText: defaults.locationText ?? "",
+    locationLocality: defaults.locationLocality ?? "",
+    locationRegion: defaults.locationRegion ?? "",
+    postalCode: defaults.postalCode ?? "",
     postedAt: defaults.postedAt ?? "",
     requirements: "",
     responsibilities: "",

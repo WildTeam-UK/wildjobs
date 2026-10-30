@@ -33,6 +33,8 @@ export type PublicJobRecord = Readonly<{
   hours_type: string | null;
   job_career_areas: readonly PublicCareerAreaRecord[];
   location_text: string | null;
+  locality: string | null;
+  postal_code: string | null;
   posted_at: string | null;
   published_at: string | null;
   region: string | null;
@@ -183,11 +185,14 @@ export function mapPublicJob(record: PublicJobRecord): Job {
     hoursType,
     id: record.id,
     location: record.location_text?.trim() || record.region?.trim() || "Location not stated",
+    locationLocality: record.locality?.trim() || undefined,
+    locationRegion: record.region?.trim() || undefined,
     locationType: workplaceLabels[record.workplace_type as keyof typeof workplaceLabels] ?? "Not specified",
     organisation: employer?.short_name?.trim() || employer?.name?.trim() || "Employer not stated",
     postedAt:
       dateOnly(record.posted_at) ?? dateOnly(record.published_at) ?? dateOnly(record.created_at) ?? "",
     publishedAt: dateOnly(record.published_at),
+    postalCode: record.postal_code?.trim() || undefined,
     relatedCourseSlugs: [],
     requirements: listItems(record.requirements),
     responsibilities: listItems(record.responsibilities),

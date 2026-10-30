@@ -20,6 +20,8 @@ export type Job = Readonly<{
   title: string;
   organisation: string;
   location: string;
+  locationLocality?: string;
+  locationRegion?: string;
   locationType: LocationType;
   employmentType: EmploymentType;
   engagementType?: EngagementType;
@@ -45,9 +47,17 @@ export type Job = Readonly<{
   employerOverviewIsAi?: boolean;
   employerWebsiteUrl?: string;
   countryCode?: string;
+  postalCode?: string;
   publishedAt?: string;
   relatedCourseSlugs: readonly string[];
 }>;
+
+export function compactJobLocation(
+  job: Pick<Job, "countryCode" | "location" | "locationLocality" | "locationRegion" | "locationType">,
+) {
+  const lead = job.locationType === "Remote" ? "Remote" : (job.locationLocality ?? job.locationRegion);
+  return lead ? [lead, job.countryCode].filter(Boolean).join(", ") : job.location;
+}
 
 export const jobs: readonly Job[] = [
   {

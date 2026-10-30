@@ -4,7 +4,7 @@ import { extractVacancyFieldEvidence, type VacancyFieldEvidence } from "./vacanc
 
 type JsonRecord = Record<string, unknown>;
 
-export const SOURCE_PAGE_EXTRACTOR_VERSION = "source-page-rules-v6";
+export const SOURCE_PAGE_EXTRACTOR_VERSION = "source-page-rules-v7";
 
 export type VacancyPageExtraction = {
   applicationUrl: string | null;
@@ -14,7 +14,11 @@ export type VacancyPageExtraction = {
   employerName: string | null;
   employerWebsiteUrl: string | null;
   evidence: VacancyFieldEvidence[];
+  locationCountryCode: string | null;
+  locationLocality: string | null;
+  locationRegion: string | null;
   locationText: string | null;
+  postalCode: string | null;
   postedAt: string | null;
   salaryText: string | null;
   title: string | null;
@@ -98,24 +102,62 @@ function parseDate(value: unknown) {
   return Number.isNaN(date.valueOf()) ? null : date.toISOString().slice(0, 10);
 }
 
+function countryCode(value: unknown) {
+  const candidate = clean(asRecord(value)?.name ?? value, 80);
+  if (/^[a-z]{2}$/i.test(candidate)) return candidate.toLocaleUpperCase("en-GB");
+
+  const aliases: Record<string, string> = {
+    england: "GB",
+    ireland: "IE",
+    scotland: "GB",
+    "united kingdom": "GB",
+    "united states": "US",
+    "united states of america": "US",
+    wales: "GB",
+  };
+  return aliases[candidate.toLocaleLowerCase("en-GB")] ?? null;
+}
+
 function structuredLocation(jobPosting: JsonRecord | null) {
   if (!jobPosting) return null;
-  const locations: string[] = [];
+  const locations: Array<{
+    countryCode: string | null;
+    locality: string | null;
+    postalCode: string | null;
+    region: string | null;
+    text: string;
+  }> = [];
 
   for (const candidate of asArray(jobPosting.jobLocation)) {
     const place = asRecord(candidate);
     const address = asRecord(place?.address);
+    const locality = clean(address?.addressLocality, 120) || null;
+    const region = clean(address?.addressRegion, 120) || null;
+    const postalCode = clean(address?.postalCode, 40) || null;
+    const advertisedCountry = clean(asRecord(address?.addressCountry)?.name ?? address?.addressCountry, 80);
     const parts = [
       clean(address?.streetAddress, 120),
-      clean(address?.addressLocality, 120),
-      clean(address?.addressRegion, 120),
-      clean(address?.postalCode, 40),
-      clean(address?.addressCountry, 80),
+      locality,
+      region,
+      postalCode,
+      advertisedCountry,
     ].filter(Boolean);
-    if (parts.length) locations.push([...new Set(parts)].join(", "));
+    if (parts.length) {
+      locations.push({
+        countryCode: countryCode(address?.addressCountry),
+        locality,
+        postalCode,
+        region,
+        text: [...new Set(parts)].join(", "),
+      });
+    }
   }
 
-  return locations.length ? [...new Set(locations)].join("; ").slice(0, 500) : null;
+  if (!locations.length) return null;
+  const text = [...new Set(locations.map((location) => location.text))].join("; ").slice(0, 240);
+  return locations.length === 1
+    ? { ...locations[0], text }
+    : { ...locations[0], locality: null, region: null, postalCode: null, text };
 }
 
 function structuredSalary(jobPosting: JsonRecord | null) {
@@ -234,7 +276,7 @@ export function parseVacancyPage(html: string, pageUrl: string): VacancyPageExtr
   if (!applicationUrl) applicationUrl = safeHttpsUrl(jobPosting?.url, pageUrl);
   if (!applicationUrl) applicationUrl = pageUrl;
 
-  const locationText = structuredLocation(jobPosting);
+  const location = structuredLocation(jobPosting);
   const title = clean(jobPosting?.title, 240) || clean($("h1").first().text(), 240) || null;
   const employerName = clean(organisation?.name, 200) || null;
 
@@ -246,7 +288,11 @@ export function parseVacancyPage(html: string, pageUrl: string): VacancyPageExtr
     employerName,
     employerWebsiteUrl,
     evidence: deterministicEvidence,
-    locationText,
+    locationCountryCode: location?.countryCode ?? null,
+    locationLocality: location?.locality ?? null,
+    locationRegion: location?.region ?? null,
+    locationText: location?.text ?? null,
+    postalCode: location?.postalCode ?? null,
     postedAt: parseDate(jobPosting?.datePosted),
     salaryText,
     title,

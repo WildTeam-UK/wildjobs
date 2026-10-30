@@ -117,7 +117,7 @@ export default async function SourcePage({ params, searchParams }: SourcePagePro
   let recordsQuery = supabase
     .from("job_source_records")
     .select(
-      "id, source_id, external_id, canonical_url, mapping_status, job_id, first_seen_at, last_seen_at, source_title, employer_name, location_text, closes_at, source_updated_at, summary, application_url, detail_fetched_at, detail_text, employer_id, employer_website_url, enrichment_attempts, enrichment_completed_at, enrichment_error_code, enrichment_status, automation_status, automation_blockers, automation_score, automation_evaluated_at, automation_policy_version, job_source_field_evidence(field_name, resolution_status, value, confidence, source_kind, extraction_method, evidence_text, extractor_version)",
+      "id, source_id, external_id, canonical_url, mapping_status, job_id, first_seen_at, last_seen_at, source_title, employer_name, location_text, location_locality, location_region, postal_code, country_code, closes_at, source_updated_at, summary, application_url, detail_fetched_at, detail_text, employer_id, employer_website_url, enrichment_attempts, enrichment_completed_at, enrichment_error_code, enrichment_status, automation_status, automation_blockers, automation_score, automation_evaluated_at, automation_policy_version, job_source_field_evidence(field_name, resolution_status, value, confidence, source_kind, extraction_method, evidence_text, extractor_version)",
     )
     .eq("source_id", sourceId)
     .order("last_seen_at", { ascending: false });

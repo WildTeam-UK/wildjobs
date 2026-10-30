@@ -84,7 +84,9 @@ export default async function JobPage({ params, searchParams }: JobPageProps) {
             address: {
               "@type": "PostalAddress",
               addressCountry: job.countryCode,
-              addressLocality: job.location,
+              addressLocality: job.locationLocality,
+              addressRegion: job.locationRegion,
+              postalCode: job.postalCode,
             },
           },
   };
