@@ -1230,22 +1230,22 @@ select {
   border-radius: var(--wt-radius-panel);
   background:
     radial-gradient(
-        circle at 14% 18%,
-        color-mix(in srgb, var(--wt-color-brand-pink) 17%, transparent),
-        transparent 38%
+        ellipse at 84% 14%,
+        color-mix(in srgb, var(--wt-color-brand-pink) 8%, transparent),
+        transparent 48%
       )
       padding-box,
     radial-gradient(
-        circle at 88% 88%,
-        color-mix(in srgb, var(--wt-color-brand-purple) 10%, transparent),
-        transparent 40%
+        circle at 62% 112%,
+        color-mix(in srgb, var(--wt-color-brand-pink) 5%, transparent),
+        transparent 46%
       )
       padding-box,
     linear-gradient(
         128deg,
         var(--wt-color-cream) 0%,
-        color-mix(in srgb, var(--wt-color-cream) 88%, var(--wt-color-brand-pink)) 46%,
-        color-mix(in srgb, var(--wt-color-paper) 90%, var(--wt-color-brand-pink)) 100%
+        color-mix(in srgb, var(--wt-color-cream) 96%, var(--wt-color-brand-pink)) 58%,
+        color-mix(in srgb, var(--wt-color-paper) 84%, var(--wt-color-cream)) 100%
       )
       padding-box,
     linear-gradient(
@@ -1295,8 +1295,8 @@ select {
 }
 .job-training-promo__benefits {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 14px;
+  grid-template-columns: 1fr;
+  gap: 5px;
   margin: 0;
   padding: 0;
   list-style: none;
@@ -1304,9 +1304,9 @@ select {
 .job-training-promo__benefits li {
   display: grid;
   min-width: 0;
-  grid-template-columns: 20px minmax(0, 1fr);
-  align-items: start;
-  gap: 8px;
+  grid-template-columns: 20px max-content minmax(0, 1fr);
+  align-items: center;
+  column-gap: 8px;
 }
 .job-training-promo__benefits svg {
   width: 18px;
@@ -1319,18 +1319,19 @@ select {
   stroke-width: 1.8;
 }
 .job-training-promo__benefits div {
-  display: grid;
-  gap: 3px;
+  display: contents;
 }
 .job-training-promo__benefits strong {
   color: var(--wt-color-surface-charcoal);
   font-size: 0.72rem;
   line-height: 1.25;
+  white-space: nowrap;
 }
 .job-training-promo__benefits span {
   color: var(--wt-color-muted);
   font-size: 0.66rem;
   line-height: 1.3;
+  white-space: nowrap;
 }
 .job-training-promo__actions {
   display: flex;
@@ -4675,14 +4676,23 @@ select {
     font-size: 1.65rem;
   }
   .job-training-promo__benefits {
-    grid-template-columns: 1fr;
     gap: 15px;
+  }
+  .job-training-promo__benefits li {
+    grid-template-columns: 20px minmax(0, 1fr);
+    align-items: start;
+  }
+  .job-training-promo__benefits div {
+    display: grid;
+    gap: 3px;
   }
   .job-training-promo__benefits strong {
     font-size: 0.84rem;
+    white-space: normal;
   }
   .job-training-promo__benefits span {
     font-size: 0.76rem;
+    white-space: normal;
   }
   .job-training-promo__actions {
     align-items: stretch;
