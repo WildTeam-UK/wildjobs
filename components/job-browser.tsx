@@ -2,6 +2,7 @@
 
 import { Button } from "@wildteam-uk/ui";
 import {
+  Fragment,
   type CSSProperties,
   type KeyboardEvent as ReactKeyboardEvent,
   type ReactNode,
@@ -11,6 +12,7 @@ import {
   useState,
 } from "react";
 import { JobCard } from "@/components/job-card";
+import { JobTrainingPromo } from "@/components/job-training-promo";
 import { courseBySlug, courses } from "@/lib/courses";
 import type { CandidateSaveState } from "@/lib/candidate-saved-jobs";
 import { filterJobs, jobCategories } from "@/lib/job-filtering";
@@ -786,19 +788,21 @@ export function JobBrowser({
             ) : null}
             {filteredJobs.length ? (
               <div className="job-list">
-                {filteredJobs.map((job) => (
-                  <JobCard
-                    compact
-                    job={job}
-                    key={job.slug}
-                    saveState={
-                      candidateSaveState.isSignedIn && job.id && savedJobIds.has(job.id)
-                        ? "saved"
-                        : candidateSaveState.isSignedIn
-                          ? "available"
-                          : "signed-out"
-                    }
-                  />
+                {filteredJobs.map((job, index) => (
+                  <Fragment key={job.slug}>
+                    <JobCard
+                      compact
+                      job={job}
+                      saveState={
+                        candidateSaveState.isSignedIn && job.id && savedJobIds.has(job.id)
+                          ? "saved"
+                          : candidateSaveState.isSignedIn
+                            ? "available"
+                            : "signed-out"
+                      }
+                    />
+                    {index >= 2 && (index - 2) % 10 === 0 ? <JobTrainingPromo position={index + 1} /> : null}
+                  </Fragment>
                 ))}
               </div>
             ) : (
