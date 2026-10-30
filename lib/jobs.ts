@@ -95,6 +95,27 @@ export function isClosingSoon(value: string, today = new Date()) {
   return daysRemaining >= 0 && daysRemaining < 7;
 }
 
+export function postedAgoLabel(value: string, now = new Date()) {
+  const posted = new Date(value.includes("T") ? value : `${value}T00:00:00Z`);
+  const elapsedMilliseconds = Math.max(0, now.valueOf() - posted.valueOf());
+
+  if (!Number.isFinite(posted.valueOf())) return "Posted recently";
+  if (elapsedMilliseconds < 60_000) return "Posted just now";
+
+  const elapsedMinutes = Math.floor(elapsedMilliseconds / 60_000);
+  if (elapsedMinutes < 60) {
+    return `Posted ${elapsedMinutes} ${elapsedMinutes === 1 ? "minute" : "minutes"} ago`;
+  }
+
+  const elapsedHours = Math.floor(elapsedMinutes / 60);
+  if (elapsedHours < 24) {
+    return `Posted ${elapsedHours} ${elapsedHours === 1 ? "hour" : "hours"} ago`;
+  }
+
+  const elapsedDays = Math.floor(elapsedHours / 24);
+  return `Posted ${elapsedDays} ${elapsedDays === 1 ? "day" : "days"} ago`;
+}
+
 export const jobs: readonly Job[] = [
   {
     slug: "community-conservation-coordinator",

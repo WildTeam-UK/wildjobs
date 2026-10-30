@@ -7,6 +7,7 @@ import {
   isClosingSoon,
   isNewJob,
   listingAgeLabel,
+  postedAgoLabel,
   type Job,
 } from "@/lib/jobs";
 
@@ -64,6 +65,9 @@ export function JobCard({
     isNewJob(job.publishedAt ?? job.postedAt) ? { className: "new", label: "New job" } : null,
     job.closesAt && isClosingSoon(job.closesAt) ? { className: "closing", label: "Closing soon" } : null,
   ].filter((pill): pill is { className: string; label: string } => Boolean(pill));
+  const postedLabel = postedAgoLabel(job.publishedAt ?? job.postedAt);
+  const aiSummaryExplanation =
+    "WildJobs uses AI to turn the original job information into a short summary. Always check the full listing before applying.";
 
   return (
     <article className={`job-card${compact ? " job-card--compact" : ""}`}>
@@ -144,18 +148,32 @@ export function JobCard({
       {compact ? (
         <>
           <div className="job-card__summary-block">
-            {job.summarySource === "ai" ? <p className="job-card__ai-label">AI summary</p> : null}
             <p className="job-card__summary">{job.summary}</p>
+            {job.summarySource === "ai" ? (
+              <p className="job-card__ai-disclosure-row">
+                <span
+                  aria-label={`This summary was provided by AI. ${aiSummaryExplanation}`}
+                  className="job-card__ai-disclosure"
+                  tabIndex={0}
+                  title={aiSummaryExplanation}
+                >
+                  This summary was provided by AI
+                </span>
+              </p>
+            ) : null}
           </div>
-          <ul className="job-card__compact-facts">
-            {compactFacts.map((fact) => (
-              <li key={fact.label}>
-                <JobFactIcon type={fact.icon} />
-                <span className="wt-visually-hidden">{fact.label}: </span>
-                <span>{fact.value}</span>
-              </li>
-            ))}
-          </ul>
+          <div className="job-card__meta-row">
+            <ul className="job-card__compact-facts">
+              {compactFacts.map((fact) => (
+                <li key={fact.label}>
+                  <JobFactIcon type={fact.icon} />
+                  <span className="wt-visually-hidden">{fact.label}: </span>
+                  <span>{fact.value}</span>
+                </li>
+              ))}
+            </ul>
+            <p className="job-card__posted">{postedLabel}</p>
+          </div>
         </>
       ) : (
         <dl className="job-card__facts">
