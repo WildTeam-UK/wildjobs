@@ -85,7 +85,9 @@ export default async function EmployersPage() {
                           name={employer.name}
                         />
                         {openRoles ? (
-                          <span className="employer-directory-card__status">Hiring now!</span>
+                          <span className="employer-directory-card__status">
+                            <span>Hiring now!</span>
+                          </span>
                         ) : null}
                       </header>
                       <div className="employer-directory-card__body">
