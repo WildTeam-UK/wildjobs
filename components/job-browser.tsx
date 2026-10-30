@@ -1,7 +1,14 @@
 "use client";
 
 import { Button, Select, VisuallyHidden } from "@wildteam-uk/ui";
-import { useState } from "react";
+import {
+  type KeyboardEvent as ReactKeyboardEvent,
+  type ReactNode,
+  useEffect,
+  useId,
+  useRef,
+  useState,
+} from "react";
 import { JobCard } from "@/components/job-card";
 import { courseBySlug, courses } from "@/lib/courses";
 import type { CandidateSaveState } from "@/lib/candidate-saved-jobs";
@@ -10,6 +17,8 @@ import type { EmploymentType, EngagementType, Job, LocationType } from "@/lib/jo
 
 const locationTypes: readonly LocationType[] = ["Remote", "Hybrid", "On-site", "Not specified"];
 export type JobSortOrder = "closing" | "newest" | "relevance";
+type FilterIconName = "briefcase" | "clock" | "course" | "leaf" | "location" | "opportunity" | "salary";
+type FilterOption = Readonly<{ label: string; value: string }>;
 type BrowserFilters = Readonly<{
   query: string;
   locationQuery: string;
@@ -22,6 +31,199 @@ type BrowserFilters = Readonly<{
   minimumSalary: number;
   sortOrder: JobSortOrder;
 }>;
+
+function FilterIcon({ name }: { name: FilterIconName }) {
+  const paths = {
+    briefcase: (
+      <>
+        <path d="M9 7V5.5A1.5 1.5 0 0 1 10.5 4h3A1.5 1.5 0 0 1 15 5.5V7" />
+        <rect x="3" y="7" width="18" height="12" rx="2" />
+        <path d="M3 12h18M10 12v2h4v-2" />
+      </>
+    ),
+    clock: (
+      <>
+        <circle cx="12" cy="12" r="9" />
+        <path d="M12 7v5l3 2" />
+      </>
+    ),
+    course: (
+      <>
+        <path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H11v16H6.5A2.5 2.5 0 0 0 4 21.5Z" />
+        <path d="M20 5.5A2.5 2.5 0 0 0 17.5 3H13v16h4.5a2.5 2.5 0 0 1 2.5 2.5Z" />
+      </>
+    ),
+    leaf: (
+      <>
+        <path d="M20 4C11 4 5 8 5 14a5 5 0 0 0 5 5c6 0 10-6 10-15Z" />
+        <path d="M4 20c3-5 7-8 12-10" />
+      </>
+    ),
+    location: (
+      <>
+        <path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z" />
+        <circle cx="12" cy="10" r="2.5" />
+      </>
+    ),
+    opportunity: (
+      <>
+        <path d="M12 21s-8-4.7-8-11a4.5 4.5 0 0 1 8-2.8A4.5 4.5 0 0 1 20 10c0 6.3-8 11-8 11Z" />
+      </>
+    ),
+    salary: (
+      <>
+        <circle cx="12" cy="12" r="9" />
+        <path d="M15.5 8.5a3 3 0 0 0-5.5 1.7v4.3c0 1.7-1 2.5-2 3h8M8.5 13h5" />
+      </>
+    ),
+  } satisfies Record<FilterIconName, ReactNode>;
+
+  return (
+    <svg className="job-filter-pill__icon" aria-hidden="true" viewBox="0 0 24 24">
+      {paths[name]}
+    </svg>
+  );
+}
+
+function FilterDropdown({
+  accessibleLabel,
+  clearLabel,
+  icon,
+  onChange,
+  options,
+  placeholder,
+  value,
+}: {
+  accessibleLabel: string;
+  clearLabel: string;
+  icon: FilterIconName;
+  onChange: (value: string) => void;
+  options: readonly FilterOption[];
+  placeholder: string;
+  value: string;
+}) {
+  const [isOpen, setIsOpen] = useState(false);
+  const rootRef = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  const optionRefs = useRef<Array<HTMLButtonElement | null>>([]);
+  const menuId = useId();
+  const selectedLabel = options.find((option) => option.value === value)?.label ?? placeholder;
+  const allOptions = [{ label: clearLabel, value: "" }, ...options];
+  const selectedIndex = Math.max(
+    0,
+    allOptions.findIndex((option) => option.value === value),
+  );
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    function closeOnOutsidePointer(event: PointerEvent) {
+      if (!rootRef.current?.contains(event.target as Node)) setIsOpen(false);
+    }
+
+    function closeOnEscape(event: KeyboardEvent) {
+      if (event.key !== "Escape") return;
+      setIsOpen(false);
+      buttonRef.current?.focus();
+    }
+
+    document.addEventListener("pointerdown", closeOnOutsidePointer);
+    document.addEventListener("keydown", closeOnEscape);
+    return () => {
+      document.removeEventListener("pointerdown", closeOnOutsidePointer);
+      document.removeEventListener("keydown", closeOnEscape);
+    };
+  }, [isOpen]);
+
+  function openMenu(focusIndex = selectedIndex) {
+    setIsOpen(true);
+    requestAnimationFrame(() => optionRefs.current[focusIndex]?.focus());
+  }
+
+  function navigateMenu(event: ReactKeyboardEvent<HTMLDivElement>) {
+    const currentIndex = optionRefs.current.findIndex((option) => option === document.activeElement);
+    let nextIndex = currentIndex;
+
+    if (event.key === "ArrowDown") nextIndex = Math.min(currentIndex + 1, allOptions.length - 1);
+    else if (event.key === "ArrowUp") nextIndex = Math.max(currentIndex - 1, 0);
+    else if (event.key === "Home") nextIndex = 0;
+    else if (event.key === "End") nextIndex = allOptions.length - 1;
+    else return;
+
+    event.preventDefault();
+    optionRefs.current[nextIndex]?.focus();
+  }
+
+  return (
+    <div
+      className={`job-filter-pill${value ? " job-filter-pill--active" : ""}${isOpen ? " job-filter-pill--open" : ""}`}
+      ref={rootRef}
+    >
+      <button
+        aria-controls={menuId}
+        aria-expanded={isOpen}
+        aria-haspopup="menu"
+        aria-label={`${accessibleLabel}: ${selectedLabel}`}
+        className="job-filter-pill__trigger"
+        onClick={() => {
+          if (isOpen) setIsOpen(false);
+          else openMenu();
+        }}
+        onKeyDown={(event) => {
+          if (event.key === "ArrowDown") {
+            event.preventDefault();
+            openMenu();
+          } else if (event.key === "ArrowUp") {
+            event.preventDefault();
+            openMenu(allOptions.length - 1);
+          }
+        }}
+        ref={buttonRef}
+        type="button"
+      >
+        <FilterIcon name={icon} />
+        <span>{selectedLabel}</span>
+        <svg className="job-filter-pill__chevron" aria-hidden="true" viewBox="0 0 12 8">
+          <path d="m1 1.5 5 5 5-5" />
+        </svg>
+      </button>
+      {isOpen ? (
+        <div
+          aria-label={accessibleLabel}
+          className="job-filter-menu"
+          id={menuId}
+          onKeyDown={navigateMenu}
+          role="menu"
+        >
+          {allOptions.map((option, index) => (
+            <button
+              aria-checked={option.value === value}
+              className="job-filter-menu__option"
+              key={option.value}
+              onClick={() => {
+                onChange(option.value);
+                setIsOpen(false);
+                buttonRef.current?.focus();
+              }}
+              ref={(element) => {
+                optionRefs.current[index] = element;
+              }}
+              role="menuitemradio"
+              type="button"
+            >
+              <span>{option.label}</span>
+              {option.value === value ? (
+                <svg aria-hidden="true" viewBox="0 0 16 16">
+                  <path d="m3 8 3 3 7-7" />
+                </svg>
+              ) : null}
+            </button>
+          ))}
+        </div>
+      ) : null}
+    </div>
+  );
+}
 
 export function JobBrowser({
   candidateSaveState,
@@ -215,124 +417,107 @@ export function JobBrowser({
           </form>
 
           <div className="job-filter-pills" aria-label="Filter jobs" role="group">
-            <label className={`job-filter-pill${engagementType ? " job-filter-pill--active" : ""}`}>
-              <VisuallyHidden>Paid or volunteer</VisuallyHidden>
-              <select
-                value={engagementType}
-                onChange={(event) => {
-                  const value = event.target.value as EngagementType | "";
-                  setEngagementType(value);
-                  syncUrl(currentFilters({ engagementType: value }));
-                }}
-              >
-                <option value="">Opportunity</option>
-                <option value="Paid">Paid</option>
-                <option value="Volunteer">Volunteer</option>
-              </select>
-            </label>
-            <label className={`job-filter-pill${locationType ? " job-filter-pill--active" : ""}`}>
-              <VisuallyHidden>Work location</VisuallyHidden>
-              <select
-                value={locationType}
-                onChange={(event) => {
-                  const value = event.target.value as LocationType | "";
-                  setLocationType(value);
-                  syncUrl(currentFilters({ locationType: value }));
-                }}
-              >
-                <option value="">Work location</option>
-                {locationTypes.map((value) => (
-                  <option value={value} key={value}>
-                    {value}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label className={`job-filter-pill${contractType ? " job-filter-pill--active" : ""}`}>
-              <VisuallyHidden>Contract type</VisuallyHidden>
-              <select
-                value={contractType}
-                onChange={(event) => {
-                  setContractType(event.target.value);
-                  syncUrl(currentFilters({ contractType: event.target.value }));
-                }}
-              >
-                <option value="">Contract type</option>
-                {contractTypes.map((value) => (
-                  <option value={value} key={value}>
-                    {value}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label className={`job-filter-pill${employmentType ? " job-filter-pill--active" : ""}`}>
-              <VisuallyHidden>Working hours</VisuallyHidden>
-              <select
-                value={employmentType}
-                onChange={(event) => {
-                  const value = event.target.value as EmploymentType | "";
-                  setEmploymentType(value);
-                  syncUrl(currentFilters({ employmentType: value }));
-                }}
-              >
-                <option value="">Working hours</option>
-                <option value="Full time">Full time</option>
-                <option value="Part time">Part time</option>
-                <option value="Flexible">Flexible</option>
-              </select>
-            </label>
-            <label className={`job-filter-pill${category ? " job-filter-pill--active" : ""}`}>
-              <VisuallyHidden>Category</VisuallyHidden>
-              <select
-                value={category}
-                onChange={(event) => {
-                  setCategory(event.target.value);
-                  syncUrl(currentFilters({ category: event.target.value }));
-                }}
-              >
-                <option value="">Category</option>
-                {categories.map((value) => (
-                  <option value={value} key={value}>
-                    {value}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label className={`job-filter-pill${minimumSalary ? " job-filter-pill--active" : ""}`}>
-              <VisuallyHidden>Minimum advertised salary</VisuallyHidden>
-              <select
-                value={minimumSalary ? String(minimumSalary) : ""}
-                onChange={(event) => {
-                  const value = Number(event.target.value) || 0;
-                  setMinimumSalary(value);
-                  syncUrl(currentFilters({ minimumSalary: value }));
-                }}
-              >
-                <option value="">Minimum salary</option>
-                <option value="20000">£20,000+</option>
-                <option value="25000">£25,000+</option>
-                <option value="30000">£30,000+</option>
-                <option value="40000">£40,000+</option>
-                <option value="50000">£50,000+</option>
-              </select>
-            </label>
-            <label className={`job-filter-pill${courseSlug ? " job-filter-pill--active" : ""}`}>
-              <VisuallyHidden>Related WildTeam course</VisuallyHidden>
-              <select
-                value={courseSlug}
-                onChange={(event) => {
-                  setCourseSlug(event.target.value);
-                  syncUrl(currentFilters({ courseSlug: event.target.value }));
-                }}
-              >
-                <option value="">Related course</option>
-                {courses.map((course) => (
-                  <option value={course.slug} key={course.slug}>
-                    {course.shortTitle}
-                  </option>
-                ))}
-              </select>
-            </label>
+            <FilterDropdown
+              accessibleLabel="Paid or volunteer"
+              clearLabel="All opportunities"
+              icon="opportunity"
+              onChange={(value) => {
+                const nextValue = value as EngagementType | "";
+                setEngagementType(nextValue);
+                syncUrl(currentFilters({ engagementType: nextValue }));
+              }}
+              options={[
+                { label: "Paid", value: "Paid" },
+                { label: "Volunteer", value: "Volunteer" },
+              ]}
+              placeholder="Opportunity"
+              value={engagementType}
+            />
+            <FilterDropdown
+              accessibleLabel="Work location"
+              clearLabel="Any work location"
+              icon="location"
+              onChange={(value) => {
+                const nextValue = value as LocationType | "";
+                setLocationType(nextValue);
+                syncUrl(currentFilters({ locationType: nextValue }));
+              }}
+              options={locationTypes.map((value) => ({ label: value, value }))}
+              placeholder="Work location"
+              value={locationType}
+            />
+            <FilterDropdown
+              accessibleLabel="Contract type"
+              clearLabel="Any contract type"
+              icon="briefcase"
+              onChange={(value) => {
+                setContractType(value);
+                syncUrl(currentFilters({ contractType: value }));
+              }}
+              options={contractTypes.map((value) => ({ label: value, value }))}
+              placeholder="Contract type"
+              value={contractType}
+            />
+            <FilterDropdown
+              accessibleLabel="Working hours"
+              clearLabel="Any working hours"
+              icon="clock"
+              onChange={(value) => {
+                const nextValue = value as EmploymentType | "";
+                setEmploymentType(nextValue);
+                syncUrl(currentFilters({ employmentType: nextValue }));
+              }}
+              options={[
+                { label: "Full time", value: "Full time" },
+                { label: "Part time", value: "Part time" },
+                { label: "Flexible", value: "Flexible" },
+              ]}
+              placeholder="Working hours"
+              value={employmentType}
+            />
+            <FilterDropdown
+              accessibleLabel="Category"
+              clearLabel="Any category"
+              icon="leaf"
+              onChange={(value) => {
+                setCategory(value);
+                syncUrl(currentFilters({ category: value }));
+              }}
+              options={categories.map((value) => ({ label: value, value }))}
+              placeholder="Category"
+              value={category}
+            />
+            <FilterDropdown
+              accessibleLabel="Minimum advertised salary"
+              clearLabel="Any salary"
+              icon="salary"
+              onChange={(value) => {
+                const nextValue = Number(value) || 0;
+                setMinimumSalary(nextValue);
+                syncUrl(currentFilters({ minimumSalary: nextValue }));
+              }}
+              options={[
+                { label: "£20,000+", value: "20000" },
+                { label: "£25,000+", value: "25000" },
+                { label: "£30,000+", value: "30000" },
+                { label: "£40,000+", value: "40000" },
+                { label: "£50,000+", value: "50000" },
+              ]}
+              placeholder="Minimum salary"
+              value={minimumSalary ? String(minimumSalary) : ""}
+            />
+            <FilterDropdown
+              accessibleLabel="Related WildTeam course"
+              clearLabel="Any related course"
+              icon="course"
+              onChange={(value) => {
+                setCourseSlug(value);
+                syncUrl(currentFilters({ courseSlug: value }));
+              }}
+              options={courses.map((course) => ({ label: course.shortTitle, value: course.slug }))}
+              placeholder="Related course"
+              value={courseSlug}
+            />
             {hasFilters ? (
               <button className="job-filter-clear" onClick={clearFilters} type="button">
                 Reset all
