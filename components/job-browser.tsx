@@ -2,6 +2,7 @@
 
 import { Button, Select, VisuallyHidden } from "@wildteam-uk/ui";
 import {
+  type CSSProperties,
   type KeyboardEvent as ReactKeyboardEvent,
   type ReactNode,
   useEffect,
@@ -17,7 +18,15 @@ import type { EmploymentType, EngagementType, Job, LocationType } from "@/lib/jo
 
 const locationTypes: readonly LocationType[] = ["Remote", "Hybrid", "On-site", "Not specified"];
 export type JobSortOrder = "closing" | "newest" | "relevance";
-type FilterIconName = "briefcase" | "clock" | "course" | "leaf" | "location" | "opportunity" | "salary";
+type FilterIconName =
+  | "briefcase"
+  | "clock"
+  | "course"
+  | "leaf"
+  | "location"
+  | "opportunity"
+  | "salary"
+  | "sort";
 type FilterOption = Readonly<{ label: string; value: string }>;
 type BrowserFilters = Readonly<{
   query: string;
@@ -76,6 +85,12 @@ function FilterIcon({ name }: { name: FilterIconName }) {
         <path d="M15.5 8.5a3 3 0 0 0-5.5 1.7v4.3c0 1.7-1 2.5-2 3h8M8.5 13h5" />
       </>
     ),
+    sort: (
+      <>
+        <path d="M4 7h11M4 12h8M4 17h5" />
+        <path d="m16 14 3 3 3-3M19 17V7" />
+      </>
+    ),
   } satisfies Record<FilterIconName, ReactNode>;
 
   return (
@@ -87,6 +102,7 @@ function FilterIcon({ name }: { name: FilterIconName }) {
 
 function FilterDropdown({
   accessibleLabel,
+  className = "",
   clearLabel,
   icon,
   onChange,
@@ -95,6 +111,7 @@ function FilterDropdown({
   value,
 }: {
   accessibleLabel: string;
+  className?: string;
   clearLabel: string;
   icon: FilterIconName;
   onChange: (value: string) => void;
@@ -103,6 +120,7 @@ function FilterDropdown({
   value: string;
 }) {
   const [isOpen, setIsOpen] = useState(false);
+  const [menuPosition, setMenuPosition] = useState<CSSProperties>({});
   const rootRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
   const optionRefs = useRef<Array<HTMLButtonElement | null>>([]);
@@ -127,15 +145,34 @@ function FilterDropdown({
       buttonRef.current?.focus();
     }
 
+    function closeOnViewportChange() {
+      setIsOpen(false);
+    }
+
     document.addEventListener("pointerdown", closeOnOutsidePointer);
     document.addEventListener("keydown", closeOnEscape);
+    document.addEventListener("scroll", closeOnViewportChange, true);
+    window.addEventListener("resize", closeOnViewportChange);
     return () => {
       document.removeEventListener("pointerdown", closeOnOutsidePointer);
       document.removeEventListener("keydown", closeOnEscape);
+      document.removeEventListener("scroll", closeOnViewportChange, true);
+      window.removeEventListener("resize", closeOnViewportChange);
     };
   }, [isOpen]);
 
   function openMenu(focusIndex = selectedIndex) {
+    const trigger = buttonRef.current;
+    if (trigger) {
+      const triggerBounds = trigger.getBoundingClientRect();
+      const menuWidth = Math.min(260, window.innerWidth - 32);
+      const idealLeft = triggerBounds.left + triggerBounds.width / 2 - menuWidth / 2;
+      setMenuPosition({
+        left: Math.min(Math.max(16, idealLeft), window.innerWidth - menuWidth - 16),
+        top: triggerBounds.bottom + 8,
+        width: menuWidth,
+      });
+    }
     setIsOpen(true);
     requestAnimationFrame(() => optionRefs.current[focusIndex]?.focus());
   }
@@ -156,7 +193,7 @@ function FilterDropdown({
 
   return (
     <div
-      className={`job-filter-pill${value ? " job-filter-pill--active" : ""}${isOpen ? " job-filter-pill--open" : ""}`}
+      className={`job-filter-pill${value ? " job-filter-pill--active" : ""}${isOpen ? " job-filter-pill--open" : ""}${className ? ` ${className}` : ""}`}
       ref={rootRef}
     >
       <button
@@ -194,6 +231,7 @@ function FilterDropdown({
           id={menuId}
           onKeyDown={navigateMenu}
           role="menu"
+          style={menuPosition}
         >
           {allOptions.map((option, index) => (
             <button
@@ -248,6 +286,7 @@ export function JobBrowser({
   const [courseSlug, setCourseSlug] = useState(initialFilters.courseSlug ?? "");
   const [minimumSalary, setMinimumSalary] = useState(initialFilters.minimumSalary ?? 0);
   const [sortOrder, setSortOrder] = useState<JobSortOrder>(initialFilters.sortOrder ?? "relevance");
+  const [isHeroCompact, setIsHeroCompact] = useState(false);
   const filteredJobs = filterJobs(jobs, {
     category,
     contractType,
@@ -287,6 +326,22 @@ export function JobBrowser({
   );
   const selectedCourse = courseBySlug(courseSlug);
   const savedJobIds = new Set(candidateSaveState.savedJobIds);
+
+  useEffect(() => {
+    let animationFrame = 0;
+
+    const updateCompactState = () => {
+      cancelAnimationFrame(animationFrame);
+      animationFrame = requestAnimationFrame(() => setIsHeroCompact(window.scrollY > 48));
+    };
+
+    updateCompactState();
+    window.addEventListener("scroll", updateCompactState, { passive: true });
+    return () => {
+      cancelAnimationFrame(animationFrame);
+      window.removeEventListener("scroll", updateCompactState);
+    };
+  }, []);
 
   function syncUrl(filters: BrowserFilters) {
     const params = new URLSearchParams();
@@ -349,14 +404,19 @@ export function JobBrowser({
   }
 
   return (
-    <section className="job-browser" aria-labelledby="jobs-page-heading">
-      <div className="job-search-hero">
+    <section
+      className={`job-browser${isHeroCompact ? " job-browser--hero-compact" : ""}`}
+      aria-labelledby="jobs-page-heading"
+    >
+      <div className={`job-search-hero${isHeroCompact ? " job-search-hero--compact" : ""}`}>
         <div className="job-search-hero__inner shell">
-          <h1 id="jobs-page-heading">Do work that matters.</h1>
-          <p className="job-search-hero__description">
-            Discover your next meaningful career protecting wildlife, restoring nature and creating a better
-            future for our planet.
-          </p>
+          <div className="job-search-hero__intro">
+            <h1 id="jobs-page-heading">Do work that matters.</h1>
+            <p className="job-search-hero__description">
+              Discover your next meaningful career protecting wildlife, restoring nature and creating a better
+              future for our planet.
+            </p>
+          </div>
 
           <form
             className="job-search-strip"
@@ -518,6 +578,23 @@ export function JobBrowser({
               placeholder="Related course"
               value={courseSlug}
             />
+            <FilterDropdown
+              accessibleLabel="Sort jobs"
+              className="job-filter-pill--compact-only"
+              clearLabel="Recommended"
+              icon="sort"
+              onChange={(value) => {
+                const nextValue = (value || "relevance") as JobSortOrder;
+                setSortOrder(nextValue);
+                syncUrl(currentFilters({ sortOrder: nextValue }));
+              }}
+              options={[
+                { label: "Newest first", value: "newest" },
+                { label: "Closing soon", value: "closing" },
+              ]}
+              placeholder="Recommended"
+              value={sortOrder === "relevance" ? "" : sortOrder}
+            />
             {hasFilters ? (
               <button className="job-filter-clear" onClick={clearFilters} type="button">
                 Reset all
@@ -534,7 +611,7 @@ export function JobBrowser({
               <p aria-live="polite">
                 {filteredJobs.length} Currently available {filteredJobs.length === 1 ? "role" : "roles"}
               </p>
-              <div className="job-sort-control">
+              <div className="job-sort-control job-sort-control--results">
                 <Select
                   id="job-sort"
                   label={<VisuallyHidden>Sort jobs</VisuallyHidden>}
