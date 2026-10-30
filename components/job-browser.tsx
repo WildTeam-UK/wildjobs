@@ -536,11 +536,10 @@ export function JobBrowser({
             <div className="job-search-hero__intro-content">
               <h1 id="jobs-page-heading">Do work that matters.</h1>
               <p className="job-search-hero__description">
-                Discover{" "}
                 <span aria-hidden="true" className="job-search-hero__emoji">
                   {heroEmojis.discovery}
                 </span>{" "}
-                your next meaningful career protecting wildlife{" "}
+                Discover your next meaningful career protecting wildlife{" "}
                 <span aria-hidden="true" className="job-search-hero__emoji">
                   {heroEmojis.wildlife}
                 </span>
@@ -610,7 +609,7 @@ export function JobBrowser({
               </datalist>
             </div>
             <button className="job-search-submit" type="submit">
-              Search
+              SEARCH
             </button>
           </form>
 

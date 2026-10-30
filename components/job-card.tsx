@@ -123,7 +123,7 @@ export function JobCard({
         {compact && (statusPills.length || showSaveAction) ? (
           <div className="job-card__header-actions">
             {statusPills.length ? (
-              <div className="job-card__status-pills" aria-label="Job notices">
+              <div className="job-card__status-pills job-card__status-pills--header" aria-label="Job notices">
                 {statusPills.map((pill) => (
                   <span
                     className={`job-card__status-pill job-card__status-pill--${pill.className}`}
@@ -194,6 +194,18 @@ export function JobCard({
             </ul>
             <p className="job-card__posted">{postedLabel}</p>
           </div>
+          {statusPills.length ? (
+            <div className="job-card__notice-carousel" aria-label="Job notices">
+              {statusPills.map((pill) => (
+                <span
+                  className={`job-card__status-pill job-card__status-pill--${pill.className}`}
+                  key={pill.label}
+                >
+                  {pill.label}
+                </span>
+              ))}
+            </div>
+          ) : null}
         </>
       ) : (
         <dl className="job-card__facts">
