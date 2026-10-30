@@ -465,7 +465,8 @@ select {
   gap: 16px;
 }
 .pathway-grid > a,
-.employer-grid > article {
+.employer-grid > article,
+.employer-grid > a {
   min-height: 300px;
   padding: 28px;
   border: 1px solid var(--wt-color-rule);
@@ -570,14 +571,9 @@ select {
 .employer-grid {
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
-.employer-grid > article,
 .employer-directory-card {
   display: flex;
   flex-direction: column;
-}
-.employer-grid .text-link {
-  margin-top: auto;
-  padding-top: 26px;
 }
 .employer-directory-summary {
   margin: 16px 0 0;
@@ -585,15 +581,28 @@ select {
   font-size: 0.82rem;
 }
 .employer-directory-card {
-  min-height: 330px !important;
-  gap: 24px;
+  min-width: 0;
+  min-height: 390px !important;
+  color: inherit;
+  text-decoration: none;
   transition:
     border-color 160ms ease,
+    box-shadow 160ms ease,
     transform 160ms ease;
 }
-.employer-directory-card:hover {
+.employer-directory-card:hover,
+.employer-directory-card:focus-visible {
   border-color: var(--wt-color-brand-purple);
+  box-shadow: 0 18px 38px rgb(31 21 28 / 8%);
+  outline: none;
   transform: translateY(-2px);
+}
+.employer-directory-card > article {
+  display: flex;
+  min-width: 0;
+  height: 100%;
+  flex-direction: column;
+  gap: 20px;
 }
 .employer-directory-card__header {
   display: flex;
@@ -606,31 +615,22 @@ select {
   min-height: 29px;
   align-items: center;
   padding: 6px 10px;
-  border: 1px solid var(--wt-color-rule);
+  border: 1px solid color-mix(in srgb, var(--wt-color-brand-purple) 30%, transparent);
   border-radius: var(--wt-radius-pill);
-  color: var(--wt-color-muted);
+  background: color-mix(in srgb, var(--wt-color-brand-purple) 8%, var(--wt-color-paper));
+  color: var(--wt-color-brand-purple);
   font-size: 0.64rem;
   font-weight: var(--wt-font-weight-bold);
   letter-spacing: 0.04em;
   text-transform: uppercase;
   white-space: nowrap;
 }
-.employer-directory-card__status--live {
-  border-color: var(--wt-color-brand-purple);
-  color: var(--wt-color-brand-purple);
-}
 .employer-directory-card__body {
   display: grid;
-  gap: 12px;
-}
-.employer-directory-card__body .eyebrow {
-  margin: 0;
+  gap: 10px;
 }
 .employer-directory-card__body h2 {
   margin: 0;
-}
-.employer-directory-card__body h2 a:hover {
-  color: var(--wt-color-brand-pink);
 }
 .employer-directory-card__summary {
   display: -webkit-box;
@@ -639,23 +639,71 @@ select {
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 3;
 }
+.employer-directory-card__facts {
+  display: grid;
+  gap: 9px;
+  margin: 0;
+  padding: 0;
+  color: var(--wt-color-muted);
+  font-size: 0.82rem;
+  list-style: none;
+}
+.employer-directory-card__facts li {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 9px;
+}
+.employer-directory-card__facts svg {
+  width: 20px;
+  height: 20px;
+  flex: 0 0 auto;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.7;
+}
+.employer-directory-card__facts span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.employer-directory-card__topics {
+  display: flex;
+  min-width: 0;
+  gap: 7px;
+  margin-top: auto;
+  overflow-x: auto;
+  padding: 2px 0 4px;
+  scrollbar-width: thin;
+}
+.employer-directory-card__topics > span {
+  flex: 0 0 auto;
+  padding: 7px 10px;
+  border: 1px solid var(--wt-color-rule);
+  border-radius: var(--wt-radius-pill);
+  color: var(--wt-color-muted);
+  font-size: 0.68rem;
+  line-height: 1;
+  white-space: nowrap;
+}
 .employer-logo,
 .employer-monogram {
   display: grid;
-  width: 76px;
-  height: 76px;
+  width: 90px;
+  height: 90px;
   place-items: center;
   overflow: hidden;
-  border-radius: var(--wt-radius-panel);
-  background: var(--wt-color-cream);
 }
 .employer-logo img {
   width: 100%;
   height: 100%;
-  padding: 10px;
   object-fit: contain;
 }
 .employer-monogram {
+  border-radius: var(--wt-radius-panel);
+  background: var(--wt-color-cream);
   color: var(--wt-color-brand-purple);
   font-weight: var(--wt-font-weight-black);
 }
@@ -5319,6 +5367,7 @@ select {
   .wt-button,
   .job-card,
   .job-training-promo,
+  .employer-directory-card,
   .job-search-hero,
   .job-search-hero__inner,
   .job-search-hero__intro,
@@ -5336,6 +5385,10 @@ select {
   }
   .job-training-promo:hover,
   .job-training-promo:focus-within {
+    transform: none;
+  }
+  .employer-directory-card:hover,
+  .employer-directory-card:focus-visible {
     transform: none;
   }
 }

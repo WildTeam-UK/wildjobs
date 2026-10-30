@@ -5,6 +5,30 @@ import { getPublicEmployers } from "@/lib/public-employers";
 
 export const metadata: Metadata = { title: "Conservation employers" };
 
+function EmployerFactIcon({ type }: { type: "location" | "roles" }) {
+  if (type === "location") {
+    return (
+      <svg aria-hidden="true" viewBox="0 0 24 24">
+        <path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z" />
+        <circle cx="12" cy="10" r="2.5" />
+      </svg>
+    );
+  }
+
+  return (
+    <svg aria-hidden="true" viewBox="0 0 24 24">
+      <rect height="13" rx="2" width="18" x="3" y="7" />
+      <path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3 12h18M10 12v2h4v-2" />
+    </svg>
+  );
+}
+
+function employerLocation(locations: readonly string[]) {
+  if (!locations.length) return "Location not stated";
+  if (locations.length === 1) return locations[0];
+  return `${locations[0]} + ${locations.length - 1} more`;
+}
+
 export default async function EmployersPage() {
   const employers = await getPublicEmployers();
   const recruitingEmployers = employers.filter((employer) => employer.openRoles.length > 0).length;
@@ -40,38 +64,53 @@ export default async function EmployersPage() {
             <div className="employer-grid">
               {employers.map((employer) => {
                 const openRoles = employer.openRoles.length;
+                const topics = [
+                  employer.focus,
+                  ...employer.openRoles.flatMap((job) => [job.category, ...(job.careerAreas ?? [])]),
+                ].filter((topic, index, values) => topic && values.indexOf(topic) === index);
+                const description = employer.overview[0] ?? employer.mission;
                 return (
-                  <article className="employer-directory-card" key={employer.slug}>
-                    <header className="employer-directory-card__header">
-                      <EmployerLogo
-                        imageClassName="employer-logo"
-                        logoUrl={employer.logoUrl}
-                        monogramClassName="employer-monogram"
-                        name={employer.name}
-                      />
-                      <span
-                        className={
-                          openRoles
-                            ? "employer-directory-card__status employer-directory-card__status--live"
-                            : "employer-directory-card__status"
-                        }
-                      >
-                        {openRoles
-                          ? `${openRoles} live ${openRoles === 1 ? "role" : "roles"}`
-                          : "No live roles"}
-                      </span>
-                    </header>
-                    <div className="employer-directory-card__body">
-                      <p className="eyebrow">{employer.focus}</p>
-                      <h2>
-                        <Link href={`/employers/${employer.slug}`}>{employer.name}</Link>
-                      </h2>
-                      <p className="employer-directory-card__summary">{employer.mission}</p>
-                    </div>
-                    <Link className="text-link" href={`/employers/${employer.slug}`}>
-                      View organisation <span aria-hidden="true">→</span>
-                    </Link>
-                  </article>
+                  <Link
+                    aria-label={`View ${employer.name}`}
+                    className="employer-directory-card"
+                    href={`/employers/${employer.slug}`}
+                    key={employer.slug}
+                  >
+                    <article>
+                      <header className="employer-directory-card__header">
+                        <EmployerLogo
+                          imageClassName="employer-logo"
+                          logoUrl={employer.logoUrl}
+                          monogramClassName="employer-monogram"
+                          name={employer.name}
+                        />
+                        {openRoles ? (
+                          <span className="employer-directory-card__status">Hiring now!</span>
+                        ) : null}
+                      </header>
+                      <div className="employer-directory-card__body">
+                        <h2>{employer.name}</h2>
+                        <p className="employer-directory-card__summary">{description}</p>
+                      </div>
+                      <ul className="employer-directory-card__facts">
+                        <li>
+                          <EmployerFactIcon type="location" />
+                          <span>{employerLocation(employer.locations)}</span>
+                        </li>
+                        <li>
+                          <EmployerFactIcon type="roles" />
+                          <span>
+                            {openRoles} live {openRoles === 1 ? "role" : "roles"}
+                          </span>
+                        </li>
+                      </ul>
+                      <div className="employer-directory-card__topics" aria-label="Organisation topics">
+                        {topics.map((topic) => (
+                          <span key={topic}>{topic}</span>
+                        ))}
+                      </div>
+                    </article>
+                  </Link>
                 );
               })}
             </div>
