@@ -4514,6 +4514,12 @@ select {
     background: transparent;
     box-shadow: none;
   }
+  .job-search-hero--compact .job-search-strip {
+    display: none;
+  }
+  .job-search-hero--compact .job-filter-pills {
+    margin-top: 0;
+  }
   .job-search-field {
     min-height: 56px;
     padding: 0 18px;
@@ -4563,7 +4569,11 @@ select {
     padding: 18px;
   }
   .job-card--compact .job-card__header {
+    align-items: center;
     gap: 10px;
+  }
+  .job-card--compact .job-card__identity {
+    align-self: center;
   }
   .job-card--compact h2 {
     font-size: 1rem;
@@ -4581,23 +4591,25 @@ select {
     font-size: 0.55rem;
   }
   .job-card__meta-row {
-    gap: 10px;
+    display: grid;
+    gap: 12px;
   }
   .job-card__compact-facts {
-    width: auto;
-    flex: 1 1 auto;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 8px;
+    width: 100%;
+    grid-template-columns: 1fr;
+    gap: 10px;
   }
   .job-card__compact-facts li {
-    overflow: hidden;
+    overflow: visible;
     gap: 6px;
+    white-space: normal;
   }
   .job-card__compact-facts svg {
     width: 19px;
     height: 19px;
   }
   .job-card__posted {
+    margin-left: 0;
     font-size: 0.74rem;
   }
   .job-card__actions {
