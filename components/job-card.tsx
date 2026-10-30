@@ -170,13 +170,20 @@ export function JobCard({
               {job.summarySource === "ai" ? (
                 <>
                   {" "}
-                  <span
-                    aria-label={`This summary was provided by AI. ${aiSummaryExplanation}`}
-                    className="job-card__ai-disclosure"
-                    tabIndex={0}
-                    title={aiSummaryExplanation}
+                  <span className="job-card__ai-disclosure">This summary was provided by AI</span>{" "}
+                  <button
+                    aria-describedby={`ai-summary-tooltip-${job.slug}`}
+                    aria-label="How WildJobs uses AI summaries"
+                    className="job-card__ai-tooltip-trigger"
+                    type="button"
                   >
-                    This summary was provided by AI
+                    <svg aria-hidden="true" viewBox="0 0 20 20">
+                      <circle cx="10" cy="10" r="8" />
+                      <path d="M10 8.5v5M10 6.25h.01" />
+                    </svg>
+                  </button>
+                  <span className="job-card__ai-tooltip" id={`ai-summary-tooltip-${job.slug}`} role="tooltip">
+                    {aiSummaryExplanation}
                   </span>
                 </>
               ) : null}
@@ -192,20 +199,23 @@ export function JobCard({
                 </li>
               ))}
             </ul>
-            <p className="job-card__posted">{postedLabel}</p>
+            <p className="job-card__posted job-card__posted--desktop">{postedLabel}</p>
           </div>
-          {statusPills.length ? (
-            <div className="job-card__notice-carousel" aria-label="Job notices">
-              {statusPills.map((pill) => (
-                <span
-                  className={`job-card__status-pill job-card__status-pill--${pill.className}`}
-                  key={pill.label}
-                >
-                  {pill.label}
-                </span>
-              ))}
-            </div>
-          ) : null}
+          <div className="job-card__mobile-footer">
+            {statusPills.length ? (
+              <div className="job-card__notice-carousel" aria-label="Job notices">
+                {statusPills.map((pill) => (
+                  <span
+                    className={`job-card__status-pill job-card__status-pill--${pill.className}`}
+                    key={pill.label}
+                  >
+                    {pill.label}
+                  </span>
+                ))}
+              </div>
+            ) : null}
+            <p className="job-card__posted job-card__posted--mobile">{postedLabel}</p>
+          </div>
         </>
       ) : (
         <dl className="job-card__facts">
