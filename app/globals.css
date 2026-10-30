@@ -464,9 +464,7 @@ select {
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 16px;
 }
-.pathway-grid > a,
-.employer-grid > article,
-.employer-grid > a {
+.pathway-grid > a {
   min-height: 300px;
   padding: 28px;
   border: 1px solid var(--wt-color-rule);
@@ -510,14 +508,12 @@ select {
   display: grid;
   gap: 12px;
 }
-.pathway-grid h3,
-.employer-grid h3 {
+.pathway-grid h3 {
   margin: 0;
   font-size: 2rem;
   line-height: 1;
 }
-.pathway-grid p,
-.employer-grid p {
+.pathway-grid p {
   margin: 0;
   color: var(--wt-color-muted);
 }
@@ -583,6 +579,9 @@ select {
 .employer-directory-card {
   min-width: 0;
   min-height: 390px !important;
+  padding: 28px;
+  border: 1px solid var(--wt-color-rule);
+  border-radius: var(--wt-radius-panel);
   background: var(--wt-color-paper);
   color: inherit;
   text-decoration: none;
@@ -651,10 +650,14 @@ select {
 }
 .employer-directory-card__body h3 {
   margin: 0;
+  font-size: 2rem;
+  line-height: 1;
 }
 .employer-directory-card__summary {
   display: -webkit-box;
+  margin: 0;
   overflow: hidden;
+  color: var(--wt-color-muted);
   line-height: 1.55;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 3;
@@ -750,8 +753,6 @@ select {
   scrollbar-width: thin;
 }
 .employer-hiring-carousel__track .employer-directory-card {
-  min-height: 390px;
-  padding: 28px;
   scroll-snap-align: start;
 }
 .employer-proposition {
@@ -4887,10 +4888,6 @@ select {
   }
   .employer-hiring-carousel__track {
     grid-auto-columns: calc((100% - 16px) / 1.1);
-  }
-  .employer-hiring-carousel__track .employer-directory-card {
-    min-height: 370px;
-    padding: 22px;
   }
   .job-training-promo__media {
     height: 210px;
