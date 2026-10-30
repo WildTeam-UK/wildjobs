@@ -9,7 +9,7 @@ export type JobFilters = Readonly<{
   contractType: string;
   minimumSalary: number;
   category: string;
-  courseSlug: string;
+  courseSlugs: readonly string[];
 }>;
 
 function normalise(value: string) {
@@ -45,7 +45,8 @@ export function filterJobs(items: readonly Job[], filters: JobFilters) {
       (!filters.employmentType ||
         [job.employmentType, job.contractType, job.hoursType].includes(filters.employmentType)) &&
       (!filters.category || job.category === filters.category) &&
-      (!filters.courseSlug || job.relatedCourseSlugs.includes(filters.courseSlug))
+      (!filters.courseSlugs.length ||
+        filters.courseSlugs.some((slug) => job.relatedCourseSlugs.includes(slug)))
     );
   });
 }

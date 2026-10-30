@@ -6,7 +6,7 @@ function filters(overrides: Partial<JobFilters> = {}): JobFilters {
   return {
     category: "",
     contractType: "",
-    courseSlug: "",
+    courseSlugs: [],
     employmentType: "",
     engagementType: "",
     locationQuery: "",
@@ -32,10 +32,17 @@ describe("job filtering", () => {
     ).toEqual(["community-conservation-coordinator", "forest-programme-manager"]);
   });
 
-  it("finds roles related to a WildTeam course", () => {
+  it("finds roles related to any selected WildTeam course", () => {
     expect(
-      filterJobs(jobs, filters({ courseSlug: "monitoring-and-evaluation" })).map((job) => job.slug),
-    ).toEqual(["marine-restoration-officer", "biodiversity-data-analyst", "forest-programme-manager"]);
+      filterJobs(jobs, filters({ courseSlugs: ["monitoring-and-evaluation", "project-management"] })).map(
+        (job) => job.slug,
+      ),
+    ).toEqual([
+      "community-conservation-coordinator",
+      "marine-restoration-officer",
+      "biodiversity-data-analyst",
+      "forest-programme-manager",
+    ]);
   });
 
   it("matches both working hours and contract types", () => {

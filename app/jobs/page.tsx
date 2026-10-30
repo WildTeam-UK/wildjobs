@@ -26,6 +26,9 @@ type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 function valueOf(value: string | string[] | undefined) {
   return typeof value === "string" ? value : "";
 }
+function valuesOf(value: string | string[] | undefined) {
+  return typeof value === "string" ? [value] : (value ?? []);
+}
 
 export default async function JobsPage({ searchParams }: { searchParams: SearchParams }) {
   const [params, jobs, candidateSaveState] = await Promise.all([
@@ -55,7 +58,7 @@ export default async function JobsPage({ searchParams }: { searchParams: SearchP
             : "",
           contractType: valueOf(params.contract),
           category: valueOf(params.category),
-          courseSlug: valueOf(params.course),
+          courseSlugs: valuesOf(params.course),
           minimumSalary: Number.isFinite(salary) && salary > 0 ? salary : 0,
           sortOrder: sortOrders.includes(sort as JobSortOrder) ? (sort as JobSortOrder) : "relevance",
         }}

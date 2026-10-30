@@ -37,7 +37,7 @@ type BrowserFilters = Readonly<{
   employmentType: EmploymentType | "";
   contractType: string;
   category: string;
-  courseSlug: string;
+  courseSlugs: readonly string[];
   minimumSalary: number;
   sortOrder: JobSortOrder;
 }>;
@@ -125,16 +125,7 @@ function FilterIcon({ name }: { name: FilterIconName }) {
   );
 }
 
-function FilterDropdown({
-  accessibleLabel,
-  className = "",
-  clearLabel,
-  icon,
-  onChange,
-  options,
-  placeholder,
-  value,
-}: {
+type SingleFilterDropdownProps = {
   accessibleLabel: string;
   className?: string;
   clearLabel: string;
@@ -143,18 +134,33 @@ function FilterDropdown({
   options: readonly FilterOption[];
   placeholder: string;
   value: string;
-}) {
+  multiple?: false;
+};
+
+type MultiFilterDropdownProps = Omit<SingleFilterDropdownProps, "multiple" | "onChange" | "value"> & {
+  multiple: true;
+  onChange: (value: readonly string[]) => void;
+  value: readonly string[];
+};
+
+function FilterDropdown(props: SingleFilterDropdownProps | MultiFilterDropdownProps) {
+  const { accessibleLabel, className = "", clearLabel, icon, options, placeholder } = props;
   const [isOpen, setIsOpen] = useState(false);
   const [menuPosition, setMenuPosition] = useState<CSSProperties>({});
   const rootRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
   const optionRefs = useRef<Array<HTMLButtonElement | null>>([]);
   const menuId = useId();
-  const selectedLabel = options.find((option) => option.value === value)?.label ?? placeholder;
+  const selectedValues = props.multiple ? props.value : props.value ? [props.value] : [];
+  const selectedLabel = props.multiple
+    ? selectedValues.length > 1
+      ? `${selectedValues.length} courses`
+      : (options.find((option) => option.value === selectedValues[0])?.label ?? placeholder)
+    : (options.find((option) => option.value === props.value)?.label ?? placeholder);
   const allOptions = [{ label: clearLabel, value: "" }, ...options];
   const selectedIndex = Math.max(
     0,
-    allOptions.findIndex((option) => option.value === value),
+    allOptions.findIndex((option) => selectedValues.includes(option.value)),
   );
 
   useEffect(() => {
@@ -176,8 +182,8 @@ function FilterDropdown({
 
     document.addEventListener("pointerdown", closeOnOutsidePointer);
     document.addEventListener("keydown", closeOnEscape);
-    document.addEventListener("wheel", closeOnViewportChange, true);
-    document.addEventListener("touchmove", closeOnViewportChange, true);
+    document.addEventListener("wheel", closeOnViewportChange, { capture: true, passive: true });
+    document.addEventListener("touchmove", closeOnViewportChange, { capture: true, passive: true });
     return () => {
       document.removeEventListener("pointerdown", closeOnOutsidePointer);
       document.removeEventListener("keydown", closeOnEscape);
@@ -220,7 +226,7 @@ function FilterDropdown({
 
   return (
     <div
-      className={`job-filter-pill${value ? " job-filter-pill--active" : ""}${isOpen ? " job-filter-pill--open" : ""}${className ? ` ${className}` : ""}`}
+      className={`job-filter-pill${selectedValues.length ? " job-filter-pill--active" : ""}${isOpen ? " job-filter-pill--open" : ""}${className ? ` ${className}` : ""}`}
       ref={rootRef}
     >
       <button
@@ -262,22 +268,38 @@ function FilterDropdown({
         >
           {allOptions.map((option, index) => (
             <button
-              aria-checked={option.value === value}
+              aria-checked={
+                props.multiple && !option.value
+                  ? undefined
+                  : option.value
+                    ? selectedValues.includes(option.value)
+                    : selectedValues.length === 0
+              }
               className="job-filter-menu__option"
               key={option.value}
               onClick={() => {
-                onChange(option.value);
-                setIsOpen(false);
-                buttonRef.current?.focus();
+                if (props.multiple) {
+                  props.onChange(
+                    option.value
+                      ? selectedValues.includes(option.value)
+                        ? selectedValues.filter((value) => value !== option.value)
+                        : [...selectedValues, option.value]
+                      : [],
+                  );
+                } else {
+                  props.onChange(option.value);
+                  setIsOpen(false);
+                  buttonRef.current?.focus();
+                }
               }}
               ref={(element) => {
                 optionRefs.current[index] = element;
               }}
-              role="menuitemradio"
+              role={props.multiple ? (option.value ? "menuitemcheckbox" : "menuitem") : "menuitemradio"}
               type="button"
             >
               <span>{option.label}</span>
-              {option.value === value ? (
+              {(option.value ? selectedValues.includes(option.value) : !props.multiple) ? (
                 <svg aria-hidden="true" viewBox="0 0 16 16">
                   <path d="m3 8 3 3 7-7" />
                 </svg>
@@ -310,14 +332,20 @@ export function JobBrowser({
   );
   const [category, setCategory] = useState(initialFilters.category ?? "");
   const [contractType, setContractType] = useState(initialFilters.contractType ?? "");
-  const [courseSlug, setCourseSlug] = useState(initialFilters.courseSlug ?? "");
+  const [courseSlugs, setCourseSlugs] = useState<readonly string[]>(initialFilters.courseSlugs ?? []);
   const [minimumSalary, setMinimumSalary] = useState(initialFilters.minimumSalary ?? 0);
   const [sortOrder, setSortOrder] = useState<JobSortOrder>(initialFilters.sortOrder ?? "relevance");
   const [isHeroCompact, setIsHeroCompact] = useState(false);
+  const compactTransitionUntilRef = useRef(0);
+  const expandedHeroHeightRef = useRef(0);
+  const heroRef = useRef<HTMLDivElement>(null);
+  const isHeroCompactRef = useRef(false);
+  const lastScrollYRef = useRef(0);
+  isHeroCompactRef.current = isHeroCompact;
   const filteredJobs = filterJobs(jobs, {
     category,
     contractType,
-    courseSlug,
+    courseSlugs,
     employmentType,
     engagementType,
     locationQuery,
@@ -348,19 +376,39 @@ export function JobBrowser({
     employmentType ||
     contractType ||
     category ||
-    courseSlug ||
+    courseSlugs.length ||
     minimumSalary,
   );
-  const selectedCourse = courseBySlug(courseSlug);
+  const selectedCourses = courseSlugs.flatMap((slug) => {
+    const course = courseBySlug(slug);
+    return course ? [course] : [];
+  });
   const savedJobIds = new Set(candidateSaveState.savedJobIds);
 
   useEffect(() => {
     let animationFrame = 0;
+    lastScrollYRef.current = window.scrollY;
 
     const updateCompactState = () => {
       cancelAnimationFrame(animationFrame);
       animationFrame = requestAnimationFrame(() => {
-        setIsHeroCompact((isCompact) => (isCompact ? window.scrollY > 8 : window.scrollY > 96));
+        const currentScrollY = window.scrollY;
+        const previousScrollY = lastScrollYRef.current;
+        lastScrollYRef.current = currentScrollY;
+
+        if (performance.now() < compactTransitionUntilRef.current) return;
+
+        setIsHeroCompact((isCompact) => {
+          if (!isCompact && currentScrollY > 96) {
+            compactTransitionUntilRef.current = performance.now() + 480;
+            return true;
+          }
+          if (isCompact && currentScrollY <= 8 && currentScrollY < previousScrollY) {
+            compactTransitionUntilRef.current = performance.now() + 480;
+            return false;
+          }
+          return isCompact;
+        });
       });
     };
 
@@ -369,6 +417,30 @@ export function JobBrowser({
     return () => {
       cancelAnimationFrame(animationFrame);
       window.removeEventListener("scroll", updateCompactState);
+    };
+  }, []);
+
+  useEffect(() => {
+    const hero = heroRef.current;
+    if (!hero) return;
+
+    expandedHeroHeightRef.current = hero.getBoundingClientRect().height;
+    const observer = new ResizeObserver(() => {
+      const currentHeight = hero.getBoundingClientRect().height;
+      const transitionIsSettled = performance.now() >= compactTransitionUntilRef.current;
+
+      if (!isHeroCompactRef.current && transitionIsSettled) {
+        expandedHeroHeightRef.current = currentHeight;
+      }
+
+      const compensation = Math.max(0, expandedHeroHeightRef.current - currentHeight);
+      hero.style.marginBottom = `${compensation}px`;
+    });
+
+    observer.observe(hero);
+    return () => {
+      observer.disconnect();
+      hero.style.marginBottom = "";
     };
   }, []);
 
@@ -381,7 +453,7 @@ export function JobBrowser({
     if (filters.employmentType) params.set("type", filters.employmentType);
     if (filters.contractType) params.set("contract", filters.contractType);
     if (filters.category) params.set("category", filters.category);
-    if (filters.courseSlug) params.set("course", filters.courseSlug);
+    filters.courseSlugs.forEach((slug) => params.append("course", slug));
     if (filters.minimumSalary) params.set("salary", String(filters.minimumSalary));
     if (filters.sortOrder !== "relevance") params.set("sort", filters.sortOrder);
     const queryString = params.toString();
@@ -396,7 +468,7 @@ export function JobBrowser({
     return {
       category,
       contractType,
-      courseSlug,
+      courseSlugs,
       employmentType,
       engagementType,
       locationQuery,
@@ -416,12 +488,12 @@ export function JobBrowser({
     setEmploymentType("");
     setContractType("");
     setCategory("");
-    setCourseSlug("");
+    setCourseSlugs([]);
     setMinimumSalary(0);
     syncUrl({
       category: "",
       contractType: "",
-      courseSlug: "",
+      courseSlugs: [],
       employmentType: "",
       engagementType: "",
       locationQuery: "",
@@ -437,14 +509,25 @@ export function JobBrowser({
       className={`job-browser${isHeroCompact ? " job-browser--hero-compact" : ""}`}
       aria-labelledby="jobs-page-heading"
     >
-      <div className={`job-search-hero${isHeroCompact ? " job-search-hero--compact" : ""}`}>
+      <div className={`job-search-hero${isHeroCompact ? " job-search-hero--compact" : ""}`} ref={heroRef}>
         <div className="job-search-hero__inner shell">
           <div className="job-search-hero__intro">
             <div className="job-search-hero__intro-content">
               <h1 id="jobs-page-heading">Do work that matters.</h1>
               <p className="job-search-hero__description">
-                Discover your next meaningful career protecting wildlife, restoring nature and creating a
-                better future for our planet.
+                Discover your next meaningful career protecting wildlife{" "}
+                <span aria-hidden="true" className="job-search-hero__emoji">
+                  🐘
+                </span>
+                , restoring nature{" "}
+                <span aria-hidden="true" className="job-search-hero__emoji">
+                  🌱
+                </span>{" "}
+                and creating a better future for our planet{" "}
+                <span aria-hidden="true" className="job-search-hero__emoji">
+                  🌍
+                </span>
+                .
               </p>
             </div>
           </div>
@@ -508,6 +591,37 @@ export function JobBrowser({
           </form>
 
           <div className="job-filter-pills" aria-label="Filter jobs" role="group">
+            <FilterDropdown
+              accessibleLabel="Related WildTeam courses"
+              className="job-filter-pill--fancy"
+              clearLabel="Clear selected courses"
+              icon="brand"
+              multiple
+              onChange={(values) => {
+                setCourseSlugs(values);
+                syncUrl(currentFilters({ courseSlugs: values }));
+              }}
+              options={courses.map((course) => ({ label: course.shortTitle, value: course.slug }))}
+              placeholder="Related courses"
+              value={courseSlugs}
+            />
+            <FilterDropdown
+              accessibleLabel="Sort jobs"
+              className="job-filter-pill--compact-only job-filter-pill--icon-only"
+              clearLabel="Recommended"
+              icon="sort"
+              onChange={(value) => {
+                const nextValue = (value || "relevance") as JobSortOrder;
+                setSortOrder(nextValue);
+                syncUrl(currentFilters({ sortOrder: nextValue }));
+              }}
+              options={[
+                { label: "Newest first", value: "newest" },
+                { label: "Closing soon", value: "closing" },
+              ]}
+              placeholder="Recommended"
+              value={sortOrder === "relevance" ? "" : sortOrder}
+            />
             <FilterDropdown
               accessibleLabel="Paid or volunteer"
               clearLabel="All opportunities"
@@ -597,36 +711,6 @@ export function JobBrowser({
               placeholder="Minimum salary"
               value={minimumSalary ? String(minimumSalary) : ""}
             />
-            <FilterDropdown
-              accessibleLabel="Related WildTeam course"
-              className="job-filter-pill--fancy"
-              clearLabel="Any related course"
-              icon="brand"
-              onChange={(value) => {
-                setCourseSlug(value);
-                syncUrl(currentFilters({ courseSlug: value }));
-              }}
-              options={courses.map((course) => ({ label: course.shortTitle, value: course.slug }))}
-              placeholder="Related course"
-              value={courseSlug}
-            />
-            <FilterDropdown
-              accessibleLabel="Sort jobs"
-              className="job-filter-pill--compact-only job-filter-pill--icon-only"
-              clearLabel="Recommended"
-              icon="sort"
-              onChange={(value) => {
-                const nextValue = (value || "relevance") as JobSortOrder;
-                setSortOrder(nextValue);
-                syncUrl(currentFilters({ sortOrder: nextValue }));
-              }}
-              options={[
-                { label: "Newest first", value: "newest" },
-                { label: "Closing soon", value: "closing" },
-              ]}
-              placeholder="Recommended"
-              value={sortOrder === "relevance" ? "" : sortOrder}
-            />
             {hasFilters ? (
               <button className="job-filter-clear" onClick={clearFilters} type="button">
                 Reset all
@@ -663,12 +747,16 @@ export function JobBrowser({
                 />
               </div>
             </div>
-            {selectedCourse ? (
+            {selectedCourses.length ? (
               <div className="course-match-note">
                 <p className="eyebrow">Course-aware discovery</p>
-                <h3>Roles related to {selectedCourse.shortTitle.toLocaleLowerCase("en-GB")}</h3>
+                <h3>
+                  {selectedCourses.length === 1
+                    ? `Roles related to ${selectedCourses[0].shortTitle.toLocaleLowerCase("en-GB")}`
+                    : `Roles related to ${selectedCourses.length} selected courses`}
+                </h3>
                 <p>
-                  These matches use capabilities covered by the course. Completing a course does not
+                  These matches use capabilities covered by your courses. Completing a course does not
                   automatically satisfy every requirement in a job listing.
                 </p>
               </div>
