@@ -1,6 +1,6 @@
 "use client";
 
-import { Button, Select, TextInput } from "@wildteam-uk/ui";
+import { Button, Select, TextInput, VisuallyHidden } from "@wildteam-uk/ui";
 import { useState } from "react";
 import { JobCard } from "@/components/job-card";
 import { courseBySlug, courses } from "@/lib/courses";
@@ -210,8 +210,11 @@ export function JobBrowser({
   ];
 
   return (
-    <section className="job-browser" aria-labelledby="available-jobs-heading">
+    <section className="job-browser" aria-labelledby="jobs-page-heading">
       <div className="shell">
+        <h1 className="wt-visually-hidden" id="jobs-page-heading">
+          Find conservation jobs
+        </h1>
         <div className="job-search-strip" role="search" aria-label="Search jobs">
           <TextInput
             id="job-search"
@@ -268,9 +271,7 @@ export function JobBrowser({
                 Clear all
               </button>
             </div>
-          ) : (
-            <p className="job-browser__hint">Use filters to narrow these opportunities.</p>
-          )}
+          ) : null}
         </div>
 
         <div className="job-browser__layout">
@@ -405,17 +406,13 @@ export function JobBrowser({
 
           <div className="job-results">
             <div className="job-results__heading">
-              <div>
-                <p className="eyebrow">Current vacancies</p>
-                <h2 id="available-jobs-heading">Available jobs</h2>
-              </div>
-              <div className="job-results__controls">
-                <p aria-live="polite">
-                  {filteredJobs.length} {filteredJobs.length === 1 ? "role" : "roles"}
-                </p>
+              <p aria-live="polite">
+                {filteredJobs.length} Currently available {filteredJobs.length === 1 ? "role" : "roles"}
+              </p>
+              <div className="job-sort-control">
                 <Select
                   id="job-sort"
-                  label="Sort by"
+                  label={<VisuallyHidden>Sort jobs</VisuallyHidden>}
                   value={sortOrder}
                   onChange={(event) => {
                     const value = event.target.value as JobSortOrder;

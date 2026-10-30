@@ -40,15 +40,6 @@ export default async function JobsPage({ searchParams }: { searchParams: SearchP
   const salary = Number(valueOf(params.salary));
   return (
     <main>
-      <section className="jobs-page-header">
-        <div className="shell jobs-page-header__layout">
-          <div>
-            <p className="eyebrow">Find jobs</p>
-            <h1>Conservation opportunities, all in one place.</h1>
-          </div>
-          <p>Search current roles and narrow the list to what matters to you.</p>
-        </div>
-      </section>
       <JobBrowser
         candidateSaveState={candidateSaveState}
         jobs={jobs}
