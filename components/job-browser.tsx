@@ -17,6 +17,9 @@ import { filterJobs, jobCategories } from "@/lib/job-filtering";
 import type { EmploymentType, EngagementType, Job, LocationType } from "@/lib/jobs";
 
 const locationTypes: readonly LocationType[] = ["Remote", "Hybrid", "On-site", "Not specified"];
+const discoveryEmojis = ["🔎", "🧭", "✨", "💡", "🔭", "🗺️"] as const;
+const natureEmojis = ["🌱", "🌿", "🌳", "🌊", "🍄", "🌸"] as const;
+const wildlifeEmojis = ["🐘", "🦊", "🦉", "🐢", "🦋", "🐬", "🦏", "🐝"] as const;
 export type JobSortOrder = "closing" | "newest" | "relevance";
 type FilterIconName =
   | "briefcase"
@@ -29,6 +32,7 @@ type FilterIconName =
   | "salary"
   | "sort";
 type FilterOption = Readonly<{ label: string; value: string }>;
+type HeroEmojis = Readonly<{ discovery: string; nature: string; wildlife: string }>;
 type BrowserFilters = Readonly<{
   query: string;
   locationQuery: string;
@@ -41,6 +45,10 @@ type BrowserFilters = Readonly<{
   minimumSalary: number;
   sortOrder: JobSortOrder;
 }>;
+
+function randomItem<T>(items: readonly T[]) {
+  return items[Math.floor(Math.random() * items.length)];
+}
 
 function FilterIcon({ name }: { name: FilterIconName }) {
   if (name === "brand") {
@@ -335,6 +343,11 @@ export function JobBrowser({
   const [courseSlugs, setCourseSlugs] = useState<readonly string[]>(initialFilters.courseSlugs ?? []);
   const [minimumSalary, setMinimumSalary] = useState(initialFilters.minimumSalary ?? 0);
   const [sortOrder, setSortOrder] = useState<JobSortOrder>(initialFilters.sortOrder ?? "relevance");
+  const [heroEmojis, setHeroEmojis] = useState<HeroEmojis>({
+    discovery: discoveryEmojis[0],
+    nature: natureEmojis[0],
+    wildlife: wildlifeEmojis[0],
+  });
   const [isHeroCompact, setIsHeroCompact] = useState(false);
   const compactTransitionUntilRef = useRef(0);
   const expandedHeroHeightRef = useRef(0);
@@ -384,6 +397,14 @@ export function JobBrowser({
     return course ? [course] : [];
   });
   const savedJobIds = new Set(candidateSaveState.savedJobIds);
+
+  useEffect(() => {
+    setHeroEmojis({
+      discovery: randomItem(discoveryEmojis),
+      nature: randomItem(natureEmojis),
+      wildlife: randomItem(wildlifeEmojis),
+    });
+  }, []);
 
   useEffect(() => {
     let animationFrame = 0;
@@ -515,19 +536,22 @@ export function JobBrowser({
             <div className="job-search-hero__intro-content">
               <h1 id="jobs-page-heading">Do work that matters.</h1>
               <p className="job-search-hero__description">
-                Discover your next meaningful career protecting wildlife{" "}
+                Discover{" "}
                 <span aria-hidden="true" className="job-search-hero__emoji">
-                  🐘
+                  {heroEmojis.discovery}
+                </span>{" "}
+                your next meaningful career protecting wildlife{" "}
+                <span aria-hidden="true" className="job-search-hero__emoji">
+                  {heroEmojis.wildlife}
                 </span>
                 , restoring nature{" "}
                 <span aria-hidden="true" className="job-search-hero__emoji">
-                  🌱
+                  {heroEmojis.nature}
                 </span>{" "}
-                and creating a better future for our planet{" "}
+                and creating a better future for our planet.{" "}
                 <span aria-hidden="true" className="job-search-hero__emoji">
                   🌍
                 </span>
-                .
               </p>
             </div>
           </div>
