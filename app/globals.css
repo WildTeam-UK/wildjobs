@@ -1570,7 +1570,7 @@ select {
 .job-card--compact {
   position: relative;
   gap: 15px;
-  padding: 19px 20px;
+  padding: 36px 20px;
   cursor: pointer;
 }
 .job-card--compact .job-card__header {
@@ -5051,7 +5051,7 @@ select {
   }
   .job-card--compact {
     gap: 14px;
-    padding: 18px;
+    padding: 28px 18px;
   }
   .job-card--compact .job-card__header {
     align-items: center;
