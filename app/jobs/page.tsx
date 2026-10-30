@@ -41,10 +41,12 @@ export default async function JobsPage({ searchParams }: { searchParams: SearchP
   const engagement = valueOf(params.opportunity);
   const sort = valueOf(params.sort);
   const salary = Number(valueOf(params.salary));
+  const page = Number(valueOf(params.page));
   return (
     <main>
       <JobBrowser
         candidateSaveState={candidateSaveState}
+        initialPage={Number.isInteger(page) && page > 0 ? page : 1}
         jobs={jobs}
         initialFilters={{
           query: valueOf(params.q),

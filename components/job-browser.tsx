@@ -23,6 +23,7 @@ const locationTypes: readonly LocationType[] = ["Remote", "Hybrid", "On-site", "
 const discoveryEmojis = ["🔎", "🧭", "✨", "💡", "🔭", "🗺️"] as const;
 const natureEmojis = ["🌱", "🌿", "🌳", "🌊", "🍄", "🌸"] as const;
 const wildlifeEmojis = ["🐘", "🦊", "🦉", "🐢", "🦋", "🐬", "🦏", "🐝"] as const;
+const jobsPerPage = 25;
 export type JobSortOrder = "closing" | "newest" | "relevance";
 type FilterIconName =
   | "briefcase"
@@ -473,10 +474,12 @@ function LocationAutocomplete({
 
 export function JobBrowser({
   candidateSaveState,
+  initialPage = 1,
   jobs,
   initialFilters = {},
 }: {
   candidateSaveState: CandidateSaveState;
+  initialPage?: number;
   jobs: readonly Job[];
   initialFilters?: Partial<BrowserFilters>;
 }) {
@@ -494,6 +497,7 @@ export function JobBrowser({
   const [courseSlugs, setCourseSlugs] = useState<readonly string[]>(initialFilters.courseSlugs ?? []);
   const [minimumSalary, setMinimumSalary] = useState(initialFilters.minimumSalary ?? 0);
   const [sortOrder, setSortOrder] = useState<JobSortOrder>(initialFilters.sortOrder ?? "relevance");
+  const [currentPage, setCurrentPage] = useState(initialPage);
   const [heroEmojis, setHeroEmojis] = useState<HeroEmojis>({
     discovery: discoveryEmojis[0],
     nature: natureEmojis[0],
@@ -530,6 +534,10 @@ export function JobBrowser({
     ...new Set(jobs.flatMap((job) => (job.contractType ? [job.contractType] : []))),
   ].toSorted();
   const locationSuggestions = useMemo(() => buildLocationSuggestions(jobs), [jobs]);
+  const pageCount = Math.max(1, Math.ceil(filteredJobs.length / jobsPerPage));
+  const activePage = Math.min(currentPage, pageCount);
+  const pageStart = (activePage - 1) * jobsPerPage;
+  const paginatedJobs = filteredJobs.slice(pageStart, pageStart + jobsPerPage);
   const hasFilters = Boolean(
     query ||
     locationQuery ||
@@ -553,6 +561,16 @@ export function JobBrowser({
       nature: randomItem(natureEmojis),
       wildlife: randomItem(wildlifeEmojis),
     });
+  }, []);
+
+  useEffect(() => {
+    function restorePageFromHistory() {
+      const page = Number(new URLSearchParams(window.location.search).get("page"));
+      setCurrentPage(Number.isInteger(page) && page > 0 ? page : 1);
+    }
+
+    window.addEventListener("popstate", restorePageFromHistory);
+    return () => window.removeEventListener("popstate", restorePageFromHistory);
   }, []);
 
   useEffect(() => {
@@ -614,7 +632,7 @@ export function JobBrowser({
     };
   }, []);
 
-  function syncUrl(filters: BrowserFilters) {
+  function syncUrl(filters: BrowserFilters, page = 1, addHistoryEntry = false) {
     const params = new URLSearchParams();
     if (filters.query) params.set("q", filters.query);
     if (filters.locationQuery) params.set("place", filters.locationQuery);
@@ -626,12 +644,17 @@ export function JobBrowser({
     filters.courseSlugs.forEach((slug) => params.append("course", slug));
     if (filters.minimumSalary) params.set("salary", String(filters.minimumSalary));
     if (filters.sortOrder !== "relevance") params.set("sort", filters.sortOrder);
+    if (page > 1) params.set("page", String(page));
     const queryString = params.toString();
-    window.history.replaceState(
-      null,
-      "",
-      `${window.location.pathname}${queryString ? `?${queryString}` : ""}`,
-    );
+    const nextUrl = `${window.location.pathname}${queryString ? `?${queryString}` : ""}`;
+    setCurrentPage(page);
+    if (addHistoryEntry) window.history.pushState(null, "", nextUrl);
+    else window.history.replaceState(null, "", nextUrl);
+  }
+
+  function changePage(page: number) {
+    syncUrl(currentFilters(), page, true);
+    document.querySelector<HTMLElement>(".job-results")?.scrollIntoView({ behavior: "smooth" });
   }
 
   function currentFilters(overrides: Partial<BrowserFilters> = {}): BrowserFilters {
@@ -927,22 +950,27 @@ export function JobBrowser({
             ) : null}
             {filteredJobs.length ? (
               <div className="job-list">
-                {filteredJobs.map((job, index) => (
-                  <Fragment key={job.slug}>
-                    <JobCard
-                      compact
-                      job={job}
-                      saveState={
-                        candidateSaveState.isSignedIn && job.id && savedJobIds.has(job.id)
-                          ? "saved"
-                          : candidateSaveState.isSignedIn
-                            ? "available"
-                            : "signed-out"
-                      }
-                    />
-                    {index >= 2 && (index - 2) % 10 === 0 ? <JobTrainingPromo position={index + 1} /> : null}
-                  </Fragment>
-                ))}
+                {paginatedJobs.map((job, index) => {
+                  const resultIndex = pageStart + index;
+                  return (
+                    <Fragment key={job.slug}>
+                      <JobCard
+                        compact
+                        job={job}
+                        saveState={
+                          candidateSaveState.isSignedIn && job.id && savedJobIds.has(job.id)
+                            ? "saved"
+                            : candidateSaveState.isSignedIn
+                              ? "available"
+                              : "signed-out"
+                        }
+                      />
+                      {resultIndex >= 2 && (resultIndex - 2) % 10 === 0 ? (
+                        <JobTrainingPromo position={resultIndex + 1} />
+                      ) : null}
+                    </Fragment>
+                  );
+                })}
               </div>
             ) : (
               <div className="empty-state">
@@ -953,6 +981,23 @@ export function JobBrowser({
                 </Button>
               </div>
             )}
+            {filteredJobs.length ? (
+              <nav className="job-pagination" aria-label="Job results pages">
+                <button disabled={activePage === 1} onClick={() => changePage(activePage - 1)} type="button">
+                  Previous
+                </button>
+                <p aria-live="polite">
+                  Page {activePage} of {pageCount}
+                </p>
+                <button
+                  disabled={activePage === pageCount}
+                  onClick={() => changePage(activePage + 1)}
+                  type="button"
+                >
+                  Next
+                </button>
+              </nav>
+            ) : null}
           </div>
         </div>
       </div>
