@@ -7,6 +7,25 @@ import { SubmitButton } from "@/components/submit-button";
 
 export type JobSaveState = "available" | "saved" | "signed-out";
 
+function HeartIcon({ filled = false }: { filled?: boolean }) {
+  return (
+    <svg
+      aria-hidden="true"
+      className="save-action__heart"
+      fill={filled ? "currentColor" : "none"}
+      viewBox="0 0 24 24"
+    >
+      <path
+        d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78Z"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="1.8"
+      />
+    </svg>
+  );
+}
+
 export function SaveJobControl({
   className = "save-action",
   iconOnly = false,
@@ -32,7 +51,7 @@ export function SaveJobControl({
           query: { intent: "save", job: jobSlug, next: `/jobs/${jobSlug}` },
         }}
       >
-        <span aria-hidden="true">♡</span>
+        {iconOnly ? <HeartIcon /> : <span aria-hidden="true">♡</span>}
         {iconOnly ? null : " Save job"}
       </Link>
     );
@@ -44,10 +63,16 @@ export function SaveJobControl({
   return (
     <form action={action}>
       <SubmitButton
-        className={className}
+        className={`${className}${iconOnly && state === "saved" ? " save-action--saved" : ""}`}
         idleAriaLabel={iconOnly ? (state === "saved" ? "Remove saved job" : "Save job") : undefined}
         idleLabel={
-          iconOnly ? (state === "saved" ? "♥" : "♡") : state === "saved" ? "♥ Saved · remove" : "♡ Save job"
+          iconOnly ? (
+            <HeartIcon filled={state === "saved"} />
+          ) : state === "saved" ? (
+            "♥ Saved · remove"
+          ) : (
+            "♡ Save job"
+          )
         }
         pendingAriaLabel={iconOnly ? (state === "saved" ? "Removing saved job" : "Saving job") : undefined}
         pendingLabel={iconOnly ? "…" : state === "saved" ? "Removing…" : "Saving…"}

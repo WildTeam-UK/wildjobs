@@ -211,43 +211,47 @@ export function JobBrowser({
 
   return (
     <section className="job-browser" aria-labelledby="jobs-page-heading">
-      <div className="shell">
-        <h1 className="wt-visually-hidden" id="jobs-page-heading">
-          Find conservation jobs
-        </h1>
-        <div className="job-search-strip" role="search" aria-label="Search jobs">
-          <TextInput
-            id="job-search"
-            label="Role, organisation or skill"
-            type="search"
-            value={query}
-            onChange={(event) => {
-              setQuery(event.target.value);
-              syncUrl(currentFilters({ query: event.target.value }));
-            }}
-            placeholder="e.g. project manager or ecology"
-          />
-          <div className="filter-panel__control">
-            <label htmlFor="location-search">Location</label>
-            <input
-              id="location-search"
-              list="job-locations"
-              onChange={(event) => {
-                setLocationQuery(event.target.value);
-                syncUrl(currentFilters({ locationQuery: event.target.value }));
-              }}
-              placeholder="City, region or country"
+      <div className="job-search-hero">
+        <div className="shell">
+          <h1 className="wt-visually-hidden" id="jobs-page-heading">
+            Find conservation jobs
+          </h1>
+          <div className="job-search-strip" role="search" aria-label="Search jobs">
+            <TextInput
+              id="job-search"
+              label="Role, organisation or skill"
               type="search"
-              value={locationQuery}
+              value={query}
+              onChange={(event) => {
+                setQuery(event.target.value);
+                syncUrl(currentFilters({ query: event.target.value }));
+              }}
+              placeholder="e.g. project manager or ecology"
             />
-            <datalist id="job-locations">
-              {locations.map((value) => (
-                <option key={value} value={value} />
-              ))}
-            </datalist>
+            <div className="filter-panel__control">
+              <label htmlFor="location-search">Location</label>
+              <input
+                id="location-search"
+                list="job-locations"
+                onChange={(event) => {
+                  setLocationQuery(event.target.value);
+                  syncUrl(currentFilters({ locationQuery: event.target.value }));
+                }}
+                placeholder="City, region or country"
+                type="search"
+                value={locationQuery}
+              />
+              <datalist id="job-locations">
+                {locations.map((value) => (
+                  <option key={value} value={value} />
+                ))}
+              </datalist>
+            </div>
           </div>
         </div>
+      </div>
 
+      <div className="shell">
         <div className="job-browser__toolbar">
           <button
             aria-controls="job-filter-panel"
