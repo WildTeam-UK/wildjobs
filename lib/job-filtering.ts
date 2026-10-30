@@ -34,10 +34,15 @@ export function filterJobs(items: readonly Job[], filters: JobFilters) {
         job.summary,
       ].join(" "),
     );
+    const searchableLocation = normalise(
+      [job.location, job.locationLocality ?? "", job.locationRegion ?? "", job.countryCode ?? ""].join(" "),
+    );
+    const matchesCountry =
+      ["gb", "great britain", "uk", "united kingdom"].includes(locationQuery) && job.countryCode === "GB";
 
     return (
       (!query || searchable.includes(query)) &&
-      (!locationQuery || normalise(job.location).includes(locationQuery)) &&
+      (!locationQuery || searchableLocation.includes(locationQuery) || matchesCountry) &&
       (!filters.locationType || job.locationType === filters.locationType) &&
       (!filters.engagementType || job.engagementType === filters.engagementType) &&
       (!filters.contractType || job.contractType === filters.contractType) &&

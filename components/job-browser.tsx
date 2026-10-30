@@ -8,6 +8,7 @@ import {
   type ReactNode,
   useEffect,
   useId,
+  useMemo,
   useRef,
   useState,
 } from "react";
@@ -35,6 +36,7 @@ type FilterIconName =
   | "sort";
 type FilterOption = Readonly<{ label: string; value: string }>;
 type HeroEmojis = Readonly<{ discovery: string; nature: string; wildlife: string }>;
+type LocationSuggestion = Readonly<{ detail?: string; label: string; value: string }>;
 type BrowserFilters = Readonly<{
   query: string;
   locationQuery: string;
@@ -50,6 +52,51 @@ type BrowserFilters = Readonly<{
 
 function randomItem<T>(items: readonly T[]) {
   return items[Math.floor(Math.random() * items.length)];
+}
+
+function countryName(countryCode: string) {
+  const countryNames: Record<string, string> = {
+    AU: "Australia",
+    CA: "Canada",
+    GB: "United Kingdom",
+    IE: "Ireland",
+    NZ: "New Zealand",
+    US: "United States",
+  };
+  return countryNames[countryCode] ?? countryCode;
+}
+
+function buildLocationSuggestions(jobs: readonly Job[]) {
+  const suggestions = new Map<string, LocationSuggestion>();
+  const countryCodes = new Set<string>();
+
+  function addSuggestion(label: string | undefined, detail?: string) {
+    const value = label?.trim();
+    if (!value || value === "Location not stated") return;
+    const key = value.toLocaleLowerCase("en-GB");
+    if (!suggestions.has(key)) suggestions.set(key, { detail, label: value, value });
+  }
+
+  for (const job of jobs) {
+    const countryCode = job.countryCode?.toUpperCase();
+    if (countryCode) countryCodes.add(countryCode);
+
+    if (job.locationType === "Remote") addSuggestion("Remote");
+    addSuggestion(
+      job.locationLocality,
+      [job.locationRegion, countryCode].filter(Boolean).join(", ") || undefined,
+    );
+    addSuggestion(job.locationRegion, countryCode);
+
+    if (!job.locationLocality && !job.locationRegion) {
+      const [label, ...context] = job.location.split(",").map((part) => part.trim());
+      addSuggestion(label, context.join(", ") || countryCode);
+    }
+  }
+
+  for (const countryCode of countryCodes) addSuggestion(countryName(countryCode), "Country");
+
+  return [...suggestions.values()].toSorted((left, right) => left.label.localeCompare(right.label));
 }
 
 function FilterIcon({ name }: { name: FilterIconName }) {
@@ -116,8 +163,9 @@ function FilterIcon({ name }: { name: FilterIconName }) {
     ),
     salary: (
       <>
-        <circle cx="12" cy="12" r="9" />
-        <path d="M15.5 8.5a3 3 0 0 0-5.5 1.7v4.3c0 1.7-1 2.5-2 3h8M8.5 13h5" />
+        <rect height="14" rx="2" width="20" x="2" y="5" />
+        <circle cx="12" cy="12" r="2.75" />
+        <path d="M6 8.5H5.5v.5M18 8.5h.5v.5M6 15.5H5.5V15M18 15.5h.5V15" />
       </>
     ),
     sort: (
@@ -322,6 +370,107 @@ function FilterDropdown(props: SingleFilterDropdownProps | MultiFilterDropdownPr
   );
 }
 
+function LocationAutocomplete({
+  onChange,
+  suggestions,
+  value,
+}: {
+  onChange: (value: string) => void;
+  suggestions: readonly LocationSuggestion[];
+  value: string;
+}) {
+  const [isOpen, setIsOpen] = useState(false);
+  const [activeIndex, setActiveIndex] = useState(0);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const listboxId = useId();
+  const query = value.trim().toLocaleLowerCase("en-GB");
+  const visibleSuggestions = query
+    ? suggestions
+        .filter((suggestion) =>
+          `${suggestion.label} ${suggestion.detail ?? ""}`.toLocaleLowerCase("en-GB").includes(query),
+        )
+        .slice(0, 8)
+    : [];
+  const showMenu = isOpen && Boolean(query);
+
+  function selectSuggestion(suggestion: LocationSuggestion) {
+    onChange(suggestion.value);
+    setIsOpen(false);
+    inputRef.current?.focus();
+  }
+
+  return (
+    <div
+      className="job-location-autocomplete"
+      onBlur={(event) => {
+        if (!event.currentTarget.contains(event.relatedTarget)) setIsOpen(false);
+      }}
+    >
+      <input
+        aria-activedescendant={
+          showMenu && visibleSuggestions[activeIndex] ? `${listboxId}-option-${activeIndex}` : undefined
+        }
+        aria-autocomplete="list"
+        aria-controls={listboxId}
+        aria-expanded={showMenu}
+        autoComplete="off"
+        id="location-search"
+        onChange={(event) => {
+          onChange(event.target.value);
+          setActiveIndex(0);
+          setIsOpen(true);
+        }}
+        onFocus={() => setIsOpen(Boolean(query))}
+        onKeyDown={(event) => {
+          if (event.key === "ArrowDown" && visibleSuggestions.length) {
+            event.preventDefault();
+            setIsOpen(true);
+            setActiveIndex((index) => Math.min(index + 1, visibleSuggestions.length - 1));
+          } else if (event.key === "ArrowUp" && visibleSuggestions.length) {
+            event.preventDefault();
+            setActiveIndex((index) => Math.max(index - 1, 0));
+          } else if (event.key === "Enter" && showMenu && visibleSuggestions[activeIndex]) {
+            event.preventDefault();
+            selectSuggestion(visibleSuggestions[activeIndex]);
+          } else if (event.key === "Escape") {
+            setIsOpen(false);
+          }
+        }}
+        placeholder="Town, region or country"
+        ref={inputRef}
+        role="combobox"
+        type="search"
+        value={value}
+      />
+      {showMenu ? (
+        <div className="job-location-menu" id={listboxId} role="listbox">
+          {visibleSuggestions.length ? (
+            visibleSuggestions.map((suggestion, index) => (
+              <button
+                aria-selected={index === activeIndex}
+                className="job-location-menu__option"
+                id={`${listboxId}-option-${index}`}
+                key={`${suggestion.label}-${suggestion.detail ?? ""}`}
+                onClick={() => selectSuggestion(suggestion)}
+                onMouseDown={(event) => event.preventDefault()}
+                role="option"
+                type="button"
+              >
+                <span>{suggestion.label}</span>
+                {suggestion.detail ? <small>{suggestion.detail}</small> : null}
+              </button>
+            ))
+          ) : (
+            <p className="job-location-menu__empty" role="status">
+              No live-job destinations match “{value.trim()}”
+            </p>
+          )}
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
 export function JobBrowser({
   candidateSaveState,
   jobs,
@@ -380,9 +529,7 @@ export function JobBrowser({
   const contractTypes = [
     ...new Set(jobs.flatMap((job) => (job.contractType ? [job.contractType] : []))),
   ].toSorted();
-  const locations = [
-    ...new Set(jobs.map((job) => job.location).filter((value) => value !== "Location not stated")),
-  ].toSorted();
+  const locationSuggestions = useMemo(() => buildLocationSuggestions(jobs), [jobs]);
   const hasFilters = Boolean(
     query ||
     locationQuery ||
@@ -593,22 +740,14 @@ export function JobBrowser({
               <label className="wt-visually-hidden" htmlFor="location-search">
                 Location
               </label>
-              <input
-                id="location-search"
-                list="job-locations"
-                onChange={(event) => {
-                  setLocationQuery(event.target.value);
-                  syncUrl(currentFilters({ locationQuery: event.target.value }));
+              <LocationAutocomplete
+                onChange={(value) => {
+                  setLocationQuery(value);
+                  syncUrl(currentFilters({ locationQuery: value }));
                 }}
-                placeholder="Town, region or country"
-                type="search"
+                suggestions={locationSuggestions}
                 value={locationQuery}
               />
-              <datalist id="job-locations">
-                {locations.map((value) => (
-                  <option key={value} value={value} />
-                ))}
-              </datalist>
             </div>
             <button className="job-search-submit" type="submit">
               SEARCH

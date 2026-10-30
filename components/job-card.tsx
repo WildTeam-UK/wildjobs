@@ -30,7 +30,9 @@ function JobFactIcon({ type }: { type: "location" | "salary" | "type" }) {
   }
   return (
     <svg aria-hidden="true" viewBox="0 0 24 24">
-      <path d="M16.5 6.5a4 4 0 0 0-7.5 2v3.25A5.2 5.2 0 0 1 7 16h10M7 11.5h7" />
+      <rect height="14" rx="2" width="20" x="2" y="5" />
+      <circle cx="12" cy="12" r="2.75" />
+      <path d="M6 8.5H5.5v.5M18 8.5h.5v.5M6 15.5H5.5V15M18 15.5h.5V15" />
     </svg>
   );
 }
@@ -171,19 +173,25 @@ export function JobCard({
                 <>
                   {" "}
                   <span className="job-card__ai-disclosure">This summary was provided by AI</span>{" "}
-                  <button
-                    aria-describedby={`ai-summary-tooltip-${job.slug}`}
-                    aria-label="How WildJobs uses AI summaries"
-                    className="job-card__ai-tooltip-trigger"
-                    type="button"
-                  >
-                    <svg aria-hidden="true" viewBox="0 0 20 20">
-                      <circle cx="10" cy="10" r="8" />
-                      <path d="M10 8.5v5M10 6.25h.01" />
-                    </svg>
-                  </button>
-                  <span className="job-card__ai-tooltip" id={`ai-summary-tooltip-${job.slug}`} role="tooltip">
-                    {aiSummaryExplanation}
+                  <span className="job-card__ai-tooltip-anchor">
+                    <button
+                      aria-describedby={`ai-summary-tooltip-${job.slug}`}
+                      aria-label="How WildJobs uses AI summaries"
+                      className="job-card__ai-tooltip-trigger"
+                      type="button"
+                    >
+                      <svg aria-hidden="true" viewBox="0 0 20 20">
+                        <circle cx="10" cy="10" r="8" />
+                        <path d="M10 8.5v5M10 6.25h.01" />
+                      </svg>
+                    </button>
+                    <span
+                      className="job-card__ai-tooltip"
+                      id={`ai-summary-tooltip-${job.slug}`}
+                      role="tooltip"
+                    >
+                      {aiSummaryExplanation}
+                    </span>
                   </span>
                 </>
               ) : null}

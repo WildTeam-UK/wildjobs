@@ -76,6 +76,20 @@ describe("job filtering", () => {
     ).toEqual([paidJob]);
   });
 
+  it("searches structured localities, regions and the United Kingdom country label", () => {
+    const bathJob = {
+      ...jobs[0],
+      countryCode: "GB",
+      location: "BA1 1AA",
+      locationLocality: "Bath",
+      locationRegion: "Somerset",
+    };
+
+    expect(filterJobs([bathJob], filters({ locationQuery: "Bath" }))).toEqual([bathJob]);
+    expect(filterJobs([bathJob], filters({ locationQuery: "Somerset" }))).toEqual([bathJob]);
+    expect(filterJobs([bathJob], filters({ locationQuery: "United Kingdom" }))).toEqual([bathJob]);
+  });
+
   it("returns stable alphabetical categories", () => {
     expect(jobCategories(jobs)).toEqual(
       [...jobCategories(jobs)].sort((left, right) => left.localeCompare(right)),
