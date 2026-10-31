@@ -58,7 +58,9 @@ aliases, and stores confidence, provenance and the exact catalogue quote. It nev
 hash prevents repeat work when the catalogue has not changed, while administrators can rerun either stage from the
 course workspace. Production uses `OPENAI_API_KEY`; Vercel previews can use their scoped `VERCEL_OIDC_TOKEN` through
 AI Gateway. Vacancy enrichment then selects a small evidence-backed set from that course-backed vocabulary and
-queues genuinely unmatched concepts for staff review.
+queues genuinely unmatched concepts for staff review. When the capability policy changes, the heartbeat also
+reclassifies already-published jobs from their stored source text without rewriting the job, rerunning publication
+or consuming another full-enrichment attempt.
 
 Run the complete local checks with:
 
