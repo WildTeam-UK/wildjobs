@@ -5159,7 +5159,15 @@ select {
 @media (max-width: 640px) {
   .job-search-hero-art::before,
   .job-search-hero-art::after {
-    width: 30vw;
+    top: 10%;
+    bottom: 10%;
+    width: 24vw;
+  }
+  .job-search-hero-art::before {
+    transform: translateX(-55%);
+  }
+  .job-search-hero-art::after {
+    transform: translateX(55%);
   }
   .employer-hiring-carousel h2 {
     margin-bottom: 22px;
