@@ -21,6 +21,7 @@ import {
 import { employerIdentityConflicts, employerIdentityMatches } from "./employer-identity";
 import { looksLikeFavicon, selectEmployerLogo } from "./employer-logo-selection";
 import { toSlug } from "./job-intake-validation";
+import { canonicalJobLocationFallback } from "./job-taxonomy-enrichment";
 import { shouldGenerateAiSummary } from "./publication-summary";
 import { isPublishedCapabilityBackfillCandidate } from "./published-capability-backfill";
 import { fetchApprovedVacancyPage, fetchEmployerPage, SourcePageError } from "./source-page-fetch";
@@ -139,6 +140,38 @@ async function persistJobTaxonomyEnrichment(
     p_source_record_id: record.id,
   });
   if (error) throw new Error("Job taxonomy enrichment could not be saved.");
+
+  if (result.structuredLocations.length) return;
+  const { count, error: locationCountError } = await supabase
+    .from("job_locations")
+    .select("id", { count: "exact", head: true })
+    .eq("job_id", record.job_id);
+  if (locationCountError) throw new Error("Existing structured job locations could not be checked.");
+  if (count) return;
+
+  const { data: job, error: jobError } = await supabase
+    .from("jobs")
+    .select("country_code, locality, location_text, postal_code, region")
+    .eq("id", record.job_id)
+    .maybeSingle();
+  if (jobError) throw new Error("The canonical job location could not be read.");
+  if (!job) return;
+
+  const fallback = canonicalJobLocationFallback({
+    countryCode: job.country_code,
+    locality: job.locality,
+    locationText: job.location_text,
+    postalCode: job.postal_code,
+    region: job.region,
+  });
+  if (!fallback) return;
+
+  const { error: fallbackError } = await supabase
+    .from("job_locations")
+    .insert({ ...fallback, job_id: record.job_id });
+  if (fallbackError && fallbackError.code !== "23505") {
+    throw new Error("The canonical job location fallback could not be saved.");
+  }
 }
 
 function positiveLimit(value: string | undefined, fallback: number, maximum: number) {
