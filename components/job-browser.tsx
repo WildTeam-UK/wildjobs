@@ -612,21 +612,16 @@ export function JobBrowser({
   useEffect(() => {
     const browser = browserRef.current;
     const hero = heroRef.current;
-    const heroInner = hero?.querySelector<HTMLElement>(".job-search-hero__inner");
-    if (!browser || !hero || !heroInner) return;
+    if (!browser || !hero) return;
 
     expandedHeroHeightRef.current = hero.getBoundingClientRect().height;
-    const syncCompactHeroHeight = (event: TransitionEvent) => {
-      if (event.propertyName !== "padding-top" || !isHeroCompactRef.current) return;
-      browser.style.setProperty("--job-hero-compact-height", `${hero.getBoundingClientRect().height}px`);
-    };
+    browser.style.setProperty("--job-hero-height", `${expandedHeroHeightRef.current}px`);
     const observer = new ResizeObserver(() => {
       const currentHeight = hero.getBoundingClientRect().height;
       const transitionIsSettled = performance.now() >= compactTransitionUntilRef.current;
 
-      if (isHeroCompactRef.current && transitionIsSettled) {
-        browser.style.setProperty("--job-hero-compact-height", `${currentHeight}px`);
-      } else if (transitionIsSettled) {
+      browser.style.setProperty("--job-hero-height", `${currentHeight}px`);
+      if (!isHeroCompactRef.current && transitionIsSettled) {
         expandedHeroHeightRef.current = currentHeight;
       }
 
@@ -634,13 +629,11 @@ export function JobBrowser({
       hero.style.marginBottom = `${compensation}px`;
     });
 
-    heroInner.addEventListener("transitionend", syncCompactHeroHeight);
     observer.observe(hero);
     return () => {
-      heroInner.removeEventListener("transitionend", syncCompactHeroHeight);
       observer.disconnect();
       hero.style.marginBottom = "";
-      browser.style.removeProperty("--job-hero-compact-height");
+      browser.style.removeProperty("--job-hero-height");
     };
   }, []);
 
