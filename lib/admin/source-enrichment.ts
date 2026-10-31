@@ -311,7 +311,7 @@ async function claimSourceRecord(
   const baseQuery = () => {
     let query = supabase
       .from("job_source_records")
-      .select("*, job_sources!inner(name, source_type, authoritative_base_url, is_active)")
+      .select("*, job_sources!inner(name, source_type, authoritative_base_url, is_active), jobs(status)")
       .in("mapping_status", ["unmapped", "mapped"])
       .in("automation_status", ["pending", "blocked", "failed"])
       .lt("enrichment_attempts", 3);
@@ -330,10 +330,11 @@ async function claimSourceRecord(
   if (!candidateResult.data && !requestedRecordId && allowAiBackfill) {
     candidateResult = await supabase
       .from("job_source_records")
-      .select("*, job_sources!inner(name, source_type, authoritative_base_url, is_active)")
+      .select("*, job_sources!inner(name, source_type, authoritative_base_url, is_active), jobs!inner(status)")
       .not("job_id", "is", null)
       .not("detail_text", "is", null)
       .not("canonical_url", "is", null)
+      .neq("jobs.status", "withdrawn")
       .in("enrichment_status", ["complete", "needs_review", "skipped"])
       .or(`enrichment_policy_version.is.null,enrichment_policy_version.neq.${AI_ENRICHMENT_POLICY_VERSION}`)
       .order("first_seen_at")
@@ -349,6 +350,7 @@ async function claimSourceRecord(
           enrichmentPolicyVersion: candidateResult.data.enrichment_policy_version,
           enrichmentStatus: candidateResult.data.enrichment_status,
           jobId: candidateResult.data.job_id,
+          jobStatus: candidateResult.data.jobs?.status ?? null,
         },
         AI_ENRICHMENT_POLICY_VERSION,
       ),
@@ -394,7 +396,7 @@ async function claimSourceRecord(
     claimQuery = claimQuery.eq("enrichment_attempts", candidate.enrichment_attempts);
   }
   const { data: claimed, error: claimError } = await claimQuery
-    .select("*, job_sources!inner(name, source_type, authoritative_base_url, is_active)")
+    .select("*, job_sources!inner(name, source_type, authoritative_base_url, is_active), jobs(status)")
     .maybeSingle();
   if (claimError) throw new Error("The enrichment record could not be claimed.");
   if (!claimed) return null;

@@ -7,6 +7,7 @@ export type PublishedCapabilityBackfillRecord = {
   enrichmentPolicyVersion: string | null;
   enrichmentStatus: string;
   jobId: number | null;
+  jobStatus: string | null;
 };
 
 export function isPublishedCapabilityBackfillCandidate(
@@ -17,6 +18,7 @@ export function isPublishedCapabilityBackfillCandidate(
     record.jobId &&
     record.canonicalUrl?.startsWith("https://") &&
     record.detailText?.trim() &&
+    record.jobStatus !== "withdrawn" &&
     BACKFILL_STATUSES.has(record.enrichmentStatus) &&
     record.enrichmentPolicyVersion !== policyVersion,
   );

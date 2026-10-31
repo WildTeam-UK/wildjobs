@@ -10,6 +10,7 @@ const record = {
   enrichmentPolicyVersion: "ai-structured-v9-capabilities",
   enrichmentStatus: "complete",
   jobId: 42,
+  jobStatus: "published",
 };
 
 describe("published capability backfill eligibility", () => {
@@ -25,6 +26,9 @@ describe("published capability backfill eligibility", () => {
 
   it("rejects unlinked, untrusted, running and current-policy records", () => {
     expect(isPublishedCapabilityBackfillCandidate({ ...record, jobId: null }, currentPolicy)).toBe(false);
+    expect(isPublishedCapabilityBackfillCandidate({ ...record, jobStatus: "withdrawn" }, currentPolicy)).toBe(
+      false,
+    );
     expect(isPublishedCapabilityBackfillCandidate({ ...record, detailText: null }, currentPolicy)).toBe(
       false,
     );
