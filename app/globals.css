@@ -848,44 +848,50 @@ select {
   color: var(--wt-color-ink);
 }
 .job-browser {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
   padding: 0 0 clamp(58px, 8vw, 92px);
   background-color: var(--page-surface-light);
 }
-.job-search-hero {
+.job-search-hero-art {
   position: relative;
+  z-index: 0;
+  grid-column: 1;
+  grid-row: 1 / 4;
   overflow: clip;
   background: var(--wt-color-paper);
-  box-shadow: 0 72px 0 var(--wt-color-paper);
 }
-.job-search-hero::before,
-.job-search-hero::after {
+.job-search-hero-art::before,
+.job-search-hero-art::after {
   position: absolute;
   z-index: 0;
   top: 0;
   bottom: 0;
-  width: min(18vw, 200px);
+  width: min(24vw, 300px);
   background-repeat: no-repeat;
   background-size: auto 100%;
   content: "";
   pointer-events: none;
 }
-.job-search-hero::before {
+.job-search-hero-art::before {
   left: 0;
   background-image: url("/images/jobs-hero-left.svg");
   background-position: left center;
-  -webkit-mask-image: linear-gradient(to right, #000 0%, #000 45%, transparent 100%);
-  mask-image: linear-gradient(to right, #000 0%, #000 45%, transparent 100%);
 }
-.job-search-hero::after {
+.job-search-hero-art::after {
   right: 0;
   background-image: url("/images/jobs-hero-right.svg");
   background-position: right center;
-  -webkit-mask-image: linear-gradient(to left, #000 0%, #000 45%, transparent 100%);
-  mask-image: linear-gradient(to left, #000 0%, #000 45%, transparent 100%);
+}
+.job-search-hero {
+  position: relative;
+  z-index: 1;
+  grid-column: 1;
+  grid-row: 1;
+  background: transparent;
 }
 .job-search-hero__inner {
   position: relative;
-  z-index: 1;
   padding-top: clamp(46px, calc(4vw + 14px), 62px);
   padding-bottom: 16px;
 }
@@ -1233,6 +1239,8 @@ select {
   position: sticky;
   z-index: 80;
   top: var(--site-header-height);
+  grid-column: 1;
+  grid-row: 2;
   border-bottom: 1px solid transparent;
   background: transparent;
   box-shadow: none;
@@ -1266,9 +1274,12 @@ select {
   padding-left: 13px;
 }
 .job-search-hero__tail {
+  z-index: 1;
+  grid-column: 1;
+  grid-row: 3;
   height: clamp(34px, calc(4vw + 2px), 50px);
   border-bottom: 1px solid var(--wt-color-rule);
-  background: var(--wt-color-paper);
+  background: transparent;
 }
 .job-filter-pill--icon-only .job-filter-pill__trigger {
   width: 40px;
@@ -5019,8 +5030,8 @@ select {
 }
 
 @media (max-width: 900px) {
-  .job-search-hero::before,
-  .job-search-hero::after {
+  .job-search-hero-art::before,
+  .job-search-hero-art::after {
     display: none;
   }
   .job-training-promo {

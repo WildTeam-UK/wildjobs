@@ -666,6 +666,7 @@ export function JobBrowser({
 
   return (
     <section className="job-browser" aria-labelledby="jobs-page-heading">
+      <div className="job-search-hero-art" aria-hidden="true" />
       <div className="job-search-hero">
         <div className="job-search-hero__inner shell">
           <div className="job-search-hero__intro">
