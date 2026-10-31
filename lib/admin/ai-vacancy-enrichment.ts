@@ -13,6 +13,7 @@ import {
 } from "./employer-research-validation";
 import {
   selectExactCapabilityMatches,
+  selectExactOccupationMatch,
   selectStructuredLocations,
   selectTaxonomyCandidates,
   selectTaxonomyMatches,
@@ -548,7 +549,7 @@ export async function enrichWithAi(input: {
       ? [{ confidence: candidate.confidence, evidence, title: candidate.title }]
       : [];
   });
-  const occupationMatches = selectTaxonomyMatches(
+  const aiOccupationMatches = selectTaxonomyMatches(
     output.taxonomy.occupation_matches.map((match) => ({
       confidence: match.confidence,
       evidence: match.evidence,
@@ -559,6 +560,8 @@ export async function enrichWithAi(input: {
     taxonomySourceText,
     2,
   );
+  const exactOccupationMatches = selectExactOccupationMatch(input.occupations, input.sourceTitle);
+  const occupationMatches = exactOccupationMatches.length ? exactOccupationMatches : aiOccupationMatches;
   const benefitMatches = selectTaxonomyMatches(
     output.taxonomy.benefit_matches.map((match) => ({
       confidence: match.confidence,

@@ -40,6 +40,12 @@ export type CapabilityCatalogueInput = {
   title: string;
 };
 
+export type OccupationCatalogueInput = {
+  aliases: readonly string[];
+  id: number;
+  title: string;
+};
+
 function compact(value: string) {
   return value.replace(/\s+/g, " ").trim();
 }
@@ -53,9 +59,24 @@ function exactSourceText(value: string | null, sourceText: string) {
 function exactPhraseFromSource(phrase: string, sourceText: string) {
   const compactPhrase = compact(phrase);
   if (compactPhrase.length < 8 || compactPhrase.split(" ").length < 2) return null;
+  return boundedPhraseFromSource(compactPhrase, sourceText);
+}
+
+function boundedPhraseFromSource(phrase: string, sourceText: string) {
+  const compactPhrase = compact(phrase);
   const escaped = compactPhrase.replace(/[.*+?^${}()|[\]\\]/g, "\\$&").replace(/\s+/g, "\\s+");
   const match = new RegExp(`(?:^|[^\\p{L}\\p{N}])(${escaped})(?=$|[^\\p{L}\\p{N}])`, "iu").exec(sourceText);
   return match?.[1] ?? null;
+}
+
+function occupationPhraseFromTitle(phrase: string, sourceTitle: string) {
+  const compactPhrase = compact(phrase);
+  if (compactPhrase.length < 4) return null;
+  const roleTitle = compact(sourceTitle.split(/\s+with\s+/iu, 1)[0]).replace(/\s*\([^)]*\)\s*$/u, "");
+  const evidence = boundedPhraseFromSource(compactPhrase, roleTitle);
+  if (!evidence) return null;
+  if (compactPhrase.includes(" ")) return evidence;
+  return roleTitle.toLocaleLowerCase("en-GB").endsWith(evidence.toLocaleLowerCase("en-GB")) ? evidence : null;
 }
 
 export function normaliseTaxonomyCandidateTitle(value: string) {
@@ -119,6 +140,20 @@ export function selectExactCapabilityMatches(
         ]
       : [];
   });
+}
+
+export function selectExactOccupationMatch(
+  occupations: readonly OccupationCatalogueInput[],
+  sourceTitle: string | null,
+) {
+  if (!sourceTitle) return [];
+  const matches = occupations.flatMap((occupation) =>
+    [occupation.title, ...occupation.aliases].flatMap((phrase) => {
+      const evidence = occupationPhraseFromTitle(phrase, sourceTitle);
+      return evidence ? [{ confidence: 100, evidence, originalText: evidence, termId: occupation.id }] : [];
+    }),
+  );
+  return matches.sort((left, right) => right.evidence.length - left.evidence.length).slice(0, 1);
 }
 
 export function taxonomyClassificationNeedsReview(input: {
