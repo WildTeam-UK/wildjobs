@@ -7,6 +7,7 @@ import { environmentValue, requireEnvironmentValue } from "../environment";
 
 const MAX_PAGES = 20;
 const MAX_RESPONSE_BYTES = 1_500_000;
+const DEFAULT_COURSE_CATEGORY = "ONLINE COURSE";
 
 const courseSchema = z
   .object({
@@ -43,8 +44,8 @@ export type LearnWorldsCourse = Readonly<{
 type LearnWorldsConfig = Readonly<{
   accessToken: string;
   apiUrl: URL;
-  approvedCourseIds: ReadonlySet<string>;
   clientId: string;
+  courseCategory: string;
   publicBaseUrl: URL;
 }>;
 
@@ -66,8 +67,7 @@ export function isLearnWorldsCourseSyncConfigured() {
     environmentValue(process.env.LEARNWORLDS_API_URL) &&
     environmentValue(process.env.LEARNWORLDS_CLIENT_ID) &&
     environmentValue(process.env.LEARNWORLDS_ACCESS_TOKEN) &&
-    environmentValue(process.env.LEARNWORLDS_PUBLIC_BASE_URL) &&
-    environmentValue(process.env.LEARNWORLDS_APPROVED_COURSE_IDS),
+    environmentValue(process.env.LEARNWORLDS_PUBLIC_BASE_URL),
   );
 }
 
@@ -84,21 +84,14 @@ function getLearnWorldsConfig(): LearnWorldsConfig {
     throw new Error("LEARNWORLDS_API_URL must be the version 2 API base URL.");
   }
 
-  const approvedCourseIds = new Set(
-    requireEnvironmentValue("LEARNWORLDS_APPROVED_COURSE_IDS", process.env.LEARNWORLDS_APPROVED_COURSE_IDS)
-      .split(",")
-      .map((value) => value.trim())
-      .filter(Boolean),
-  );
-  if (!approvedCourseIds.size || approvedCourseIds.size > 100) {
-    throw new Error("LEARNWORLDS_APPROVED_COURSE_IDS must contain between 1 and 100 course IDs.");
-  }
+  const courseCategory = environmentValue(process.env.LEARNWORLDS_COURSE_CATEGORY) ?? DEFAULT_COURSE_CATEGORY;
+  if (courseCategory.length > 160) throw new Error("LEARNWORLDS_COURSE_CATEGORY is too long.");
 
   return {
     accessToken: requireEnvironmentValue("LEARNWORLDS_ACCESS_TOKEN", process.env.LEARNWORLDS_ACCESS_TOKEN),
     apiUrl,
-    approvedCourseIds,
     clientId: requireEnvironmentValue("LEARNWORLDS_CLIENT_ID", process.env.LEARNWORLDS_CLIENT_ID),
+    courseCategory,
     publicBaseUrl,
   };
 }
@@ -112,10 +105,17 @@ function plainText(value: string | null | undefined) {
 }
 
 function courseAvailability(status: string | null | undefined, access: string | null | undefined) {
-  const values = [status, access].filter(Boolean).map((value) => value!.toLocaleLowerCase("en-GB"));
+  const values = [status, access].filter(Boolean).map((value) =>
+    value!
+      .trim()
+      .toLocaleLowerCase("en-GB")
+      .replace(/[\s-]+/g, "_"),
+  );
   if (
     values.some((value) =>
-      ["closed", "coming_soon", "draft", "inactive", "private", "unpublished"].includes(value),
+      ["closed", "coming_soon", "draft", "enrollment_closed", "inactive", "private", "unpublished"].includes(
+        value,
+      ),
     )
   ) {
     return "unavailable" as const;
@@ -158,6 +158,7 @@ function totalPages(meta: Record<string, unknown> | undefined) {
 async function fetchCoursePage(config: LearnWorldsConfig, page: number) {
   const url = new URL(`${config.apiUrl.toString().replace(/\/$/, "")}/courses`);
   url.searchParams.set("page", String(page));
+  url.searchParams.set("categories", config.courseCategory);
 
   const response = await fetch(url, {
     cache: "no-store",
@@ -176,7 +177,7 @@ async function fetchCoursePage(config: LearnWorldsConfig, page: number) {
     !contentType.includes("application/json") ||
     (contentLength && contentLength > MAX_RESPONSE_BYTES)
   ) {
-    throw new Error("LearnWorlds did not return the approved course catalogue.");
+    throw new Error("LearnWorlds did not return the course catalogue.");
   }
   const body = await response.arrayBuffer();
   if (body.byteLength > MAX_RESPONSE_BYTES) {
@@ -185,7 +186,7 @@ async function fetchCoursePage(config: LearnWorldsConfig, page: number) {
   return coursePageSchema.parse(JSON.parse(new TextDecoder().decode(body)));
 }
 
-export async function fetchApprovedLearnWorldsCourses() {
+export async function fetchLearnWorldsCourses() {
   const config = getLearnWorldsConfig();
   const courses = new Map<string, LearnWorldsCourse>();
   const seenCourseIds = new Set<string>();
@@ -198,7 +199,6 @@ export async function fetchApprovedLearnWorldsCourses() {
     pageCourseIds.forEach((id) => seenCourseIds.add(id));
     for (const rawCourse of result.data) {
       const id = String(rawCourse.id);
-      if (!config.approvedCourseIds.has(id)) continue;
       courses.set(id, {
         availabilityStatus: courseAvailability(rawCourse.status, rawCourse.access),
         id,
@@ -214,8 +214,8 @@ export async function fetchApprovedLearnWorldsCourses() {
     if (page === MAX_PAGES) throw new Error("The LearnWorlds course catalogue exceeded the page limit.");
   }
 
-  return {
-    approvedCourseIds: config.approvedCourseIds,
-    courses: [...courses.values()],
-  };
+  if (!courses.size) {
+    throw new Error(`LearnWorlds did not return any courses in the ${config.courseCategory} category.`);
+  }
+  return [...courses.values()];
 }

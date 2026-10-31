@@ -26,7 +26,7 @@ export default async function CoursesPage({ searchParams }: CoursesPageProps) {
   const { data: courses, error } = await supabase
     .from("courses")
     .select(
-      "id, title, short_title, availability_status, is_active, is_filter_visible, theme_colour, learnworlds_synced_at, course_capabilities(capability_id)",
+      "id, title, short_title, availability_status, is_active, is_filter_visible, is_job_search_excluded, theme_colour, learnworlds_synced_at, course_capabilities(capability_id)",
     )
     .order("display_order")
     .order("title");
@@ -63,7 +63,7 @@ export default async function CoursesPage({ searchParams }: CoursesPageProps) {
       <section className="staff-section shell">
         <div className="staff-section__heading">
           <div>
-            <p className="eyebrow">Approved courses</p>
+            <p className="eyebrow">Online courses</p>
             <h2>{courses?.length ?? 0} records</h2>
           </div>
           <p>A course appears as a public filter once it has an evidence-backed capability mapping.</p>
@@ -101,7 +101,13 @@ export default async function CoursesPage({ searchParams }: CoursesPageProps) {
                 </div>
                 <div className="source-list__actions">
                   <span>{course.course_capabilities.length} capabilities</span>
-                  <strong>{course.is_filter_visible ? "Filter visible" : "Filter hidden"}</strong>
+                  <strong>
+                    {course.is_job_search_excluded
+                      ? "Excluded from WildJobs"
+                      : course.is_filter_visible
+                        ? "Filter visible"
+                        : "Filter hidden"}
+                  </strong>
                   <Link href={`/admin/courses/${course.id}`}>Review course</Link>
                 </div>
               </article>
@@ -109,7 +115,7 @@ export default async function CoursesPage({ searchParams }: CoursesPageProps) {
           </div>
         ) : (
           <div className="staff-empty-state">
-            <h2>No approved courses have synced yet.</h2>
+            <h2>No online courses have synced yet.</h2>
           </div>
         )}
       </section>

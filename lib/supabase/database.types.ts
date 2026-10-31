@@ -558,6 +558,7 @@ export type Database = {
           image_url: string | null;
           is_active: boolean;
           is_filter_visible: boolean;
+          is_job_search_excluded: boolean;
           learnworlds_course_id: string;
           learnworlds_synced_at: string | null;
           provenance: string;
@@ -582,6 +583,7 @@ export type Database = {
           image_url?: string | null;
           is_active?: boolean;
           is_filter_visible?: boolean;
+          is_job_search_excluded?: boolean;
           learnworlds_course_id: string;
           learnworlds_synced_at?: string | null;
           provenance: string;
@@ -606,6 +608,7 @@ export type Database = {
           image_url?: string | null;
           is_active?: boolean;
           is_filter_visible?: boolean;
+          is_job_search_excluded?: boolean;
           learnworlds_course_id?: string;
           learnworlds_synced_at?: string | null;
           provenance?: string;

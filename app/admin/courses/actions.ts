@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 
 import { bootstrapCourseCapabilities } from "@/lib/admin/course-capability-bootstrap";
-import { syncApprovedLearnWorldsCourses } from "@/lib/admin/learnworlds-course-sync";
+import { syncLearnWorldsCourseCatalogue } from "@/lib/admin/learnworlds-course-sync";
 import { requireAdministrator, requireStaff } from "@/lib/auth/staff";
 import { isLearnWorldsCourseSyncConfigured } from "@/lib/learnworlds/client";
 import { createClient } from "@/lib/supabase/server";
@@ -28,7 +28,7 @@ export async function syncLearnWorldsCourses() {
 
   const supabase = await createClient();
   try {
-    await syncApprovedLearnWorldsCourses(supabase);
+    await syncLearnWorldsCourseCatalogue(supabase);
   } catch {
     console.error("Staff-triggered LearnWorlds course sync failed.");
     redirect("/admin/courses?error=sync-failed");
@@ -66,6 +66,7 @@ export async function updateCourseProfile(courseId: number, formData: FormData) 
       displayOrder: z.coerce.number().int().min(0).max(32_767),
       imageAlt: z.string().trim().max(240),
       isFilterVisible: z.boolean(),
+      isJobSearchExcluded: z.boolean(),
       publicUrl: z.string().url().startsWith("https://").max(2_000),
       shortTitle: z.string().trim().min(2).max(160),
       summary: z.string().trim().min(10).max(1_000),
@@ -75,6 +76,7 @@ export async function updateCourseProfile(courseId: number, formData: FormData) 
       displayOrder: formData.get("displayOrder"),
       imageAlt: formData.get("imageAlt"),
       isFilterVisible: formData.get("isFilterVisible") === "on",
+      isJobSearchExcluded: formData.get("isJobSearchExcluded") === "on",
       publicUrl: formData.get("publicUrl"),
       shortTitle: formData.get("shortTitle"),
       summary: formData.get("summary"),
@@ -83,7 +85,7 @@ export async function updateCourseProfile(courseId: number, formData: FormData) 
   if (!parsedId.success || !parsed.success) redirect(coursePath(courseId, "invalid"));
 
   const supabase = await createClient();
-  if (parsed.data.isFilterVisible) {
+  if (parsed.data.isFilterVisible && !parsed.data.isJobSearchExcluded) {
     const { count, error } = await supabase
       .from("course_capabilities")
       .select("capability_id", { count: "exact", head: true })
@@ -95,7 +97,8 @@ export async function updateCourseProfile(courseId: number, formData: FormData) 
     .update({
       display_order: parsed.data.displayOrder,
       image_alt: parsed.data.imageAlt || null,
-      is_filter_visible: parsed.data.isFilterVisible,
+      is_filter_visible: parsed.data.isJobSearchExcluded ? false : parsed.data.isFilterVisible,
+      is_job_search_excluded: parsed.data.isJobSearchExcluded,
       public_url: parsed.data.publicUrl,
       reviewed_at: new Date().toISOString().slice(0, 10),
       short_title: parsed.data.shortTitle,

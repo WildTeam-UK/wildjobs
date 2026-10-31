@@ -318,8 +318,11 @@ async function backfillPublishedJobCapabilities(
     }
     const { data: courseBackedCapabilities, error: capabilityReadError } = await supabase
       .from("capabilities")
-      .select("id, title, description, capability_aliases(alias), course_capabilities!inner(course_id)")
+      .select(
+        "id, title, description, capability_aliases(alias), course_capabilities!inner(course_id, courses!inner(is_job_search_excluded))",
+      )
       .eq("is_active", true)
+      .eq("course_capabilities.courses.is_job_search_excluded", false)
       .limit(80);
     if (capabilityReadError) throw new Error("Course-backed capabilities could not be read.");
     const capabilityCatalogue = (courseBackedCapabilities ?? []).map((capability) => ({
@@ -777,8 +780,11 @@ export async function enrichNextPendingSourceRecord(
     const shouldSummariseJob = shouldGenerateAiSummary(record.ai_summary);
     const { data: courseBackedCapabilities, error: capabilityReadError } = await supabase
       .from("capabilities")
-      .select("id, title, description, capability_aliases(alias), course_capabilities!inner(course_id)")
+      .select(
+        "id, title, description, capability_aliases(alias), course_capabilities!inner(course_id, courses!inner(is_job_search_excluded))",
+      )
       .eq("is_active", true)
+      .eq("course_capabilities.courses.is_job_search_excluded", false)
       .limit(80);
     if (capabilityReadError) throw new Error("Course-backed capabilities could not be read.");
     const capabilityCatalogue = (courseBackedCapabilities ?? []).map((capability) => ({

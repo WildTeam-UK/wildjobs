@@ -1,12 +1,12 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { fetchApprovedLearnWorldsCourses } from "../lib/learnworlds/client";
+import { fetchLearnWorldsCourses } from "../lib/learnworlds/client";
 
 vi.mock("server-only", () => ({}));
 
 function configureLearnWorlds() {
   vi.stubEnv("LEARNWORLDS_ACCESS_TOKEN", "test-access-token");
   vi.stubEnv("LEARNWORLDS_API_URL", "https://api.example.learnworlds.com/admin/api/v2");
-  vi.stubEnv("LEARNWORLDS_APPROVED_COURSE_IDS", "approved-course,draft-course");
+  vi.stubEnv("LEARNWORLDS_COURSE_CATEGORY", "ONLINE COURSE");
   vi.stubEnv("LEARNWORLDS_CLIENT_ID", "test-client-id");
   vi.stubEnv("LEARNWORLDS_PUBLIC_BASE_URL", "https://training.wildteam.org.uk/");
 }
@@ -17,7 +17,7 @@ afterEach(() => {
 });
 
 describe("LearnWorlds course catalogue client", () => {
-  it("returns only approved courses and keeps credentials in server request headers", async () => {
+  it("requests the online-course category and keeps credentials in server request headers", async () => {
     configureLearnWorlds();
     const fetchMock = vi.fn(
       async (_input: string | URL | Request, _init?: RequestInit) =>
@@ -32,13 +32,7 @@ describe("LearnWorlds course catalogue client", () => {
                 title: "Approved course",
               },
               {
-                access: "paid",
-                description: "Should not be imported.",
-                id: "not-approved",
-                title: "Not approved",
-              },
-              {
-                access: "draft",
+                access: "Coming Soon",
                 id: "draft-course",
                 title: "Draft course",
               },
@@ -50,9 +44,9 @@ describe("LearnWorlds course catalogue client", () => {
     );
     vi.stubGlobal("fetch", fetchMock);
 
-    const result = await fetchApprovedLearnWorldsCourses();
+    const result = await fetchLearnWorldsCourses();
 
-    expect(result.courses).toEqual([
+    expect(result).toEqual([
       {
         availabilityStatus: "available",
         id: "approved-course",
@@ -71,7 +65,9 @@ describe("LearnWorlds course catalogue client", () => {
       },
     ]);
     const [url, options] = fetchMock.mock.calls[0];
-    expect(String(url)).toBe("https://api.example.learnworlds.com/admin/api/v2/courses?page=1");
+    expect(String(url)).toBe(
+      "https://api.example.learnworlds.com/admin/api/v2/courses?page=1&categories=ONLINE+COURSE",
+    );
     expect(options?.headers).toMatchObject({
       Authorization: "Bearer test-access-token",
       "Lw-Client": "test-client-id",
@@ -82,8 +78,26 @@ describe("LearnWorlds course catalogue client", () => {
     configureLearnWorlds();
     vi.stubEnv("LEARNWORLDS_API_URL", "http://api.example.learnworlds.com/admin/api/v1");
 
-    await expect(fetchApprovedLearnWorldsCourses()).rejects.toThrow(
+    await expect(fetchLearnWorldsCourses()).rejects.toThrow(
       "LEARNWORLDS_API_URL must be a credential-free HTTPS URL.",
+    );
+  });
+
+  it("rejects an empty category response so an API mismatch cannot disable the catalogue", async () => {
+    configureLearnWorlds();
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(
+        async () =>
+          new Response(JSON.stringify({ data: [], meta: { total_pages: 1 } }), {
+            headers: { "content-type": "application/json" },
+            status: 200,
+          }),
+      ),
+    );
+
+    await expect(fetchLearnWorldsCourses()).rejects.toThrow(
+      "LearnWorlds did not return any courses in the ONLINE COURSE category.",
     );
   });
 });

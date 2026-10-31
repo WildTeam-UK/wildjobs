@@ -3,7 +3,7 @@ import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 import { bootstrapCourseCapabilities } from "@/lib/admin/course-capability-bootstrap";
-import { fetchApprovedLearnWorldsCourses, isLearnWorldsCourseSyncConfigured } from "@/lib/learnworlds/client";
+import { fetchLearnWorldsCourses, isLearnWorldsCourseSyncConfigured } from "@/lib/learnworlds/client";
 import type { Database } from "@/lib/supabase/database.types";
 
 export type CourseSyncResult =
@@ -30,16 +30,15 @@ async function recordCourseSyncState(
   if (error) throw new Error("The course sync state could not be recorded.");
 }
 
-export async function syncApprovedLearnWorldsCourses(supabase: SupabaseClient<Database>) {
-  const { approvedCourseIds, courses } = await fetchApprovedLearnWorldsCourses();
-  const approvedIds = [...approvedCourseIds];
+export async function syncLearnWorldsCourseCatalogue(supabase: SupabaseClient<Database>) {
+  const courses = await fetchLearnWorldsCourses();
   const { data: existing, error: existingError } = await supabase
     .from("courses")
     .select(
       "availability_status, image_url, is_active, learnworlds_course_id, provenance, public_url, reviewed_at, short_title, slug, summary, title",
     )
-    .in("learnworlds_course_id", approvedIds);
-  if (existingError) throw new Error("Approved courses could not be read.");
+    .order("id");
+  if (existingError) throw new Error("Courses could not be read.");
 
   const existingById = new Map((existing ?? []).map((course) => [course.learnworlds_course_id, course]));
   const syncedAt = new Date().toISOString();
@@ -53,7 +52,7 @@ export async function syncApprovedLearnWorldsCourses(supabase: SupabaseClient<Da
       is_active: course.availabilityStatus === "available",
       learnworlds_course_id: course.id,
       learnworlds_synced_at: syncedAt,
-      provenance: current?.provenance ?? "LearnWorlds API; approved course allowlist",
+      provenance: current?.provenance ?? "LearnWorlds API; ONLINE COURSE category",
       public_url: course.publicUrl,
       reviewed_at: current?.reviewed_at ?? reviewedAt,
       short_title: current?.short_title ?? course.title,
@@ -66,10 +65,10 @@ export async function syncApprovedLearnWorldsCourses(supabase: SupabaseClient<Da
 
   if (rows.length) {
     const { error } = await supabase.from("courses").upsert(rows, { onConflict: "learnworlds_course_id" });
-    if (error) throw new Error("Approved courses could not be saved.");
+    if (error) throw new Error("Courses could not be saved.");
   }
 
-  const missingIds = approvedIds.filter((id) => !foundIds.has(id) && existingById.has(id));
+  const missingIds = [...existingById.keys()].filter((id) => !foundIds.has(id));
   if (missingIds.length) {
     const { error } = await supabase
       .from("courses")
@@ -98,7 +97,7 @@ export async function syncPeriodicLearnWorldsCourses(
   if (!claimed) return { status: "not_due" };
 
   try {
-    const result = await syncApprovedLearnWorldsCourses(supabase);
+    const result = await syncLearnWorldsCourseCatalogue(supabase);
     try {
       await bootstrapCourseCapabilities(supabase);
     } catch {

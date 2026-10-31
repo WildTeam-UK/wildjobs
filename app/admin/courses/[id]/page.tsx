@@ -143,6 +143,20 @@ export default async function CoursePage({ params, searchParams }: CoursePagePro
                   Show this course as a job-search filter once mappings are reviewed
                 </label>
               </div>
+              <div className="staff-job-form__wide">
+                <label className="staff-source-form__check">
+                  <input
+                    name="isJobSearchExcluded"
+                    type="checkbox"
+                    defaultChecked={course.is_job_search_excluded}
+                  />{" "}
+                  Exclude this course from WildJobs
+                </label>
+                <p>
+                  The course will stay synced from LearnWorlds, but it will not be used for capability
+                  generation, search filters or job recommendations. This setting overrides filter visibility.
+                </p>
+              </div>
             </div>
           </fieldset>
           <div className="staff-job-form__actions">
