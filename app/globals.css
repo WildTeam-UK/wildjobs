@@ -932,7 +932,7 @@ select {
 }
 .job-search-hero__description {
   width: 60%;
-  max-width: 760px;
+  max-width: 700px;
   margin: 0 auto 56px;
   color: var(--wt-color-muted);
   font-size: clamp(1rem, 1.6vw, 1.22rem);
@@ -5165,10 +5165,10 @@ select {
     background-size: 100% 100%;
   }
   .job-search-hero-art::before {
-    transform: translateX(-60%);
+    transform: translateX(-40%);
   }
   .job-search-hero-art::after {
-    transform: translateX(60%);
+    transform: translateX(40%);
   }
   .employer-hiring-carousel h2 {
     margin-bottom: 22px;
@@ -5273,7 +5273,7 @@ select {
     font-size: clamp(2.7rem, 14vw, 4rem);
   }
   .job-search-hero__description {
-    width: 82%;
+    width: 76%;
     margin-bottom: 56px;
   }
   .job-search-strip {
