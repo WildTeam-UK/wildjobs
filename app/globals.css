@@ -1375,7 +1375,7 @@ select {
 .job-list {
   display: grid;
   min-width: 0;
-  gap: 22px;
+  gap: 26px;
   margin-top: 24px;
 }
 .job-pagination {
@@ -1417,9 +1417,9 @@ select {
 }
 .job-training-promo {
   display: flex;
-  height: 220px;
+  height: 292px;
   min-width: 0;
-  min-height: 220px;
+  min-height: 292px;
   overflow: hidden;
   border: 1px solid transparent;
   border-radius: var(--wt-radius-panel);
@@ -1479,7 +1479,7 @@ select {
   flex-direction: column;
   justify-content: center;
   gap: 11px;
-  padding: 17px 24px;
+  padding: 36px 24px;
 }
 .job-training-promo__intro h2 {
   max-width: 720px;
@@ -4895,7 +4895,7 @@ select {
   }
   .job-training-promo__content {
     gap: 20px;
-    padding: 23px 19px 21px;
+    padding: 28px 19px;
   }
   .job-training-promo__intro h2 {
     font-size: 1.65rem;
