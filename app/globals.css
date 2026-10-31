@@ -848,7 +848,7 @@ select {
   color: var(--wt-color-ink);
 }
 .job-browser {
-  --job-hero-compact-height: 128px;
+  --job-hero-compact-height: 130px;
   position: relative;
   padding: 0 0 clamp(58px, 8vw, 92px);
   background-color: var(--page-surface-light);
@@ -4880,7 +4880,7 @@ select {
 
 @media (max-width: 640px) {
   .job-browser {
-    --job-hero-compact-height: 62px;
+    --job-hero-compact-height: 70px;
     background-size: max(100%, 75rem) auto;
   }
   .employer-hiring-carousel h2 {
