@@ -504,8 +504,10 @@ export function JobBrowser({
     wildlife: wildlifeEmojis[0],
   });
   const [isHeroCompact, setIsHeroCompact] = useState(false);
+  const [isHeroExpanding, setIsHeroExpanding] = useState(false);
   const compactTransitionUntilRef = useRef(0);
   const expandedHeroHeightRef = useRef(0);
+  const hasCompactedRef = useRef(false);
   const heroRef = useRef<HTMLDivElement>(null);
   const isHeroCompactRef = useRef(false);
   const lastScrollYRef = useRef(0);
@@ -562,6 +564,20 @@ export function JobBrowser({
       wildlife: randomItem(wildlifeEmojis),
     });
   }, []);
+
+  useEffect(() => {
+    if (isHeroCompact) {
+      hasCompactedRef.current = true;
+      setIsHeroExpanding(false);
+      return;
+    }
+
+    if (!hasCompactedRef.current) return;
+
+    setIsHeroExpanding(true);
+    const expansionTimer = window.setTimeout(() => setIsHeroExpanding(false), 520);
+    return () => window.clearTimeout(expansionTimer);
+  }, [isHeroCompact]);
 
   useEffect(() => {
     function restorePageFromHistory() {
@@ -699,7 +715,7 @@ export function JobBrowser({
 
   return (
     <section
-      className={`job-browser${isHeroCompact ? " job-browser--hero-compact" : ""}`}
+      className={`job-browser${isHeroCompact ? " job-browser--hero-compact" : ""}${isHeroExpanding ? " job-browser--hero-expanding" : ""}`}
       aria-labelledby="jobs-page-heading"
     >
       <div className={`job-search-hero${isHeroCompact ? " job-search-hero--compact" : ""}`} ref={heroRef}>
@@ -907,7 +923,7 @@ export function JobBrowser({
         </div>
       </div>
 
-      <div className="shell">
+      <div className="shell job-results-surface">
         <div className="job-browser__layout">
           <div className="job-results">
             <div className="job-results__heading">
