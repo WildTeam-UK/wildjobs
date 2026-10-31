@@ -251,7 +251,7 @@ export function JobCard({
       {job.relatedCourses?.length ? (
         <div className="job-card__training">
           <span className="job-card__training-label">
-            Relevant WildTeam training courses
+            WildTeam Training
             <span className="job-card__ai-tooltip-anchor">
               <button
                 aria-describedby={`training-tooltip-${job.slug}`}
@@ -270,7 +270,7 @@ export function JobCard({
             </span>
             <span aria-hidden="true">:</span>
           </span>
-          <ul className="job-card__training-courses">
+          <ul aria-label="Relevant WildTeam training courses" className="job-card__training-courses">
             {job.relatedCourses.map((course) => (
               <li key={course.slug}>
                 <span
