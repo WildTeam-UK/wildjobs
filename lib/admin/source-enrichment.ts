@@ -21,6 +21,7 @@ import {
 import { employerIdentityConflicts, employerIdentityMatches } from "./employer-identity";
 import { looksLikeFavicon, selectEmployerLogo } from "./employer-logo-selection";
 import { shouldGenerateAiSummary } from "./publication-summary";
+import { isPublishedCapabilityBackfillCandidate } from "./published-capability-backfill";
 import { fetchApprovedVacancyPage, fetchEmployerPage, SourcePageError } from "./source-page-fetch";
 import {
   parseEmployerPage,
@@ -211,6 +212,38 @@ async function claimSourceRecord(
         .maybeSingle()
     : await baseQuery().eq("enrichment_status", "pending").order("first_seen_at").limit(1).maybeSingle();
 
+  let capabilityBackfill = false;
+  if (!candidateResult.data && !requestedRecordId && allowAiBackfill) {
+    candidateResult = await supabase
+      .from("job_source_records")
+      .select("*, job_sources!inner(name, source_type, authoritative_base_url, is_active)")
+      .not("job_id", "is", null)
+      .not("detail_text", "is", null)
+      .not("canonical_url", "is", null)
+      .in("enrichment_status", ["complete", "needs_review", "skipped"])
+      .or(`enrichment_policy_version.is.null,enrichment_policy_version.neq.${AI_ENRICHMENT_POLICY_VERSION}`)
+      .order("first_seen_at")
+      .limit(1)
+      .maybeSingle();
+    capabilityBackfill = Boolean(
+      candidateResult.data &&
+      isPublishedCapabilityBackfillCandidate(
+        {
+          canonicalUrl: candidateResult.data.canonical_url,
+          detailText: candidateResult.data.detail_text,
+          enrichmentAttempts: candidateResult.data.enrichment_attempts,
+          enrichmentPolicyVersion: candidateResult.data.enrichment_policy_version,
+          enrichmentStatus: candidateResult.data.enrichment_status,
+          jobId: candidateResult.data.job_id,
+        },
+        AI_ENRICHMENT_POLICY_VERSION,
+      ),
+    );
+    if (candidateResult.data && !capabilityBackfill) {
+      throw new Error("An invalid published capability backfill record was selected.");
+    }
+  }
+
   if (!candidateResult.data && !requestedRecordId && allowAiBackfill) {
     candidateResult = await baseQuery()
       .in("enrichment_status", ["complete", "needs_review", "skipped"])
@@ -225,17 +258,28 @@ async function claimSourceRecord(
   if (!candidate) return null;
 
   const now = new Date().toISOString();
-  const { data: claimed, error: claimError } = await supabase
+  const previousStatus = candidate.enrichment_status;
+  const claimValues = capabilityBackfill
+    ? {
+        enrichment_error_code: null,
+        enrichment_last_attempted_at: now,
+        enrichment_status: "running",
+      }
+    : {
+        enrichment_attempts: candidate.enrichment_attempts + 1,
+        enrichment_error_code: null,
+        enrichment_last_attempted_at: now,
+        enrichment_status: "running",
+      };
+  let claimQuery = supabase
     .from("job_source_records")
-    .update({
-      enrichment_attempts: candidate.enrichment_attempts + 1,
-      enrichment_error_code: null,
-      enrichment_last_attempted_at: now,
-      enrichment_status: "running",
-    })
+    .update(claimValues)
     .eq("id", candidate.id)
-    .eq("enrichment_attempts", candidate.enrichment_attempts)
-    .eq("enrichment_status", candidate.enrichment_status)
+    .eq("enrichment_status", candidate.enrichment_status);
+  if (!capabilityBackfill) {
+    claimQuery = claimQuery.eq("enrichment_attempts", candidate.enrichment_attempts);
+  }
+  const { data: claimed, error: claimError } = await claimQuery
     .select("*, job_sources!inner(name, source_type, authoritative_base_url, is_active)")
     .maybeSingle();
   if (claimError) throw new Error("The enrichment record could not be claimed.");
@@ -253,12 +297,109 @@ async function claimSourceRecord(
   if (runError || !run) {
     await supabase
       .from("job_source_records")
-      .update({ enrichment_status: "pending" })
+      .update({ enrichment_status: previousStatus })
       .eq("id", claimed.id)
       .eq("enrichment_status", "running");
     return null;
   }
-  return { record: claimed as SourceRecord, runId: run.id };
+  return { capabilityBackfill, previousStatus, record: claimed as SourceRecord, runId: run.id };
+}
+
+async function backfillPublishedJobCapabilities(
+  supabase: SupabaseClient<Database>,
+  record: SourceRecord,
+  runId: number,
+  previousStatus: string,
+): Promise<SourceEnrichmentResult> {
+  let errorCode: Exclude<EnrichmentErrorCode, null> = "persistence_failed";
+  try {
+    if (!record.job_id || !record.detail_text || !record.canonical_url) {
+      throw new Error("Published capability backfill requires a linked job and trusted source text.");
+    }
+    const { data: courseBackedCapabilities, error: capabilityReadError } = await supabase
+      .from("capabilities")
+      .select("id, title, description, capability_aliases(alias), course_capabilities!inner(course_id)")
+      .eq("is_active", true)
+      .limit(80);
+    if (capabilityReadError) throw new Error("Course-backed capabilities could not be read.");
+    const capabilityCatalogue = (courseBackedCapabilities ?? []).map((capability) => ({
+      aliases: capability.capability_aliases.map((item) => item.alias),
+      description: capability.description,
+      id: capability.id,
+      title: capability.title,
+    }));
+    if (!capabilityCatalogue.length) throw new Error("No course-backed capabilities are available.");
+
+    const aiResult = await enrichWithAi({
+      allowEmployerWebResearch: false,
+      capabilities: capabilityCatalogue,
+      employerName: record.employer_name,
+      employerSourceUrl: null,
+      employerText: null,
+      listingSourceUrl: record.canonical_url,
+      listingText: record.detail_text,
+      shouldSummariseJob: false,
+      unresolvedFields: [],
+    });
+    if (aiResult.status !== "completed") {
+      errorCode = "ai_unavailable";
+      throw new Error("Published capability classification was unavailable.");
+    }
+
+    const { error: capabilitySaveError } = await supabase.rpc("replace_source_capability_classification", {
+      p_candidates: aiResult.capabilityCandidates as Json,
+      p_matches: aiResult.capabilityMatches as Json,
+      p_policy_version: AI_ENRICHMENT_POLICY_VERSION,
+      p_source_record_id: record.id,
+    });
+    if (capabilitySaveError) throw new Error("Published capability classification could not be saved.");
+
+    const finishedAt = new Date().toISOString();
+    const [siblingUpdate, recordUpdate, runUpdate] = await Promise.all([
+      supabase
+        .from("job_source_records")
+        .update({ enrichment_policy_version: AI_ENRICHMENT_POLICY_VERSION })
+        .eq("job_id", record.job_id)
+        .neq("id", record.id),
+      supabase
+        .from("job_source_records")
+        .update({
+          enrichment_completed_at: finishedAt,
+          enrichment_error_code: null,
+          enrichment_policy_version: AI_ENRICHMENT_POLICY_VERSION,
+          enrichment_status: previousStatus,
+        })
+        .eq("id", record.id)
+        .eq("enrichment_status", "running")
+        .select("id")
+        .maybeSingle(),
+      supabase
+        .from("source_enrichment_runs")
+        .update({
+          ai_attempted: true,
+          ai_generation_id: aiResult.generationId,
+          ai_model: aiResult.model,
+          fields_resolved: 0,
+          fields_unresolved: 0,
+          finished_at: finishedAt,
+          input_tokens: aiResult.inputTokens,
+          output_tokens: aiResult.outputTokens,
+          status: "completed",
+        })
+        .eq("id", runId),
+    ]);
+    if (siblingUpdate.error || recordUpdate.error || !recordUpdate.data || runUpdate.error) {
+      throw new Error("Published capability backfill state could not be saved.");
+    }
+    return { recordId: record.id, runId, status: "completed" };
+  } catch (error) {
+    await finishFailed(supabase, record.id, runId, errorCode);
+    console.error("Published job capability backfill failed safely.", {
+      message: error instanceof Error ? error.message : "Unknown capability backfill error",
+      recordId: record.id,
+    });
+    return { recordId: record.id, runId, status: "failed" };
+  }
 }
 
 async function uniqueEmployerSlug(supabase: SupabaseClient<Database>, name: string) {
@@ -530,7 +671,10 @@ export async function enrichNextPendingSourceRecord(
   const aiBudget = await readAiBudget(supabase);
   const claimed = await claimSourceRecord(supabase, trigger, aiBudget.allowed, requestedRecordId);
   if (!claimed) return { status: "idle" };
-  const { record, runId } = claimed;
+  const { capabilityBackfill, previousStatus, record, runId } = claimed;
+  if (capabilityBackfill) {
+    return backfillPublishedJobCapabilities(supabase, record, runId, previousStatus);
+  }
   const source = record.job_sources;
   if (!record.canonical_url || !source?.is_active || !source.authoritative_base_url) {
     await finishFailed(supabase, record.id, runId, "unsupported_source");
