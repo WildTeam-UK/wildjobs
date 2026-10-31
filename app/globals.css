@@ -850,16 +850,42 @@ select {
 .job-browser {
   padding: 0 0 clamp(58px, 8vw, 92px);
   background-color: var(--page-surface-light);
-  background-image: url("/images/jobs-canopy-border.png");
-  background-position: center top;
-  background-repeat: no-repeat;
-  background-size: max(100%, 75rem) auto;
 }
 .job-search-hero {
+  position: relative;
+  overflow: clip;
   background: var(--wt-color-paper);
   box-shadow: 0 72px 0 var(--wt-color-paper);
 }
+.job-search-hero::before,
+.job-search-hero::after {
+  position: absolute;
+  z-index: 0;
+  top: 0;
+  bottom: 0;
+  width: min(18vw, 200px);
+  background-repeat: no-repeat;
+  background-size: auto 100%;
+  content: "";
+  pointer-events: none;
+}
+.job-search-hero::before {
+  left: 0;
+  background-image: url("/images/jobs-hero-left.svg");
+  background-position: left center;
+  -webkit-mask-image: linear-gradient(to right, #000 0%, #000 45%, transparent 100%);
+  mask-image: linear-gradient(to right, #000 0%, #000 45%, transparent 100%);
+}
+.job-search-hero::after {
+  right: 0;
+  background-image: url("/images/jobs-hero-right.svg");
+  background-position: right center;
+  -webkit-mask-image: linear-gradient(to left, #000 0%, #000 45%, transparent 100%);
+  mask-image: linear-gradient(to left, #000 0%, #000 45%, transparent 100%);
+}
 .job-search-hero__inner {
+  position: relative;
+  z-index: 1;
   padding-top: clamp(46px, calc(4vw + 14px), 62px);
   padding-bottom: 16px;
 }
@@ -4993,6 +5019,10 @@ select {
 }
 
 @media (max-width: 900px) {
+  .job-search-hero::before,
+  .job-search-hero::after {
+    display: none;
+  }
   .job-training-promo {
     height: auto;
     min-height: 0;
@@ -5095,9 +5125,6 @@ select {
 }
 
 @media (max-width: 640px) {
-  .job-browser {
-    background-size: max(100%, 75rem) auto;
-  }
   .employer-hiring-carousel h2 {
     margin-bottom: 22px;
     font-size: 2rem;
