@@ -1346,7 +1346,7 @@ select {
 }
 .job-results__heading > p {
   margin: 0;
-  color: var(--wt-color-paper);
+  color: var(--wt-color-surface-charcoal);
   font-size: 0.86rem;
   font-weight: var(--wt-font-weight-bold);
   white-space: nowrap;
