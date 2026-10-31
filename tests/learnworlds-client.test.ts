@@ -17,7 +17,7 @@ afterEach(() => {
 });
 
 describe("LearnWorlds course catalogue client", () => {
-  it("requests the online-course category and keeps credentials in server request headers", async () => {
+  it("filters the catalogue by category and availability while keeping credentials in server headers", async () => {
     configureLearnWorlds();
     const fetchMock = vi.fn(
       async (_input: string | URL | Request, _init?: RequestInit) =>
@@ -26,15 +26,29 @@ describe("LearnWorlds course catalogue client", () => {
             data: [
               {
                 access: "paid",
+                categories: ["ONLINE COURSE", "CPD"],
                 courseImage: "https://cdn.learnworlds.example/approved-course.jpg",
                 description: "<p>Build <strong>practical</strong> conservation skills.</p>",
                 id: "approved-course",
                 title: "Approved course",
               },
               {
+                access: "paid",
+                categories: ["TRAINER PACK"],
+                id: "trainer-pack",
+                title: "Trainer pack",
+              },
+              {
                 access: "Coming Soon",
+                categories: ["ONLINE COURSE"],
                 id: "draft-course",
                 title: "Draft course",
+              },
+              {
+                access: "free",
+                categories: [{ name: "ONLINE COURSE" }],
+                id: "free-course",
+                title: "Free course",
               },
             ],
             meta: { total_pages: 1 },
@@ -56,18 +70,16 @@ describe("LearnWorlds course catalogue client", () => {
         title: "Approved course",
       },
       {
-        availabilityStatus: "unavailable",
-        id: "draft-course",
+        availabilityStatus: "available",
+        id: "free-course",
         imageUrl: null,
-        publicUrl: "https://training.wildteam.org.uk/course/draft-course",
-        summary: "Draft course",
-        title: "Draft course",
+        publicUrl: "https://training.wildteam.org.uk/course/free-course",
+        summary: "Free course",
+        title: "Free course",
       },
     ]);
     const [url, options] = fetchMock.mock.calls[0];
-    expect(String(url)).toBe(
-      "https://api.example.learnworlds.com/admin/api/v2/courses?page=1&categories=ONLINE+COURSE",
-    );
+    expect(String(url)).toBe("https://api.example.learnworlds.com/admin/api/v2/courses?page=1");
     expect(options?.headers).toMatchObject({
       Authorization: "Bearer test-access-token",
       "Lw-Client": "test-client-id",
@@ -97,7 +109,7 @@ describe("LearnWorlds course catalogue client", () => {
     );
 
     await expect(fetchLearnWorldsCourses()).rejects.toThrow(
-      "LearnWorlds did not return any courses in the ONLINE COURSE category.",
+      "LearnWorlds did not return any available courses in the ONLINE COURSE category.",
     );
   });
 });

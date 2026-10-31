@@ -29,8 +29,11 @@ export async function syncLearnWorldsCourses() {
   const supabase = await createClient();
   try {
     await syncLearnWorldsCourseCatalogue(supabase);
-  } catch {
-    console.error("Staff-triggered LearnWorlds course sync failed.");
+  } catch (error) {
+    console.error(
+      "Staff-triggered LearnWorlds course sync failed.",
+      error instanceof Error ? error.message : "Unknown sync error.",
+    );
     redirect("/admin/courses?error=sync-failed");
   }
 

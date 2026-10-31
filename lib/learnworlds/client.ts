@@ -9,10 +9,24 @@ const MAX_PAGES = 20;
 const MAX_RESPONSE_BYTES = 1_500_000;
 const DEFAULT_COURSE_CATEGORY = "ONLINE COURSE";
 
+const categorySchema = z.union([
+  z.string(),
+  z
+    .object({
+      name: z.string().optional(),
+      title: z.string().optional(),
+    })
+    .passthrough(),
+]);
+
+const categoriesSchema = z.union([z.string(), z.array(categorySchema)]).nullish();
+
 const courseSchema = z
   .object({
     access: z.string().nullish(),
+    categories: categoriesSchema,
     course_url: z.string().nullish(),
+    course_categories: categoriesSchema,
     courseImage: z.string().nullish(),
     course_image: z.string().nullish(),
     description: z.string().nullish(),
@@ -123,6 +137,20 @@ function courseAvailability(status: string | null | undefined, access: string | 
   return "available" as const;
 }
 
+function normaliseCategory(value: string) {
+  return value.trim().replace(/\s+/g, " ").toLocaleLowerCase("en-GB");
+}
+
+function courseCategories(course: z.infer<typeof courseSchema>) {
+  const categories = course.categories ?? course.course_categories;
+  if (typeof categories === "string") return categories.split(",").map(normaliseCategory);
+  return (categories ?? [])
+    .map((category) =>
+      normaliseCategory(typeof category === "string" ? category : (category.name ?? category.title ?? "")),
+    )
+    .filter(Boolean);
+}
+
 function publicCourseUrl(config: LearnWorldsConfig, course: z.infer<typeof courseSchema>) {
   const candidate = course.public_url ?? course.course_url ?? course.url;
   if (candidate) {
@@ -158,7 +186,6 @@ function totalPages(meta: Record<string, unknown> | undefined) {
 async function fetchCoursePage(config: LearnWorldsConfig, page: number) {
   const url = new URL(`${config.apiUrl.toString().replace(/\/$/, "")}/courses`);
   url.searchParams.set("page", String(page));
-  url.searchParams.set("categories", config.courseCategory);
 
   const response = await fetch(url, {
     cache: "no-store",
@@ -198,9 +225,11 @@ export async function fetchLearnWorldsCourses() {
     if (repeatedPage) break;
     pageCourseIds.forEach((id) => seenCourseIds.add(id));
     for (const rawCourse of result.data) {
+      if (!courseCategories(rawCourse).includes(normaliseCategory(config.courseCategory))) continue;
+      if (courseAvailability(rawCourse.status, rawCourse.access) !== "available") continue;
       const id = String(rawCourse.id);
       courses.set(id, {
-        availabilityStatus: courseAvailability(rawCourse.status, rawCourse.access),
+        availabilityStatus: "available",
         id,
         imageUrl: courseImageUrl(rawCourse),
         publicUrl: publicCourseUrl(config, rawCourse),
@@ -215,7 +244,9 @@ export async function fetchLearnWorldsCourses() {
   }
 
   if (!courses.size) {
-    throw new Error(`LearnWorlds did not return any courses in the ${config.courseCategory} category.`);
+    throw new Error(
+      `LearnWorlds did not return any available courses in the ${config.courseCategory} category.`,
+    );
   }
   return [...courses.values()];
 }
