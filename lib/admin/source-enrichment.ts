@@ -21,7 +21,10 @@ import {
 import { employerIdentityConflicts, employerIdentityMatches } from "./employer-identity";
 import { looksLikeFavicon, selectEmployerLogo } from "./employer-logo-selection";
 import { toSlug } from "./job-intake-validation";
-import { canonicalJobLocationFallback } from "./job-taxonomy-enrichment";
+import {
+  canonicalJobLocationFallback,
+  taxonomyClassificationNeedsReview,
+} from "./job-taxonomy-enrichment";
 import { shouldGenerateAiSummary } from "./publication-summary";
 import { isPublishedCapabilityBackfillCandidate } from "./published-capability-backfill";
 import { fetchApprovedVacancyPage, fetchEmployerPage, SourcePageError } from "./source-page-fetch";
@@ -459,6 +462,9 @@ async function backfillPublishedJobCapabilities(
     if (capabilitySaveError) throw new Error("Published capability classification could not be saved.");
     await persistJobTaxonomyEnrichment(supabase, record, aiResult);
 
+    const taxonomyNeedsReview = taxonomyClassificationNeedsReview(aiResult);
+    const completedStatus = taxonomyNeedsReview ? "needs_review" : previousStatus;
+
     const finishedAt = new Date().toISOString();
     const [siblingUpdate, recordUpdate, runUpdate] = await Promise.all([
       supabase
@@ -472,7 +478,7 @@ async function backfillPublishedJobCapabilities(
           enrichment_completed_at: finishedAt,
           enrichment_error_code: null,
           enrichment_policy_version: AI_ENRICHMENT_POLICY_VERSION,
-          enrichment_status: previousStatus,
+          enrichment_status: completedStatus,
         })
         .eq("id", record.id)
         .eq("enrichment_status", "running")
@@ -485,18 +491,20 @@ async function backfillPublishedJobCapabilities(
           ai_generation_id: aiResult.generationId,
           ai_model: aiResult.model,
           fields_resolved: 0,
-          fields_unresolved: 0,
+          fields_unresolved:
+            Number(aiResult.occupationMatches.length === 0) +
+            Number(aiResult.careerAreaMatches.length === 0),
           finished_at: finishedAt,
           input_tokens: aiResult.inputTokens,
           output_tokens: aiResult.outputTokens,
-          status: "completed",
+          status: taxonomyNeedsReview ? "needs_review" : "completed",
         })
         .eq("id", runId),
     ]);
     if (siblingUpdate.error || recordUpdate.error || !recordUpdate.data || runUpdate.error) {
       throw new Error("Published capability backfill state could not be saved.");
     }
-    return { recordId: record.id, runId, status: "completed" };
+    return { recordId: record.id, runId, status: taxonomyNeedsReview ? "needs_review" : "completed" };
   } catch (error) {
     await finishFailed(supabase, record.id, runId, errorCode);
     console.error("Published job capability backfill failed safely.", {
@@ -1181,7 +1189,9 @@ export async function enrichNextPendingSourceRecord(
     const mandatoryComplete = Boolean(
       (page.employerName ?? record.employer_name) && (page.applicationUrl ?? detail.url) && page.detailText,
     );
-    const status = mandatoryComplete ? "complete" : "needs_review";
+    const taxonomyNeedsReview =
+      aiResult.status === "completed" && taxonomyClassificationNeedsReview(aiResult);
+    const status = mandatoryComplete && !taxonomyNeedsReview ? "complete" : "needs_review";
     const enrichmentPolicyVersion = employerProfilePending
       ? `${AI_ENRICHMENT_POLICY_VERSION}-employer-pending`
       : !aiNeeded || aiResult.status === "completed"

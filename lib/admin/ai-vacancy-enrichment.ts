@@ -12,14 +12,15 @@ import {
   sameWebsiteHost,
 } from "./employer-research-validation";
 import {
+  selectExactCapabilityMatches,
   selectStructuredLocations,
   selectTaxonomyCandidates,
   selectTaxonomyMatches,
 } from "./job-taxonomy-enrichment";
 import type { VacancyFieldEvidence, VacancyFieldName } from "./vacancy-detail-extraction";
 
-const MODEL = "gpt-6-luna";
-export const AI_ENRICHMENT_POLICY_VERSION = "ai-structured-v11-job-taxonomy";
+const MODEL = "gpt-6.1-sol";
+export const AI_ENRICHMENT_POLICY_VERSION = "ai-structured-v12-job-taxonomy";
 
 const supportedFields = [
   "contract_type",
@@ -429,6 +430,9 @@ export async function enrichWithAi(input: {
     "For vacancy capabilities, select only IDs from the supplied canonical capability catalogue.",
     "Prefer an existing capability whenever its title, description or alias fits. Return no more than six matches, ordered by relevance.",
     "Only match a capability when an exact quote from the vacancy proves it is materially relevant to doing the job; do not match incidental words.",
+    "Taxonomy coverage is required: when the advert provides evidence, return at least one primary occupation and one career area rather than leaving both lists empty.",
+    "For roles that lead projects or programmes, explicitly evaluate project manager and programme manager occupations, conservation project management, project management capabilities and stakeholder engagement before deciding they do not apply.",
+    "When a capability title or alias appears exactly and materially in the vacancy, include that capability.",
     "Use candidates only for a clearly job-relevant capability that no supplied canonical capability covers. Do not create synonyms or minor wording variants.",
     "Classify the vacancy only against the supplied active occupation, benefit and career-area IDs.",
     "Choose one primary occupation whenever the title or advert provides enough evidence; add a second only for a genuinely combined role.",
@@ -471,7 +475,7 @@ export async function enrichWithAi(input: {
     instructions: [instructions, "Return JSON matching the supplied schema."].join(" "),
     input: prompt,
     max_output_tokens: 4_000,
-    reasoning: { effort: "low" },
+    reasoning: { effort: "medium" },
     text: {
       format: {
         type: "json_schema",
@@ -528,12 +532,16 @@ export async function enrichWithAi(input: {
       },
     ];
   });
+  const exactCapabilityMatches = selectExactCapabilityMatches(input.capabilities, taxonomySourceText);
   const matchedIds = new Set<number>();
-  const uniqueCapabilityMatches = capabilityMatches.filter((match) => {
-    if (matchedIds.has(match.capabilityId)) return false;
-    matchedIds.add(match.capabilityId);
-    return true;
-  });
+  const uniqueCapabilityMatches = [...capabilityMatches, ...exactCapabilityMatches]
+    .sort((left, right) => right.relevanceScore - left.relevanceScore)
+    .filter((match) => {
+      if (matchedIds.has(match.capabilityId)) return false;
+      matchedIds.add(match.capabilityId);
+      return true;
+    })
+    .slice(0, 6);
   const capabilityCandidates = output.capabilities.candidates.flatMap((candidate) => {
     const evidence = exactEvidence(candidate.title, candidate.evidence, listingText);
     return evidence && candidate.confidence >= 75

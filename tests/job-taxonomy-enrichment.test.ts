@@ -3,14 +3,41 @@ import { describe, expect, it } from "vitest";
 import {
   canonicalJobLocationFallback,
   normaliseTaxonomyCandidateTitle,
+  selectExactCapabilityMatches,
   selectStructuredLocations,
   selectTaxonomyCandidates,
   selectTaxonomyMatches,
+  taxonomyClassificationNeedsReview,
 } from "../lib/admin/job-taxonomy-enrichment";
 
 const source = "We are recruiting a Park Ranger in Norwich, Norfolk. A generous pension is provided.";
 
 describe("job taxonomy enrichment", () => {
+  it("adds conservative exact capability matches without accepting short incidental aliases", () => {
+    expect(
+      selectExactCapabilityMatches(
+        [
+          { aliases: ["programme delivery"], id: 1, title: "Project management" },
+          { aliases: ["M&E"], id: 6, title: "Monitoring and evaluation" },
+          { aliases: [], id: 7, title: "Stakeholder engagement" },
+        ],
+        "Lead programme delivery and stakeholder engagement across the partnership.",
+      ),
+    ).toEqual([
+      expect.objectContaining({ capabilityId: 1, evidence: "programme delivery" }),
+      expect.objectContaining({ capabilityId: 7, evidence: "stakeholder engagement" }),
+    ]);
+  });
+
+  it("holds a classification for review when its core occupation or career area is missing", () => {
+    expect(taxonomyClassificationNeedsReview({ careerAreaMatches: [], occupationMatches: [{}] })).toBe(
+      true,
+    );
+    expect(taxonomyClassificationNeedsReview({ careerAreaMatches: [{}], occupationMatches: [{}] })).toBe(
+      false,
+    );
+  });
+
   it("preserves a reviewed canonical job location when AI cannot quote one from the source page", () => {
     expect(
       canonicalJobLocationFallback({
