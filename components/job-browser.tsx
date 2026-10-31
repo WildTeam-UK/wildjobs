@@ -504,6 +504,7 @@ export function JobBrowser({
     wildlife: wildlifeEmojis[0],
   });
   const [isHeroCompact, setIsHeroCompact] = useState(false);
+  const browserRef = useRef<HTMLElement>(null);
   const compactTransitionUntilRef = useRef(0);
   const expandedHeroHeightRef = useRef(0);
   const heroRef = useRef<HTMLDivElement>(null);
@@ -609,16 +610,21 @@ export function JobBrowser({
   }, []);
 
   useEffect(() => {
+    const browser = browserRef.current;
     const hero = heroRef.current;
-    if (!hero) return;
+    if (!browser || !hero) return;
 
     expandedHeroHeightRef.current = hero.getBoundingClientRect().height;
+    browser.style.setProperty("--job-hero-expanded-height", `${expandedHeroHeightRef.current}px`);
     const observer = new ResizeObserver(() => {
       const currentHeight = hero.getBoundingClientRect().height;
       const transitionIsSettled = performance.now() >= compactTransitionUntilRef.current;
 
-      if (!isHeroCompactRef.current && transitionIsSettled) {
+      if (isHeroCompactRef.current) {
+        browser.style.setProperty("--job-hero-compact-height", `${currentHeight}px`);
+      } else if (transitionIsSettled) {
         expandedHeroHeightRef.current = currentHeight;
+        browser.style.setProperty("--job-hero-expanded-height", `${currentHeight}px`);
       }
 
       const compensation = Math.max(0, expandedHeroHeightRef.current - currentHeight);
@@ -629,6 +635,8 @@ export function JobBrowser({
     return () => {
       observer.disconnect();
       hero.style.marginBottom = "";
+      browser.style.removeProperty("--job-hero-compact-height");
+      browser.style.removeProperty("--job-hero-expanded-height");
     };
   }, []);
 
@@ -701,6 +709,7 @@ export function JobBrowser({
     <section
       className={`job-browser${isHeroCompact ? " job-browser--hero-compact" : ""}`}
       aria-labelledby="jobs-page-heading"
+      ref={browserRef}
     >
       <div className={`job-search-hero${isHeroCompact ? " job-search-hero--compact" : ""}`} ref={heroRef}>
         <div className="job-search-hero__inner shell">
