@@ -553,6 +553,8 @@ export function JobBrowser({
     }
     return 0;
   });
+  const filteredOrganisationCount = new Set(filteredJobs.map((job) => job.employerSlug ?? job.organisation))
+    .size;
   const categories = jobCategories(jobs);
   const contractTypes = [
     ...new Set(jobs.flatMap((job) => (job.contractType ? [job.contractType] : []))),
@@ -941,6 +943,11 @@ export function JobBrowser({
             <div className="job-results__heading">
               <p aria-live="polite">
                 {filteredJobs.length} Currently available {filteredJobs.length === 1 ? "role" : "roles"}
+                <span className="job-results__organisation-count">
+                  {" "}
+                  across {filteredOrganisationCount}{" "}
+                  {filteredOrganisationCount === 1 ? "organisation" : "organisations"}
+                </span>
               </p>
               <div className="job-sort-control job-sort-control--results">
                 <FilterDropdown
@@ -973,8 +980,8 @@ export function JobBrowser({
                 </p>
                 <p className="course-match-note__training">
                   Haven&apos;t taken a WildTeam course yet?{" "}
-                  <a href="https://wildteam.org.uk/">Explore our training courses</a> and discover how you
-                  could build the skills to take your conservation career further.
+                  <a href="https://training.wildteam.org.uk/courses">Explore our training courses</a> and
+                  discover how you could build the skills to take your conservation career further.
                 </p>
               </div>
             ) : null}

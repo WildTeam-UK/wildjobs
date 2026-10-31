@@ -1468,6 +1468,9 @@ select {
   font-size: 0.78rem;
   font-weight: var(--wt-font-weight-bold);
 }
+.job-results__organisation-count {
+  font-weight: var(--wt-font-weight-regular);
+}
 .job-pagination button:hover:not(:disabled) {
   border-color: var(--wt-color-brand-purple);
   background: transparent;
@@ -2074,11 +2077,19 @@ select {
 .job-card__meta-row .job-card__compact-facts {
   min-width: 0;
 }
+.job-card__training-row {
+  display: flex;
+  min-width: 0;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 18px;
+}
 .job-card__training {
   position: relative;
   z-index: 2;
   display: flex;
   min-width: 0;
+  flex: 1 1 auto;
   align-items: center;
   gap: 10px;
   overflow: visible;
@@ -2160,7 +2171,7 @@ select {
   }
   .job-card--compact .job-card__summary-block,
   .job-card--compact .job-card__meta-row,
-  .job-card--compact .job-card__training {
+  .job-card--compact .job-card__training-row {
     margin-left: 91px;
   }
 }
@@ -5432,6 +5443,12 @@ select {
     flex-wrap: wrap;
     gap: 7px;
     padding-top: 3px;
+  }
+  .job-card__training-row {
+    display: block;
+  }
+  .job-results__organisation-count {
+    display: none;
   }
   .job-card__training-explainer {
     font-size: 0.75rem;

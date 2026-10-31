@@ -69,6 +69,7 @@ export function JobCard({
     job.closesAt && isClosingSoon(job.closesAt) ? { className: "closing", label: "Closing soon" } : null,
   ].filter((pill): pill is { className: string; label: string } => Boolean(pill));
   const postedLabel = postedAgoLabel(job.publishedAt ?? job.postedAt);
+  const hasRelatedCourses = Boolean(job.relatedCourses?.length);
   const trainingExplanation =
     "These recommendations connect capabilities used in this job with skills taught in WildTeam courses. A course is not necessarily required and does not guarantee eligibility.";
   const employerLogo = (
@@ -191,22 +192,9 @@ export function JobCard({
                 </li>
               ))}
             </ul>
-            <p className="job-card__posted job-card__posted--desktop">{postedLabel}</p>
-          </div>
-          <div className="job-card__mobile-footer">
-            {statusPills.length ? (
-              <div className="job-card__notice-carousel" aria-label="Job notices">
-                {statusPills.map((pill) => (
-                  <span
-                    className={`job-card__status-pill job-card__status-pill--${pill.className}`}
-                    key={pill.label}
-                  >
-                    {pill.label}
-                  </span>
-                ))}
-              </div>
+            {!hasRelatedCourses ? (
+              <p className="job-card__posted job-card__posted--desktop">{postedLabel}</p>
             ) : null}
-            <p className="job-card__posted job-card__posted--mobile">{postedLabel}</p>
           </div>
         </>
       ) : (
@@ -229,32 +217,52 @@ export function JobCard({
           </div>
         </dl>
       )}
-      {job.relatedCourses?.length ? (
-        <div className="job-card__training">
-          <ul aria-label="Relevant WildTeam training courses" className="job-card__training-courses">
-            {job.relatedCourses.map((course) => (
-              <li key={course.slug}>
-                <span
-                  className="job-card__training-pill"
-                  style={{ "--course-colour": course.themeColour } as CSSProperties}
-                >
-                  {course.shortTitle}
-                </span>
-              </li>
-            ))}
-          </ul>
-          <span className="job-card__ai-tooltip-anchor job-card__training-why">
-            <button
-              aria-describedby={`training-tooltip-${job.slug}`}
-              className="job-card__ai-tooltip-trigger job-card__training-explainer"
-              type="button"
-            >
-              Why are we recommending these courses?
-            </button>
-            <span className="job-card__ai-tooltip" id={`training-tooltip-${job.slug}`} role="tooltip">
-              {trainingExplanation}
+      {hasRelatedCourses ? (
+        <div className="job-card__training-row">
+          <div className="job-card__training">
+            <ul aria-label="Relevant WildTeam training courses" className="job-card__training-courses">
+              {job.relatedCourses?.map((course) => (
+                <li key={course.slug}>
+                  <span
+                    className="job-card__training-pill"
+                    style={{ "--course-colour": course.themeColour } as CSSProperties}
+                  >
+                    {course.shortTitle}
+                  </span>
+                </li>
+              ))}
+            </ul>
+            <span className="job-card__ai-tooltip-anchor job-card__training-why">
+              <button
+                aria-describedby={`training-tooltip-${job.slug}`}
+                className="job-card__ai-tooltip-trigger job-card__training-explainer"
+                type="button"
+              >
+                Why are we recommending these courses?
+              </button>
+              <span className="job-card__ai-tooltip" id={`training-tooltip-${job.slug}`} role="tooltip">
+                {trainingExplanation}
+              </span>
             </span>
-          </span>
+          </div>
+          {compact ? <p className="job-card__posted job-card__posted--desktop">{postedLabel}</p> : null}
+        </div>
+      ) : null}
+      {compact ? (
+        <div className="job-card__mobile-footer">
+          {statusPills.length ? (
+            <div className="job-card__notice-carousel" aria-label="Job notices">
+              {statusPills.map((pill) => (
+                <span
+                  className={`job-card__status-pill job-card__status-pill--${pill.className}`}
+                  key={pill.label}
+                >
+                  {pill.label}
+                </span>
+              ))}
+            </div>
+          ) : null}
+          <p className="job-card__posted job-card__posted--mobile">{postedLabel}</p>
         </div>
       ) : null}
       {!compact ? (
