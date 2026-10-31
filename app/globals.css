@@ -852,7 +852,7 @@ select {
   background-color: var(--page-surface-light);
   background-image: url("/images/wildteam-white-logo.png"), url("/images/jobs-canopy-border.png");
   background-position:
-    center 430px,
+    center 420px,
     center 150px;
   background-repeat: no-repeat;
   background-size:
@@ -4893,7 +4893,7 @@ select {
 @media (max-width: 640px) {
   .job-browser {
     background-position:
-      center 176px,
+      center 166px,
       center 62px;
     background-size:
       58px auto,
