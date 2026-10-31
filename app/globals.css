@@ -849,8 +849,6 @@ select {
 }
 .job-browser {
   --job-hero-compact-height: 128px;
-  --job-hero-expanded-height: 512px;
-  --job-background-logo-size: 152px;
   position: relative;
   padding: 0 0 clamp(58px, 8vw, 92px);
   background-color: var(--page-surface-light);
@@ -858,21 +856,6 @@ select {
   background-position: center var(--job-hero-compact-height);
   background-repeat: no-repeat;
   background-size: max(100%, 75rem) auto;
-}
-.job-browser::before {
-  position: absolute;
-  z-index: 0;
-  top: var(--job-hero-compact-height);
-  right: 0;
-  left: 0;
-  height: max(0px, calc(var(--job-hero-expanded-height) - var(--job-hero-compact-height)));
-  background: url("/images/wildteam-white-logo.png") center / var(--job-background-logo-size) auto no-repeat;
-  content: "";
-  pointer-events: none;
-}
-.job-browser > .shell {
-  position: relative;
-  z-index: 1;
 }
 .job-search-hero {
   position: sticky;
@@ -1353,11 +1336,6 @@ select {
   display: inline-flex;
   order: -1;
 }
-.job-browser--hero-compact .job-sort-control--results {
-  visibility: hidden;
-  opacity: 0;
-  pointer-events: none;
-}
 .job-results {
   min-width: 0;
 }
@@ -1393,11 +1371,6 @@ select {
 }
 .job-sort-dropdown .job-filter-pill__value {
   margin-right: auto;
-}
-.job-sort-control--results {
-  transition:
-    opacity 180ms ease,
-    visibility 180ms ease;
 }
 .job-list {
   display: grid;
@@ -4908,8 +4881,6 @@ select {
 @media (max-width: 640px) {
   .job-browser {
     --job-hero-compact-height: 62px;
-    --job-hero-expanded-height: 270px;
-    --job-background-logo-size: 116px;
     background-size: max(100%, 75rem) auto;
   }
   .employer-hiring-carousel h2 {
