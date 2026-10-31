@@ -78,6 +78,29 @@ describe("public job mapping", () => {
     expect(job.requirements).toEqual(["Ecology background", "Valid driving licence"]);
   });
 
+  it("maps reviewed job capabilities to related course filters without duplicates", () => {
+    const job = mapPublicJob({
+      ...record,
+      job_capabilities: [
+        {
+          capabilities: {
+            course_capabilities: [
+              { courses: { slug: "project-management" } },
+              { courses: { slug: "monitoring-and-evaluation" } },
+            ],
+          },
+        },
+        {
+          capabilities: {
+            course_capabilities: [{ courses: { slug: "project-management" } }],
+          },
+        },
+      ],
+    });
+
+    expect(job.relatedCourseSlugs).toEqual(["project-management", "monitoring-and-evaluation"]);
+  });
+
   it("uses clear fallbacks when optional publishing fields are empty", () => {
     const job = mapPublicJob({
       ...record,

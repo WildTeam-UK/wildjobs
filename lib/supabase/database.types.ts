@@ -364,6 +364,7 @@ export type Database = {
           id: number;
           is_active: boolean;
           learnworlds_course_id: string;
+          learnworlds_synced_at: string | null;
           provenance: string;
           public_url: string;
           reviewed_at: string;
@@ -379,6 +380,7 @@ export type Database = {
           id?: never;
           is_active?: boolean;
           learnworlds_course_id: string;
+          learnworlds_synced_at?: string | null;
           provenance: string;
           public_url: string;
           reviewed_at: string;
@@ -394,6 +396,7 @@ export type Database = {
           id?: never;
           is_active?: boolean;
           learnworlds_course_id?: string;
+          learnworlds_synced_at?: string | null;
           provenance?: string;
           public_url?: string;
           reviewed_at?: string;
@@ -1306,6 +1309,10 @@ export type Database = {
           created_at: string;
           id: boolean;
           last_heartbeat_at: string | null;
+          last_course_sync_claimed_at: string | null;
+          last_course_sync_completed_at: string | null;
+          last_course_sync_error_code: string | null;
+          last_course_sync_status: string | null;
           last_import_claimed_at: string | null;
           updated_at: string;
         };
@@ -1313,6 +1320,10 @@ export type Database = {
           created_at?: string;
           id?: boolean;
           last_heartbeat_at?: string | null;
+          last_course_sync_claimed_at?: string | null;
+          last_course_sync_completed_at?: string | null;
+          last_course_sync_error_code?: string | null;
+          last_course_sync_status?: string | null;
           last_import_claimed_at?: string | null;
           updated_at?: string;
         };
@@ -1320,6 +1331,10 @@ export type Database = {
           created_at?: string;
           id?: boolean;
           last_heartbeat_at?: string | null;
+          last_course_sync_claimed_at?: string | null;
+          last_course_sync_completed_at?: string | null;
+          last_course_sync_error_code?: string | null;
+          last_course_sync_status?: string | null;
           last_import_claimed_at?: string | null;
           updated_at?: string;
         };
@@ -1414,6 +1429,10 @@ export type Database = {
         Returns: string;
       };
       claim_periodic_source_import: {
+        Args: { interval_hours?: number };
+        Returns: boolean;
+      };
+      claim_periodic_course_sync: {
         Args: { interval_hours?: number };
         Returns: boolean;
       };

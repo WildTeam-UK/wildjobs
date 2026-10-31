@@ -48,6 +48,14 @@ Once enrichment work is clear, each heartbeat also refreshes a bounded batch of 
 publication policy. Shadow mode can refresh ten decisions without another AI call; live mode remains limited to
 one decision per heartbeat so a policy change cannot suddenly publish a large batch.
 
+The same protected heartbeat can synchronise the approved public LearnWorlds course catalogue every six hours.
+Configure the server-only `LEARNWORLDS_API_URL`, `LEARNWORLDS_CLIENT_ID` and
+`LEARNWORLDS_ACCESS_TOKEN`, the public `LEARNWORLDS_PUBLIC_BASE_URL`, and a comma-separated
+`LEARNWORLDS_APPROVED_COURSE_IDS` allowlist. The API URL must be the version 2 base copied from the
+LearnWorlds API settings. Credentials never reach the browser. The sync updates catalogue metadata only;
+course-to-capability and job-to-capability mappings remain reviewed WildJobs data, and learner records are not
+requested or stored.
+
 Run the complete local checks with:
 
 ```sh
@@ -58,7 +66,7 @@ pnpm check
 
 - Published jobs and their source provenance live in Supabase; fixture jobs in `lib/jobs.ts` remain design references only.
 - Source discovery is restricted to explicitly reviewed endpoints. WWT HTML and Countryside Jobs Service RSS are checked every two hours by the protected automation heartbeat and can also be checked manually by an administrator. Enrichment and publication readiness are automated, while live publication remains feature-flagged and evidence-gated.
-- Employer invitations, protected employer submission and staff submission review are connected to production data. Career-area pages use reviewed production taxonomy and live vacancy relationships; course experiences are not yet connected to an approved LearnWorlds catalogue.
+- Employer invitations, protected employer submission and staff submission review are connected to production data. Career-area pages use reviewed production taxonomy and live vacancy relationships. Course filters read active, capability-mapped records from Supabase; the LearnWorlds sync remains inactive until its server credentials and approved-course allowlist are configured.
 - The site is marked `noindex` until approved data and a production domain are connected.
 - Shared design tokens are pinned to the private `@wildteam-uk/tokens` package released through GitHub Packages. Local development requires a personal package login; CI uses its repository-scoped `GITHUB_TOKEN`.
 - Read `docs/IMPLEMENTATION_PLAN.md`, `docs/EXPERIENCE_BLUEPRINT.md`, `docs/PRODUCT_SCOPE.md`, `docs/ARCHITECTURE.md`, and `docs/DATA_OWNERSHIP.md` before implementation.

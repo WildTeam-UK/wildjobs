@@ -2,7 +2,7 @@ begin;
 
 create extension if not exists pgtap with schema extensions;
 
-select plan(26);
+select plan(28);
 
 insert into auth.users (id, email)
 values
@@ -226,6 +226,18 @@ select is(
   ),
   22::bigint,
   'RLS is enabled on every WildJobs public table'
+);
+
+select is(
+  has_function_privilege('anon', 'public.claim_periodic_course_sync(integer)', 'execute'),
+  false,
+  'Anonymous visitors cannot claim a LearnWorlds course sync'
+);
+
+select is(
+  has_function_privilege('service_role', 'public.claim_periodic_course_sync(integer)', 'execute'),
+  true,
+  'Only trusted server automation can claim a LearnWorlds course sync'
 );
 
 set local role anon;

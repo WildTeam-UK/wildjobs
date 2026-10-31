@@ -1,6 +1,7 @@
 import { isAutomationRequestAuthorized } from "@/lib/admin/automation-auth";
 import { reevaluateStalePublicationDecisions } from "@/lib/admin/automation-publication";
 import { enrichNextPendingSourceRecord } from "@/lib/admin/source-enrichment";
+import { syncPeriodicLearnWorldsCourses } from "@/lib/admin/learnworlds-course-sync";
 import { importApprovedSource } from "@/lib/admin/source-import";
 import { getSourceConnector } from "@/lib/admin/source-connector";
 import { createTrustedClient } from "@/lib/supabase/trusted";
@@ -20,6 +21,17 @@ export async function POST(request: Request) {
     if (claimError) throw new Error("The scheduled source check could not be claimed.");
 
     if (!claimed) {
+      const courseSync = await syncPeriodicLearnWorldsCourses(supabase);
+      if (courseSync.status === "completed" || courseSync.status === "failed") {
+        return Response.json(
+          {
+            action: "course_catalogue_synced",
+            courseSync,
+            ok: courseSync.status === "completed",
+          },
+          { status: courseSync.status === "completed" ? 200 : 500 },
+        );
+      }
       const publication = await reevaluateStalePublicationDecisions(supabase);
       const enrichment = await enrichNextPendingSourceRecord(supabase, "automation");
       return Response.json({
@@ -31,6 +43,7 @@ export async function POST(request: Request) {
         enrichment,
         ok: enrichment.status !== "failed" && publication.failed === 0,
         publication,
+        courseSync,
       });
     }
 

@@ -14,7 +14,7 @@ import {
 } from "react";
 import { JobCard } from "@/components/job-card";
 import { JobTrainingPromo } from "@/components/job-training-promo";
-import { courseBySlug, courses } from "@/lib/courses";
+import { courseBySlug, type Course } from "@/lib/courses";
 import type { CandidateSaveState } from "@/lib/candidate-saved-jobs";
 import { filterJobs, jobCategories } from "@/lib/job-filtering";
 import type { EmploymentType, EngagementType, Job, LocationType } from "@/lib/jobs";
@@ -474,11 +474,13 @@ function LocationAutocomplete({
 
 export function JobBrowser({
   candidateSaveState,
+  courses,
   initialPage = 1,
   jobs,
   initialFilters = {},
 }: {
   candidateSaveState: CandidateSaveState;
+  courses: readonly Course[];
   initialPage?: number;
   jobs: readonly Job[];
   initialFilters?: Partial<BrowserFilters>;
@@ -494,7 +496,10 @@ export function JobBrowser({
   );
   const [category, setCategory] = useState(initialFilters.category ?? "");
   const [contractType, setContractType] = useState(initialFilters.contractType ?? "");
-  const [courseSlugs, setCourseSlugs] = useState<readonly string[]>(initialFilters.courseSlugs ?? []);
+  const [courseSlugs, setCourseSlugs] = useState<readonly string[]>(() => {
+    const availableCourseSlugs = new Set(courses.map((course) => course.slug));
+    return (initialFilters.courseSlugs ?? []).filter((slug) => availableCourseSlugs.has(slug));
+  });
   const [minimumSalary, setMinimumSalary] = useState(initialFilters.minimumSalary ?? 0);
   const [sortOrder, setSortOrder] = useState<JobSortOrder>(initialFilters.sortOrder ?? "relevance");
   const [currentPage, setCurrentPage] = useState(initialPage);
@@ -550,7 +555,7 @@ export function JobBrowser({
     minimumSalary,
   );
   const selectedCourses = courseSlugs.flatMap((slug) => {
-    const course = courseBySlug(slug);
+    const course = courseBySlug(courses, slug);
     return course ? [course] : [];
   });
   const savedJobIds = new Set(candidateSaveState.savedJobIds);
@@ -775,20 +780,22 @@ export function JobBrowser({
           </form>
 
           <div className="job-filter-pills" aria-label="Filter jobs" role="group">
-            <FilterDropdown
-              accessibleLabel="Related WildTeam courses"
-              className="job-filter-pill--fancy"
-              clearLabel="Clear selected courses"
-              icon="brand"
-              multiple
-              onChange={(values) => {
-                setCourseSlugs(values);
-                syncUrl(currentFilters({ courseSlugs: values }));
-              }}
-              options={courses.map((course) => ({ label: course.shortTitle, value: course.slug }))}
-              placeholder="Related courses"
-              value={courseSlugs}
-            />
+            {courses.length ? (
+              <FilterDropdown
+                accessibleLabel="Related WildTeam courses"
+                className="job-filter-pill--fancy"
+                clearLabel="Clear selected courses"
+                icon="brand"
+                multiple
+                onChange={(values) => {
+                  setCourseSlugs(values);
+                  syncUrl(currentFilters({ courseSlugs: values }));
+                }}
+                options={courses.map((course) => ({ label: course.shortTitle, value: course.slug }))}
+                placeholder="Related courses"
+                value={courseSlugs}
+              />
+            ) : null}
             <FilterDropdown
               accessibleLabel="Sort jobs"
               className="job-filter-pill--compact-only job-filter-pill--icon-only"
