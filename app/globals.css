@@ -931,12 +931,19 @@ select {
   }
 }
 .job-search-hero__description {
-  width: 100%;
-  margin: 0 0 56px;
+  width: 60%;
+  max-width: 760px;
+  margin: 0 auto 56px;
   color: var(--wt-color-muted);
   font-size: clamp(1rem, 1.6vw, 1.22rem);
   line-height: 1.55;
   text-align: center;
+}
+.job-search-hero__emoji-cluster {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.18em;
+  white-space: nowrap;
 }
 .job-search-hero__emoji {
   display: inline-block;
@@ -1100,6 +1107,24 @@ select {
   overscroll-behavior-inline: contain;
   padding: 2px 3px 5px;
   scrollbar-width: thin;
+}
+.job-filter-pills--overflow-left {
+  -webkit-mask-image: linear-gradient(to right, transparent 0, #000 42px, #000 100%);
+  mask-image: linear-gradient(to right, transparent 0, #000 42px, #000 100%);
+}
+.job-filter-pills--overflow-right {
+  -webkit-mask-image: linear-gradient(to right, #000 0, #000 calc(100% - 42px), transparent 100%);
+  mask-image: linear-gradient(to right, #000 0, #000 calc(100% - 42px), transparent 100%);
+}
+.job-filter-pills--overflow-left.job-filter-pills--overflow-right {
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent 0,
+    #000 42px,
+    #000 calc(100% - 42px),
+    transparent 100%
+  );
+  mask-image: linear-gradient(to right, transparent 0, #000 42px, #000 calc(100% - 42px), transparent 100%);
 }
 .job-filter-pill {
   position: relative;
@@ -5030,10 +5055,6 @@ select {
 }
 
 @media (max-width: 900px) {
-  .job-search-hero-art::before,
-  .job-search-hero-art::after {
-    display: none;
-  }
   .job-training-promo {
     height: auto;
     min-height: 0;
@@ -5136,6 +5157,10 @@ select {
 }
 
 @media (max-width: 640px) {
+  .job-search-hero-art::before,
+  .job-search-hero-art::after {
+    width: 30vw;
+  }
   .employer-hiring-carousel h2 {
     margin-bottom: 22px;
     font-size: 2rem;
@@ -5239,6 +5264,7 @@ select {
     font-size: clamp(2.7rem, 14vw, 4rem);
   }
   .job-search-hero__description {
+    width: 82%;
     margin-bottom: 56px;
   }
   .job-search-strip {

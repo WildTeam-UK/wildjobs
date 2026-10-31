@@ -509,6 +509,7 @@ export function JobBrowser({
     wildlife: wildlifeEmojis[0],
   });
   const filterBarRef = useRef<HTMLDivElement>(null);
+  const filterPillsRef = useRef<HTMLDivElement>(null);
   const filteredJobs = filterJobs(jobs, {
     category,
     contractType,
@@ -560,6 +561,39 @@ export function JobBrowser({
       nature: randomItem(natureEmojis),
       wildlife: randomItem(wildlifeEmojis),
     });
+  }, []);
+
+  useEffect(() => {
+    const filterPills = filterPillsRef.current;
+    if (!filterPills) return;
+
+    let animationFrame = 0;
+    const updateFilterOverflow = () => {
+      cancelAnimationFrame(animationFrame);
+      animationFrame = requestAnimationFrame(() => {
+        const hasOverflow = filterPills.scrollWidth > filterPills.clientWidth + 1;
+        const canScrollLeft = hasOverflow && filterPills.scrollLeft > 1;
+        const canScrollRight =
+          hasOverflow && filterPills.scrollLeft + filterPills.clientWidth < filterPills.scrollWidth - 1;
+
+        filterPills.classList.toggle("job-filter-pills--overflow-left", canScrollLeft);
+        filterPills.classList.toggle("job-filter-pills--overflow-right", canScrollRight);
+      });
+    };
+
+    const resizeObserver = new ResizeObserver(updateFilterOverflow);
+    const mutationObserver = new MutationObserver(updateFilterOverflow);
+    resizeObserver.observe(filterPills);
+    mutationObserver.observe(filterPills, { childList: true, characterData: true, subtree: true });
+    filterPills.addEventListener("scroll", updateFilterOverflow, { passive: true });
+    updateFilterOverflow();
+
+    return () => {
+      cancelAnimationFrame(animationFrame);
+      resizeObserver.disconnect();
+      mutationObserver.disconnect();
+      filterPills.removeEventListener("scroll", updateFilterOverflow);
+    };
   }, []);
 
   useEffect(() => {
@@ -673,20 +707,13 @@ export function JobBrowser({
             <div className="job-search-hero__intro-content">
               <h1 id="jobs-page-heading">Do work that matters.</h1>
               <p className="job-search-hero__description">
-                <span aria-hidden="true" className="job-search-hero__emoji">
-                  {heroEmojis.discovery}
-                </span>{" "}
-                Discover your next meaningful career protecting wildlife{" "}
-                <span aria-hidden="true" className="job-search-hero__emoji">
-                  {heroEmojis.wildlife}
-                </span>
-                , restoring nature{" "}
-                <span aria-hidden="true" className="job-search-hero__emoji">
-                  {heroEmojis.nature}
-                </span>{" "}
-                and creating a better future for our planet.{" "}
-                <span aria-hidden="true" className="job-search-hero__emoji">
-                  🌍
+                Discover your next meaningful career protecting wildlife, restoring nature and creating a
+                better future for our planet.{" "}
+                <span aria-hidden="true" className="job-search-hero__emoji-cluster">
+                  <span className="job-search-hero__emoji">{heroEmojis.discovery}</span>
+                  <span className="job-search-hero__emoji">{heroEmojis.wildlife}</span>
+                  <span className="job-search-hero__emoji">{heroEmojis.nature}</span>
+                  <span className="job-search-hero__emoji">🌍</span>
                 </span>
               </p>
             </div>
@@ -746,7 +773,12 @@ export function JobBrowser({
 
       <div className="job-filter-bar" ref={filterBarRef}>
         <div className="job-filter-bar__inner shell">
-          <div className="job-filter-pills" aria-label="Filter and sort jobs" role="group">
+          <div
+            className="job-filter-pills"
+            aria-label="Filter and sort jobs"
+            ref={filterPillsRef}
+            role="group"
+          >
             {courses.length ? (
               <FilterDropdown
                 accessibleLabel="Related WildTeam courses"
