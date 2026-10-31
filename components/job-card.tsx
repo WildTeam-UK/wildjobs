@@ -250,26 +250,6 @@ export function JobCard({
       )}
       {job.relatedCourses?.length ? (
         <div className="job-card__training">
-          <span className="job-card__training-label">
-            WildTeam Training
-            <span className="job-card__ai-tooltip-anchor">
-              <button
-                aria-describedby={`training-tooltip-${job.slug}`}
-                aria-label="How WildJobs chooses relevant training courses"
-                className="job-card__ai-tooltip-trigger"
-                type="button"
-              >
-                <svg aria-hidden="true" viewBox="0 0 20 20">
-                  <circle cx="10" cy="10" r="8" />
-                  <path d="M10 8.5v5M10 6.25h.01" />
-                </svg>
-              </button>
-              <span className="job-card__ai-tooltip" id={`training-tooltip-${job.slug}`} role="tooltip">
-                {trainingExplanation}
-              </span>
-            </span>
-            <span aria-hidden="true">:</span>
-          </span>
           <ul aria-label="Relevant WildTeam training courses" className="job-card__training-courses">
             {job.relatedCourses.map((course) => (
               <li key={course.slug}>
@@ -282,6 +262,18 @@ export function JobCard({
               </li>
             ))}
           </ul>
+          <span className="job-card__ai-tooltip-anchor job-card__training-why">
+            <button
+              aria-describedby={`training-tooltip-${job.slug}`}
+              className="job-card__ai-tooltip-trigger job-card__training-explainer"
+              type="button"
+            >
+              Why are we recommending these courses?
+            </button>
+            <span className="job-card__ai-tooltip" id={`training-tooltip-${job.slug}`} role="tooltip">
+              {trainingExplanation}
+            </span>
+          </span>
         </div>
       ) : null}
       {!compact ? (
