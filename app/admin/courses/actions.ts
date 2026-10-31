@@ -4,7 +4,9 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 
-import { requireStaff } from "@/lib/auth/staff";
+import { syncApprovedLearnWorldsCourses } from "@/lib/admin/learnworlds-course-sync";
+import { requireAdministrator, requireStaff } from "@/lib/auth/staff";
+import { isLearnWorldsCourseSyncConfigured } from "@/lib/learnworlds/client";
 import { createClient } from "@/lib/supabase/server";
 
 const idSchema = z.coerce.number().int().positive();
@@ -17,6 +19,24 @@ function refreshCourse(courseId: number) {
   revalidatePath("/admin/courses");
   revalidatePath(`/admin/courses/${courseId}`);
   revalidatePath("/jobs");
+}
+
+export async function syncLearnWorldsCourses() {
+  await requireAdministrator();
+  if (!isLearnWorldsCourseSyncConfigured()) redirect("/admin/courses?error=not-configured");
+
+  const supabase = await createClient();
+  try {
+    await syncApprovedLearnWorldsCourses(supabase);
+  } catch {
+    console.error("Staff-triggered LearnWorlds course sync failed.");
+    redirect("/admin/courses?error=sync-failed");
+  }
+
+  revalidatePath("/admin");
+  revalidatePath("/admin/courses");
+  revalidatePath("/jobs");
+  redirect("/admin/courses?status=synced");
 }
 
 export async function updateCourseProfile(courseId: number, formData: FormData) {

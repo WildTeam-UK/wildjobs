@@ -1,13 +1,24 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import { syncLearnWorldsCourses } from "@/app/admin/courses/actions";
 import { requireStaff } from "@/lib/auth/staff";
 import { createClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = { title: "Course catalogue" };
 
-export default async function CoursesPage() {
-  await requireStaff();
+type CoursesPageProps = {
+  searchParams: Promise<{ error?: string; status?: string }>;
+};
+
+const errorMessages: Record<string, string> = {
+  "not-configured": "The LearnWorlds catalogue connection is not configured for this environment.",
+  "sync-failed": "LearnWorlds could not be reached. The existing reviewed catalogue was kept unchanged.",
+};
+
+export default async function CoursesPage({ searchParams }: CoursesPageProps) {
+  const staff = await requireStaff();
+  const params = await searchParams;
   const supabase = await createClient();
   const { data: courses, error } = await supabase
     .from("courses")
@@ -24,10 +35,19 @@ export default async function CoursesPage() {
           <p className="eyebrow">LearnWorlds catalogue</p>
           <h1>Review courses and their job signals.</h1>
         </div>
-        <p>
-          Synced course facts stay separate from WildJobs editorial presentation, outcomes and capability
-          mappings.
-        </p>
+        <div className="staff-hero__stack">
+          <p>
+            Synced course facts stay separate from WildJobs editorial presentation, outcomes and capability
+            mappings.
+          </p>
+          {staff.role === "admin" ? (
+            <form action={syncLearnWorldsCourses}>
+              <button className="staff-source-toggle" type="submit">
+                Sync LearnWorlds now
+              </button>
+            </form>
+          ) : null}
+        </div>
       </header>
 
       <section className="staff-section shell">
@@ -38,6 +58,16 @@ export default async function CoursesPage() {
           </div>
           <p>A course only appears as a public filter after it has a reviewed capability mapping.</p>
         </div>
+        {params.status === "synced" ? (
+          <p className="staff-form-message" role="status">
+            LearnWorlds catalogue synced. Reviewed presentation and capability mappings were preserved.
+          </p>
+        ) : null}
+        {params.error ? (
+          <p className="staff-form-message staff-form-message--error" role="alert">
+            {errorMessages[params.error] ?? errorMessages["sync-failed"]}
+          </p>
+        ) : null}
         {error ? (
           <p className="staff-form-message staff-form-message--error" role="alert">
             Course records are temporarily unavailable.

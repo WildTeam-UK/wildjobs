@@ -55,7 +55,9 @@ Configure the server-only `LEARNWORLDS_API_URL`, `LEARNWORLDS_CLIENT_ID` and
 LearnWorlds API settings. Credentials never reach the browser. The sync updates catalogue metadata only. Course
 outcomes and course-to-capability mappings remain reviewed WildJobs data. Vacancy enrichment can select a small,
 evidence-backed set from that course-backed vocabulary and queue unmatched concepts for staff review; learner
-records are not requested or stored.
+records are not requested or stored. Administrators can also run the same bounded catalogue sync from the course
+workspace. That manual path uses the signed-in staff session and database RLS, so preview deployments do not need
+the production Supabase secret key.
 
 Run the complete local checks with:
 

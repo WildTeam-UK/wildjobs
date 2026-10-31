@@ -29,7 +29,7 @@ async function recordCourseSyncState(
   if (error) throw new Error("The course sync state could not be recorded.");
 }
 
-async function syncApprovedCourses(supabase: SupabaseClient<Database>) {
+export async function syncApprovedLearnWorldsCourses(supabase: SupabaseClient<Database>) {
   const { approvedCourseIds, courses } = await fetchApprovedLearnWorldsCourses();
   const approvedIds = [...approvedCourseIds];
   const { data: existing, error: existingError } = await supabase
@@ -97,7 +97,7 @@ export async function syncPeriodicLearnWorldsCourses(
   if (!claimed) return { status: "not_due" };
 
   try {
-    const result = await syncApprovedCourses(supabase);
+    const result = await syncApprovedLearnWorldsCourses(supabase);
     await recordCourseSyncState(supabase, {
       last_course_sync_completed_at: new Date().toISOString(),
       last_course_sync_error_code: null,
