@@ -2073,7 +2073,7 @@ select {
   background: transparent;
   color: var(--course-colour);
   font-size: 0.72rem;
-  font-weight: var(--wt-font-weight-bold);
+  font-weight: var(--wt-font-weight-regular);
   line-height: 1.15;
   white-space: nowrap;
   transition:
