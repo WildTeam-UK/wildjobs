@@ -55,43 +55,49 @@ export default async function AutomationReviewPage() {
   const startOfToday = new Date();
   startOfToday.setUTCHours(0, 0, 0, 0);
 
-  const [runsResult, decisionsResult, queueResult, usageResult, candidatesResult] = await Promise.all([
-    supabase
-      .from("source_enrichment_runs")
-      .select(
-        "id, source_record_id, status, trigger_type, started_at, finished_at, fields_resolved, fields_unresolved, ai_attempted, ai_model, ai_skip_reason, input_tokens, output_tokens, employer_page_fetched, error_code, job_source_records(id, source_id, source_title, employer_name, job_sources(id, name))",
-      )
-      .order("started_at", { ascending: false })
-      .limit(50),
-    supabase
-      .from("automation_publication_decisions")
-      .select(
-        "id, source_record_id, job_id, decision, mode, score, blocker_codes, policy_version, created_at, job_source_records(id, source_id, source_title, employer_name, job_sources(id, name))",
-      )
-      .order("created_at", { ascending: false })
-      .limit(50),
-    supabase
-      .from("job_source_records")
-      .select("automation_status")
-      .is("job_id", null)
-      .in("mapping_status", ["unmapped", "possible_duplicate"])
-      .limit(1_000),
-    supabase
-      .from("source_enrichment_runs")
-      .select("input_tokens, output_tokens")
-      .eq("ai_attempted", true)
-      .gte("started_at", startOfToday.toISOString())
-      .limit(1_000),
-    supabase
-      .from("capability_candidates")
-      .select(
-        "id, proposed_title, evidence_text, confidence, occurrence_count, last_seen_at, job_source_records(source_id, source_title)",
-      )
-      .eq("status", "pending")
-      .order("occurrence_count", { ascending: false })
-      .order("last_seen_at", { ascending: false })
-      .limit(30),
-  ]);
+  const [runsResult, decisionsResult, queueResult, usageResult, candidatesResult, controlResult] =
+    await Promise.all([
+      supabase
+        .from("source_enrichment_runs")
+        .select(
+          "id, source_record_id, status, trigger_type, started_at, finished_at, fields_resolved, fields_unresolved, ai_attempted, ai_model, ai_skip_reason, input_tokens, output_tokens, employer_page_fetched, error_code, job_source_records(id, source_id, source_title, employer_name, job_sources(id, name))",
+        )
+        .order("started_at", { ascending: false })
+        .limit(50),
+      supabase
+        .from("automation_publication_decisions")
+        .select(
+          "id, source_record_id, job_id, decision, mode, score, blocker_codes, policy_version, created_at, job_source_records(id, source_id, source_title, employer_name, job_sources(id, name))",
+        )
+        .order("created_at", { ascending: false })
+        .limit(50),
+      supabase
+        .from("job_source_records")
+        .select("automation_status")
+        .is("job_id", null)
+        .in("mapping_status", ["unmapped", "possible_duplicate"])
+        .limit(1_000),
+      supabase
+        .from("source_enrichment_runs")
+        .select("input_tokens, output_tokens")
+        .eq("ai_attempted", true)
+        .gte("started_at", startOfToday.toISOString())
+        .limit(1_000),
+      supabase
+        .from("capability_candidates")
+        .select(
+          "id, proposed_title, evidence_text, confidence, occurrence_count, last_seen_at, job_source_records(source_id, source_title)",
+        )
+        .eq("status", "pending")
+        .order("occurrence_count", { ascending: false })
+        .order("last_seen_at", { ascending: false })
+        .limit(30),
+      supabase
+        .from("automation_controls")
+        .select("auto_publish_enabled, auto_publish_source_record_id")
+        .eq("id", "global")
+        .maybeSingle(),
+    ]);
 
   const runs = runsResult.data ?? [];
   const decisions = decisionsResult.data ?? [];
@@ -114,9 +120,13 @@ export default async function AutomationReviewPage() {
     decisionsResult.error ||
     queueResult.error ||
     usageResult.error ||
-    candidatesResult.error,
+    candidatesResult.error ||
+    controlResult.error,
   );
-  const autoPublishEnabled = process.env.AUTO_PUBLISH_ENABLED === "true";
+  const environmentAutoPublishEnabled = process.env.AUTO_PUBLISH_ENABLED === "true";
+  const databaseAutoPublishEnabled = controlResult.data?.auto_publish_enabled === true;
+  const autoPublishEnabled = environmentAutoPublishEnabled && databaseAutoPublishEnabled;
+  const autoPublishTarget = controlResult.data?.auto_publish_source_record_id ?? null;
   const aiEnabled = process.env.AI_ENRICHMENT_ENABLED === "true";
 
   return (
@@ -143,8 +153,10 @@ export default async function AutomationReviewPage() {
         </div>
         <p>
           {autoPublishEnabled
-            ? "Evidence-gated records can publish when every policy check passes."
-            : "Readiness is being scored, but no vacancy can publish automatically."}
+            ? autoPublishTarget
+              ? `Live publishing is limited to source record ${autoPublishTarget}.`
+              : "Every eligible feed record can publish when the current policy passes."
+            : "Shadow mode is active. Readiness can be evaluated, but no vacancy can publish automatically."}
         </p>
       </section>
 

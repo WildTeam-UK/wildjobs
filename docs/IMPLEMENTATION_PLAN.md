@@ -1,6 +1,6 @@
 # WildJobs implementation plan
 
-**Status:** Approved as the beta planning baseline on 2026-10-28
+**Status:** Historical beta baseline. The approved automated listing pipeline and field requirements are now defined in [LISTING_PIPELINE.md](./LISTING_PIPELINE.md).
 **Purpose:** Replace the scaffold-led view of WildJobs with a product-led plan before database or production implementation begins.
 
 ## Product ambition

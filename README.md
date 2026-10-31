@@ -4,7 +4,9 @@ WildJobs is WildTeam's independent conservation careers platform, intended for `
 
 The application is connected to its independent Supabase project. Public job discovery, employer profiles and career-area discovery read approved live records; candidate authentication, private saved jobs and explicit job preferences are connected; and authorised staff can curate, review, publish, expire and withdraw jobs with an audit trail. Source connectors check WWT's public vacancy page and the reviewed Countryside Jobs Service RSS feed, automatically every two hours or on demand. Between imports, a bounded enrichment pipeline extracts evidence, builds canonical employer context and records an automatic-publication decision. AI enrichment and live automatic publication have independent master switches and both default off; publication checks run in shadow mode until explicitly enabled. The controlled employer journey creates seven-day, single-use invitation links, validates and consumes them through a protected server route, and sends complete submissions into the staff-only review queue. Course matching still contains clearly labelled prototype content. Analytics and marketing integrations are not implemented yet.
 
-The approved beta direction is documented in `docs/IMPLEMENTATION_PLAN.md` and `docs/EXPERIENCE_BLUEPRINT.md`.
+The approved automated listing lifecycle, field dictionary and publication requirements are documented in
+`docs/LISTING_PIPELINE.md`. `docs/IMPLEMENTATION_PLAN.md` and `docs/EXPERIENCE_BLUEPRINT.md` retain the broader
+product background.
 
 ## Development
 
@@ -77,4 +79,4 @@ pnpm check
 - Employer invitations, protected employer submission and staff submission review are connected to production data. Career-area pages use reviewed production taxonomy and live vacancy relationships. Course filters read active, capability-mapped records from Supabase; the LearnWorlds sync remains inactive until its server credentials are configured.
 - The site is marked `noindex` until approved data and a production domain are connected.
 - Shared design tokens are pinned to the private `@wildteam-uk/tokens` package released through GitHub Packages. Local development requires a personal package login; CI uses its repository-scoped `GITHUB_TOKEN`.
-- Read `docs/IMPLEMENTATION_PLAN.md`, `docs/EXPERIENCE_BLUEPRINT.md`, `docs/PRODUCT_SCOPE.md`, `docs/ARCHITECTURE.md`, and `docs/DATA_OWNERSHIP.md` before implementation.
+- Read `docs/LISTING_PIPELINE.md`, `docs/IMPLEMENTATION_PLAN.md`, `docs/EXPERIENCE_BLUEPRINT.md`, `docs/PRODUCT_SCOPE.md`, `docs/ARCHITECTURE.md`, and `docs/DATA_OWNERSHIP.md` before implementation.
