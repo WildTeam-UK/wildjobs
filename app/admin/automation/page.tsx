@@ -73,9 +73,10 @@ export default async function AutomationReviewPage() {
         .limit(50),
       supabase
         .from("job_source_records")
-        .select("automation_status")
-        .is("job_id", null)
-        .in("mapping_status", ["unmapped", "possible_duplicate"])
+        .select("automation_status, job_sources!inner(source_type)")
+        .in("job_sources.source_type", ["feed", "api"])
+        .in("mapping_status", ["unmapped", "mapped", "possible_duplicate"])
+        .neq("automation_status", "published")
         .limit(1_000),
       supabase
         .from("source_enrichment_runs")

@@ -2229,6 +2229,14 @@ export type Database = {
         Args: { p_job_id: number; p_source_record_id: number };
         Returns: number;
       };
+      prepare_automated_job_draft: {
+        Args: {
+          p_employer_id: number;
+          p_job_slug: string;
+          p_source_record_id: number;
+        };
+        Returns: number;
+      };
       publish_automated_source_record: {
         Args: {
           p_job_slug: string;
@@ -2282,6 +2290,10 @@ export type Database = {
           p_submission_id: number;
         };
         Returns: string;
+      };
+      sync_automated_job_draft: {
+        Args: { p_source_record_id: number };
+        Returns: number;
       };
       update_employer_review_profile: {
         Args: {

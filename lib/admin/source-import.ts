@@ -107,7 +107,7 @@ export async function importApprovedSource(
       supabase
         .from("job_source_records")
         .select(
-          "id, external_id, canonical_url, content_hash, mapping_status, enrichment_status, enrichment_attempts",
+          "id, external_id, canonical_url, content_hash, mapping_status, automation_status, enrichment_status, enrichment_attempts",
         )
         .eq("source_id", source.id),
     ]);
@@ -153,7 +153,7 @@ export async function importApprovedSource(
             source_title: vacancy.title,
             source_updated_at: vacancy.publishedAt,
             summary: vacancy.summary,
-            ...(changed && ["unmapped", "possible_duplicate"].includes(existing.mapping_status)
+            ...(changed && existing.mapping_status !== "ignored" && existing.automation_status !== "published"
               ? {
                   automation_blockers: [],
                   automation_evaluated_at: null,

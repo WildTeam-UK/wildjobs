@@ -1,6 +1,6 @@
 import { employerIdentityConflicts } from "./employer-identity";
 
-export const AUTOMATION_PUBLICATION_POLICY_VERSION = "evidence-gated-v5";
+export const AUTOMATION_PUBLICATION_POLICY_VERSION = "canonical-draft-v1";
 
 export function publicationControlAllowsSource(input: {
   databaseEnabled: boolean;
@@ -16,7 +16,6 @@ export function publicationControlAllowsSource(input: {
 }
 
 export const automationBlockerLabels = {
-  already_linked: "This source record is already linked to a WildJobs vacancy.",
   application_evidence_weak: "The application address is not supported by strong source-page evidence.",
   application_url_missing: "A secure application address is missing.",
   canonical_url_missing: "The original vacancy address is missing.",
@@ -24,6 +23,7 @@ export const automationBlockerLabels = {
   closing_evidence_weak: "The closing date is not supported by strong evidence.",
   country_missing: "The approved source does not yet have a default country.",
   description_missing: "The full vacancy description is missing.",
+  draft_missing: "A private canonical vacancy draft has not been created.",
   duplicate_risk: "The vacancy may already exist and needs a person to resolve it.",
   employer_evidence_weak: "The employer identity is not supported by strong evidence.",
   employer_identity_conflict: "The canonical employer conflicts with the source-page evidence.",
@@ -37,6 +37,7 @@ export const automationBlockerLabels = {
   listing_expired: "The vacancy has closed or exceeded its 30-day fallback lifetime.",
   source_inactive: "The source is paused.",
   source_not_automatable: "This source type is not approved for automatic publication.",
+  source_permission_unapproved: "This source is not approved for full vacancy-description display.",
   summary_missing: "A usable vacancy summary could not be prepared.",
   title_missing: "The vacancy title is missing.",
 } as const;
@@ -61,6 +62,7 @@ export type PublicationReadinessInput = {
   closesAt: string | null;
   countryCode: string | null;
   detailText: string | null;
+  descriptionDisplayMode: string;
   duplicateCount: number;
   employer: {
     id: number;
@@ -130,8 +132,9 @@ export function evaluatePublicationReadiness(input: PublicationReadinessInput): 
   if (!input.sourceActive) blockers.add("source_inactive");
   if (!["feed", "api"].includes(input.sourceType)) blockers.add("source_not_automatable");
   if (!input.countryCode || !/^[A-Z]{2}$/.test(input.countryCode)) blockers.add("country_missing");
-  if (input.jobId !== null) blockers.add("already_linked");
-  if (input.mappingStatus !== "unmapped" || input.duplicateCount > 0) blockers.add("duplicate_risk");
+  if (input.descriptionDisplayMode !== "full") blockers.add("source_permission_unapproved");
+  if (input.jobId === null) blockers.add("draft_missing");
+  if (input.mappingStatus !== "mapped" || input.duplicateCount > 0) blockers.add("duplicate_risk");
   if (!["complete", "skipped"].includes(input.enrichmentStatus)) blockers.add("enrichment_incomplete");
   if (!isHttpsUrl(input.canonicalUrl)) blockers.add("canonical_url_missing");
   if (!isHttpsUrl(input.applicationUrl) && !isHttpsUrl(input.canonicalUrl)) {
@@ -165,7 +168,7 @@ export function evaluatePublicationReadiness(input: PublicationReadinessInput): 
   }
 
   const blockerList = [...blockers];
-  const totalChecks = 13;
+  const totalChecks = 14;
   const score = Math.max(0, Math.round(((totalChecks - blockerList.length) / totalChecks) * 100));
   return { blockers: blockerList, fieldConfidences, ready: blockerList.length === 0, score };
 }

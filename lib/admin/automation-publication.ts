@@ -46,11 +46,18 @@ async function exactDuplicateCount(
   supabase: SupabaseClient<Database>,
   canonicalUrl: string | null,
   applicationUrl: string | null,
+  currentJobId: number | null,
 ) {
   const queries = [];
-  if (canonicalUrl) queries.push(supabase.from("jobs").select("id").eq("source_url", canonicalUrl).limit(1));
+  if (canonicalUrl) {
+    let query = supabase.from("jobs").select("id").eq("source_url", canonicalUrl).limit(1);
+    if (currentJobId) query = query.neq("id", currentJobId);
+    queries.push(query);
+  }
   if (applicationUrl) {
-    queries.push(supabase.from("jobs").select("id").eq("application_url", applicationUrl).limit(1));
+    let query = supabase.from("jobs").select("id").eq("application_url", applicationUrl).limit(1);
+    if (currentJobId) query = query.neq("id", currentJobId);
+    queries.push(query);
   }
   const results = await Promise.all(queries);
   if (results.some((result) => result.error)) throw new Error("Existing vacancies could not be checked.");
@@ -64,19 +71,25 @@ async function evaluateAndMaybePublishSourceRecordUnsafe(
   const { data: record, error } = await supabase
     .from("job_source_records")
     .select(
-      "id, job_id, mapping_status, canonical_url, application_url, closes_at, first_seen_at, source_title, summary, detail_text, location_text, employer_name, employer_website_url, enrichment_status, job_sources(name, source_type, is_active, default_country_code), employers(id, name, status, website_url, mission, overview, reviewed_at, employer_field_evidence(field_name, confidence)), job_source_field_evidence(field_name, resolution_status, value, confidence)",
+      "id, job_id, mapping_status, canonical_url, application_url, closes_at, first_seen_at, source_title, summary, detail_text, location_text, employer_name, employer_website_url, enrichment_status, job_sources(name, source_type, is_active, default_country_code, description_display_mode), employers(id, name, status, website_url, mission, overview, reviewed_at, employer_field_evidence(field_name, confidence)), job_source_field_evidence(field_name, resolution_status, value, confidence)",
     )
     .eq("id", sourceRecordId)
     .maybeSingle();
   if (error || !record) throw new Error("The source record could not be evaluated for publication.");
 
-  const duplicateCount = await exactDuplicateCount(supabase, record.canonical_url, record.application_url);
+  const duplicateCount = await exactDuplicateCount(
+    supabase,
+    record.canonical_url,
+    record.application_url,
+    record.job_id,
+  );
   const readiness = evaluatePublicationReadiness({
     applicationUrl: record.application_url,
     canonicalUrl: record.canonical_url,
     closesAt: record.closes_at,
     countryCode: record.job_sources?.default_country_code ?? null,
     detailText: record.detail_text,
+    descriptionDisplayMode: record.job_sources?.description_display_mode ?? "link_only",
     duplicateCount,
     employer: record.employers
       ? {
@@ -134,8 +147,7 @@ async function evaluateAndMaybePublishSourceRecordUnsafe(
         automation_score: readiness.score,
         automation_status: decision,
       })
-      .eq("id", record.id)
-      .is("job_id", null),
+      .eq("id", record.id),
     supabase.from("automation_publication_decisions").insert(commonDecision),
   ]);
   if (recordUpdate.error || decisionInsert.error) {
@@ -161,8 +173,7 @@ async function evaluateAndMaybePublishSourceRecordUnsafe(
       supabase
         .from("job_source_records")
         .update({ automation_evaluated_at: failedAt, automation_status: "failed" })
-        .eq("id", record.id)
-        .is("job_id", null),
+        .eq("id", record.id),
       supabase.from("automation_publication_decisions").insert({
         ...commonDecision,
         blocker_codes: [],
@@ -194,8 +205,7 @@ export async function evaluateAndMaybePublishSourceRecord(
           automation_score: 0,
           automation_status: "failed",
         })
-        .eq("id", sourceRecordId)
-        .is("job_id", null),
+        .eq("id", sourceRecordId),
       supabase.from("automation_publication_decisions").insert({
         blocker_codes: [],
         decision: "failed",
@@ -222,9 +232,10 @@ export async function reevaluateStalePublicationDecisions(
   const batchSize = liveMode ? 1 : 10;
   let query = supabase
     .from("job_source_records")
-    .select("id")
-    .is("job_id", null)
-    .in("mapping_status", ["unmapped", "possible_duplicate"])
+    .select("id, jobs!inner(status)")
+    .not("job_id", "is", null)
+    .eq("mapping_status", "mapped")
+    .eq("jobs.status", "draft")
     .in("enrichment_status", ["complete", "failed", "needs_review", "skipped"]);
   if (liveMode && control.targetSourceRecordId !== null) {
     query = query.eq("id", control.targetSourceRecordId);

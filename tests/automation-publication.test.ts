@@ -13,6 +13,7 @@ function readyInput(): PublicationReadinessInput {
     canonicalUrl: "https://example.org/jobs/ranger",
     closesAt: "2026-11-30",
     countryCode: "GB",
+    descriptionDisplayMode: "full",
     detailText: "A".repeat(200),
     duplicateCount: 0,
     employer: {
@@ -42,9 +43,9 @@ function readyInput(): PublicationReadinessInput {
       { confidence: 90, field_name: "engagement_type", resolution_status: "extracted", value: "paid" },
     ],
     firstSeenAt: "2026-10-20T09:00:00Z",
-    jobId: null,
+    jobId: 23,
     locationText: "Bristol",
-    mappingStatus: "unmapped",
+    mappingStatus: "mapped",
     sourceActive: true,
     sourceEmployerName: "Example Trust",
     sourceEmployerWebsiteUrl: "https://example.org",
@@ -59,7 +60,7 @@ describe("automated publication readiness", () => {
   it("allows a fully evidenced vacancy without fabricating optional fields", () => {
     const result = evaluatePublicationReadiness(readyInput());
 
-    expect(AUTOMATION_PUBLICATION_POLICY_VERSION).toBe("evidence-gated-v5");
+    expect(AUTOMATION_PUBLICATION_POLICY_VERSION).toBe("canonical-draft-v1");
     expect(result).toMatchObject({ blockers: [], ready: true, score: 100 });
   });
 
@@ -95,6 +96,27 @@ describe("automated publication readiness", () => {
     };
 
     expect(evaluatePublicationReadiness(input)).toMatchObject({ blockers: [], ready: true });
+  });
+
+  it("blocks publication until the source permits the full description", () => {
+    const input = readyInput();
+    input.descriptionDisplayMode = "link_only";
+
+    expect(evaluatePublicationReadiness(input)).toMatchObject({
+      blockers: ["source_permission_unapproved"],
+      ready: false,
+    });
+  });
+
+  it("requires the canonical private draft before publication evaluation can pass", () => {
+    const input = readyInput();
+    input.jobId = null;
+    input.mappingStatus = "unmapped";
+
+    expect(evaluatePublicationReadiness(input)).toMatchObject({
+      blockers: ["draft_missing", "duplicate_risk"],
+      ready: false,
+    });
   });
 
   it("uses the canonical vacancy page when a separate application address is absent", () => {

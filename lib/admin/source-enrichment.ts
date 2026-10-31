@@ -20,6 +20,7 @@ import {
 } from "./employer-research-validation";
 import { employerIdentityConflicts, employerIdentityMatches } from "./employer-identity";
 import { looksLikeFavicon, selectEmployerLogo } from "./employer-logo-selection";
+import { toSlug } from "./job-intake-validation";
 import { shouldGenerateAiSummary } from "./publication-summary";
 import { isPublishedCapabilityBackfillCandidate } from "./published-capability-backfill";
 import { fetchApprovedVacancyPage, fetchEmployerPage, SourcePageError } from "./source-page-fetch";
@@ -197,13 +198,16 @@ async function claimSourceRecord(
   allowAiBackfill: boolean,
   requestedRecordId?: number,
 ) {
-  const baseQuery = () =>
-    supabase
+  const baseQuery = () => {
+    let query = supabase
       .from("job_source_records")
       .select("*, job_sources!inner(name, source_type, authoritative_base_url, is_active)")
-      .is("job_id", null)
-      .in("mapping_status", ["unmapped", "possible_duplicate"])
+      .in("mapping_status", ["unmapped", "mapped"])
+      .in("automation_status", ["pending", "blocked", "failed"])
       .lt("enrichment_attempts", 3);
+    if (trigger === "automation") query = query.in("job_sources.source_type", ["feed", "api"]);
+    return query;
+  };
 
   let candidateResult = requestedRecordId
     ? await baseQuery()
@@ -477,6 +481,89 @@ async function resolveEmployer(
   return employer;
 }
 
+async function findExactDuplicateJobId(
+  supabase: SupabaseClient<Database>,
+  record: SourceRecord,
+  page: VacancyPageExtraction,
+) {
+  const checks = [];
+  if (record.canonical_url) {
+    let query = supabase.from("jobs").select("id").eq("source_url", record.canonical_url).limit(1);
+    if (record.job_id) query = query.neq("id", record.job_id);
+    checks.push(query.maybeSingle());
+  }
+  if (page.applicationUrl) {
+    let query = supabase.from("jobs").select("id").eq("application_url", page.applicationUrl).limit(1);
+    if (record.job_id) query = query.neq("id", record.job_id);
+    checks.push(query.maybeSingle());
+  }
+  const results = await Promise.all(checks);
+  if (results.some((result) => result.error)) throw new Error("Existing vacancies could not be checked.");
+  return results.find((result) => result.data)?.data?.id ?? null;
+}
+
+async function finishPreEnrichmentReview(
+  supabase: SupabaseClient<Database>,
+  recordId: number,
+  runId: number,
+  blocker: "duplicate_risk" | "employer_missing",
+) {
+  const finishedAt = new Date().toISOString();
+  const [recordUpdate, runUpdate] = await Promise.all([
+    supabase
+      .from("job_source_records")
+      .update({
+        automation_blockers: [blocker],
+        automation_evaluated_at: finishedAt,
+        automation_status: "blocked",
+        enrichment_completed_at: finishedAt,
+        enrichment_error_code: null,
+        enrichment_status: "needs_review",
+        mapping_status: blocker === "duplicate_risk" ? "possible_duplicate" : "unmapped",
+      })
+      .eq("id", recordId),
+    supabase
+      .from("source_enrichment_runs")
+      .update({
+        fields_resolved: 0,
+        fields_unresolved: CORE_FIELDS.length,
+        finished_at: finishedAt,
+        source_page_fetched: true,
+        status: "needs_review",
+      })
+      .eq("id", runId),
+  ]);
+  if (recordUpdate.error || runUpdate.error) {
+    throw new Error("Pre-enrichment review state could not be saved.");
+  }
+}
+
+async function ensureAutomatedDraft(
+  supabase: SupabaseClient<Database>,
+  record: SourceRecord,
+  employer: Employer,
+) {
+  if (record.job_id) return record.job_id;
+  const slug = toSlug(`${record.source_title ?? "vacancy"}-${employer.name}-${record.id}`);
+  const { data: jobId, error } = await supabase.rpc("prepare_automated_job_draft", {
+    p_employer_id: employer.id,
+    p_job_slug: slug,
+    p_source_record_id: record.id,
+  });
+  if (error || !jobId) throw new Error("The private vacancy draft could not be prepared.");
+  record.employer_id = employer.id;
+  record.job_id = jobId;
+  record.mapping_status = "mapped";
+  return jobId;
+}
+
+async function syncAutomatedDraft(supabase: SupabaseClient<Database>, sourceRecordId: number) {
+  const { error } = await supabase.rpc("sync_automated_job_draft", {
+    p_source_record_id: sourceRecordId,
+  });
+  if (error) throw new Error("The private vacancy draft could not be synchronized.");
+}
+
 async function persistEmployerEnrichment(
   supabase: SupabaseClient<Database>,
   employer: Employer,
@@ -702,6 +789,22 @@ export async function enrichNextPendingSourceRecord(
         : DETERMINISTIC_ENRICHMENT_POLICY_VERSION,
     });
 
+    const duplicateJobId = await findExactDuplicateJobId(supabase, record, page);
+    if (duplicateJobId) {
+      await finishPreEnrichmentReview(supabase, record.id, runId, "duplicate_risk");
+      return { recordId: record.id, runId, status: "needs_review" };
+    }
+
+    let employer = await resolveEmployer(supabase, record, page);
+    const automatedSource = ["feed", "api"].includes(source.source_type);
+    if (automatedSource) {
+      if (!employer) {
+        await finishPreEnrichmentReview(supabase, record.id, runId, "employer_missing");
+        return { recordId: record.id, runId, status: "needs_review" };
+      }
+      await ensureAutomatedDraft(supabase, record, employer);
+    }
+
     if (record.enriched_content_hash === detailContentHash) {
       const finishedAt = new Date().toISOString();
       await Promise.all([
@@ -714,11 +817,11 @@ export async function enrichNextPendingSourceRecord(
           .update({ finished_at: finishedAt, source_page_fetched: true, status: "skipped" })
           .eq("id", runId),
       ]);
+      if (automatedSource) await syncAutomatedDraft(supabase, record.id);
       const publication = await evaluateAndMaybePublishSourceRecord(supabase, record.id);
       return { publication, recordId: record.id, runId, status: "skipped" };
     }
 
-    let employer = await resolveEmployer(supabase, record, page);
     let employerWebsiteUrl = page.employerWebsiteUrl ?? employer?.website_url ?? null;
     let employerPage: {
       logoSourceUrl: string | null;
@@ -1002,6 +1105,8 @@ export async function enrichNextPendingSourceRecord(
       })
       .eq("id", record.id);
     if (recordUpdateError) throw new Error("The enriched source record could not be saved.");
+
+    if (automatedSource) await syncAutomatedDraft(supabase, record.id);
 
     const { error: runUpdateError } = await supabase
       .from("source_enrichment_runs")

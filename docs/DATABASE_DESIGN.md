@@ -119,7 +119,7 @@ These tables implement course-aware discovery without learner data.
 - `course_learning_outcomes` stores source-attributed outcomes, provenance, confidence and exact catalogue evidence without changing the LearnWorlds course record.
 - `capabilities` and `capability_aliases` form the reusable vocabulary used by both courses and jobs. Course analysis reuses an existing title or alias before creating a new active capability.
 - `course_capabilities` records primary or supporting coverage, a score, rationale, provenance and optional source outcome. Staff-reviewed rows are preserved when generated rows are refreshed.
-- `source_record_capabilities` stores the bounded, evidence-backed capability classification made during vacancy enrichment. When a source record becomes a job, those matches are copied into `job_capabilities` with relevance, confidence, importance, evidence and policy version.
+- `source_record_capabilities` stores the bounded, evidence-backed capability classification made during vacancy enrichment. Because automated jobs are private canonical drafts before enrichment, the same write also updates `job_capabilities` with relevance, confidence, importance, evidence and policy version.
 - `capability_candidates` is an exception queue for repeated concepts that do not fit the existing course-backed vocabulary. Candidates never become public capabilities automatically.
 
 A course filter matches jobs through shared capabilities. It does not claim that a candidate enrolled in or completed a course.
