@@ -1468,9 +1468,6 @@ select {
   font-size: 0.78rem;
   font-weight: var(--wt-font-weight-bold);
 }
-.job-results__organisation-count {
-  font-weight: var(--wt-font-weight-regular);
-}
 .job-pagination button:hover:not(:disabled) {
   border-color: var(--wt-color-brand-purple);
   background: transparent;
