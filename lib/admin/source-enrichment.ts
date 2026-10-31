@@ -30,7 +30,7 @@ import {
 } from "./vacancy-page-extraction";
 import { combineEvidenceChanges } from "./vacancy-evidence-selection";
 import type { VacancyFieldEvidence, VacancyFieldName } from "./vacancy-detail-extraction";
-import type { Database } from "../supabase/database.types";
+import type { Database, Json } from "../supabase/database.types";
 
 const CORE_FIELDS = [
   "contract_type",
@@ -631,13 +631,30 @@ export async function enrichNextPendingSourceRecord(
       !employer.reviewed_at,
     );
     const shouldSummariseJob = shouldGenerateAiSummary(record.ai_summary);
+    const { data: courseBackedCapabilities, error: capabilityReadError } = await supabase
+      .from("capabilities")
+      .select("id, title, description, capability_aliases(alias), course_capabilities!inner(course_id)")
+      .eq("is_active", true)
+      .limit(80);
+    if (capabilityReadError) throw new Error("Course-backed capabilities could not be read.");
+    const capabilityCatalogue = (courseBackedCapabilities ?? []).map((capability) => ({
+      aliases: capability.capability_aliases.map((item) => item.alias),
+      description: capability.description,
+      id: capability.id,
+      title: capability.title,
+    }));
     const aiNeeded = Boolean(
-      unresolved.length || shouldSummariseJob || employerPage.text || employerResearchNeeded,
+      unresolved.length ||
+      shouldSummariseJob ||
+      employerPage.text ||
+      employerResearchNeeded ||
+      capabilityCatalogue.length,
     );
     if (aiNeeded && aiBudget.allowed) {
       try {
         aiResult = await enrichWithAi({
           allowEmployerWebResearch: employerResearchNeeded,
+          capabilities: capabilityCatalogue,
           employerName: employer?.name ?? page.employerName ?? record.employer_name,
           employerSourceUrl: employerPage.sourceUrl,
           employerText: employerPage.text || null,
@@ -755,6 +772,16 @@ export async function enrichNextPendingSourceRecord(
         { onConflict: "source_record_id,field_name" },
       );
       if (saveEvidenceError) throw new Error("Enrichment evidence could not be saved.");
+    }
+
+    if (aiResult.status === "completed") {
+      const { error: capabilitySaveError } = await supabase.rpc("replace_source_capability_classification", {
+        p_candidates: aiResult.capabilityCandidates as Json,
+        p_matches: aiResult.capabilityMatches as Json,
+        p_policy_version: AI_ENRICHMENT_POLICY_VERSION,
+        p_source_record_id: record.id,
+      });
+      if (capabilitySaveError) throw new Error("Capability classification could not be saved.");
     }
 
     if (employer) {

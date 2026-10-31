@@ -3247,6 +3247,15 @@ select {
   margin: 0;
   color: var(--wt-color-muted);
 }
+.staff-hero__stack {
+  display: grid;
+  justify-items: start;
+  gap: 20px;
+}
+.staff-hero__stack p {
+  margin: 0;
+  color: var(--wt-color-muted);
+}
 .staff-summary {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -3439,7 +3448,8 @@ select {
   font-weight: var(--wt-font-weight-bold);
 }
 .staff-source-form input:not([type="checkbox"]),
-.staff-source-form select {
+.staff-source-form select,
+.staff-source-form textarea {
   width: 100%;
   min-height: 46px;
   padding: 10px 12px;
@@ -3448,6 +3458,34 @@ select {
   background: var(--wt-color-paper);
   color: var(--wt-color-ink);
   font: inherit;
+}
+.staff-source-form textarea {
+  resize: vertical;
+}
+.course-admin-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(300px, 0.42fr);
+  align-items: start;
+  gap: 32px;
+}
+.course-admin-card {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 24px;
+  border: 1px solid var(--wt-color-rule);
+  border-radius: var(--wt-radius-panel);
+  background: var(--wt-color-paper);
+}
+.course-admin-card strong {
+  display: block;
+  margin-top: 8px;
+}
+.course-admin-card p {
+  margin: 6px 0 0;
+  color: var(--wt-color-muted);
+  font-size: 0.78rem;
 }
 .staff-source-form__check {
   display: flex;
@@ -5224,6 +5262,7 @@ select {
   .review-row,
   .staff-dashboard-grid,
   .staff-source-layout,
+  .course-admin-grid,
   .staff-job-form__grid {
     grid-template-columns: 1fr;
   }

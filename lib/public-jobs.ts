@@ -39,7 +39,8 @@ export const publicJobFields = `
   withdrawn_at,
   created_at,
   employers!inner(slug, name, short_name, website_url, logo_url, overview, ai_summary),
-  job_career_areas(is_primary, career_areas!inner(slug, title))
+  job_career_areas(is_primary, career_areas!inner(slug, title)),
+  job_capabilities(capabilities!inner(course_capabilities(courses!inner(slug))))
 `;
 
 export const legacyPublicJobFields = publicJobFields.replace(

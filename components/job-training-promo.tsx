@@ -4,7 +4,7 @@ import Link from "next/link";
 const trainingBenefits = [
   {
     title: "Find opportunities made for you.",
-    description: "Discover jobs matched to the training courses you’ve completed.",
+    description: "Discover jobs related to the capabilities covered by WildTeam courses.",
   },
   {
     title: "Stand out from the crowd.",
@@ -66,8 +66,8 @@ export function JobTrainingPromo({ position }: { position: number }) {
           >
             Explore WildTeam Training
           </a>
-          <Link className="action action--outline" href="/account">
-            Connect your WildTeam Account
+          <Link className="action action--outline" href="/careers">
+            Explore career paths
           </Link>
         </div>
       </div>

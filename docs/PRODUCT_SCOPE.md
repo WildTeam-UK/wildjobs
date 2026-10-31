@@ -21,7 +21,7 @@ WildJobs helps conservation professionals discover trustworthy opportunities and
 - Saved jobs, job alerts and recommendations.
 - Employer self-service and paid listings.
 - LearnWorlds account linking or central single sign-on.
-- AI matching or ranking. Bounded, labelled summary generation is permitted for prototype enrichment.
+- Opaque AI ranking or personalised suitability claims. Bounded, evidence-backed capability classification is permitted during approved-source enrichment; it must prefer the reviewed taxonomy, cap the number of matches and queue genuinely new concepts for staff review.
 - Brevo subscriptions and marketing automation.
 - Shared cross-domain consent.
 - Dashboard reporting integrations.

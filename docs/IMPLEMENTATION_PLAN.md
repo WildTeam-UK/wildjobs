@@ -50,6 +50,8 @@ The existing fixture-based prototype is a design and interaction reference only.
 - The first filter bar includes text search, paid or volunteer, advertised location suggestions, cause, contract type, salary, work location and course-aware discovery. True distance-radius search waits for reviewed coordinates rather than pretending that location text is geographic data.
 - Curated collection pages such as early-career roles, remote opportunities, field roles and closing soon.
 - Course-aware discovery that lets anyone select a WildTeam course and find roles related to the capabilities it covers.
+- A staff course workspace for reviewing synced metadata, adding colour and presentation details, recording sourced learning outcomes and connecting each course to a reusable capability vocabulary.
+- Evidence-backed capability classification during the existing vacancy AI enrichment run. It reuses course-backed capabilities, records relevance, confidence, importance and an advert quote, caps each job at six matches and sends unmatched concepts to a review queue instead of creating public tags.
 - Rich job detail pages with structured metadata and visible source attribution.
 - Employer profile pages showing approved organisation information and active roles.
 - Career-facing supporting content or signposts where it genuinely improves the journey.
@@ -97,6 +99,7 @@ Optional analytics must not run before the applicable consent state permits them
 - A personalised job-match score. The future concept is documented in the experience blueprint and requires
   explainable signals, verified course completion and explicit privacy decisions before implementation.
 - Verified LearnWorlds account linking and automatic use of completed-course data. Public course-based discovery remains in the beta scope.
+- The course matcher accepts stable WildJobs course records as inputs so a later verified LearnWorlds connection can preselect completed courses without changing the matching graph. That future connection must verify provider-account control, must not link by email equality and must remain disconnectable without altering LearnWorlds.
 - Shared WildTeam single sign-on.
 - A central cross-application analytics backend or unified user dashboard.
 - Native mobile applications.

@@ -18,6 +18,14 @@ type PublicCareerAreaRecord = Readonly<{
   }> | null;
 }>;
 
+type PublicJobCapabilityRecord = Readonly<{
+  capabilities: Readonly<{
+    course_capabilities: readonly Readonly<{
+      courses: Readonly<{ slug: string }> | null;
+    }>[];
+  }> | null;
+}>;
+
 export type PublicJobRecord = Readonly<{
   id: number;
   application_url: string | null;
@@ -32,6 +40,7 @@ export type PublicJobRecord = Readonly<{
   expires_at: string | null;
   hours_type: string | null;
   job_career_areas: readonly PublicCareerAreaRecord[];
+  job_capabilities?: readonly PublicJobCapabilityRecord[];
   location_text: string | null;
   locality: string | null;
   postal_code: string | null;
@@ -193,7 +202,16 @@ export function mapPublicJob(record: PublicJobRecord): Job {
       dateOnly(record.posted_at) ?? dateOnly(record.published_at) ?? dateOnly(record.created_at) ?? "",
     publishedAt: dateOnly(record.published_at),
     postalCode: record.postal_code?.trim() || undefined,
-    relatedCourseSlugs: [],
+    relatedCourseSlugs: [
+      ...new Set(
+        (record.job_capabilities ?? []).flatMap(
+          (jobCapability) =>
+            jobCapability.capabilities?.course_capabilities.flatMap((courseCapability) =>
+              courseCapability.courses ? [courseCapability.courses.slug] : [],
+            ) ?? [],
+        ),
+      ),
+    ],
     requirements: listItems(record.requirements),
     responsibilities: listItems(record.responsibilities),
     salary: record.salary_text?.trim() || "Salary not stated",

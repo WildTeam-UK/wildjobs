@@ -257,33 +257,140 @@ export type Database = {
       };
       capabilities: {
         Row: {
+          confidence: number;
           created_at: string;
           description: string;
           id: number;
           is_active: boolean;
+          policy_version: string | null;
+          provenance: string;
           slug: string;
           title: string;
           updated_at: string;
         };
         Insert: {
+          confidence?: number;
           created_at?: string;
           description: string;
           id?: never;
           is_active?: boolean;
+          policy_version?: string | null;
+          provenance?: string;
           slug: string;
           title: string;
           updated_at?: string;
         };
         Update: {
+          confidence?: number;
           created_at?: string;
           description?: string;
           id?: never;
           is_active?: boolean;
+          policy_version?: string | null;
+          provenance?: string;
           slug?: string;
           title?: string;
           updated_at?: string;
         };
         Relationships: [];
+      };
+      capability_aliases: {
+        Row: {
+          alias: string;
+          capability_id: number;
+          created_at: string;
+          id: number;
+          normalised_alias: string;
+          provenance: string;
+        };
+        Insert: {
+          alias: string;
+          capability_id: number;
+          created_at?: string;
+          id?: never;
+          normalised_alias?: never;
+          provenance?: string;
+        };
+        Update: {
+          alias?: string;
+          capability_id?: number;
+          created_at?: string;
+          id?: never;
+          normalised_alias?: never;
+          provenance?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "capability_aliases_capability_id_fkey";
+            columns: ["capability_id"];
+            isOneToOne: false;
+            referencedRelation: "capabilities";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      capability_candidates: {
+        Row: {
+          confidence: number;
+          created_at: string;
+          evidence_text: string;
+          first_seen_at: string;
+          id: number;
+          last_seen_at: string;
+          normalised_title: string;
+          occurrence_count: number;
+          proposed_title: string;
+          resolved_capability_id: number | null;
+          source_record_id: number | null;
+          status: string;
+          updated_at: string;
+        };
+        Insert: {
+          confidence: number;
+          created_at?: string;
+          evidence_text: string;
+          first_seen_at?: string;
+          id?: never;
+          last_seen_at?: string;
+          normalised_title?: never;
+          occurrence_count?: number;
+          proposed_title: string;
+          resolved_capability_id?: number | null;
+          source_record_id?: number | null;
+          status?: string;
+          updated_at?: string;
+        };
+        Update: {
+          confidence?: number;
+          created_at?: string;
+          evidence_text?: string;
+          first_seen_at?: string;
+          id?: never;
+          last_seen_at?: string;
+          normalised_title?: never;
+          occurrence_count?: number;
+          proposed_title?: string;
+          resolved_capability_id?: number | null;
+          source_record_id?: number | null;
+          status?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "capability_candidates_resolved_capability_id_fkey";
+            columns: ["resolved_capability_id"];
+            isOneToOne: false;
+            referencedRelation: "capabilities";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "capability_candidates_source_record_id_fkey";
+            columns: ["source_record_id"];
+            isOneToOne: false;
+            referencedRelation: "job_source_records";
+            referencedColumns: ["id"];
+          },
+        ];
       };
       career_areas: {
         Row: {
@@ -321,24 +428,42 @@ export type Database = {
       course_capabilities: {
         Row: {
           capability_id: number;
+          confidence: number;
+          coverage_score: number;
           course_id: number;
           created_at: string;
           is_primary: boolean;
-          reviewed_at: string;
+          outcome_id: number | null;
+          rationale: string | null;
+          policy_version: string | null;
+          provenance: string;
+          reviewed_at: string | null;
         };
         Insert: {
           capability_id: number;
+          confidence?: number;
+          coverage_score?: number;
           course_id: number;
           created_at?: string;
           is_primary?: boolean;
-          reviewed_at: string;
+          outcome_id?: number | null;
+          rationale?: string | null;
+          policy_version?: string | null;
+          provenance?: string;
+          reviewed_at?: string | null;
         };
         Update: {
           capability_id?: number;
+          confidence?: number;
+          coverage_score?: number;
           course_id?: number;
           created_at?: string;
           is_primary?: boolean;
-          reviewed_at?: string;
+          outcome_id?: number | null;
+          rationale?: string | null;
+          policy_version?: string | null;
+          provenance?: string;
+          reviewed_at?: string | null;
         };
         Relationships: [
           {
@@ -355,51 +480,141 @@ export type Database = {
             referencedRelation: "courses";
             referencedColumns: ["id"];
           },
+          {
+            foreignKeyName: "course_capabilities_outcome_id_fkey";
+            columns: ["outcome_id"];
+            isOneToOne: false;
+            referencedRelation: "course_learning_outcomes";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      course_learning_outcomes: {
+        Row: {
+          confidence: number;
+          course_id: number;
+          created_at: string;
+          display_order: number;
+          evidence_text: string | null;
+          id: number;
+          is_active: boolean;
+          outcome_text: string;
+          policy_version: string | null;
+          provenance: string;
+          reviewed_at: string | null;
+          source_url: string;
+          updated_at: string;
+        };
+        Insert: {
+          confidence?: number;
+          course_id: number;
+          created_at?: string;
+          display_order?: number;
+          evidence_text?: string | null;
+          id?: never;
+          is_active?: boolean;
+          outcome_text: string;
+          policy_version?: string | null;
+          provenance?: string;
+          reviewed_at?: string | null;
+          source_url: string;
+          updated_at?: string;
+        };
+        Update: {
+          confidence?: number;
+          course_id?: number;
+          created_at?: string;
+          display_order?: number;
+          evidence_text?: string | null;
+          id?: never;
+          is_active?: boolean;
+          outcome_text?: string;
+          policy_version?: string | null;
+          provenance?: string;
+          reviewed_at?: string | null;
+          source_url?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "course_learning_outcomes_course_id_fkey";
+            columns: ["course_id"];
+            isOneToOne: false;
+            referencedRelation: "courses";
+            referencedColumns: ["id"];
+          },
         ];
       };
       courses: {
         Row: {
           availability_status: string;
+          capability_taxonomy_generated_at: string | null;
+          capability_taxonomy_policy_version: string | null;
+          capability_taxonomy_source_hash: string | null;
           created_at: string;
+          display_order: number;
           id: number;
+          image_alt: string | null;
+          image_url: string | null;
           is_active: boolean;
+          is_filter_visible: boolean;
           learnworlds_course_id: string;
+          learnworlds_synced_at: string | null;
           provenance: string;
           public_url: string;
           reviewed_at: string;
           short_title: string;
           slug: string;
           summary: string;
+          theme_colour: string | null;
           title: string;
           updated_at: string;
         };
         Insert: {
           availability_status?: string;
+          capability_taxonomy_generated_at?: string | null;
+          capability_taxonomy_policy_version?: string | null;
+          capability_taxonomy_source_hash?: string | null;
           created_at?: string;
+          display_order?: number;
           id?: never;
+          image_alt?: string | null;
+          image_url?: string | null;
           is_active?: boolean;
+          is_filter_visible?: boolean;
           learnworlds_course_id: string;
+          learnworlds_synced_at?: string | null;
           provenance: string;
           public_url: string;
           reviewed_at: string;
           short_title: string;
           slug: string;
           summary: string;
+          theme_colour?: string | null;
           title: string;
           updated_at?: string;
         };
         Update: {
           availability_status?: string;
+          capability_taxonomy_generated_at?: string | null;
+          capability_taxonomy_policy_version?: string | null;
+          capability_taxonomy_source_hash?: string | null;
           created_at?: string;
+          display_order?: number;
           id?: never;
+          image_alt?: string | null;
+          image_url?: string | null;
           is_active?: boolean;
+          is_filter_visible?: boolean;
           learnworlds_course_id?: string;
+          learnworlds_synced_at?: string | null;
           provenance?: string;
           public_url?: string;
           reviewed_at?: string;
           short_title?: string;
           slug?: string;
           summary?: string;
+          theme_colour?: string | null;
           title?: string;
           updated_at?: string;
         };
@@ -682,22 +897,40 @@ export type Database = {
       };
       job_capabilities: {
         Row: {
+          assignment_source: string;
           capability_id: number;
+          confidence: number;
           created_at: string;
+          evidence_text: string | null;
           importance: string;
           job_id: number;
+          policy_version: string | null;
+          relevance_score: number;
+          source_record_id: number | null;
         };
         Insert: {
+          assignment_source?: string;
           capability_id: number;
+          confidence?: number;
           created_at?: string;
+          evidence_text?: string | null;
           importance?: string;
           job_id: number;
+          policy_version?: string | null;
+          relevance_score?: number;
+          source_record_id?: number | null;
         };
         Update: {
+          assignment_source?: string;
           capability_id?: number;
+          confidence?: number;
           created_at?: string;
+          evidence_text?: string | null;
           importance?: string;
           job_id?: number;
+          policy_version?: string | null;
+          relevance_score?: number;
+          source_record_id?: number | null;
         };
         Relationships: [
           {
@@ -712,6 +945,13 @@ export type Database = {
             columns: ["job_id"];
             isOneToOne: false;
             referencedRelation: "jobs";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "job_capabilities_source_record_id_fkey";
+            columns: ["source_record_id"];
+            isOneToOne: false;
+            referencedRelation: "job_source_records";
             referencedColumns: ["id"];
           },
         ];
@@ -1306,6 +1546,10 @@ export type Database = {
           created_at: string;
           id: boolean;
           last_heartbeat_at: string | null;
+          last_course_sync_claimed_at: string | null;
+          last_course_sync_completed_at: string | null;
+          last_course_sync_error_code: string | null;
+          last_course_sync_status: string | null;
           last_import_claimed_at: string | null;
           updated_at: string;
         };
@@ -1313,6 +1557,10 @@ export type Database = {
           created_at?: string;
           id?: boolean;
           last_heartbeat_at?: string | null;
+          last_course_sync_claimed_at?: string | null;
+          last_course_sync_completed_at?: string | null;
+          last_course_sync_error_code?: string | null;
+          last_course_sync_status?: string | null;
           last_import_claimed_at?: string | null;
           updated_at?: string;
         };
@@ -1320,6 +1568,10 @@ export type Database = {
           created_at?: string;
           id?: boolean;
           last_heartbeat_at?: string | null;
+          last_course_sync_claimed_at?: string | null;
+          last_course_sync_completed_at?: string | null;
+          last_course_sync_error_code?: string | null;
+          last_course_sync_status?: string | null;
           last_import_claimed_at?: string | null;
           updated_at?: string;
         };
@@ -1400,6 +1652,57 @@ export type Database = {
           },
         ];
       };
+      source_record_capabilities: {
+        Row: {
+          capability_id: number;
+          confidence: number;
+          created_at: string;
+          evidence_text: string;
+          importance: string;
+          policy_version: string;
+          relevance_score: number;
+          source_record_id: number;
+          updated_at: string;
+        };
+        Insert: {
+          capability_id: number;
+          confidence: number;
+          created_at?: string;
+          evidence_text: string;
+          importance: string;
+          policy_version: string;
+          relevance_score: number;
+          source_record_id: number;
+          updated_at?: string;
+        };
+        Update: {
+          capability_id?: number;
+          confidence?: number;
+          created_at?: string;
+          evidence_text?: string;
+          importance?: string;
+          policy_version?: string;
+          relevance_score?: number;
+          source_record_id?: number;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "source_record_capabilities_capability_id_fkey";
+            columns: ["capability_id"];
+            isOneToOne: false;
+            referencedRelation: "capabilities";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "source_record_capabilities_source_record_id_fkey";
+            columns: ["source_record_id"];
+            isOneToOne: false;
+            referencedRelation: "job_source_records";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
     };
     Views: {
       [_ in never]: never;
@@ -1414,6 +1717,10 @@ export type Database = {
         Returns: string;
       };
       claim_periodic_source_import: {
+        Args: { interval_hours?: number };
+        Returns: boolean;
+      };
+      claim_periodic_course_sync: {
         Args: { interval_hours?: number };
         Returns: boolean;
       };
@@ -1474,6 +1781,15 @@ export type Database = {
           p_source_record_id: number;
         };
         Returns: number;
+      };
+      replace_source_capability_classification: {
+        Args: {
+          p_candidates: Json;
+          p_matches: Json;
+          p_policy_version: string;
+          p_source_record_id: number;
+        };
+        Returns: undefined;
       };
       redeem_employer_submission_invite: {
         Args: {

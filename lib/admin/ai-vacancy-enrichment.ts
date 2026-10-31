@@ -14,7 +14,7 @@ import {
 import type { VacancyFieldEvidence, VacancyFieldName } from "./vacancy-detail-extraction";
 
 const MODEL = "gpt-6-luna";
-export const AI_ENRICHMENT_POLICY_VERSION = "ai-structured-v8";
+export const AI_ENRICHMENT_POLICY_VERSION = "ai-structured-v10-course-taxonomy";
 
 const supportedFields = [
   "contract_type",
@@ -41,8 +41,24 @@ const summaryField = z.object({
 const researchedEmployerField = textField.extend({
   source_url: z.string().trim().min(1).max(2_000).nullable(),
 });
+const capabilityMatchSchema = z.object({
+  capability_id: z.number().int().positive(),
+  confidence: confidenceSchema,
+  evidence: z.string().trim().min(2).max(500),
+  importance: z.enum(["essential", "useful", "development"]),
+  relevance_score: z.number().int().min(1).max(100),
+});
+const capabilityCandidateSchema = z.object({
+  confidence: confidenceSchema,
+  evidence: z.string().trim().min(2).max(500),
+  title: z.string().trim().min(2).max(160),
+});
 
 const outputSchema = z.object({
+  capabilities: z.object({
+    candidates: z.array(capabilityCandidateSchema).max(3),
+    matches: z.array(capabilityMatchSchema).max(6),
+  }),
   vacancy: z.object({
     contract_type: z.object({
       confidence: confidenceSchema,
@@ -110,6 +126,14 @@ export type AiEnrichmentResult =
   | { status: "disabled" }
   | {
       employerSuggestions: AiEmployerSuggestion[];
+      capabilityCandidates: { confidence: number; evidence: string; title: string }[];
+      capabilityMatches: {
+        capabilityId: number;
+        confidence: number;
+        evidence: string;
+        importance: "essential" | "useful" | "development";
+        relevanceScore: number;
+      }[];
       evidence: VacancyFieldEvidence[];
       generationId: string | null;
       inputTokens: number;
@@ -256,6 +280,12 @@ function researchedWebsite(
 
 export async function enrichWithAi(input: {
   allowEmployerWebResearch: boolean;
+  capabilities: readonly {
+    aliases: readonly string[];
+    description: string;
+    id: number;
+    title: string;
+  }[];
   employerName: string | null;
   employerSourceUrl: string | null;
   employerText: string | null;
@@ -285,11 +315,19 @@ export async function enrichWithAi(input: {
     "For every web-researched employer fact, source_url must be the exact official page returned by web search that supports it.",
     "Never use a job board, social network, directory, Wikipedia or applicant-tracking system as the employer website.",
     "Return null or an empty list when evidence is missing.",
+    "For vacancy capabilities, select only IDs from the supplied canonical capability catalogue.",
+    "Prefer an existing capability whenever its title, description or alias fits. Return no more than six matches, ordered by relevance.",
+    "Only match a capability when an exact quote from the vacancy proves it is materially relevant to doing the job; do not match incidental words.",
+    "Use candidates only for a clearly job-relevant capability that no supplied canonical capability covers. Do not create synonyms or minor wording variants.",
   ].join(" ");
   const prompt = [
     `Only resolve these vacancy fields: ${input.unresolvedFields.join(", ") || "none"}.`,
     `Create a vacancy summary: ${input.shouldSummariseJob ? "yes" : "no; return null"}.`,
     `Employer name: ${input.employerName ?? "Not supplied"}.`,
+    "CANONICAL COURSE-BACKED CAPABILITIES:",
+    input.capabilities.length
+      ? JSON.stringify(input.capabilities)
+      : "None supplied. Return empty capability matches and candidates.",
     "VACANCY SOURCE TEXT:",
     listingText,
     "OFFICIAL EMPLOYER TEXT:",
@@ -337,8 +375,43 @@ export async function enrichWithAi(input: {
   const searchedWebsiteUrl = input.allowEmployerWebResearch
     ? researchedWebsite(output.employer, searchSourceUrls)
     : null;
+  const allowedCapabilityIds = new Set(input.capabilities.map((capability) => capability.id));
+  const capabilityMatches = output.capabilities.matches.flatMap((match) => {
+    const evidence = exactEvidence(String(match.capability_id), match.evidence, listingText);
+    if (
+      !allowedCapabilityIds.has(match.capability_id) ||
+      !evidence ||
+      match.confidence < 60 ||
+      match.relevance_score < 40
+    ) {
+      return [];
+    }
+    return [
+      {
+        capabilityId: match.capability_id,
+        confidence: match.confidence,
+        evidence,
+        importance: match.importance,
+        relevanceScore: match.relevance_score,
+      },
+    ];
+  });
+  const matchedIds = new Set<number>();
+  const uniqueCapabilityMatches = capabilityMatches.filter((match) => {
+    if (matchedIds.has(match.capabilityId)) return false;
+    matchedIds.add(match.capabilityId);
+    return true;
+  });
+  const capabilityCandidates = output.capabilities.candidates.flatMap((candidate) => {
+    const evidence = exactEvidence(candidate.title, candidate.evidence, listingText);
+    return evidence && candidate.confidence >= 75
+      ? [{ confidence: candidate.confidence, evidence, title: candidate.title }]
+      : [];
+  });
 
   return {
+    capabilityCandidates,
+    capabilityMatches: uniqueCapabilityMatches,
     employerSuggestions: employerSuggestions(
       output.employer,
       employerText,

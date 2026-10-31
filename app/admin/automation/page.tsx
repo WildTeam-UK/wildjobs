@@ -55,7 +55,7 @@ export default async function AutomationReviewPage() {
   const startOfToday = new Date();
   startOfToday.setUTCHours(0, 0, 0, 0);
 
-  const [runsResult, decisionsResult, queueResult, usageResult] = await Promise.all([
+  const [runsResult, decisionsResult, queueResult, usageResult, candidatesResult] = await Promise.all([
     supabase
       .from("source_enrichment_runs")
       .select(
@@ -82,10 +82,20 @@ export default async function AutomationReviewPage() {
       .eq("ai_attempted", true)
       .gte("started_at", startOfToday.toISOString())
       .limit(1_000),
+    supabase
+      .from("capability_candidates")
+      .select(
+        "id, proposed_title, evidence_text, confidence, occurrence_count, last_seen_at, job_source_records(source_id, source_title)",
+      )
+      .eq("status", "pending")
+      .order("occurrence_count", { ascending: false })
+      .order("last_seen_at", { ascending: false })
+      .limit(30),
   ]);
 
   const runs = runsResult.data ?? [];
   const decisions = decisionsResult.data ?? [];
+  const candidates = candidatesResult.data ?? [];
   const queue = queueResult.data ?? [];
   const usage = (usageResult.data ?? []).reduce(
     (total, run) => ({
@@ -100,7 +110,11 @@ export default async function AutomationReviewPage() {
     return counts;
   }, {});
   const hasError = Boolean(
-    runsResult.error || decisionsResult.error || queueResult.error || usageResult.error,
+    runsResult.error ||
+    decisionsResult.error ||
+    queueResult.error ||
+    usageResult.error ||
+    candidatesResult.error,
   );
   const autoPublishEnabled = process.env.AUTO_PUBLISH_ENABLED === "true";
   const aiEnabled = process.env.AI_ENRICHMENT_ENABLED === "true";
@@ -302,6 +316,50 @@ export default async function AutomationReviewPage() {
           <div className="staff-empty-state">
             <p className="eyebrow">No enrichment runs yet</p>
             <h2>Automation history will appear here.</h2>
+          </div>
+        )}
+      </section>
+
+      <section className="staff-section staff-section--compact shell">
+        <div className="staff-section__heading">
+          <div>
+            <p className="eyebrow">Taxonomy exceptions</p>
+            <h2>Capability candidates</h2>
+          </div>
+          <p>Repeated concepts rise to the top. Nothing here becomes public automatically.</p>
+        </div>
+        {candidates.length ? (
+          <div className="automation-list">
+            {candidates.map((candidate) => (
+              <article key={candidate.id}>
+                <div>
+                  <p className="eyebrow">
+                    CANDIDATE-{candidate.id} · seen {candidate.occurrence_count} times
+                  </p>
+                  <h3>{candidate.proposed_title}</h3>
+                  <p>“{candidate.evidence_text}”</p>
+                  {candidate.job_source_records ? (
+                    <Link href={sourceRecordHref(candidate.job_source_records)}>Inspect latest vacancy</Link>
+                  ) : null}
+                </div>
+                <span className="status-badge status-badge--pending">Review</span>
+                <dl>
+                  <div>
+                    <dt>Confidence</dt>
+                    <dd>{candidate.confidence}%</dd>
+                  </div>
+                  <div>
+                    <dt>Last seen</dt>
+                    <dd>{formatTimestamp(candidate.last_seen_at)}</dd>
+                  </div>
+                </dl>
+              </article>
+            ))}
+          </div>
+        ) : candidatesResult.error ? null : (
+          <div className="staff-empty-state">
+            <p className="eyebrow">Queue clear</p>
+            <h2>No unmatched capability concepts need review.</h2>
           </div>
         )}
       </section>

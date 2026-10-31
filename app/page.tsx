@@ -3,6 +3,7 @@ import { EmployerHiringCarousel } from "@/components/employer-hiring-carousel";
 import { JobBrowser, type JobSortOrder } from "@/components/job-browser";
 import { getCandidateSaveState } from "@/lib/candidate-saved-jobs";
 import type { EmploymentType, EngagementType, LocationType } from "@/lib/jobs";
+import { getPublicCourses } from "@/lib/public-courses";
 import { getPublicEmployers } from "@/lib/public-employers";
 import { getPublicJobs } from "@/lib/public-jobs";
 
@@ -38,10 +39,11 @@ function valuesOf(value: string | string[] | undefined) {
 }
 
 export default async function HomePage({ searchParams }: { searchParams: SearchParams }) {
-  const [params, jobs, employers, candidateSaveState] = await Promise.all([
+  const [params, jobs, employers, courses, candidateSaveState] = await Promise.all([
     searchParams,
     getPublicJobs(),
     getPublicEmployers(),
+    getPublicCourses(),
     getCandidateSaveState(),
   ]);
   const location = valueOf(params.location);
@@ -55,6 +57,7 @@ export default async function HomePage({ searchParams }: { searchParams: SearchP
     <main>
       <JobBrowser
         candidateSaveState={candidateSaveState}
+        courses={courses}
         initialPage={Number.isInteger(page) && page > 0 ? page : 1}
         jobs={jobs}
         initialFilters={{
