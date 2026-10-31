@@ -508,6 +508,7 @@ export function JobBrowser({
     nature: natureEmojis[0],
     wildlife: wildlifeEmojis[0],
   });
+  const filterBarRef = useRef<HTMLDivElement>(null);
   const filteredJobs = filterJobs(jobs, {
     category,
     contractType,
@@ -569,6 +570,33 @@ export function JobBrowser({
 
     window.addEventListener("popstate", restorePageFromHistory);
     return () => window.removeEventListener("popstate", restorePageFromHistory);
+  }, []);
+
+  useEffect(() => {
+    let animationFrame = 0;
+
+    const updateFilterBarState = () => {
+      cancelAnimationFrame(animationFrame);
+      animationFrame = requestAnimationFrame(() => {
+        const filterBar = filterBarRef.current;
+        if (!filterBar) return;
+
+        const headerHeight = Number.parseFloat(
+          getComputedStyle(document.documentElement).getPropertyValue("--site-header-height"),
+        );
+        const isStuck = window.scrollY > 0 && filterBar.getBoundingClientRect().top <= headerHeight + 0.5;
+        filterBar.classList.toggle("job-filter-bar--stuck", isStuck);
+      });
+    };
+
+    updateFilterBarState();
+    window.addEventListener("resize", updateFilterBarState);
+    window.addEventListener("scroll", updateFilterBarState, { passive: true });
+    return () => {
+      cancelAnimationFrame(animationFrame);
+      window.removeEventListener("resize", updateFilterBarState);
+      window.removeEventListener("scroll", updateFilterBarState);
+    };
   }, []);
 
   function syncUrl(filters: BrowserFilters, page = 1, addHistoryEntry = false) {
@@ -715,7 +743,7 @@ export function JobBrowser({
         </div>
       </div>
 
-      <div className="job-filter-bar">
+      <div className="job-filter-bar" ref={filterBarRef}>
         <div className="job-filter-bar__inner shell">
           <div className="job-filter-pills" aria-label="Filter and sort jobs" role="group">
             {courses.length ? (

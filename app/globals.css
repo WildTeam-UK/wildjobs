@@ -1206,8 +1206,15 @@ select {
   position: sticky;
   z-index: 80;
   top: var(--site-header-height);
-  border-bottom: 1px solid color-mix(in srgb, var(--wt-color-brand-purple) 22%, var(--wt-color-rule));
+  border-bottom: 1px solid transparent;
   background: var(--wt-color-paper);
+  box-shadow: none;
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease;
+}
+.job-filter-bar--stuck {
+  border-bottom-color: color-mix(in srgb, var(--wt-color-brand-purple) 22%, var(--wt-color-rule));
   box-shadow: 0 14px 34px rgb(31 21 28 / 9%);
 }
 .job-filter-bar__inner {
@@ -5644,6 +5651,7 @@ select {
   .job-card,
   .job-training-promo,
   .employer-directory-card,
+  .job-filter-bar,
   .job-search-hero,
   .job-search-hero__inner,
   .job-search-hero__intro,
