@@ -55,6 +55,30 @@ function randomItem<T>(items: readonly T[]) {
   return items[Math.floor(Math.random() * items.length)];
 }
 
+function titleCaseCourseName(title: string) {
+  return title.replace(
+    /(^|[\s-])(\p{L})/gu,
+    (_match, prefix: string, letter: string) => `${prefix}${letter.toLocaleUpperCase("en-GB")}`,
+  );
+}
+
+function courseMatchHeading(courses: readonly Course[]) {
+  const [firstCourse, secondCourse] = courses
+    .slice(0, 2)
+    .map((course) => titleCaseCourseName(course.shortTitle));
+
+  if (courses.length === 1) {
+    return `Roles related to ${firstCourse} for wildlife conservation`;
+  }
+
+  if (courses.length === 2) {
+    return `Roles related to ${firstCourse} and ${secondCourse} for wildlife conservation`;
+  }
+
+  const remainingCourseCount = courses.length - 2;
+  return `Roles related to ${firstCourse}, ${secondCourse} and ${remainingCourseCount} other WildTeam ${remainingCourseCount === 1 ? "course" : "courses"}`;
+}
+
 function countryName(countryCode: string) {
   const countryNames: Record<string, string> = {
     AU: "Australia",
@@ -941,14 +965,16 @@ export function JobBrowser({
             {selectedCourses.length ? (
               <div className="course-match-note">
                 <p className="eyebrow">Course-aware discovery</p>
-                <h3>
-                  {selectedCourses.length === 1
-                    ? `Roles related to ${selectedCourses[0].shortTitle.toLocaleLowerCase("en-GB")}`
-                    : `Roles related to ${selectedCourses.length} selected courses`}
-                </h3>
-                <p>
-                  These matches use capabilities covered by your courses. Completing a course does not
-                  automatically satisfy every requirement in a job listing.
+                <h3>{courseMatchHeading(selectedCourses)}</h3>
+                <p className="course-match-note__description">
+                  A little smart matching goes a long way. We connect the skills taught in your WildTeam
+                  courses with the skills employers are looking for, helping you discover jobs where your
+                  training could give you a head start.
+                </p>
+                <p className="course-match-note__training">
+                  Haven&apos;t taken a WildTeam course yet?{" "}
+                  <a href="https://wildteam.org.uk/">Explore our training courses</a> and discover how you
+                  could build the skills to take your conservation career further.
                 </p>
               </div>
             ) : null}

@@ -446,17 +446,38 @@ select {
 .course-match-note {
   margin-top: 24px;
   padding: 22px 24px;
+  border: 1px solid transparent;
   border-radius: var(--wt-radius-panel);
-  background: var(--wt-color-cream);
+  background:
+    linear-gradient(var(--wt-color-cream), var(--wt-color-cream)) padding-box,
+    linear-gradient(
+        90deg,
+        var(--wt-color-brand-purple),
+        var(--wt-color-brand-gradient-middle),
+        var(--wt-color-brand-pink)
+      )
+      border-box;
 }
 .course-match-note h3 {
   margin: 0;
   font-size: 1.35rem;
 }
-.course-match-note > p:last-child {
+.course-match-note__description,
+.course-match-note__training {
   margin: 10px 0 0;
   color: var(--wt-color-muted);
   font-size: 0.84rem;
+  line-height: 1.55;
+}
+.course-match-note__training a {
+  color: var(--wt-color-brand-pink);
+  font-weight: var(--wt-font-weight-bold);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.16em;
+}
+.course-match-note__training a:hover {
+  color: var(--wt-color-brand-purple);
 }
 .pathway-grid,
 .employer-grid {
