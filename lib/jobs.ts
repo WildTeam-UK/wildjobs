@@ -18,6 +18,23 @@ export type RelatedCourse = Readonly<{
   themeColour: string;
 }>;
 
+export type JobTaxonomyTerm = Readonly<{
+  description?: string;
+  slug: string;
+  title: string;
+}>;
+
+export type JobLocation = Readonly<{
+  addressLine1?: string;
+  addressLine2?: string;
+  countryCode?: string;
+  isPrimary: boolean;
+  label: string;
+  locality?: string;
+  postalCode?: string;
+  region?: string;
+}>;
+
 export type Job = Readonly<{
   id?: number;
   availability?: "current" | "expired" | "unavailable" | "withdrawn";
@@ -37,6 +54,11 @@ export type Job = Readonly<{
   hoursType?: string;
   category: string;
   careerAreas?: readonly string[];
+  careerAreaTerms?: readonly JobTaxonomyTerm[];
+  occupations?: readonly JobTaxonomyTerm[];
+  capabilities?: readonly JobTaxonomyTerm[];
+  benefits?: readonly JobTaxonomyTerm[];
+  locations?: readonly JobLocation[];
   salary: string;
   salaryMinimum?: number;
   summary: string;

@@ -40,7 +40,13 @@ export const publicJobFields = `
   created_at,
   employers!inner(slug, name, short_name, website_url, logo_url, overview, ai_summary),
   job_career_areas(is_primary, career_areas!inner(slug, title)),
-  job_capabilities(capabilities!inner(course_capabilities(courses!inner(slug, short_title, public_url, theme_colour, is_active, is_filter_visible, availability_status))))
+  job_capabilities(relevance_score, importance, capabilities!inner(slug, title, description, course_capabilities(courses!inner(slug, short_title, public_url, theme_colour, is_active, is_filter_visible, availability_status))))
+`;
+
+const publicJobDetailFields = `${publicJobFields},
+  job_occupations(is_primary, occupations!inner(slug, title, description)),
+  job_benefits(benefits!inner(slug, title, description)),
+  job_locations(raw_text, address_line_1, address_line_2, locality, region, postal_code, country_code, is_primary)
 `;
 
 export const legacyPublicJobFields = publicJobFields.replace(
@@ -108,7 +114,7 @@ export const getPublicJobBySlug = cache(async (slug: string): Promise<Job | unde
   const now = new Date();
   const { data, error } = await client
     .from("jobs")
-    .select(publicJobFields)
+    .select(publicJobDetailFields)
     .eq("slug", slug)
     .eq("status", "published")
     .lte("published_at", now.toISOString())
@@ -121,7 +127,11 @@ export const getPublicJobBySlug = cache(async (slug: string): Promise<Job | unde
   if (error && isMissingStructuredLocationColumns(error)) {
     const { data: legacyData, error: legacyError } = await client
       .from("jobs")
-      .select(legacyPublicJobFields)
+      .select(`${legacyPublicJobFields},
+        job_occupations(is_primary, occupations!inner(slug, title, description)),
+        job_benefits(benefits!inner(slug, title, description)),
+        job_locations(raw_text, address_line_1, address_line_2, locality, region, postal_code, country_code, is_primary)
+      `)
       .eq("slug", slug)
       .eq("status", "published")
       .lte("published_at", now.toISOString())

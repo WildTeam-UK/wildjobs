@@ -1,5 +1,5 @@
 import { DEFAULT_COURSE_THEME_COLOUR } from "./courses";
-import type { Job, RelatedCourse } from "./jobs";
+import type { Job, JobLocation, JobTaxonomyTerm, RelatedCourse } from "./jobs";
 
 type PublicEmployerRecord = Readonly<{
   ai_summary: string | null;
@@ -20,7 +20,12 @@ type PublicCareerAreaRecord = Readonly<{
 }>;
 
 type PublicJobCapabilityRecord = Readonly<{
+  importance: string;
+  relevance_score: number;
   capabilities: Readonly<{
+    description: string;
+    slug: string;
+    title: string;
     course_capabilities: readonly Readonly<{
       courses: Readonly<{
         availability_status: string;
@@ -33,6 +38,34 @@ type PublicJobCapabilityRecord = Readonly<{
       }> | null;
     }>[];
   }> | null;
+}>;
+
+type PublicJobOccupationRecord = Readonly<{
+  is_primary: boolean;
+  occupations: Readonly<{
+    description: string | null;
+    slug: string;
+    title: string;
+  }> | null;
+}>;
+
+type PublicJobBenefitRecord = Readonly<{
+  benefits: Readonly<{
+    description: string | null;
+    slug: string;
+    title: string;
+  }> | null;
+}>;
+
+type PublicJobLocationRecord = Readonly<{
+  address_line_1: string | null;
+  address_line_2: string | null;
+  country_code: string | null;
+  is_primary: boolean;
+  locality: string | null;
+  postal_code: string | null;
+  raw_text: string;
+  region: string | null;
 }>;
 
 export type PublicJobRecord = Readonly<{
@@ -49,7 +82,10 @@ export type PublicJobRecord = Readonly<{
   expires_at: string | null;
   hours_type: string | null;
   job_career_areas: readonly PublicCareerAreaRecord[];
+  job_benefits?: readonly PublicJobBenefitRecord[];
   job_capabilities?: readonly PublicJobCapabilityRecord[];
+  job_locations?: readonly PublicJobLocationRecord[];
+  job_occupations?: readonly PublicJobOccupationRecord[];
   location_text: string | null;
   locality: string | null;
   postal_code: string | null;
@@ -113,6 +149,10 @@ function paragraphs(value: string | null) {
     .split(/\r?\n\s*\r?\n/)
     .map((paragraph) => paragraph.trim())
     .filter(Boolean);
+}
+
+function comparableText(value: string) {
+  return value.replace(/\s+/g, " ").trim().toLocaleLowerCase("en-GB");
 }
 
 function listItems(value: string | null) {
@@ -192,6 +232,46 @@ function relatedCourses(record: PublicJobRecord): readonly RelatedCourse[] {
   return [...coursesBySlug.values()];
 }
 
+function taxonomyTerm(record: { description: string | null; slug: string; title: string }): JobTaxonomyTerm {
+  return {
+    description: record.description?.trim() || undefined,
+    slug: record.slug,
+    title: record.title,
+  };
+}
+
+function jobTitle(record: PublicJobRecord, employer: PublicEmployerRecord | null) {
+  let title = record.title.trim();
+  const employerNames = [employer?.name, employer?.short_name]
+    .map((name) => name?.trim())
+    .filter((name): name is string => Boolean(name))
+    .toSorted((left, right) => right.length - left.length);
+
+  for (const employerName of employerNames) {
+    const escapedName = employerName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    title = title
+      .replace(new RegExp(`(?:\\s+with\\s+|\\s+at\\s+|\\s*[-|–—]\\s*)${escapedName}$`, "i"), "")
+      .trim();
+  }
+
+  return title || record.title;
+}
+
+function jobLocations(record: PublicJobRecord): readonly JobLocation[] {
+  return (record.job_locations ?? [])
+    .toSorted((left, right) => Number(right.is_primary) - Number(left.is_primary))
+    .map((location) => ({
+      addressLine1: location.address_line_1?.trim() || undefined,
+      addressLine2: location.address_line_2?.trim() || undefined,
+      countryCode: location.country_code?.trim() || undefined,
+      isPrimary: location.is_primary,
+      label: location.raw_text.trim(),
+      locality: location.locality?.trim() || undefined,
+      postalCode: location.postal_code?.trim() || undefined,
+      region: location.region?.trim() || undefined,
+    }));
+}
+
 export function mapPublicJob(record: PublicJobRecord): Job {
   const rawDescription = paragraphs(record.description);
   const careerAreas = record.job_career_areas
@@ -205,15 +285,38 @@ export function mapPublicJob(record: PublicJobRecord): Job {
   const aiEmployerOverview = paragraphs(employer?.ai_summary ?? null);
   const summary = record.summary?.trim() || rawDescription[0] || "View the full vacancy details.";
   const description = rawDescription.filter(
-    (paragraph) => paragraph.toLocaleLowerCase("en-GB") !== summary.toLocaleLowerCase("en-GB"),
+    (paragraph) => comparableText(paragraph) !== comparableText(summary),
   );
   const courses = relatedCourses(record);
+  const occupations = (record.job_occupations ?? [])
+    .filter((relation) => relation.occupations)
+    .toSorted((left, right) => Number(right.is_primary) - Number(left.is_primary))
+    .flatMap((relation) => (relation.occupations ? [taxonomyTerm(relation.occupations)] : []));
+  const capabilities = (record.job_capabilities ?? [])
+    .filter((relation) => relation.capabilities)
+    .toSorted((left, right) => right.relevance_score - left.relevance_score)
+    .flatMap((relation) => (relation.capabilities ? [taxonomyTerm(relation.capabilities)] : []));
+  const benefits = (record.job_benefits ?? []).flatMap((relation) =>
+    relation.benefits ? [taxonomyTerm(relation.benefits)] : [],
+  );
 
   return {
     availability: availability(record),
     applicationUrl: record.application_url ?? undefined,
     applicationLabel: applicationLabel(record),
+    benefits,
+    capabilities,
     category,
+    careerAreaTerms: careerAreas.flatMap((relation) =>
+      relation.career_areas
+        ? [
+            {
+              slug: relation.career_areas.slug,
+              title: relation.career_areas.title,
+            },
+          ]
+        : [],
+    ),
     careerAreas: careerAreas.flatMap((relation) =>
       relation.career_areas ? [relation.career_areas.title] : [],
     ),
@@ -235,7 +338,9 @@ export function mapPublicJob(record: PublicJobRecord): Job {
     locationLocality: record.locality?.trim() || undefined,
     locationRegion: record.region?.trim() || undefined,
     locationType: workplaceLabels[record.workplace_type as keyof typeof workplaceLabels] ?? "Not specified",
+    locations: jobLocations(record),
     organisation: employer?.short_name?.trim() || employer?.name?.trim() || "Employer not stated",
+    occupations,
     postedAt:
       dateOnly(record.posted_at) ?? dateOnly(record.published_at) ?? dateOnly(record.created_at) ?? "",
     publishedAt: dateOnly(record.published_at),
@@ -253,6 +358,6 @@ export function mapPublicJob(record: PublicJobRecord): Job {
     summarySource: ["ai", "excerpt", "source"].includes(record.summary_source)
       ? (record.summary_source as "ai" | "excerpt" | "source")
       : "source",
-    title: record.title,
+    title: jobTitle(record, employer),
   };
 }

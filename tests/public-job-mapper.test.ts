@@ -101,12 +101,22 @@ describe("public job mapping", () => {
       ...record,
       job_capabilities: [
         {
+          importance: "essential",
+          relevance_score: 92,
           capabilities: {
+            description: "Plan and deliver conservation projects.",
+            slug: "project-management",
+            title: "Project management",
             course_capabilities: [{ courses: projectManagement }, { courses: monitoringAndEvaluation }],
           },
         },
         {
+          importance: "useful",
+          relevance_score: 75,
           capabilities: {
+            description: "Engage people affected by conservation work.",
+            slug: "stakeholder-engagement",
+            title: "Stakeholder engagement",
             course_capabilities: [{ courses: projectManagement }],
           },
         },
@@ -128,6 +138,68 @@ describe("public job mapping", () => {
         trainingUrl: "https://training.wildteam.org.uk/course/monitoring-and-evaluation",
       },
     ]);
+  });
+
+  it("maps public role enrichment without exposing internal evidence or scores", () => {
+    const job = mapPublicJob({
+      ...record,
+      job_benefits: [
+        {
+          benefits: {
+            description: "Employer contributions towards retirement.",
+            slug: "pension",
+            title: "Pension",
+          },
+        },
+      ],
+      job_capabilities: [
+        {
+          capabilities: {
+            course_capabilities: [],
+            description: "Plan and deliver conservation projects.",
+            slug: "project-management",
+            title: "Project management",
+          },
+          importance: "essential",
+          relevance_score: 91,
+        },
+      ],
+      job_locations: [
+        {
+          address_line_1: "Wetland Centre",
+          address_line_2: null,
+          country_code: "GB",
+          is_primary: true,
+          locality: "Gloucester",
+          postal_code: "GL1",
+          raw_text: "Wetland Centre, Gloucester",
+          region: "Gloucestershire",
+        },
+      ],
+      job_occupations: [
+        {
+          is_primary: true,
+          occupations: {
+            description: "Coordinates environmental projects.",
+            slug: "project-manager",
+            title: "Project manager",
+          },
+        },
+      ],
+    });
+
+    expect(job).toMatchObject({
+      benefits: [{ slug: "pension", title: "Pension" }],
+      capabilities: [{ slug: "project-management", title: "Project management" }],
+      locations: [{ isPrimary: true, label: "Wetland Centre, Gloucester" }],
+      occupations: [{ slug: "project-manager", title: "Project manager" }],
+    });
+  });
+
+  it("keeps the public heading to the job title when a source appends the employer", () => {
+    expect(mapPublicJob({ ...record, title: "Wetland Researcher with Wetland Trust" }).title).toBe(
+      "Wetland Researcher",
+    );
   });
 
   it("uses clear fallbacks when optional publishing fields are empty", () => {
@@ -162,6 +234,16 @@ describe("public job mapping", () => {
     const job = mapPublicJob({
       ...record,
       description: "Support an ecological monitoring programme.",
+      summary: "Support an ecological monitoring programme.",
+    });
+
+    expect(job.description).toEqual([]);
+  });
+
+  it("does not repeat a summary when source whitespace differs", () => {
+    const job = mapPublicJob({
+      ...record,
+      description: "Support an ecological\nmonitoring programme.",
       summary: "Support an ecological monitoring programme.",
     });
 
