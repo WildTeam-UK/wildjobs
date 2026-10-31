@@ -867,7 +867,7 @@ select {
   z-index: 0;
   top: 0;
   bottom: 0;
-  width: min(24vw, 300px);
+  width: 300px;
   background-repeat: no-repeat;
   background-size: auto 100%;
   content: "";
@@ -5165,10 +5165,10 @@ select {
     background-size: 100% 100%;
   }
   .job-search-hero-art::before {
-    transform: translateX(-82%);
+    transform: translateX(-60%);
   }
   .job-search-hero-art::after {
-    transform: translateX(82%);
+    transform: translateX(60%);
   }
   .employer-hiring-carousel h2 {
     margin-bottom: 22px;
