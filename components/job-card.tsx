@@ -81,6 +81,34 @@ export function JobCard({
       name={job.organisation}
     />
   );
+  const aiSummaryLabel =
+    job.summarySource === "ai" ? (
+      <span className="job-card__ai-summary-label">
+        <span>AI summary</span>
+      </span>
+    ) : null;
+  const aiSummaryDisclaimer =
+    job.summarySource === "ai" ? (
+      <p className="job-card__ai-note">
+        <span className="job-card__ai-disclosure">This summary was provided by AI</span>{" "}
+        <span className="job-card__ai-tooltip-anchor">
+          <button
+            aria-describedby={`ai-summary-tooltip-${job.slug}`}
+            aria-label="How WildJobs uses AI summaries"
+            className="job-card__ai-tooltip-trigger"
+            type="button"
+          >
+            <svg aria-hidden="true" viewBox="0 0 20 20">
+              <circle cx="10" cy="10" r="8" />
+              <path d="M10 8.5v5M10 6.25h.01" />
+            </svg>
+          </button>
+          <span className="job-card__ai-tooltip" id={`ai-summary-tooltip-${job.slug}`} role="tooltip">
+            {aiSummaryExplanation}
+          </span>
+        </span>
+      </p>
+    ) : null;
 
   return (
     <article className={`job-card${compact ? " job-card--compact" : ""}`}>
@@ -163,42 +191,17 @@ export function JobCard({
               <Link href={`/jobs/${job.slug}`}>{displayTitle}</Link>
             )}
           </h2>
-          {job.summarySource === "ai" ? <p className="ai-summary-label">AI-generated summary</p> : null}
+          {aiSummaryLabel}
           <p className="job-card__summary">{job.summary}</p>
+          {aiSummaryDisclaimer}
         </div>
       ) : null}
       {compact ? (
         <>
           <div className="job-card__summary-block">
-            <p className={`job-card__summary${job.summarySource === "ai" ? " job-card__summary--ai" : ""}`}>
-              {job.summary}
-              {job.summarySource === "ai" ? (
-                <>
-                  {" "}
-                  <span className="job-card__ai-disclosure">This summary was provided by AI</span>{" "}
-                  <span className="job-card__ai-tooltip-anchor">
-                    <button
-                      aria-describedby={`ai-summary-tooltip-${job.slug}`}
-                      aria-label="How WildJobs uses AI summaries"
-                      className="job-card__ai-tooltip-trigger"
-                      type="button"
-                    >
-                      <svg aria-hidden="true" viewBox="0 0 20 20">
-                        <circle cx="10" cy="10" r="8" />
-                        <path d="M10 8.5v5M10 6.25h.01" />
-                      </svg>
-                    </button>
-                    <span
-                      className="job-card__ai-tooltip"
-                      id={`ai-summary-tooltip-${job.slug}`}
-                      role="tooltip"
-                    >
-                      {aiSummaryExplanation}
-                    </span>
-                  </span>
-                </>
-              ) : null}
-            </p>
+            {aiSummaryLabel}
+            <p className="job-card__summary">{job.summary}</p>
+            {aiSummaryDisclaimer}
           </div>
           <div className="job-card__meta-row">
             <ul className="job-card__compact-facts">
