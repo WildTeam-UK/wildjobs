@@ -851,7 +851,7 @@ select {
   padding: 0 0 clamp(58px, 8vw, 92px);
   background-color: var(--page-surface-light);
   background-image: url("/images/jobs-canopy-border.png");
-  background-position: top center;
+  background-position: center 150px;
   background-repeat: no-repeat;
   background-size: max(100%, 75rem) auto;
 }
@@ -4887,6 +4887,9 @@ select {
 }
 
 @media (max-width: 640px) {
+  .job-browser {
+    background-position: center 62px;
+  }
   .employer-hiring-carousel h2 {
     margin-bottom: 22px;
     font-size: 2rem;
