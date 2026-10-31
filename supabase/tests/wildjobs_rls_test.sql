@@ -2,7 +2,7 @@ begin;
 
 create extension if not exists pgtap with schema extensions;
 
-select plan(28);
+select plan(30);
 
 insert into auth.users (id, email)
 values
@@ -215,7 +215,9 @@ select is(
       and pg_class.relkind = 'r'
       and pg_class.relname in (
         'employers', 'jobs', 'career_areas', 'job_career_areas', 'courses',
-        'capabilities', 'course_capabilities', 'job_capabilities', 'staff_members',
+        'capabilities', 'capability_aliases', 'capability_candidates',
+        'course_capabilities', 'course_learning_outcomes', 'job_capabilities',
+        'source_record_capabilities', 'staff_members',
         'job_sources', 'job_source_records', 'import_runs', 'submission_invites',
         'employer_submissions', 'moderation_events', 'candidate_profiles',
         'saved_jobs', 'candidate_preferences', 'candidate_career_area_preferences',
@@ -224,7 +226,7 @@ select is(
       )
       and pg_class.relrowsecurity
   ),
-  22::bigint,
+  26::bigint,
   'RLS is enabled on every WildJobs public table'
 );
 
@@ -238,6 +240,26 @@ select is(
   has_function_privilege('service_role', 'public.claim_periodic_course_sync(integer)', 'execute'),
   true,
   'Only trusted server automation can claim a LearnWorlds course sync'
+);
+
+select is(
+  has_function_privilege(
+    'anon',
+    'public.replace_source_capability_classification(bigint,jsonb,jsonb,text)',
+    'execute'
+  ),
+  false,
+  'Anonymous visitors cannot write capability classifications'
+);
+
+select is(
+  has_function_privilege(
+    'service_role',
+    'public.replace_source_capability_classification(bigint,jsonb,jsonb,text)',
+    'execute'
+  ),
+  true,
+  'Trusted automation can write capability classifications'
 );
 
 set local role anon;

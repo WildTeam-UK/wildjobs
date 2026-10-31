@@ -12,8 +12,11 @@ const courseSchema = z
   .object({
     access: z.string().nullish(),
     course_url: z.string().nullish(),
+    courseImage: z.string().nullish(),
+    course_image: z.string().nullish(),
     description: z.string().nullish(),
     id: z.union([z.string(), z.number()]),
+    image: z.string().nullish(),
     public_url: z.string().nullish(),
     status: z.string().nullish(),
     title: z.string().min(1),
@@ -31,6 +34,7 @@ const coursePageSchema = z
 export type LearnWorldsCourse = Readonly<{
   availabilityStatus: "available" | "unavailable";
   id: string;
+  imageUrl: string | null;
   publicUrl: string;
   summary: string;
   title: string;
@@ -132,6 +136,17 @@ function publicCourseUrl(config: LearnWorldsConfig, course: z.infer<typeof cours
   return new URL(`course/${encodeURIComponent(String(course.id))}`, config.publicBaseUrl).toString();
 }
 
+function courseImageUrl(course: z.infer<typeof courseSchema>) {
+  const candidate = course.courseImage ?? course.course_image ?? course.image;
+  if (!candidate) return null;
+  try {
+    const url = new URL(candidate);
+    return url.protocol === "https:" && !url.username && !url.password ? url.toString() : null;
+  } catch {
+    return null;
+  }
+}
+
 function totalPages(meta: Record<string, unknown> | undefined) {
   for (const key of ["total_pages", "totalPages", "last_page", "lastPage"]) {
     const value = meta?.[key];
@@ -187,6 +202,7 @@ export async function fetchApprovedLearnWorldsCourses() {
       courses.set(id, {
         availabilityStatus: courseAvailability(rawCourse.status, rawCourse.access),
         id,
+        imageUrl: courseImageUrl(rawCourse),
         publicUrl: publicCourseUrl(config, rawCourse),
         summary: plainText(rawCourse.description) || rawCourse.title.trim(),
         title: rawCourse.title.trim(),

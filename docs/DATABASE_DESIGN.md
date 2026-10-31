@@ -103,12 +103,16 @@ Career areas are staff-managed reference records with a unique slug, title, desc
 
 These tables implement course-aware discovery without learner data.
 
-- `courses` stores the stable LearnWorlds course identifier, WildJobs slug, approved public title, short title, summary, public URL, availability state, provenance and review date.
-- `capabilities` stores editorial capability topics with stable slugs and descriptions.
-- `course_capabilities` records reviewed capabilities taught by a course.
-- `job_capabilities` records reviewed capabilities needed or developed in a job.
+- `courses` stores the stable LearnWorlds course identifier and synced catalogue facts alongside clearly separate WildJobs presentation fields such as short title, colour, image alternative text, display order and filter visibility.
+- `course_learning_outcomes` stores reviewed, source-attributed outcomes without changing the LearnWorlds course record.
+- `capabilities` and `capability_aliases` form the reusable editorial vocabulary used by both courses and jobs.
+- `course_capabilities` records reviewed primary or supporting coverage, a score, rationale and optional source outcome.
+- `source_record_capabilities` stores the bounded, evidence-backed capability classification made during vacancy enrichment. When a source record becomes a job, those matches are copied into `job_capabilities` with relevance, confidence, importance, evidence and policy version.
+- `capability_candidates` is an exception queue for repeated concepts that do not fit the existing course-backed vocabulary. Candidates never become public capabilities automatically.
 
 A course filter matches jobs through shared capabilities. It does not claim that a candidate enrolled in or completed a course.
+
+The classifier receives only active capabilities already connected to at least one course, returns no more than six, and must quote supporting vacancy text. This keeps cost and taxonomy growth bounded. Staff can later promote or merge repeated candidates; job processing never edits course mappings.
 
 The four approved homepage routes are derived from structured fields:
 

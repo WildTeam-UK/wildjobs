@@ -35,7 +35,7 @@ async function syncApprovedCourses(supabase: SupabaseClient<Database>) {
   const { data: existing, error: existingError } = await supabase
     .from("courses")
     .select(
-      "availability_status, is_active, learnworlds_course_id, provenance, public_url, reviewed_at, short_title, slug, summary, title",
+      "availability_status, image_url, is_active, learnworlds_course_id, provenance, public_url, reviewed_at, short_title, slug, summary, title",
     )
     .in("learnworlds_course_id", approvedIds);
   if (existingError) throw new Error("Approved courses could not be read.");
@@ -48,6 +48,7 @@ async function syncApprovedCourses(supabase: SupabaseClient<Database>) {
     const current = existingById.get(course.id);
     return {
       availability_status: course.availabilityStatus,
+      image_url: course.imageUrl,
       is_active: course.availabilityStatus === "available",
       learnworlds_course_id: course.id,
       learnworlds_synced_at: syncedAt,

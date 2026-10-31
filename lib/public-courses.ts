@@ -12,6 +12,7 @@ export const getPublicCourses = cache(async (): Promise<readonly Course[]> => {
     .from("courses")
     .select("slug, title, short_title, summary, public_url, course_capabilities!inner(capability_id)")
     .eq("is_active", true)
+    .eq("is_filter_visible", true)
     .eq("availability_status", "available")
     .order("title");
 

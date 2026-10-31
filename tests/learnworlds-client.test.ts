@@ -26,6 +26,7 @@ describe("LearnWorlds course catalogue client", () => {
             data: [
               {
                 access: "paid",
+                courseImage: "https://cdn.learnworlds.example/approved-course.jpg",
                 description: "<p>Build <strong>practical</strong> conservation skills.</p>",
                 id: "approved-course",
                 title: "Approved course",
@@ -55,6 +56,7 @@ describe("LearnWorlds course catalogue client", () => {
       {
         availabilityStatus: "available",
         id: "approved-course",
+        imageUrl: "https://cdn.learnworlds.example/approved-course.jpg",
         publicUrl: "https://training.wildteam.org.uk/course/approved-course",
         summary: "Build practical conservation skills.",
         title: "Approved course",
@@ -62,6 +64,7 @@ describe("LearnWorlds course catalogue client", () => {
       {
         availabilityStatus: "unavailable",
         id: "draft-course",
+        imageUrl: null,
         publicUrl: "https://training.wildteam.org.uk/course/draft-course",
         summary: "Draft course",
         title: "Draft course",

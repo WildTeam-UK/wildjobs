@@ -52,9 +52,10 @@ The same protected heartbeat can synchronise the approved public LearnWorlds cou
 Configure the server-only `LEARNWORLDS_API_URL`, `LEARNWORLDS_CLIENT_ID` and
 `LEARNWORLDS_ACCESS_TOKEN`, the public `LEARNWORLDS_PUBLIC_BASE_URL`, and a comma-separated
 `LEARNWORLDS_APPROVED_COURSE_IDS` allowlist. The API URL must be the version 2 base copied from the
-LearnWorlds API settings. Credentials never reach the browser. The sync updates catalogue metadata only;
-course-to-capability and job-to-capability mappings remain reviewed WildJobs data, and learner records are not
-requested or stored.
+LearnWorlds API settings. Credentials never reach the browser. The sync updates catalogue metadata only. Course
+outcomes and course-to-capability mappings remain reviewed WildJobs data. Vacancy enrichment can select a small,
+evidence-backed set from that course-backed vocabulary and queue unmatched concepts for staff review; learner
+records are not requested or stored.
 
 Run the complete local checks with:
 

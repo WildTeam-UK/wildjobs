@@ -80,6 +80,11 @@ export default async function AdminPage() {
             <h3>Review automation</h3>
             <p>Inspect AI enrichment, evidence gaps, usage and shadow publication decisions.</p>
           </Link>
+          <Link href="/admin/courses">
+            <span>06</span>
+            <h3>Review courses</h3>
+            <p>Add presentation details, verified outcomes and reusable capability mappings.</p>
+          </Link>
         </div>
       </section>
     </main>
