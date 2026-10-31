@@ -1834,6 +1834,7 @@ select {
   min-height: 29px;
   width: fit-content;
   align-items: center;
+  gap: 6px;
   margin: 14px 0 0;
   padding: 6px 10px;
   border: 1px solid transparent;
@@ -1853,6 +1854,12 @@ select {
   line-height: 1;
   text-transform: uppercase;
 }
+.job-card__ai-summary-label svg {
+  width: 15px;
+  height: 14px;
+  flex: 0 0 auto;
+  fill: var(--wt-color-brand-pink);
+}
 .job-card__ai-summary-label > span {
   background: linear-gradient(
     90deg,
@@ -1868,25 +1875,6 @@ select {
 }
 .job-card--compact .job-card__ai-summary-label {
   margin: 0 0 8px;
-}
-.job-card__ai-note {
-  position: relative;
-  z-index: 2;
-  margin: 6px 0 0;
-  color: var(--wt-color-muted);
-  font-size: 0.76rem;
-  line-height: 1.35;
-}
-.job-card__ai-disclosure {
-  position: relative;
-  z-index: 2;
-  color: var(--wt-color-brand-pink);
-  text-decoration: underline;
-  text-decoration-thickness: 1px;
-  text-underline-offset: 0.16em;
-}
-.job-card__ai-disclosure:hover {
-  color: var(--wt-color-brand-purple);
 }
 .job-card__ai-tooltip-trigger {
   z-index: 3;

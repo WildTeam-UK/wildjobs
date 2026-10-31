@@ -69,8 +69,6 @@ export function JobCard({
     job.closesAt && isClosingSoon(job.closesAt) ? { className: "closing", label: "Closing soon" } : null,
   ].filter((pill): pill is { className: string; label: string } => Boolean(pill));
   const postedLabel = postedAgoLabel(job.publishedAt ?? job.postedAt);
-  const aiSummaryExplanation =
-    "WildJobs uses AI to turn the original job information into a short summary. Always check the full listing before applying.";
   const trainingExplanation =
     "These recommendations connect capabilities used in this job with skills taught in WildTeam courses. A course is not necessarily required and does not guarantee eligibility.";
   const employerLogo = (
@@ -84,30 +82,12 @@ export function JobCard({
   const aiSummaryLabel =
     job.summarySource === "ai" ? (
       <span className="job-card__ai-summary-label">
+        <svg aria-hidden="true" viewBox="0 0 18 16">
+          <path d="M8 1.5C8.45 4.95 10.05 6.55 13.5 7 10.05 7.45 8.45 9.05 8 12.5 7.55 9.05 5.95 7.45 2.5 7 5.95 6.55 7.55 4.95 8 1.5Z" />
+          <path d="M14.5 10.5c.18 1.37.81 2 2.18 2.18-1.37.18-2 .81-2.18 2.18-.18-1.37-.81-2-2.18-2.18 1.37-.18 2-.81 2.18-2.18Z" />
+        </svg>
         <span>AI summary</span>
       </span>
-    ) : null;
-  const aiSummaryDisclaimer =
-    job.summarySource === "ai" ? (
-      <p className="job-card__ai-note">
-        <span className="job-card__ai-disclosure">This summary was provided by AI</span>{" "}
-        <span className="job-card__ai-tooltip-anchor">
-          <button
-            aria-describedby={`ai-summary-tooltip-${job.slug}`}
-            aria-label="How WildJobs uses AI summaries"
-            className="job-card__ai-tooltip-trigger"
-            type="button"
-          >
-            <svg aria-hidden="true" viewBox="0 0 20 20">
-              <circle cx="10" cy="10" r="8" />
-              <path d="M10 8.5v5M10 6.25h.01" />
-            </svg>
-          </button>
-          <span className="job-card__ai-tooltip" id={`ai-summary-tooltip-${job.slug}`} role="tooltip">
-            {aiSummaryExplanation}
-          </span>
-        </span>
-      </p>
     ) : null;
 
   return (
@@ -193,7 +173,6 @@ export function JobCard({
           </h2>
           {aiSummaryLabel}
           <p className="job-card__summary">{job.summary}</p>
-          {aiSummaryDisclaimer}
         </div>
       ) : null}
       {compact ? (
@@ -201,7 +180,6 @@ export function JobCard({
           <div className="job-card__summary-block">
             {aiSummaryLabel}
             <p className="job-card__summary">{job.summary}</p>
-            {aiSummaryDisclaimer}
           </div>
           <div className="job-card__meta-row">
             <ul className="job-card__compact-facts">
