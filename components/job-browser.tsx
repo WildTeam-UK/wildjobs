@@ -508,13 +508,8 @@ export function JobBrowser({
     nature: natureEmojis[0],
     wildlife: wildlifeEmojis[0],
   });
-  const [isHeroCompact, setIsHeroCompact] = useState(false);
-  const compactTransitionUntilRef = useRef(0);
-  const expandedHeroHeightRef = useRef(0);
-  const heroRef = useRef<HTMLDivElement>(null);
-  const isHeroCompactRef = useRef(false);
-  const lastScrollYRef = useRef(0);
-  isHeroCompactRef.current = isHeroCompact;
+  const filterBarRef = useRef<HTMLDivElement>(null);
+  const filterPillsRef = useRef<HTMLDivElement>(null);
   const filteredJobs = filterJobs(jobs, {
     category,
     contractType,
@@ -569,6 +564,39 @@ export function JobBrowser({
   }, []);
 
   useEffect(() => {
+    const filterPills = filterPillsRef.current;
+    if (!filterPills) return;
+
+    let animationFrame = 0;
+    const updateFilterOverflow = () => {
+      cancelAnimationFrame(animationFrame);
+      animationFrame = requestAnimationFrame(() => {
+        const hasOverflow = filterPills.scrollWidth > filterPills.clientWidth + 1;
+        const canScrollLeft = hasOverflow && filterPills.scrollLeft > 1;
+        const canScrollRight =
+          hasOverflow && filterPills.scrollLeft + filterPills.clientWidth < filterPills.scrollWidth - 1;
+
+        filterPills.classList.toggle("job-filter-pills--overflow-left", canScrollLeft);
+        filterPills.classList.toggle("job-filter-pills--overflow-right", canScrollRight);
+      });
+    };
+
+    const resizeObserver = new ResizeObserver(updateFilterOverflow);
+    const mutationObserver = new MutationObserver(updateFilterOverflow);
+    resizeObserver.observe(filterPills);
+    mutationObserver.observe(filterPills, { childList: true, characterData: true, subtree: true });
+    filterPills.addEventListener("scroll", updateFilterOverflow, { passive: true });
+    updateFilterOverflow();
+
+    return () => {
+      cancelAnimationFrame(animationFrame);
+      resizeObserver.disconnect();
+      mutationObserver.disconnect();
+      filterPills.removeEventListener("scroll", updateFilterOverflow);
+    };
+  }, []);
+
+  useEffect(() => {
     function restorePageFromHistory() {
       const page = Number(new URLSearchParams(window.location.search).get("page"));
       setCurrentPage(Number.isInteger(page) && page > 0 ? page : 1);
@@ -580,60 +608,28 @@ export function JobBrowser({
 
   useEffect(() => {
     let animationFrame = 0;
-    lastScrollYRef.current = window.scrollY;
 
-    const updateCompactState = () => {
+    const updateFilterBarState = () => {
       cancelAnimationFrame(animationFrame);
       animationFrame = requestAnimationFrame(() => {
-        const currentScrollY = window.scrollY;
-        const previousScrollY = lastScrollYRef.current;
-        lastScrollYRef.current = currentScrollY;
+        const filterBar = filterBarRef.current;
+        if (!filterBar) return;
 
-        if (performance.now() < compactTransitionUntilRef.current) return;
-
-        setIsHeroCompact((isCompact) => {
-          if (!isCompact && currentScrollY > 96) {
-            compactTransitionUntilRef.current = performance.now() + 480;
-            return true;
-          }
-          if (isCompact && currentScrollY <= 8 && currentScrollY < previousScrollY) {
-            compactTransitionUntilRef.current = performance.now() + 480;
-            return false;
-          }
-          return isCompact;
-        });
+        const headerHeight = Number.parseFloat(
+          getComputedStyle(document.documentElement).getPropertyValue("--site-header-height"),
+        );
+        const isStuck = window.scrollY > 0 && filterBar.getBoundingClientRect().top <= headerHeight + 0.5;
+        filterBar.classList.toggle("job-filter-bar--stuck", isStuck);
       });
     };
 
-    updateCompactState();
-    window.addEventListener("scroll", updateCompactState, { passive: true });
+    updateFilterBarState();
+    window.addEventListener("resize", updateFilterBarState);
+    window.addEventListener("scroll", updateFilterBarState, { passive: true });
     return () => {
       cancelAnimationFrame(animationFrame);
-      window.removeEventListener("scroll", updateCompactState);
-    };
-  }, []);
-
-  useEffect(() => {
-    const hero = heroRef.current;
-    if (!hero) return;
-
-    expandedHeroHeightRef.current = hero.getBoundingClientRect().height;
-    const observer = new ResizeObserver(() => {
-      const currentHeight = hero.getBoundingClientRect().height;
-      const transitionIsSettled = performance.now() >= compactTransitionUntilRef.current;
-
-      if (!isHeroCompactRef.current && transitionIsSettled) {
-        expandedHeroHeightRef.current = currentHeight;
-      }
-
-      const compensation = Math.max(0, expandedHeroHeightRef.current - currentHeight);
-      hero.style.marginBottom = `${compensation}px`;
-    });
-
-    observer.observe(hero);
-    return () => {
-      observer.disconnect();
-      hero.style.marginBottom = "";
+      window.removeEventListener("resize", updateFilterBarState);
+      window.removeEventListener("scroll", updateFilterBarState);
     };
   }, []);
 
@@ -704,26 +700,20 @@ export function JobBrowser({
 
   return (
     <section className="job-browser" aria-labelledby="jobs-page-heading">
-      <div className={`job-search-hero${isHeroCompact ? " job-search-hero--compact" : ""}`} ref={heroRef}>
+      <div className="job-search-hero-art" aria-hidden="true" />
+      <div className="job-search-hero">
         <div className="job-search-hero__inner shell">
           <div className="job-search-hero__intro">
             <div className="job-search-hero__intro-content">
               <h1 id="jobs-page-heading">Do work that matters.</h1>
               <p className="job-search-hero__description">
-                <span aria-hidden="true" className="job-search-hero__emoji">
-                  {heroEmojis.discovery}
-                </span>{" "}
-                Discover your next meaningful career protecting wildlife{" "}
-                <span aria-hidden="true" className="job-search-hero__emoji">
-                  {heroEmojis.wildlife}
-                </span>
-                , restoring nature{" "}
-                <span aria-hidden="true" className="job-search-hero__emoji">
-                  {heroEmojis.nature}
-                </span>{" "}
-                and creating a better future for our planet.{" "}
-                <span aria-hidden="true" className="job-search-hero__emoji">
-                  🌍
+                Discover your next meaningful career protecting wildlife, restoring nature and creating a
+                better future for our planet.{" "}
+                <span aria-hidden="true" className="job-search-hero__emoji-cluster">
+                  <span className="job-search-hero__emoji">{heroEmojis.discovery}</span>
+                  <span className="job-search-hero__emoji">{heroEmojis.wildlife}</span>
+                  <span className="job-search-hero__emoji">{heroEmojis.nature}</span>
+                  <span className="job-search-hero__emoji">🌍</span>
                 </span>
               </p>
             </div>
@@ -778,8 +768,17 @@ export function JobBrowser({
               SEARCH
             </button>
           </form>
+        </div>
+      </div>
 
-          <div className="job-filter-pills" aria-label="Filter jobs" role="group">
+      <div className="job-filter-bar" ref={filterBarRef}>
+        <div className="job-filter-bar__inner shell">
+          <div
+            className="job-filter-pills"
+            aria-label="Filter and sort jobs"
+            ref={filterPillsRef}
+            role="group"
+          >
             {courses.length ? (
               <FilterDropdown
                 accessibleLabel="Related WildTeam courses"
@@ -910,6 +909,7 @@ export function JobBrowser({
           </div>
         </div>
       </div>
+      <div className="job-search-hero__tail" aria-hidden="true" />
 
       <div className="shell">
         <div className="job-browser__layout">

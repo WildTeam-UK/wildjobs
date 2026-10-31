@@ -53,12 +53,8 @@ function exactSourceText(value: string | null, sourceText: string) {
 function exactPhraseFromSource(phrase: string, sourceText: string) {
   const compactPhrase = compact(phrase);
   if (compactPhrase.length < 8 || compactPhrase.split(" ").length < 2) return null;
-  const escaped = compactPhrase
-    .replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
-    .replace(/\s+/g, "\\s+");
-  const match = new RegExp(`(?:^|[^\\p{L}\\p{N}])(${escaped})(?=$|[^\\p{L}\\p{N}])`, "iu").exec(
-    sourceText,
-  );
+  const escaped = compactPhrase.replace(/[.*+?^${}()|[\]\\]/g, "\\$&").replace(/\s+/g, "\\s+");
+  const match = new RegExp(`(?:^|[^\\p{L}\\p{N}])(${escaped})(?=$|[^\\p{L}\\p{N}])`, "iu").exec(sourceText);
   return match?.[1] ?? null;
 }
 

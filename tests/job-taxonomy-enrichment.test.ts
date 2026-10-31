@@ -30,9 +30,7 @@ describe("job taxonomy enrichment", () => {
   });
 
   it("holds a classification for review when its core occupation or career area is missing", () => {
-    expect(taxonomyClassificationNeedsReview({ careerAreaMatches: [], occupationMatches: [{}] })).toBe(
-      true,
-    );
+    expect(taxonomyClassificationNeedsReview({ careerAreaMatches: [], occupationMatches: [{}] })).toBe(true);
     expect(taxonomyClassificationNeedsReview({ careerAreaMatches: [{}], occupationMatches: [{}] })).toBe(
       false,
     );
