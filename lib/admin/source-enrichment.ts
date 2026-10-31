@@ -67,6 +67,80 @@ export type SourceEnrichmentResult =
 
 const DETERMINISTIC_ENRICHMENT_POLICY_VERSION = `${SOURCE_PAGE_EXTRACTOR_VERSION}-only`;
 
+async function readEnrichmentCatalogues(supabase: SupabaseClient<Database>) {
+  const [capabilities, occupations, benefits, careerAreas] = await Promise.all([
+    supabase
+      .from("capabilities")
+      .select(
+        "id, title, description, capability_aliases(alias), course_capabilities!inner(course_id, courses!inner(is_job_search_excluded))",
+      )
+      .eq("is_active", true)
+      .eq("course_capabilities.courses.is_job_search_excluded", false)
+      .limit(80),
+    supabase
+      .from("occupations")
+      .select("id, title, description, occupation_aliases(alias)")
+      .eq("is_active", true)
+      .order("title")
+      .limit(120),
+    supabase
+      .from("benefits")
+      .select("id, title, description, benefit_aliases(alias)")
+      .eq("is_active", true)
+      .order("title")
+      .limit(80),
+    supabase
+      .from("career_areas")
+      .select("id, title, description")
+      .eq("is_active", true)
+      .order("display_order")
+      .limit(40),
+  ]);
+  if (capabilities.error || occupations.error || benefits.error || careerAreas.error) {
+    throw new Error("The enrichment taxonomies could not be read.");
+  }
+  return {
+    benefits: (benefits.data ?? []).map((benefit) => ({
+      aliases: benefit.benefit_aliases.map((item) => item.alias),
+      description: benefit.description,
+      id: benefit.id,
+      title: benefit.title,
+    })),
+    capabilities: (capabilities.data ?? []).map((capability) => ({
+      aliases: capability.capability_aliases.map((item) => item.alias),
+      description: capability.description,
+      id: capability.id,
+      title: capability.title,
+    })),
+    careerAreas: careerAreas.data ?? [],
+    occupations: (occupations.data ?? []).map((occupation) => ({
+      aliases: occupation.occupation_aliases.map((item) => item.alias),
+      description: occupation.description,
+      id: occupation.id,
+      title: occupation.title,
+    })),
+  };
+}
+
+async function persistJobTaxonomyEnrichment(
+  supabase: SupabaseClient<Database>,
+  record: SourceRecord,
+  result: Extract<Awaited<ReturnType<typeof enrichWithAi>>, { status: "completed" }>,
+) {
+  if (!record.job_id) return;
+  const { error } = await supabase.rpc("replace_job_taxonomy_enrichment", {
+    p_benefit_matches: result.benefitMatches as Json,
+    p_candidates: result.taxonomyCandidates as Json,
+    p_career_area_matches: result.careerAreaMatches as Json,
+    p_job_id: record.job_id,
+    p_locations: result.structuredLocations as Json,
+    p_occupation_matches: result.occupationMatches as Json,
+    p_policy_version: AI_ENRICHMENT_POLICY_VERSION,
+    p_source_record_id: record.id,
+  });
+  if (error) throw new Error("Job taxonomy enrichment could not be saved.");
+}
+
 function positiveLimit(value: string | undefined, fallback: number, maximum: number) {
   const parsed = Number(value);
   return Number.isSafeInteger(parsed) && parsed > 0 ? Math.min(parsed, maximum) : fallback;
@@ -320,32 +394,22 @@ async function backfillPublishedJobCapabilities(
     if (!record.job_id || !record.detail_text || !record.canonical_url) {
       throw new Error("Published capability backfill requires a linked job and trusted source text.");
     }
-    const { data: courseBackedCapabilities, error: capabilityReadError } = await supabase
-      .from("capabilities")
-      .select(
-        "id, title, description, capability_aliases(alias), course_capabilities!inner(course_id, courses!inner(is_job_search_excluded))",
-      )
-      .eq("is_active", true)
-      .eq("course_capabilities.courses.is_job_search_excluded", false)
-      .limit(80);
-    if (capabilityReadError) throw new Error("Course-backed capabilities could not be read.");
-    const capabilityCatalogue = (courseBackedCapabilities ?? []).map((capability) => ({
-      aliases: capability.capability_aliases.map((item) => item.alias),
-      description: capability.description,
-      id: capability.id,
-      title: capability.title,
-    }));
-    if (!capabilityCatalogue.length) throw new Error("No course-backed capabilities are available.");
+    const catalogues = await readEnrichmentCatalogues(supabase);
+    if (!catalogues.capabilities.length) throw new Error("No course-backed capabilities are available.");
 
     const aiResult = await enrichWithAi({
       allowEmployerWebResearch: false,
-      capabilities: capabilityCatalogue,
+      benefits: catalogues.benefits,
+      capabilities: catalogues.capabilities,
+      careerAreas: catalogues.careerAreas,
       employerName: record.employer_name,
       employerSourceUrl: null,
       employerText: null,
       listingSourceUrl: record.canonical_url,
       listingText: record.detail_text,
+      occupations: catalogues.occupations,
       shouldSummariseJob: false,
+      sourceTitle: record.source_title,
       unresolvedFields: [],
     });
     if (aiResult.status !== "completed") {
@@ -360,6 +424,7 @@ async function backfillPublishedJobCapabilities(
       p_source_record_id: record.id,
     });
     if (capabilitySaveError) throw new Error("Published capability classification could not be saved.");
+    await persistJobTaxonomyEnrichment(supabase, record, aiResult);
 
     const finishedAt = new Date().toISOString();
     const [siblingUpdate, recordUpdate, runUpdate] = await Promise.all([
@@ -671,6 +736,41 @@ async function persistEmployerEnrichment(
       .upsert(evidenceRows, { onConflict: "employer_id,field_name" });
     if (evidenceError) throw new Error("Employer evidence could not be saved.");
   }
+
+  const canonicalBenefits = input.suggestions.filter(
+    (item) => item.fieldName === "benefits" && item.taxonomyId && item.sourceUrl,
+  );
+  if (canonicalBenefits.length) {
+    const benefitIds = canonicalBenefits.map((item) => item.taxonomyId as number);
+    const { data: existingBenefits, error: benefitReadError } = await supabase
+      .from("employer_benefits")
+      .select("benefit_id, assignment_source, reviewed_at")
+      .eq("employer_id", employer.id)
+      .in("benefit_id", benefitIds);
+    if (benefitReadError) throw new Error("Employer benefit mappings could not be checked.");
+    const existingById = new Map((existingBenefits ?? []).map((item) => [item.benefit_id, item]));
+    const safeBenefits = canonicalBenefits.filter((item) => {
+      const existing = existingById.get(item.taxonomyId as number);
+      return !existing || (existing.assignment_source === "ai" && !existing.reviewed_at);
+    });
+    if (safeBenefits.length) {
+      const { error: benefitSaveError } = await supabase.from("employer_benefits").upsert(
+        safeBenefits.map((item) => ({
+          assignment_source: "ai",
+          benefit_id: item.taxonomyId as number,
+          confidence: item.confidence,
+          employer_id: employer.id,
+          evidence_text: item.evidence,
+          original_text: item.value,
+          policy_version: AI_ENRICHMENT_POLICY_VERSION,
+          source_url: item.sourceUrl as string,
+          updated_at: new Date().toISOString(),
+        })),
+        { onConflict: "employer_id,benefit_id" },
+      );
+      if (benefitSaveError) throw new Error("Employer benefit mappings could not be saved.");
+    }
+  }
   return data;
 }
 
@@ -881,39 +981,32 @@ export async function enrichNextPendingSourceRecord(
       !employer.reviewed_at,
     );
     const shouldSummariseJob = shouldGenerateAiSummary(record.ai_summary);
-    const { data: courseBackedCapabilities, error: capabilityReadError } = await supabase
-      .from("capabilities")
-      .select(
-        "id, title, description, capability_aliases(alias), course_capabilities!inner(course_id, courses!inner(is_job_search_excluded))",
-      )
-      .eq("is_active", true)
-      .eq("course_capabilities.courses.is_job_search_excluded", false)
-      .limit(80);
-    if (capabilityReadError) throw new Error("Course-backed capabilities could not be read.");
-    const capabilityCatalogue = (courseBackedCapabilities ?? []).map((capability) => ({
-      aliases: capability.capability_aliases.map((item) => item.alias),
-      description: capability.description,
-      id: capability.id,
-      title: capability.title,
-    }));
+    const catalogues = await readEnrichmentCatalogues(supabase);
     const aiNeeded = Boolean(
       unresolved.length ||
       shouldSummariseJob ||
       employerPage.text ||
       employerResearchNeeded ||
-      capabilityCatalogue.length,
+      catalogues.capabilities.length ||
+      catalogues.occupations.length ||
+      catalogues.benefits.length ||
+      catalogues.careerAreas.length,
     );
     if (aiNeeded && aiBudget.allowed) {
       try {
         aiResult = await enrichWithAi({
           allowEmployerWebResearch: employerResearchNeeded,
-          capabilities: capabilityCatalogue,
+          benefits: catalogues.benefits,
+          capabilities: catalogues.capabilities,
+          careerAreas: catalogues.careerAreas,
           employerName: employer?.name ?? page.employerName ?? record.employer_name,
           employerSourceUrl: employerPage.sourceUrl,
           employerText: employerPage.text || null,
           listingSourceUrl: detail.url,
           listingText: page.detailText,
+          occupations: catalogues.occupations,
           shouldSummariseJob,
+          sourceTitle: page.title ?? record.source_title,
           unresolvedFields: unresolved,
         });
       } catch (error) {
@@ -1107,6 +1200,9 @@ export async function enrichNextPendingSourceRecord(
     if (recordUpdateError) throw new Error("The enriched source record could not be saved.");
 
     if (automatedSource) await syncAutomatedDraft(supabase, record.id);
+    if (aiResult.status === "completed") {
+      await persistJobTaxonomyEnrichment(supabase, record, aiResult);
+    }
 
     const { error: runUpdateError } = await supabase
       .from("source_enrichment_runs")

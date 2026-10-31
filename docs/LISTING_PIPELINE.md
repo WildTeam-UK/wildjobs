@@ -170,6 +170,8 @@ Canonical taxonomies cover occupations, career areas, conservation focus, capabi
 - AI maps only to active terms supplied in its request.
 - Unmatched concepts enter a review queue; they do not become public terms automatically.
 - Taxonomy and mapping policy versions are retained so historical statistics remain interpretable.
+- A deliberately small initial occupation and benefit vocabulary is expanded only through reviewed candidates, aliases and demonstrated recurring need.
+- Publication requires a canonical occupation, career area and structured location; job-specific benefits remain optional and separate from employer-wide benefits.
 
 Canonical occupation mappings make later career pages possible. For example, source titles such as `Reserve Ranger` and `Countryside Ranger` can contribute to a `Park ranger` career page without losing their original titles.
 

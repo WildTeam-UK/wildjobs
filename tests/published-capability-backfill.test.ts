@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import { isPublishedCapabilityBackfillCandidate } from "../lib/admin/published-capability-backfill";
 
-const currentPolicy = "ai-structured-v10-course-taxonomy";
+const currentPolicy = "ai-structured-v11-job-taxonomy";
 const record = {
   canonicalUrl: "https://example.org/jobs/project-manager",
   detailText: "The role plans and delivers conservation projects with partners.",

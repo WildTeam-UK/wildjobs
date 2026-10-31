@@ -122,6 +122,8 @@ These tables implement course-aware discovery without learner data.
 - `source_record_capabilities` stores the bounded, evidence-backed capability classification made during vacancy enrichment. Because automated jobs are private canonical drafts before enrichment, the same write also updates `job_capabilities` with relevance, confidence, importance, evidence and policy version.
 - `capability_candidates` is an exception queue for repeated concepts that do not fit the existing course-backed vocabulary. Candidates never become public capabilities automatically.
 
+The same vacancy enrichment run maps the linked canonical job to active occupations, benefits and career areas and adds evidence-backed structured locations. AI mappings retain their source wording, exact evidence, confidence and policy version. Staff-reviewed and deterministic mappings are never overwritten by a later AI pass. Occupation or benefit concepts that do not match an active term are stored in `taxonomy_candidates` for exception review and do not become public filters automatically.
+
 A course filter matches jobs through shared capabilities. It does not claim that a candidate enrolled in or completed a course.
 
 The course classifier returns at most four strong capabilities per course, requires an exact catalogue quote and rejects low-confidence output. The vacancy classifier receives only active capabilities already connected to at least one course, returns no more than six, and must quote supporting vacancy text. This keeps cost and taxonomy growth bounded. Staff can later promote or merge repeated candidates; job processing never edits course mappings.

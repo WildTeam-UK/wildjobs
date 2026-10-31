@@ -64,6 +64,23 @@ async function exactDuplicateCount(
   return new Set(results.flatMap((result) => (result.data ?? []).map((item) => item.id))).size;
 }
 
+async function taxonomyCoverage(supabase: SupabaseClient<Database>, jobId: number | null) {
+  if (!jobId) return { careerAreas: 0, locations: 0, occupations: 0 };
+  const [careerAreas, occupations, locations] = await Promise.all([
+    supabase.from("job_career_areas").select("*", { count: "exact", head: true }).eq("job_id", jobId),
+    supabase.from("job_occupations").select("*", { count: "exact", head: true }).eq("job_id", jobId),
+    supabase.from("job_locations").select("*", { count: "exact", head: true }).eq("job_id", jobId),
+  ]);
+  if (careerAreas.error || occupations.error || locations.error) {
+    throw new Error("Vacancy taxonomy coverage could not be checked.");
+  }
+  return {
+    careerAreas: careerAreas.count ?? 0,
+    locations: locations.count ?? 0,
+    occupations: occupations.count ?? 0,
+  };
+}
+
 async function evaluateAndMaybePublishSourceRecordUnsafe(
   supabase: SupabaseClient<Database>,
   sourceRecordId: number,
@@ -71,7 +88,7 @@ async function evaluateAndMaybePublishSourceRecordUnsafe(
   const { data: record, error } = await supabase
     .from("job_source_records")
     .select(
-      "id, job_id, mapping_status, canonical_url, application_url, closes_at, first_seen_at, source_title, summary, detail_text, location_text, employer_name, employer_website_url, enrichment_status, job_sources(name, source_type, is_active, default_country_code, description_display_mode), employers(id, name, status, website_url, mission, overview, reviewed_at, employer_field_evidence(field_name, confidence)), job_source_field_evidence(field_name, resolution_status, value, confidence)",
+      "id, job_id, mapping_status, canonical_url, application_url, closes_at, first_seen_at, source_title, summary, ai_summary, detail_text, country_code, location_text, employer_name, employer_website_url, enrichment_status, job_sources(name, source_type, is_active, default_country_code, description_display_mode), employers(id, name, status, website_url, mission, overview, reviewed_at, employer_field_evidence(field_name, confidence)), job_source_field_evidence(field_name, resolution_status, value, confidence)",
     )
     .eq("id", sourceRecordId)
     .maybeSingle();
@@ -83,11 +100,13 @@ async function evaluateAndMaybePublishSourceRecordUnsafe(
     record.application_url,
     record.job_id,
   );
+  const coverage = await taxonomyCoverage(supabase, record.job_id);
   const readiness = evaluatePublicationReadiness({
     applicationUrl: record.application_url,
     canonicalUrl: record.canonical_url,
+    careerAreaCount: coverage.careerAreas,
     closesAt: record.closes_at,
-    countryCode: record.job_sources?.default_country_code ?? null,
+    countryCode: record.country_code ?? record.job_sources?.default_country_code ?? null,
     detailText: record.detail_text,
     descriptionDisplayMode: record.job_sources?.description_display_mode ?? "link_only",
     duplicateCount,
@@ -109,12 +128,14 @@ async function evaluateAndMaybePublishSourceRecordUnsafe(
     jobId: record.job_id,
     locationText: record.location_text,
     mappingStatus: record.mapping_status,
+    occupationCount: coverage.occupations,
     sourceActive: record.job_sources?.is_active ?? false,
     sourceEmployerName: record.employer_name,
     sourceEmployerWebsiteUrl: record.employer_website_url,
     sourceTitle: record.source_title,
     sourceType: record.job_sources?.source_type ?? "",
-    summary: record.summary,
+    summary: record.summary ?? record.ai_summary,
+    structuredLocationCount: coverage.locations,
     today: new Date().toISOString().slice(0, 10),
   });
   const control = await readAutoPublishControl(supabase);

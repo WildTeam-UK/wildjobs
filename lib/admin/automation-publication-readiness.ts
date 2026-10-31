@@ -1,6 +1,6 @@
 import { employerIdentityConflicts } from "./employer-identity";
 
-export const AUTOMATION_PUBLICATION_POLICY_VERSION = "canonical-draft-v1";
+export const AUTOMATION_PUBLICATION_POLICY_VERSION = "canonical-draft-v2-taxonomy";
 
 export function publicationControlAllowsSource(input: {
   databaseEnabled: boolean;
@@ -19,6 +19,7 @@ export const automationBlockerLabels = {
   application_evidence_weak: "The application address is not supported by strong source-page evidence.",
   application_url_missing: "A secure application address is missing.",
   canonical_url_missing: "The original vacancy address is missing.",
+  career_area_missing: "The vacancy does not have an evidence-backed career area.",
   closing_date_missing: "The closing date is missing or has passed.",
   closing_evidence_weak: "The closing date is not supported by strong evidence.",
   country_missing: "The approved source does not yet have a default country.",
@@ -31,15 +32,19 @@ export const automationBlockerLabels = {
   employer_profile_incomplete: "The employer website, mission or overview is incomplete.",
   engagement_evidence_weak: "Paid or volunteer status is not supported by strong evidence.",
   engagement_salary_conflict: "The paid or volunteer classification conflicts with the advertised salary.",
+  engagement_missing: "The vacancy is not classified as paid or volunteer.",
   enrichment_incomplete: "Vacancy enrichment has not completed cleanly.",
   location_evidence_weak: "The location is not supported by strong evidence.",
   location_missing: "The vacancy location is missing.",
+  occupation_missing: "The vacancy does not have an evidence-backed canonical occupation.",
   listing_expired: "The vacancy has closed or exceeded its 30-day fallback lifetime.",
   source_inactive: "The source is paused.",
   source_not_automatable: "This source type is not approved for automatic publication.",
   source_permission_unapproved: "This source is not approved for full vacancy-description display.",
   summary_missing: "A usable vacancy summary could not be prepared.",
+  structured_location_missing: "The vacancy does not have a structured searchable location.",
   title_missing: "The vacancy title is missing.",
+  workplace_missing: "The vacancy is not classified as on-site, hybrid or remote.",
 } as const;
 
 export type AutomationBlockerCode = keyof typeof automationBlockerLabels;
@@ -59,6 +64,7 @@ type EmployerEvidence = {
 export type PublicationReadinessInput = {
   applicationUrl: string | null;
   canonicalUrl: string | null;
+  careerAreaCount: number;
   closesAt: string | null;
   countryCode: string | null;
   detailText: string | null;
@@ -80,12 +86,14 @@ export type PublicationReadinessInput = {
   jobId: number | null;
   locationText: string | null;
   mappingStatus: string;
+  occupationCount: number;
   sourceActive: boolean;
   sourceEmployerName: string | null;
   sourceEmployerWebsiteUrl: string | null;
   sourceTitle: string | null;
   sourceType: string;
   summary: string | null;
+  structuredLocationCount: number;
   today: string;
 };
 
@@ -142,7 +150,11 @@ export function evaluatePublicationReadiness(input: PublicationReadinessInput): 
   }
   if (effectiveExpiry < input.today) blockers.add("listing_expired");
   if (!usableText(input.sourceTitle, 2)) blockers.add("title_missing");
+  if (!usableText(input.summary, 20)) blockers.add("summary_missing");
   if (!usableText(input.detailText, 80)) blockers.add("description_missing");
+  if (input.careerAreaCount < 1) blockers.add("career_area_missing");
+  if (input.occupationCount < 1) blockers.add("occupation_missing");
+  if (input.structuredLocationCount < 1) blockers.add("structured_location_missing");
 
   const salaryEvidence = input.evidence.find(
     (item) => item.field_name === "salary_text" && item.resolution_status === "extracted" && item.value,
@@ -150,6 +162,11 @@ export function evaluatePublicationReadiness(input: PublicationReadinessInput): 
   const engagementEvidence = input.evidence.find(
     (item) => item.field_name === "engagement_type" && item.resolution_status === "extracted" && item.value,
   );
+  const workplaceEvidence = input.evidence.find(
+    (item) => item.field_name === "workplace_type" && item.resolution_status === "extracted" && item.value,
+  );
+  if (!engagementEvidence) blockers.add("engagement_missing");
+  if (!workplaceEvidence) blockers.add("workplace_missing");
   if (salaryEvidence && engagementEvidence?.value === "volunteer") {
     blockers.add("engagement_salary_conflict");
   }
@@ -168,7 +185,7 @@ export function evaluatePublicationReadiness(input: PublicationReadinessInput): 
   }
 
   const blockerList = [...blockers];
-  const totalChecks = 14;
+  const totalChecks = 20;
   const score = Math.max(0, Math.round(((totalChecks - blockerList.length) / totalChecks) * 100));
   return { blockers: blockerList, fieldConfidences, ready: blockerList.length === 0, score };
 }

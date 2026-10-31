@@ -1166,22 +1166,43 @@ export type Database = {
       };
       job_career_areas: {
         Row: {
+          assignment_source: string;
           career_area_id: number;
+          confidence: number | null;
           created_at: string;
+          evidence_text: string | null;
           is_primary: boolean;
           job_id: number;
+          original_text: string | null;
+          policy_version: string | null;
+          reviewed_at: string | null;
+          updated_at: string;
         };
         Insert: {
+          assignment_source?: string;
           career_area_id: number;
+          confidence?: number | null;
           created_at?: string;
+          evidence_text?: string | null;
           is_primary?: boolean;
           job_id: number;
+          original_text?: string | null;
+          policy_version?: string | null;
+          reviewed_at?: string | null;
+          updated_at?: string;
         };
         Update: {
+          assignment_source?: string;
           career_area_id?: number;
+          confidence?: number | null;
           created_at?: string;
+          evidence_text?: string | null;
           is_primary?: boolean;
           job_id?: number;
+          original_text?: string | null;
+          policy_version?: string | null;
+          reviewed_at?: string | null;
+          updated_at?: string;
         };
         Relationships: [
           {
@@ -2142,6 +2163,92 @@ export type Database = {
           },
         ];
       };
+      taxonomy_candidates: {
+        Row: {
+          confidence: number;
+          created_at: string;
+          evidence_text: string;
+          id: number;
+          job_id: number;
+          normalized_title: string;
+          original_text: string | null;
+          policy_version: string;
+          proposed_title: string;
+          resolved_benefit_id: number | null;
+          resolved_occupation_id: number | null;
+          reviewed_at: string | null;
+          source_record_id: number;
+          status: string;
+          taxonomy_type: string;
+          updated_at: string;
+        };
+        Insert: {
+          confidence: number;
+          created_at?: string;
+          evidence_text: string;
+          id?: never;
+          job_id: number;
+          normalized_title: string;
+          original_text?: string | null;
+          policy_version: string;
+          proposed_title: string;
+          resolved_benefit_id?: number | null;
+          resolved_occupation_id?: number | null;
+          reviewed_at?: string | null;
+          source_record_id: number;
+          status?: string;
+          taxonomy_type: string;
+          updated_at?: string;
+        };
+        Update: {
+          confidence?: number;
+          created_at?: string;
+          evidence_text?: string;
+          id?: never;
+          job_id?: number;
+          normalized_title?: string;
+          original_text?: string | null;
+          policy_version?: string;
+          proposed_title?: string;
+          resolved_benefit_id?: number | null;
+          resolved_occupation_id?: number | null;
+          reviewed_at?: string | null;
+          source_record_id?: number;
+          status?: string;
+          taxonomy_type?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "taxonomy_candidates_job_id_fkey";
+            columns: ["job_id"];
+            isOneToOne: false;
+            referencedRelation: "jobs";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "taxonomy_candidates_resolved_benefit_id_fkey";
+            columns: ["resolved_benefit_id"];
+            isOneToOne: false;
+            referencedRelation: "benefits";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "taxonomy_candidates_resolved_occupation_id_fkey";
+            columns: ["resolved_occupation_id"];
+            isOneToOne: false;
+            referencedRelation: "occupations";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "taxonomy_candidates_source_record_id_fkey";
+            columns: ["source_record_id"];
+            isOneToOne: false;
+            referencedRelation: "job_source_records";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
     };
     Views: {
       [_ in never]: never;
@@ -2271,6 +2378,19 @@ export type Database = {
           p_hours_types: string[];
           p_preferred_location: string;
           p_workplace_types: string[];
+        };
+        Returns: undefined;
+      };
+      replace_job_taxonomy_enrichment: {
+        Args: {
+          p_benefit_matches: Json;
+          p_candidates: Json;
+          p_career_area_matches: Json;
+          p_job_id: number;
+          p_locations: Json;
+          p_occupation_matches: Json;
+          p_policy_version: string;
+          p_source_record_id: number;
         };
         Returns: undefined;
       };
