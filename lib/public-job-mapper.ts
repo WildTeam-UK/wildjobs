@@ -1,4 +1,5 @@
-import type { Job } from "./jobs";
+import { DEFAULT_COURSE_THEME_COLOUR } from "./courses";
+import type { Job, RelatedCourse } from "./jobs";
 
 type PublicEmployerRecord = Readonly<{
   ai_summary: string | null;
@@ -21,7 +22,15 @@ type PublicCareerAreaRecord = Readonly<{
 type PublicJobCapabilityRecord = Readonly<{
   capabilities: Readonly<{
     course_capabilities: readonly Readonly<{
-      courses: Readonly<{ slug: string }> | null;
+      courses: Readonly<{
+        availability_status: string;
+        is_active: boolean;
+        is_filter_visible: boolean;
+        public_url: string;
+        short_title: string;
+        slug: string;
+        theme_colour: string | null;
+      }> | null;
     }>[];
   }> | null;
 }>;
@@ -155,6 +164,34 @@ function engagementType(record: PublicJobRecord) {
   );
 }
 
+function relatedCourses(record: PublicJobRecord): readonly RelatedCourse[] {
+  const coursesBySlug = new Map<string, RelatedCourse>();
+
+  for (const jobCapability of record.job_capabilities ?? []) {
+    for (const courseCapability of jobCapability.capabilities?.course_capabilities ?? []) {
+      const course = courseCapability.courses;
+      if (
+        !course ||
+        !course.is_active ||
+        !course.is_filter_visible ||
+        course.availability_status !== "available" ||
+        coursesBySlug.has(course.slug)
+      ) {
+        continue;
+      }
+
+      coursesBySlug.set(course.slug, {
+        shortTitle: course.short_title,
+        slug: course.slug,
+        themeColour: course.theme_colour ?? DEFAULT_COURSE_THEME_COLOUR,
+        trainingUrl: course.public_url,
+      });
+    }
+  }
+
+  return [...coursesBySlug.values()];
+}
+
 export function mapPublicJob(record: PublicJobRecord): Job {
   const rawDescription = paragraphs(record.description);
   const careerAreas = record.job_career_areas
@@ -170,6 +207,7 @@ export function mapPublicJob(record: PublicJobRecord): Job {
   const description = rawDescription.filter(
     (paragraph) => paragraph.toLocaleLowerCase("en-GB") !== summary.toLocaleLowerCase("en-GB"),
   );
+  const courses = relatedCourses(record);
 
   return {
     availability: availability(record),
@@ -202,16 +240,8 @@ export function mapPublicJob(record: PublicJobRecord): Job {
       dateOnly(record.posted_at) ?? dateOnly(record.published_at) ?? dateOnly(record.created_at) ?? "",
     publishedAt: dateOnly(record.published_at),
     postalCode: record.postal_code?.trim() || undefined,
-    relatedCourseSlugs: [
-      ...new Set(
-        (record.job_capabilities ?? []).flatMap(
-          (jobCapability) =>
-            jobCapability.capabilities?.course_capabilities.flatMap((courseCapability) =>
-              courseCapability.courses ? [courseCapability.courses.slug] : [],
-            ) ?? [],
-        ),
-      ),
-    ],
+    relatedCourses: courses,
+    relatedCourseSlugs: courses.map((course) => course.slug),
     requirements: listItems(record.requirements),
     responsibilities: listItems(record.responsibilities),
     salary: record.salary_text?.trim() || "Salary not stated",

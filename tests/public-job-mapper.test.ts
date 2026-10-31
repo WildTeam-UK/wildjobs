@@ -79,26 +79,55 @@ describe("public job mapping", () => {
   });
 
   it("maps reviewed job capabilities to related course filters without duplicates", () => {
+    const projectManagement = {
+      availability_status: "available",
+      is_active: true,
+      is_filter_visible: true,
+      public_url: "https://training.wildteam.org.uk/course/project-management",
+      short_title: "Project management",
+      slug: "project-management",
+      theme_colour: "#5A287F",
+    };
+    const monitoringAndEvaluation = {
+      availability_status: "available",
+      is_active: true,
+      is_filter_visible: true,
+      public_url: "https://training.wildteam.org.uk/course/monitoring-and-evaluation",
+      short_title: "Monitoring and evaluation",
+      slug: "monitoring-and-evaluation",
+      theme_colour: null,
+    };
     const job = mapPublicJob({
       ...record,
       job_capabilities: [
         {
           capabilities: {
-            course_capabilities: [
-              { courses: { slug: "project-management" } },
-              { courses: { slug: "monitoring-and-evaluation" } },
-            ],
+            course_capabilities: [{ courses: projectManagement }, { courses: monitoringAndEvaluation }],
           },
         },
         {
           capabilities: {
-            course_capabilities: [{ courses: { slug: "project-management" } }],
+            course_capabilities: [{ courses: projectManagement }],
           },
         },
       ],
     });
 
     expect(job.relatedCourseSlugs).toEqual(["project-management", "monitoring-and-evaluation"]);
+    expect(job.relatedCourses).toEqual([
+      {
+        shortTitle: "Project management",
+        slug: "project-management",
+        themeColour: "#5A287F",
+        trainingUrl: "https://training.wildteam.org.uk/course/project-management",
+      },
+      {
+        shortTitle: "Monitoring and evaluation",
+        slug: "monitoring-and-evaluation",
+        themeColour: "#e60088",
+        trainingUrl: "https://training.wildteam.org.uk/course/monitoring-and-evaluation",
+      },
+    ]);
   });
 
   it("uses clear fallbacks when optional publishing fields are empty", () => {

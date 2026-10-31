@@ -3,14 +3,16 @@ import "server-only";
 import { connection } from "next/server";
 import { cache } from "react";
 
-import type { Course } from "@/lib/courses";
+import { DEFAULT_COURSE_THEME_COLOUR, type Course } from "@/lib/courses";
 import { createPublicClient } from "@/lib/supabase/public";
 
 export const getPublicCourses = cache(async (): Promise<readonly Course[]> => {
   await connection();
   const { data, error } = await createPublicClient()
     .from("courses")
-    .select("slug, title, short_title, summary, public_url, course_capabilities!inner(capability_id)")
+    .select(
+      "slug, title, short_title, summary, public_url, theme_colour, course_capabilities!inner(capability_id)",
+    )
     .eq("is_active", true)
     .eq("is_filter_visible", true)
     .eq("availability_status", "available")
@@ -25,6 +27,7 @@ export const getPublicCourses = cache(async (): Promise<readonly Course[]> => {
     shortTitle: course.short_title,
     slug: course.slug,
     summary: course.summary,
+    themeColour: course.theme_colour ?? DEFAULT_COURSE_THEME_COLOUR,
     title: course.title,
     trainingUrl: course.public_url,
   }));
