@@ -848,12 +848,10 @@ select {
   color: var(--wt-color-ink);
 }
 .job-browser {
-  --job-hero-height: 130px;
-  position: relative;
   padding: 0 0 clamp(58px, 8vw, 92px);
   background-color: var(--page-surface-light);
   background-image: url("/images/jobs-canopy-border.png");
-  background-position: center var(--job-hero-height);
+  background-position: center top;
   background-repeat: no-repeat;
   background-size: max(100%, 75rem) auto;
 }
@@ -869,7 +867,7 @@ select {
 }
 .job-search-hero__inner {
   padding-top: clamp(64px, 8vw, 96px);
-  padding-bottom: clamp(64px, 8vw, 96px);
+  padding-bottom: 28px;
   transition: padding 360ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 .job-search-hero__intro {
@@ -4881,7 +4879,6 @@ select {
 
 @media (max-width: 640px) {
   .job-browser {
-    --job-hero-height: 70px;
     background-size: max(100%, 75rem) auto;
   }
   .employer-hiring-carousel h2 {
@@ -4980,7 +4977,7 @@ select {
   }
   .job-search-hero__inner {
     padding-top: 64px;
-    padding-bottom: 64px;
+    padding-bottom: 28px;
   }
   .job-search-hero h1 {
     margin-bottom: 28px;

@@ -504,7 +504,6 @@ export function JobBrowser({
     wildlife: wildlifeEmojis[0],
   });
   const [isHeroCompact, setIsHeroCompact] = useState(false);
-  const browserRef = useRef<HTMLElement>(null);
   const compactTransitionUntilRef = useRef(0);
   const expandedHeroHeightRef = useRef(0);
   const heroRef = useRef<HTMLDivElement>(null);
@@ -610,17 +609,14 @@ export function JobBrowser({
   }, []);
 
   useEffect(() => {
-    const browser = browserRef.current;
     const hero = heroRef.current;
-    if (!browser || !hero) return;
+    if (!hero) return;
 
     expandedHeroHeightRef.current = hero.getBoundingClientRect().height;
-    browser.style.setProperty("--job-hero-height", `${expandedHeroHeightRef.current}px`);
     const observer = new ResizeObserver(() => {
       const currentHeight = hero.getBoundingClientRect().height;
       const transitionIsSettled = performance.now() >= compactTransitionUntilRef.current;
 
-      browser.style.setProperty("--job-hero-height", `${currentHeight}px`);
       if (!isHeroCompactRef.current && transitionIsSettled) {
         expandedHeroHeightRef.current = currentHeight;
       }
@@ -633,7 +629,6 @@ export function JobBrowser({
     return () => {
       observer.disconnect();
       hero.style.marginBottom = "";
-      browser.style.removeProperty("--job-hero-height");
     };
   }, []);
 
@@ -703,7 +698,7 @@ export function JobBrowser({
   }
 
   return (
-    <section className="job-browser" aria-labelledby="jobs-page-heading" ref={browserRef}>
+    <section className="job-browser" aria-labelledby="jobs-page-heading">
       <div className={`job-search-hero${isHeroCompact ? " job-search-hero--compact" : ""}`} ref={heroRef}>
         <div className="job-search-hero__inner shell">
           <div className="job-search-hero__intro">
