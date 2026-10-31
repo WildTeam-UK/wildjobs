@@ -508,13 +508,6 @@ export function JobBrowser({
     nature: natureEmojis[0],
     wildlife: wildlifeEmojis[0],
   });
-  const [isHeroCompact, setIsHeroCompact] = useState(false);
-  const compactTransitionUntilRef = useRef(0);
-  const expandedHeroHeightRef = useRef(0);
-  const heroRef = useRef<HTMLDivElement>(null);
-  const isHeroCompactRef = useRef(false);
-  const lastScrollYRef = useRef(0);
-  isHeroCompactRef.current = isHeroCompact;
   const filteredJobs = filterJobs(jobs, {
     category,
     contractType,
@@ -576,65 +569,6 @@ export function JobBrowser({
 
     window.addEventListener("popstate", restorePageFromHistory);
     return () => window.removeEventListener("popstate", restorePageFromHistory);
-  }, []);
-
-  useEffect(() => {
-    let animationFrame = 0;
-    lastScrollYRef.current = window.scrollY;
-
-    const updateCompactState = () => {
-      cancelAnimationFrame(animationFrame);
-      animationFrame = requestAnimationFrame(() => {
-        const currentScrollY = window.scrollY;
-        const previousScrollY = lastScrollYRef.current;
-        lastScrollYRef.current = currentScrollY;
-
-        if (performance.now() < compactTransitionUntilRef.current) return;
-
-        setIsHeroCompact((isCompact) => {
-          if (!isCompact && currentScrollY > 96) {
-            compactTransitionUntilRef.current = performance.now() + 480;
-            return true;
-          }
-          if (isCompact && currentScrollY <= 8 && currentScrollY < previousScrollY) {
-            compactTransitionUntilRef.current = performance.now() + 480;
-            return false;
-          }
-          return isCompact;
-        });
-      });
-    };
-
-    updateCompactState();
-    window.addEventListener("scroll", updateCompactState, { passive: true });
-    return () => {
-      cancelAnimationFrame(animationFrame);
-      window.removeEventListener("scroll", updateCompactState);
-    };
-  }, []);
-
-  useEffect(() => {
-    const hero = heroRef.current;
-    if (!hero) return;
-
-    expandedHeroHeightRef.current = hero.getBoundingClientRect().height;
-    const observer = new ResizeObserver(() => {
-      const currentHeight = hero.getBoundingClientRect().height;
-      const transitionIsSettled = performance.now() >= compactTransitionUntilRef.current;
-
-      if (!isHeroCompactRef.current && transitionIsSettled) {
-        expandedHeroHeightRef.current = currentHeight;
-      }
-
-      const compensation = Math.max(0, expandedHeroHeightRef.current - currentHeight);
-      hero.style.marginBottom = `${compensation}px`;
-    });
-
-    observer.observe(hero);
-    return () => {
-      observer.disconnect();
-      hero.style.marginBottom = "";
-    };
   }, []);
 
   function syncUrl(filters: BrowserFilters, page = 1, addHistoryEntry = false) {
@@ -704,7 +638,7 @@ export function JobBrowser({
 
   return (
     <section className="job-browser" aria-labelledby="jobs-page-heading">
-      <div className={`job-search-hero${isHeroCompact ? " job-search-hero--compact" : ""}`} ref={heroRef}>
+      <div className="job-search-hero">
         <div className="job-search-hero__inner shell">
           <div className="job-search-hero__intro">
             <div className="job-search-hero__intro-content">
@@ -778,8 +712,12 @@ export function JobBrowser({
               SEARCH
             </button>
           </form>
+        </div>
+      </div>
 
-          <div className="job-filter-pills" aria-label="Filter jobs" role="group">
+      <div className="job-filter-bar">
+        <div className="job-filter-bar__inner shell">
+          <div className="job-filter-pills" aria-label="Filter and sort jobs" role="group">
             {courses.length ? (
               <FilterDropdown
                 accessibleLabel="Related WildTeam courses"
@@ -910,6 +848,7 @@ export function JobBrowser({
           </div>
         </div>
       </div>
+      <div className="job-search-hero__tail" aria-hidden="true" />
 
       <div className="shell">
         <div className="job-browser__layout">
