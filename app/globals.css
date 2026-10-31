@@ -865,7 +865,34 @@ select {
     border-color 260ms ease,
     box-shadow 260ms ease;
 }
+.job-search-hero::before,
+.job-search-hero::after {
+  position: absolute;
+  z-index: 0;
+  top: 0;
+  bottom: 0;
+  width: min(21vw, 300px);
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: auto 100%;
+  content: "";
+  opacity: 1;
+  pointer-events: none;
+  transition: opacity 180ms ease;
+}
+.job-search-hero::before {
+  left: 0;
+  background-image: url("/images/jobs-hero-left.svg");
+  background-position: left center;
+}
+.job-search-hero::after {
+  right: 0;
+  background-image: url("/images/jobs-hero-right.svg");
+  background-position: right center;
+}
 .job-search-hero__inner {
+  position: relative;
+  z-index: 1;
   padding-top: clamp(46px, calc(4vw + 14px), 62px);
   padding-bottom: clamp(46px, calc(4vw + 14px), 62px);
   transition: padding 360ms cubic-bezier(0.22, 1, 0.36, 1);
@@ -1294,6 +1321,10 @@ select {
 .job-search-hero--compact {
   border-bottom-color: color-mix(in srgb, var(--wt-color-brand-purple) 22%, var(--wt-color-rule));
   box-shadow: 0 14px 34px rgb(31 21 28 / 11%);
+}
+.job-search-hero--compact::before,
+.job-search-hero--compact::after {
+  opacity: 0;
 }
 .job-search-hero--compact .job-search-hero__inner {
   padding-top: 12px;
@@ -4813,6 +4844,10 @@ select {
 }
 
 @media (max-width: 900px) {
+  .job-search-hero::before,
+  .job-search-hero::after {
+    display: none;
+  }
   .job-training-promo {
     height: auto;
     min-height: 0;
