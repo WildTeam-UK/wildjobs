@@ -69,8 +69,7 @@ export function JobCard({
     job.closesAt && isClosingSoon(job.closesAt) ? { className: "closing", label: "Closing soon" } : null,
   ].filter((pill): pill is { className: string; label: string } => Boolean(pill));
   const postedLabel = postedAgoLabel(job.publishedAt ?? job.postedAt);
-  const aiSummaryExplanation =
-    "WildJobs uses AI to turn the original job information into a short summary. Always check the full listing before applying.";
+  const hasRelatedCourses = Boolean(job.relatedCourses?.length);
   const trainingExplanation =
     "These recommendations connect capabilities used in this job with skills taught in WildTeam courses. A course is not necessarily required and does not guarantee eligibility.";
   const employerLogo = (
@@ -81,6 +80,16 @@ export function JobCard({
       name={job.organisation}
     />
   );
+  const aiSummaryLabel =
+    job.summarySource === "ai" ? (
+      <span className="job-card__ai-summary-label">
+        <svg aria-hidden="true" viewBox="0 0 18 16">
+          <path d="M8 1.5C8.45 4.95 10.05 6.55 13.5 7 10.05 7.45 8.45 9.05 8 12.5 7.55 9.05 5.95 7.45 2.5 7 5.95 6.55 7.55 4.95 8 1.5Z" />
+          <path d="M14.5 10.5c.18 1.37.81 2 2.18 2.18-1.37.18-2 .81-2.18 2.18-.18-1.37-.81-2-2.18-2.18 1.37-.18 2-.81 2.18-2.18Z" />
+        </svg>
+        <span>AI summary</span>
+      </span>
+    ) : null;
 
   return (
     <article className={`job-card${compact ? " job-card--compact" : ""}`}>
@@ -163,42 +172,15 @@ export function JobCard({
               <Link href={`/jobs/${job.slug}`}>{displayTitle}</Link>
             )}
           </h2>
-          {job.summarySource === "ai" ? <p className="ai-summary-label">AI-generated summary</p> : null}
+          {aiSummaryLabel}
           <p className="job-card__summary">{job.summary}</p>
         </div>
       ) : null}
       {compact ? (
         <>
           <div className="job-card__summary-block">
-            <p className={`job-card__summary${job.summarySource === "ai" ? " job-card__summary--ai" : ""}`}>
-              {job.summary}
-              {job.summarySource === "ai" ? (
-                <>
-                  {" "}
-                  <span className="job-card__ai-disclosure">This summary was provided by AI</span>{" "}
-                  <span className="job-card__ai-tooltip-anchor">
-                    <button
-                      aria-describedby={`ai-summary-tooltip-${job.slug}`}
-                      aria-label="How WildJobs uses AI summaries"
-                      className="job-card__ai-tooltip-trigger"
-                      type="button"
-                    >
-                      <svg aria-hidden="true" viewBox="0 0 20 20">
-                        <circle cx="10" cy="10" r="8" />
-                        <path d="M10 8.5v5M10 6.25h.01" />
-                      </svg>
-                    </button>
-                    <span
-                      className="job-card__ai-tooltip"
-                      id={`ai-summary-tooltip-${job.slug}`}
-                      role="tooltip"
-                    >
-                      {aiSummaryExplanation}
-                    </span>
-                  </span>
-                </>
-              ) : null}
-            </p>
+            {aiSummaryLabel}
+            <p className="job-card__summary">{job.summary}</p>
           </div>
           <div className="job-card__meta-row">
             <ul className="job-card__compact-facts">
@@ -210,22 +192,9 @@ export function JobCard({
                 </li>
               ))}
             </ul>
-            <p className="job-card__posted job-card__posted--desktop">{postedLabel}</p>
-          </div>
-          <div className="job-card__mobile-footer">
-            {statusPills.length ? (
-              <div className="job-card__notice-carousel" aria-label="Job notices">
-                {statusPills.map((pill) => (
-                  <span
-                    className={`job-card__status-pill job-card__status-pill--${pill.className}`}
-                    key={pill.label}
-                  >
-                    {pill.label}
-                  </span>
-                ))}
-              </div>
+            {!hasRelatedCourses ? (
+              <p className="job-card__posted job-card__posted--desktop">{postedLabel}</p>
             ) : null}
-            <p className="job-card__posted job-card__posted--mobile">{postedLabel}</p>
           </div>
         </>
       ) : (
@@ -248,40 +217,52 @@ export function JobCard({
           </div>
         </dl>
       )}
-      {job.relatedCourses?.length ? (
-        <div className="job-card__training">
-          <span className="job-card__training-label">
-            WildTeam Training
-            <span className="job-card__ai-tooltip-anchor">
+      {hasRelatedCourses ? (
+        <div className="job-card__training-row">
+          <div className="job-card__training">
+            <ul aria-label="Relevant WildTeam training courses" className="job-card__training-courses">
+              {job.relatedCourses?.map((course) => (
+                <li key={course.slug}>
+                  <span
+                    className="job-card__training-pill"
+                    style={{ "--course-colour": course.themeColour } as CSSProperties}
+                  >
+                    {course.shortTitle}
+                  </span>
+                </li>
+              ))}
+            </ul>
+            <span className="job-card__ai-tooltip-anchor job-card__training-why">
               <button
                 aria-describedby={`training-tooltip-${job.slug}`}
-                aria-label="How WildJobs chooses relevant training courses"
-                className="job-card__ai-tooltip-trigger"
+                className="job-card__ai-tooltip-trigger job-card__training-explainer"
                 type="button"
               >
-                <svg aria-hidden="true" viewBox="0 0 20 20">
-                  <circle cx="10" cy="10" r="8" />
-                  <path d="M10 8.5v5M10 6.25h.01" />
-                </svg>
+                Why are we recommending these courses?
               </button>
               <span className="job-card__ai-tooltip" id={`training-tooltip-${job.slug}`} role="tooltip">
                 {trainingExplanation}
               </span>
             </span>
-            <span aria-hidden="true">:</span>
-          </span>
-          <ul aria-label="Relevant WildTeam training courses" className="job-card__training-courses">
-            {job.relatedCourses.map((course) => (
-              <li key={course.slug}>
+          </div>
+          {compact ? <p className="job-card__posted job-card__posted--desktop">{postedLabel}</p> : null}
+        </div>
+      ) : null}
+      {compact ? (
+        <div className="job-card__mobile-footer">
+          {statusPills.length ? (
+            <div className="job-card__notice-carousel" aria-label="Job notices">
+              {statusPills.map((pill) => (
                 <span
-                  className="job-card__training-pill"
-                  style={{ "--course-colour": course.themeColour } as CSSProperties}
+                  className={`job-card__status-pill job-card__status-pill--${pill.className}`}
+                  key={pill.label}
                 >
-                  {course.shortTitle}
+                  {pill.label}
                 </span>
-              </li>
-            ))}
-          </ul>
+              ))}
+            </div>
+          ) : null}
+          <p className="job-card__posted job-card__posted--mobile">{postedLabel}</p>
         </div>
       ) : null}
       {!compact ? (
