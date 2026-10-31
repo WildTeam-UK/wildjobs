@@ -2,7 +2,7 @@ begin;
 
 create extension if not exists pgtap with schema extensions;
 
-select plan(30);
+select plan(34);
 
 insert into auth.users (id, email)
 values
@@ -156,6 +156,170 @@ select '10000000-0000-0000-0000-000000000001', id
 from public.jobs
 where slug in ('current-job', 'expired-saved-job');
 
+insert into public.occupations (slug, title)
+values ('park-ranger', 'Park ranger');
+
+insert into public.benefits (slug, title)
+values ('flexible-working', 'Flexible working');
+
+insert into public.job_occupations (
+  job_id,
+  occupation_id,
+  is_primary,
+  original_text,
+  assignment_source,
+  reviewed_at
+)
+select
+  jobs.id,
+  occupations.id,
+  true,
+  'Reserve Ranger',
+  'staff',
+  now()
+from public.jobs
+cross join public.occupations
+where jobs.slug = 'current-job'
+  and occupations.slug = 'park-ranger';
+
+insert into public.job_occupations (
+  job_id,
+  occupation_id,
+  is_primary,
+  original_text,
+  assignment_source,
+  reviewed_at
+)
+select
+  jobs.id,
+  occupations.id,
+  true,
+  'Private Ranger Draft',
+  'staff',
+  now()
+from public.jobs
+cross join public.occupations
+where jobs.slug = 'draft-job'
+  and occupations.slug = 'park-ranger';
+
+insert into public.job_benefits (
+  job_id,
+  benefit_id,
+  original_text,
+  assignment_source,
+  reviewed_at
+)
+select
+  jobs.id,
+  benefits.id,
+  'Flexible working available',
+  'staff',
+  now()
+from public.jobs
+cross join public.benefits
+where jobs.slug = 'current-job'
+  and benefits.slug = 'flexible-working';
+
+insert into public.job_benefits (
+  job_id,
+  benefit_id,
+  original_text,
+  assignment_source,
+  reviewed_at
+)
+select
+  jobs.id,
+  benefits.id,
+  'Private draft benefit',
+  'staff',
+  now()
+from public.jobs
+cross join public.benefits
+where jobs.slug = 'draft-job'
+  and benefits.slug = 'flexible-working';
+
+insert into public.employer_benefits (
+  employer_id,
+  benefit_id,
+  original_text,
+  assignment_source,
+  reviewed_at
+)
+select
+  employers.id,
+  benefits.id,
+  'Flexible working policy',
+  'staff',
+  now()
+from public.employers
+cross join public.benefits
+where employers.slug = 'published-employer'
+  and benefits.slug = 'flexible-working';
+
+insert into public.employer_benefits (
+  employer_id,
+  benefit_id,
+  original_text,
+  assignment_source,
+  reviewed_at
+)
+select
+  employers.id,
+  benefits.id,
+  'Private draft employer benefit',
+  'staff',
+  now()
+from public.employers
+cross join public.benefits
+where employers.slug = 'draft-employer'
+  and benefits.slug = 'flexible-working';
+
+insert into public.job_locations (
+  job_id,
+  raw_text,
+  locality,
+  region,
+  country_code,
+  precision,
+  is_primary,
+  assignment_source,
+  reviewed_at
+)
+select
+  id,
+  'Bristol, United Kingdom',
+  'Bristol',
+  'South West England',
+  'GB',
+  'locality',
+  true,
+  'staff',
+  now()
+from public.jobs
+where slug = 'current-job';
+
+insert into public.job_locations (
+  job_id,
+  raw_text,
+  locality,
+  country_code,
+  precision,
+  is_primary,
+  assignment_source,
+  reviewed_at
+)
+select
+  id,
+  'Private draft location',
+  'Cardiff',
+  'GB',
+  'locality',
+  true,
+  'staff',
+  now()
+from public.jobs
+where slug = 'draft-job';
+
 insert into public.job_sources (name, source_type, is_active)
 values ('Test manual source', 'manual_curation', true);
 
@@ -214,7 +378,10 @@ select is(
     where pg_namespace.nspname = 'public'
       and pg_class.relkind = 'r'
       and pg_class.relname in (
-        'employers', 'jobs', 'career_areas', 'job_career_areas', 'courses',
+        'employers', 'employer_aliases', 'employer_benefits', 'jobs', 'job_locations',
+        'occupations', 'occupation_aliases', 'job_occupations',
+        'benefits', 'benefit_aliases', 'job_benefits',
+        'career_areas', 'job_career_areas', 'courses',
         'capabilities', 'capability_aliases', 'capability_candidates',
         'course_capabilities', 'course_learning_outcomes', 'job_capabilities',
         'source_record_capabilities', 'staff_members',
@@ -226,7 +393,7 @@ select is(
       )
       and pg_class.relrowsecurity
   ),
-  26::bigint,
+  35::bigint,
   'RLS is enabled on every WildJobs public table'
 );
 
@@ -274,6 +441,35 @@ select results_eq(
   $$select slug from public.employers order by slug$$,
   array['published-employer'::text],
   'Anonymous visitors see only published employers'
+);
+
+select results_eq(
+  $$select title from public.occupations order by title$$,
+  array['Park ranger'::text],
+  'Anonymous visitors can read active occupations'
+);
+
+select results_eq(
+  $$select title from public.benefits order by title$$,
+  array['Flexible working'::text],
+  'Anonymous visitors can read active benefits'
+);
+
+select is(
+  (select count(*) from public.job_occupations),
+  1::bigint,
+  'Anonymous visitors can read occupations for current jobs'
+);
+
+select is(
+  (
+    select
+      (select count(*) from public.job_benefits)
+      + (select count(*) from public.employer_benefits)
+      + (select count(*) from public.job_locations)
+  ),
+  3::bigint,
+  'Anonymous visitors can read structured benefits and locations for current listings'
 );
 
 select throws_ok(

@@ -99,6 +99,18 @@ A stored `tsvector` search column combines the job title, summary, description, 
 
 Career areas are staff-managed reference records with a unique slug, title, description, display order and active flag. The join table allows a role to belong to more than one area.
 
+#### `occupations`, `occupation_aliases` and `job_occupations`
+
+Occupations provide the consistent role vocabulary needed for career pages and historical statistics. They support parent-child relationships and aliases, while jobs retain their original advertised titles. Job mappings record the source wording, evidence, confidence, assignment method and policy version. One occupation may be marked primary per job.
+
+#### `benefits`, `benefit_aliases`, `job_benefits` and `employer_benefits`
+
+Benefits are canonical filterable terms rather than free-text tags. Job-specific benefits and employer-wide benefits remain separate so WildJobs never assumes an organisation-wide policy applies to every vacancy. Every automated mapping retains evidence and provenance.
+
+#### `job_locations`
+
+Jobs can have multiple structured locations while preserving the advertised location text. Each location records its supported address parts, country, optional coordinates, precision and provenance. The existing job-level location fields remain the primary display/search summary during migration. Remote eligibility scope is stored separately from physical locations.
+
 #### `courses`, `capabilities`, `course_capabilities` and `job_capabilities`
 
 These tables implement course-aware discovery without learner data.

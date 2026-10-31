@@ -46,6 +46,8 @@ Match a canonical employer using verified names, aliases and official website do
 
 Employer identity is required for a job. A complete public employer profile is not.
 
+Once duplicate and employer checks pass, create the canonical job as a private draft. Enrichment attaches directly to that draft. This avoids maintaining duplicate source-level and job-level taxonomy models.
+
 ### 4. Enrich once
 
 Deterministic extraction runs first. One bounded structured AI pass then handles semantic fields and taxonomy mappings that remain unresolved.
