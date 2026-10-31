@@ -866,8 +866,8 @@ select {
     box-shadow 260ms ease;
 }
 .job-search-hero__inner {
-  padding-top: clamp(64px, 8vw, 96px);
-  padding-bottom: 28px;
+  padding-top: clamp(46px, calc(4vw + 14px), 62px);
+  padding-bottom: clamp(46px, calc(4vw + 14px), 62px);
   transition: padding 360ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 .job-search-hero__intro {
@@ -4975,8 +4975,8 @@ select {
     gap: 16px;
   }
   .job-search-hero__inner {
-    padding-top: 64px;
-    padding-bottom: 28px;
+    padding-top: 46px;
+    padding-bottom: 46px;
   }
   .job-search-hero h1 {
     margin-bottom: 28px;
