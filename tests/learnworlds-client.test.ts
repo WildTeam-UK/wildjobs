@@ -6,7 +6,7 @@ vi.mock("server-only", () => ({}));
 function configureLearnWorlds() {
   vi.stubEnv("LEARNWORLDS_ACCESS_TOKEN", "test-access-token");
   vi.stubEnv("LEARNWORLDS_API_URL", "https://api.example.learnworlds.com/admin/api/v2");
-  vi.stubEnv("LEARNWORLDS_COURSE_CATEGORY", "ONLINE COURSE");
+  vi.stubEnv("LEARNWORLDS_COURSE_CATEGORY", "");
   vi.stubEnv("LEARNWORLDS_CLIENT_ID", "test-client-id");
   vi.stubEnv("LEARNWORLDS_PUBLIC_BASE_URL", "https://training.wildteam.org.uk/");
 }

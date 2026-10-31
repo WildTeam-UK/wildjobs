@@ -98,7 +98,7 @@ function getLearnWorldsConfig(): LearnWorldsConfig {
     throw new Error("LEARNWORLDS_API_URL must be the version 2 API base URL.");
   }
 
-  const courseCategory = environmentValue(process.env.LEARNWORLDS_COURSE_CATEGORY) ?? DEFAULT_COURSE_CATEGORY;
+  const courseCategory = environmentValue(process.env.LEARNWORLDS_COURSE_CATEGORY) || DEFAULT_COURSE_CATEGORY;
   if (courseCategory.length > 160) throw new Error("LEARNWORLDS_COURSE_CATEGORY is too long.");
 
   return {
