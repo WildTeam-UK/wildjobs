@@ -34,6 +34,12 @@ export type CanonicalJobLocationInput = {
   region: string | null;
 };
 
+export type CapabilityCatalogueInput = {
+  aliases: readonly string[];
+  id: number;
+  title: string;
+};
+
 function compact(value: string) {
   return value.replace(/\s+/g, " ").trim();
 }
@@ -42,6 +48,18 @@ function exactSourceText(value: string | null, sourceText: string) {
   if (!value) return null;
   const cleaned = compact(value);
   return sourceText.toLocaleLowerCase("en-GB").includes(cleaned.toLocaleLowerCase("en-GB")) ? cleaned : null;
+}
+
+function exactPhraseFromSource(phrase: string, sourceText: string) {
+  const compactPhrase = compact(phrase);
+  if (compactPhrase.length < 8 || compactPhrase.split(" ").length < 2) return null;
+  const escaped = compactPhrase
+    .replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
+    .replace(/\s+/g, "\\s+");
+  const match = new RegExp(`(?:^|[^\\p{L}\\p{N}])(${escaped})(?=$|[^\\p{L}\\p{N}])`, "iu").exec(
+    sourceText,
+  );
+  return match?.[1] ?? null;
 }
 
 export function normaliseTaxonomyCandidateTitle(value: string) {
@@ -83,6 +101,35 @@ export function canonicalJobLocationFallback(input: CanonicalJobLocationInput) {
     raw_text: rawText,
     region: input.region,
   } as const;
+}
+
+export function selectExactCapabilityMatches(
+  capabilities: readonly CapabilityCatalogueInput[],
+  sourceText: string,
+) {
+  return capabilities.flatMap((capability) => {
+    const evidence = [capability.title, ...capability.aliases]
+      .map((phrase) => exactPhraseFromSource(phrase, sourceText))
+      .find((match): match is string => Boolean(match));
+    return evidence
+      ? [
+          {
+            capabilityId: capability.id,
+            confidence: 98,
+            evidence,
+            importance: "useful" as const,
+            relevanceScore: 85,
+          },
+        ]
+      : [];
+  });
+}
+
+export function taxonomyClassificationNeedsReview(input: {
+  careerAreaMatches: readonly unknown[];
+  occupationMatches: readonly unknown[];
+}) {
+  return input.occupationMatches.length === 0 || input.careerAreaMatches.length === 0;
 }
 
 export function selectTaxonomyMatches(
