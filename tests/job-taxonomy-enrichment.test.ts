@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  canonicalJobLocationFallback,
   normaliseTaxonomyCandidateTitle,
   selectStructuredLocations,
   selectTaxonomyCandidates,
@@ -10,6 +11,32 @@ import {
 const source = "We are recruiting a Park Ranger in Norwich, Norfolk. A generous pension is provided.";
 
 describe("job taxonomy enrichment", () => {
+  it("preserves a reviewed canonical job location when AI cannot quote one from the source page", () => {
+    expect(
+      canonicalJobLocationFallback({
+        countryCode: "GB",
+        locality: null,
+        locationText: "Slimbridge, Gloucestershire, United Kingdom",
+        postalCode: null,
+        region: null,
+      }),
+    ).toMatchObject({
+      assignment_source: "deterministic",
+      country_code: "GB",
+      precision: "country",
+      raw_text: "Slimbridge, Gloucestershire, United Kingdom",
+    });
+    expect(
+      canonicalJobLocationFallback({
+        countryCode: null,
+        locality: null,
+        locationText: "Field location to be agreed",
+        postalCode: null,
+        region: null,
+      }),
+    ).toBeNull();
+  });
+
   it("keeps only evidence-backed matches from the supplied catalogue", () => {
     expect(
       selectTaxonomyMatches(

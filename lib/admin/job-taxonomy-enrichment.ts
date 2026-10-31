@@ -26,6 +26,14 @@ export type StructuredLocationInput = {
   region: string | null;
 };
 
+export type CanonicalJobLocationInput = {
+  countryCode: string | null;
+  locality: string | null;
+  locationText: string | null;
+  postalCode: string | null;
+  region: string | null;
+};
+
 function compact(value: string) {
   return value.replace(/\s+/g, " ").trim();
 }
@@ -45,6 +53,36 @@ export function normaliseTaxonomyCandidateTitle(value: string) {
     .replace(/[^a-z0-9]+/g, " ")
     .trim()
     .slice(0, 160);
+}
+
+export function canonicalJobLocationFallback(input: CanonicalJobLocationInput) {
+  const rawText = input.locationText ? compact(input.locationText) : "";
+  if (!rawText) return null;
+
+  const precision = input.postalCode
+    ? "postcode"
+    : input.locality
+      ? "locality"
+      : input.region
+        ? "region"
+        : input.countryCode
+          ? "country"
+          : null;
+  if (!precision) return null;
+
+  return {
+    assignment_source: "deterministic",
+    confidence: 95,
+    country_code: input.countryCode,
+    evidence_text: rawText,
+    is_primary: true,
+    locality: input.locality,
+    policy_version: "canonical-job-location-v1",
+    postal_code: input.postalCode,
+    precision,
+    raw_text: rawText,
+    region: input.region,
+  } as const;
 }
 
 export function selectTaxonomyMatches(
