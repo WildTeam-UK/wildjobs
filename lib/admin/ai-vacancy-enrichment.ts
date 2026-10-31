@@ -11,10 +11,15 @@ import {
   normaliseResearchUrl,
   sameWebsiteHost,
 } from "./employer-research-validation";
+import {
+  selectStructuredLocations,
+  selectTaxonomyCandidates,
+  selectTaxonomyMatches,
+} from "./job-taxonomy-enrichment";
 import type { VacancyFieldEvidence, VacancyFieldName } from "./vacancy-detail-extraction";
 
 const MODEL = "gpt-6-luna";
-export const AI_ENRICHMENT_POLICY_VERSION = "ai-structured-v10-course-taxonomy";
+export const AI_ENRICHMENT_POLICY_VERSION = "ai-structured-v11-job-taxonomy";
 
 const supportedFields = [
   "contract_type",
@@ -41,6 +46,9 @@ const summaryField = z.object({
 const researchedEmployerField = textField.extend({
   source_url: z.string().trim().min(1).max(2_000).nullable(),
 });
+const researchedEmployerBenefitField = researchedEmployerField.extend({
+  benefit_id: z.number().int().positive().nullable(),
+});
 const capabilityMatchSchema = z.object({
   capability_id: z.number().int().positive(),
   confidence: confidenceSchema,
@@ -53,11 +61,48 @@ const capabilityCandidateSchema = z.object({
   evidence: z.string().trim().min(2).max(500),
   title: z.string().trim().min(2).max(160),
 });
+const taxonomyMatchSchema = z.object({
+  confidence: confidenceSchema,
+  evidence: z.string().trim().min(2).max(500),
+  original_text: z.string().trim().min(2).max(500).nullable(),
+  term_id: z.number().int().positive(),
+});
+const taxonomyCandidateSchema = z.object({
+  confidence: confidenceSchema,
+  evidence: z.string().trim().min(2).max(500),
+  original_text: z.string().trim().min(2).max(500).nullable(),
+  taxonomy_type: z.enum(["occupation", "benefit"]),
+  title: z.string().trim().min(2).max(160),
+});
+const structuredLocationSchema = z.object({
+  address_line_1: z.string().trim().min(1).max(240).nullable(),
+  address_line_2: z.string().trim().min(1).max(240).nullable(),
+  confidence: confidenceSchema,
+  country_code: z
+    .string()
+    .trim()
+    .regex(/^[A-Z]{2}$/)
+    .nullable(),
+  evidence: z.string().trim().min(2).max(500),
+  locality: z.string().trim().min(1).max(160).nullable(),
+  postal_code: z.string().trim().min(1).max(40).nullable(),
+  precision: z.enum(["exact", "postcode", "locality", "region", "country"]),
+  raw_text: z.string().trim().min(2).max(500),
+  region: z.string().trim().min(1).max(160).nullable(),
+});
 
 const outputSchema = z.object({
   capabilities: z.object({
     candidates: z.array(capabilityCandidateSchema).max(3),
     matches: z.array(capabilityMatchSchema).max(6),
+  }),
+  taxonomy: z.object({
+    benefit_candidates: z.array(taxonomyCandidateSchema).max(4),
+    benefit_matches: z.array(taxonomyMatchSchema).max(12),
+    career_area_matches: z.array(taxonomyMatchSchema).max(3),
+    locations: z.array(structuredLocationSchema).max(4),
+    occupation_candidates: z.array(taxonomyCandidateSchema).max(2),
+    occupation_matches: z.array(taxonomyMatchSchema).max(2),
   }),
   vacancy: z.object({
     contract_type: z.object({
@@ -92,7 +137,7 @@ const outputSchema = z.object({
     }),
   }),
   employer: z.object({
-    benefits: z.array(researchedEmployerField).max(8),
+    benefits: z.array(researchedEmployerBenefitField).max(8),
     culture: researchedEmployerField.describe(
       "Evidence-backed working culture or organisational values stated by the employer.",
     ),
@@ -119,6 +164,7 @@ export type AiEmployerSuggestion = {
   evidence: string;
   fieldName: "benefits" | "culture" | "focus" | "locations" | "mission" | "summary";
   sourceUrl: string | null;
+  taxonomyId: number | null;
   value: string;
 };
 
@@ -134,14 +180,52 @@ export type AiEnrichmentResult =
         importance: "essential" | "useful" | "development";
         relevanceScore: number;
       }[];
+      benefitMatches: {
+        confidence: number;
+        evidence: string;
+        originalText: string;
+        termId: number;
+      }[];
+      careerAreaMatches: {
+        confidence: number;
+        evidence: string;
+        originalText: string;
+        termId: number;
+      }[];
       evidence: VacancyFieldEvidence[];
       generationId: string | null;
       inputTokens: number;
       jobSummary: { evidence: string; value: string } | null;
       model: string;
+      occupationMatches: {
+        confidence: number;
+        evidence: string;
+        originalText: string;
+        termId: number;
+      }[];
       outputTokens: number;
       researchedEmployerWebsiteUrl: string | null;
       status: "completed";
+      structuredLocations: {
+        addressLine1: string | null;
+        addressLine2: string | null;
+        confidence: number;
+        countryCode: string | null;
+        evidence: string;
+        locality: string | null;
+        postalCode: string | null;
+        precision: "country" | "exact" | "locality" | "postcode" | "region";
+        rawText: string;
+        region: string | null;
+      }[];
+      taxonomyCandidates: {
+        confidence: number;
+        evidence: string;
+        normalizedTitle: string;
+        originalText: string;
+        taxonomyType: "benefit" | "occupation";
+        title: string;
+      }[];
     };
 
 function exactEvidence(value: string | null, evidence: string | null, sources: string) {
@@ -184,6 +268,7 @@ function employerSuggestions(
   listingSourceUrl: string,
   searchedWebsiteUrl: string | null,
   searchSourceUrls: readonly string[],
+  allowedBenefitIds: ReadonlySet<number>,
 ) {
   const suggestions: AiEmployerSuggestion[] = [];
   const singular = ["culture", "focus", "mission", "summary"] as const;
@@ -213,6 +298,7 @@ function employerSuggestions(
           : listingEvidence
             ? listingSourceUrl
             : normaliseResearchUrl(field.source_url),
+        taxonomyId: null,
         value: fieldName === "mission" ? evidence : field.value,
       });
     }
@@ -236,6 +322,13 @@ function employerSuggestions(
           evidence,
           fieldName,
           sourceUrl: localEvidence ? employerSourceUrl : normaliseResearchUrl(field.source_url),
+          taxonomyId:
+            fieldName === "benefits" &&
+            "benefit_id" in field &&
+            field.benefit_id &&
+            allowedBenefitIds.has(field.benefit_id)
+              ? field.benefit_id
+              : null,
           value: field.value,
         });
       }
@@ -280,9 +373,20 @@ function researchedWebsite(
 
 export async function enrichWithAi(input: {
   allowEmployerWebResearch: boolean;
+  benefits: readonly {
+    aliases: readonly string[];
+    description: string | null;
+    id: number;
+    title: string;
+  }[];
   capabilities: readonly {
     aliases: readonly string[];
     description: string;
+    id: number;
+    title: string;
+  }[];
+  careerAreas: readonly {
+    description: string | null;
     id: number;
     title: string;
   }[];
@@ -291,7 +395,14 @@ export async function enrichWithAi(input: {
   employerText: string | null;
   listingSourceUrl: string;
   listingText: string;
+  occupations: readonly {
+    aliases: readonly string[];
+    description: string | null;
+    id: number;
+    title: string;
+  }[];
   shouldSummariseJob: boolean;
+  sourceTitle: string | null;
   unresolvedFields: readonly VacancyFieldName[];
 }): Promise<AiEnrichmentResult> {
   if (!isAiEnrichmentEnabled()) return { status: "disabled" };
@@ -319,15 +430,32 @@ export async function enrichWithAi(input: {
     "Prefer an existing capability whenever its title, description or alias fits. Return no more than six matches, ordered by relevance.",
     "Only match a capability when an exact quote from the vacancy proves it is materially relevant to doing the job; do not match incidental words.",
     "Use candidates only for a clearly job-relevant capability that no supplied canonical capability covers. Do not create synonyms or minor wording variants.",
+    "Classify the vacancy only against the supplied active occupation, benefit and career-area IDs.",
+    "Choose one primary occupation whenever the title or advert provides enough evidence; add a second only for a genuinely combined role.",
+    "Map benefits only when the vacancy or official employer text explicitly advertises them. Do not treat ordinary job conditions or statutory minimums as enhanced benefits.",
+    "For each physical job location, copy raw_text and evidence exactly from the vacancy, then normalise only geography supported by that wording. Never use an employer headquarters as a job location.",
+    "Do not invent coordinates, addresses or geographic detail. Use ISO 3166-1 alpha-2 country codes only when the country is explicit or unambiguous from the advertised place.",
+    "Use taxonomy candidates only for a material occupation or benefit concept that no supplied active term or alias covers. Candidates are review suggestions, not public terms.",
   ].join(" ");
   const prompt = [
     `Only resolve these vacancy fields: ${input.unresolvedFields.join(", ") || "none"}.`,
     `Create a vacancy summary: ${input.shouldSummariseJob ? "yes" : "no; return null"}.`,
     `Employer name: ${input.employerName ?? "Not supplied"}.`,
+    `VACANCY TITLE: ${input.sourceTitle ?? "Not supplied"}.`,
     "CANONICAL COURSE-BACKED CAPABILITIES:",
     input.capabilities.length
       ? JSON.stringify(input.capabilities)
       : "None supplied. Return empty capability matches and candidates.",
+    "CANONICAL OCCUPATIONS:",
+    input.occupations.length
+      ? JSON.stringify(input.occupations)
+      : "None supplied. Return no occupation matches and use a candidate only when evidence is strong.",
+    "CANONICAL BENEFITS:",
+    input.benefits.length
+      ? JSON.stringify(input.benefits)
+      : "None supplied. Return no benefit matches and use candidates only when evidence is strong.",
+    "CANONICAL CAREER AREAS:",
+    input.careerAreas.length ? JSON.stringify(input.careerAreas) : "None supplied. Return no matches.",
     "VACANCY SOURCE TEXT:",
     listingText,
     "OFFICIAL EMPLOYER TEXT:",
@@ -342,7 +470,7 @@ export async function enrichWithAi(input: {
     include: input.allowEmployerWebResearch ? ["web_search_call.action.sources"] : undefined,
     instructions: [instructions, "Return JSON matching the supplied schema."].join(" "),
     input: prompt,
-    max_output_tokens: 3_000,
+    max_output_tokens: 4_000,
     reasoning: { effort: "low" },
     text: {
       format: {
@@ -376,6 +504,10 @@ export async function enrichWithAi(input: {
     ? researchedWebsite(output.employer, searchSourceUrls)
     : null;
   const allowedCapabilityIds = new Set(input.capabilities.map((capability) => capability.id));
+  const allowedBenefitIds = new Set(input.benefits.map((benefit) => benefit.id));
+  const allowedCareerAreaIds = new Set(input.careerAreas.map((careerArea) => careerArea.id));
+  const allowedOccupationIds = new Set(input.occupations.map((occupation) => occupation.id));
+  const taxonomySourceText = `${input.sourceTitle ?? ""}\n${listingText}`;
   const capabilityMatches = output.capabilities.matches.flatMap((match) => {
     const evidence = exactEvidence(String(match.capability_id), match.evidence, listingText);
     if (
@@ -408,10 +540,70 @@ export async function enrichWithAi(input: {
       ? [{ confidence: candidate.confidence, evidence, title: candidate.title }]
       : [];
   });
+  const occupationMatches = selectTaxonomyMatches(
+    output.taxonomy.occupation_matches.map((match) => ({
+      confidence: match.confidence,
+      evidence: match.evidence,
+      originalText: match.original_text,
+      termId: match.term_id,
+    })),
+    allowedOccupationIds,
+    taxonomySourceText,
+    2,
+  );
+  const benefitMatches = selectTaxonomyMatches(
+    output.taxonomy.benefit_matches.map((match) => ({
+      confidence: match.confidence,
+      evidence: match.evidence,
+      originalText: match.original_text,
+      termId: match.term_id,
+    })),
+    allowedBenefitIds,
+    taxonomySourceText,
+    12,
+  );
+  const careerAreaMatches = selectTaxonomyMatches(
+    output.taxonomy.career_area_matches.map((match) => ({
+      confidence: match.confidence,
+      evidence: match.evidence,
+      originalText: match.original_text,
+      termId: match.term_id,
+    })),
+    allowedCareerAreaIds,
+    taxonomySourceText,
+    3,
+  );
+  const taxonomyCandidates = selectTaxonomyCandidates(
+    [...output.taxonomy.occupation_candidates, ...output.taxonomy.benefit_candidates].map((candidate) => ({
+      confidence: candidate.confidence,
+      evidence: candidate.evidence,
+      originalText: candidate.original_text,
+      taxonomyType: candidate.taxonomy_type,
+      title: candidate.title,
+    })),
+    taxonomySourceText,
+  );
+  const structuredLocations = selectStructuredLocations(
+    output.taxonomy.locations.map((location) => ({
+      addressLine1: location.address_line_1,
+      addressLine2: location.address_line_2,
+      confidence: location.confidence,
+      countryCode: location.country_code,
+      evidence: location.evidence,
+      locality: location.locality,
+      postalCode: location.postal_code,
+      precision: location.precision,
+      rawText: location.raw_text,
+      region: location.region,
+    })),
+    taxonomySourceText,
+  );
 
   return {
+    benefitMatches,
     capabilityCandidates,
     capabilityMatches: uniqueCapabilityMatches,
+    careerAreaMatches,
     employerSuggestions: employerSuggestions(
       output.employer,
       employerText,
@@ -420,6 +612,7 @@ export async function enrichWithAi(input: {
       input.listingSourceUrl,
       searchedWebsiteUrl,
       searchSourceUrls,
+      allowedBenefitIds,
     ),
     evidence: vacancyEvidence(output.vacancy, input.unresolvedFields, listingText),
     generationId: response.id,
@@ -437,9 +630,12 @@ export async function enrichWithAi(input: {
         })()
       : null,
     model: MODEL,
+    occupationMatches,
     outputTokens: response.usage?.output_tokens ?? 0,
     researchedEmployerWebsiteUrl: searchedWebsiteUrl,
     status: "completed",
+    structuredLocations,
+    taxonomyCandidates,
   };
 }
 

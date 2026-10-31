@@ -221,7 +221,7 @@ export default async function SourcePage({ params, searchParams }: SourcePagePro
         ) : null}
         {firstQueryValue(query.enrichment) === "completed" ? (
           <p className="staff-form-message" role="status">
-            Vacancy details enriched. Check the extracted evidence before creating a private draft.
+            The private vacancy draft and its extracted evidence are up to date.
           </p>
         ) : null}
         {firstQueryValue(query.enrichment) === "needs_review" ? (
@@ -345,7 +345,8 @@ export default async function SourcePage({ params, searchParams }: SourcePagePro
                 (item) => item.resolution_status === "extracted" && item.value,
               );
               const canEnrich =
-                canReview &&
+                staff.role === "admin" &&
+                ["unmapped", "mapped"].includes(record.mapping_status) &&
                 ["pending", "failed", "needs_review"].includes(record.enrichment_status) &&
                 record.enrichment_attempts < 3;
               const automaticDraft =

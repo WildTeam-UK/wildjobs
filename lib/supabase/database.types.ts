@@ -91,6 +91,68 @@ export type Database = {
           },
         ];
       };
+      benefit_aliases: {
+        Row: {
+          alias: string;
+          benefit_id: number;
+          created_at: string;
+          id: number;
+          normalized_alias: string;
+        };
+        Insert: {
+          alias: string;
+          benefit_id: number;
+          created_at?: string;
+          id?: never;
+          normalized_alias: string;
+        };
+        Update: {
+          alias?: string;
+          benefit_id?: number;
+          created_at?: string;
+          id?: never;
+          normalized_alias?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "benefit_aliases_benefit_id_fkey";
+            columns: ["benefit_id"];
+            isOneToOne: false;
+            referencedRelation: "benefits";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      benefits: {
+        Row: {
+          created_at: string;
+          description: string | null;
+          id: number;
+          is_active: boolean;
+          slug: string;
+          title: string;
+          updated_at: string;
+        };
+        Insert: {
+          created_at?: string;
+          description?: string | null;
+          id?: never;
+          is_active?: boolean;
+          slug: string;
+          title: string;
+          updated_at?: string;
+        };
+        Update: {
+          created_at?: string;
+          description?: string | null;
+          id?: never;
+          is_active?: boolean;
+          slug?: string;
+          title?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
       candidate_career_area_preferences: {
         Row: {
           career_area_id: number;
@@ -300,7 +362,7 @@ export type Database = {
           capability_id: number;
           created_at: string;
           id: number;
-          normalised_alias: string;
+          normalised_alias: string | null;
           provenance: string;
         };
         Insert: {
@@ -308,7 +370,7 @@ export type Database = {
           capability_id: number;
           created_at?: string;
           id?: never;
-          normalised_alias?: never;
+          normalised_alias?: string | null;
           provenance?: string;
         };
         Update: {
@@ -316,7 +378,7 @@ export type Database = {
           capability_id?: number;
           created_at?: string;
           id?: never;
-          normalised_alias?: never;
+          normalised_alias?: string | null;
           provenance?: string;
         };
         Relationships: [
@@ -337,7 +399,7 @@ export type Database = {
           first_seen_at: string;
           id: number;
           last_seen_at: string;
-          normalised_title: string;
+          normalised_title: string | null;
           occurrence_count: number;
           proposed_title: string;
           resolved_capability_id: number | null;
@@ -352,7 +414,7 @@ export type Database = {
           first_seen_at?: string;
           id?: never;
           last_seen_at?: string;
-          normalised_title?: never;
+          normalised_title?: string | null;
           occurrence_count?: number;
           proposed_title: string;
           resolved_capability_id?: number | null;
@@ -367,7 +429,7 @@ export type Database = {
           first_seen_at?: string;
           id?: never;
           last_seen_at?: string;
-          normalised_title?: never;
+          normalised_title?: string | null;
           occurrence_count?: number;
           proposed_title?: string;
           resolved_capability_id?: number | null;
@@ -429,40 +491,40 @@ export type Database = {
         Row: {
           capability_id: number;
           confidence: number;
-          coverage_score: number;
           course_id: number;
+          coverage_score: number;
           created_at: string;
           is_primary: boolean;
           outcome_id: number | null;
-          rationale: string | null;
           policy_version: string | null;
           provenance: string;
+          rationale: string | null;
           reviewed_at: string | null;
         };
         Insert: {
           capability_id: number;
           confidence?: number;
-          coverage_score?: number;
           course_id: number;
+          coverage_score?: number;
           created_at?: string;
           is_primary?: boolean;
           outcome_id?: number | null;
-          rationale?: string | null;
           policy_version?: string | null;
           provenance?: string;
+          rationale?: string | null;
           reviewed_at?: string | null;
         };
         Update: {
           capability_id?: number;
           confidence?: number;
-          coverage_score?: number;
           course_id?: number;
+          coverage_score?: number;
           created_at?: string;
           is_primary?: boolean;
           outcome_id?: number | null;
-          rationale?: string | null;
           policy_version?: string | null;
           provenance?: string;
+          rationale?: string | null;
           reviewed_at?: string | null;
         };
         Relationships: [
@@ -558,6 +620,7 @@ export type Database = {
           image_url: string | null;
           is_active: boolean;
           is_filter_visible: boolean;
+          is_job_search_excluded: boolean;
           learnworlds_course_id: string;
           learnworlds_synced_at: string | null;
           provenance: string;
@@ -582,6 +645,7 @@ export type Database = {
           image_url?: string | null;
           is_active?: boolean;
           is_filter_visible?: boolean;
+          is_job_search_excluded?: boolean;
           learnworlds_course_id: string;
           learnworlds_synced_at?: string | null;
           provenance: string;
@@ -606,6 +670,7 @@ export type Database = {
           image_url?: string | null;
           is_active?: boolean;
           is_filter_visible?: boolean;
+          is_job_search_excluded?: boolean;
           learnworlds_course_id?: string;
           learnworlds_synced_at?: string | null;
           provenance?: string;
@@ -619,6 +684,142 @@ export type Database = {
           updated_at?: string;
         };
         Relationships: [];
+      };
+      employer_aliases: {
+        Row: {
+          alias: string;
+          created_at: string;
+          employer_id: number;
+          id: number;
+          normalized_alias: string;
+        };
+        Insert: {
+          alias: string;
+          created_at?: string;
+          employer_id: number;
+          id?: never;
+          normalized_alias: string;
+        };
+        Update: {
+          alias?: string;
+          created_at?: string;
+          employer_id?: number;
+          id?: never;
+          normalized_alias?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "employer_aliases_employer_id_fkey";
+            columns: ["employer_id"];
+            isOneToOne: false;
+            referencedRelation: "employers";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      employer_benefits: {
+        Row: {
+          assignment_source: string;
+          benefit_id: number;
+          confidence: number | null;
+          created_at: string;
+          employer_id: number;
+          evidence_text: string | null;
+          original_text: string | null;
+          policy_version: string | null;
+          reviewed_at: string | null;
+          source_url: string | null;
+          updated_at: string;
+        };
+        Insert: {
+          assignment_source: string;
+          benefit_id: number;
+          confidence?: number | null;
+          created_at?: string;
+          employer_id: number;
+          evidence_text?: string | null;
+          original_text?: string | null;
+          policy_version?: string | null;
+          reviewed_at?: string | null;
+          source_url?: string | null;
+          updated_at?: string;
+        };
+        Update: {
+          assignment_source?: string;
+          benefit_id?: number;
+          confidence?: number | null;
+          created_at?: string;
+          employer_id?: number;
+          evidence_text?: string | null;
+          original_text?: string | null;
+          policy_version?: string | null;
+          reviewed_at?: string | null;
+          source_url?: string | null;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "employer_benefits_benefit_id_fkey";
+            columns: ["benefit_id"];
+            isOneToOne: false;
+            referencedRelation: "benefits";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "employer_benefits_employer_id_fkey";
+            columns: ["employer_id"];
+            isOneToOne: false;
+            referencedRelation: "employers";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      employer_field_evidence: {
+        Row: {
+          confidence: number;
+          created_at: string;
+          employer_id: number;
+          evidence_text: string | null;
+          extraction_method: string;
+          extractor_version: string;
+          field_name: string;
+          source_url: string;
+          updated_at: string;
+          value: string;
+        };
+        Insert: {
+          confidence: number;
+          created_at?: string;
+          employer_id: number;
+          evidence_text?: string | null;
+          extraction_method: string;
+          extractor_version: string;
+          field_name: string;
+          source_url: string;
+          updated_at?: string;
+          value: string;
+        };
+        Update: {
+          confidence?: number;
+          created_at?: string;
+          employer_id?: number;
+          evidence_text?: string | null;
+          extraction_method?: string;
+          extractor_version?: string;
+          field_name?: string;
+          source_url?: string;
+          updated_at?: string;
+          value?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "employer_field_evidence_employer_id_fkey";
+            columns: ["employer_id"];
+            isOneToOne: false;
+            referencedRelation: "employers";
+            referencedColumns: ["id"];
+          },
+        ];
       };
       employer_submissions: {
         Row: {
@@ -714,53 +915,6 @@ export type Database = {
           },
         ];
       };
-      employer_field_evidence: {
-        Row: {
-          confidence: number;
-          created_at: string;
-          employer_id: number;
-          evidence_text: string | null;
-          extraction_method: string;
-          extractor_version: string;
-          field_name: string;
-          source_url: string;
-          updated_at: string;
-          value: string;
-        };
-        Insert: {
-          confidence: number;
-          created_at?: string;
-          employer_id: number;
-          evidence_text?: string | null;
-          extraction_method: string;
-          extractor_version: string;
-          field_name: string;
-          source_url: string;
-          updated_at?: string;
-          value: string;
-        };
-        Update: {
-          confidence?: number;
-          created_at?: string;
-          employer_id?: number;
-          evidence_text?: string | null;
-          extraction_method?: string;
-          extractor_version?: string;
-          field_name?: string;
-          source_url?: string;
-          updated_at?: string;
-          value?: string;
-        };
-        Relationships: [
-          {
-            foreignKeyName: "employer_field_evidence_employer_id_fkey";
-            columns: ["employer_id"];
-            isOneToOne: false;
-            referencedRelation: "employers";
-            referencedColumns: ["id"];
-          },
-        ];
-      };
       employers: {
         Row: {
           ai_summary: string | null;
@@ -778,8 +932,8 @@ export type Database = {
           mission: string | null;
           name: string;
           overview: string | null;
-          published_at: string | null;
           profile_source_url: string | null;
+          published_at: string | null;
           reviewed_at: string | null;
           search_vector: unknown;
           short_name: string | null;
@@ -805,8 +959,8 @@ export type Database = {
           mission?: string | null;
           name: string;
           overview?: string | null;
-          published_at?: string | null;
           profile_source_url?: string | null;
+          published_at?: string | null;
           reviewed_at?: string | null;
           search_vector?: unknown;
           short_name?: string | null;
@@ -832,8 +986,8 @@ export type Database = {
           mission?: string | null;
           name?: string;
           overview?: string | null;
-          published_at?: string | null;
           profile_source_url?: string | null;
+          published_at?: string | null;
           reviewed_at?: string | null;
           search_vector?: unknown;
           short_name?: string | null;
@@ -891,6 +1045,60 @@ export type Database = {
             columns: ["source_id"];
             isOneToOne: false;
             referencedRelation: "job_sources";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      job_benefits: {
+        Row: {
+          assignment_source: string;
+          benefit_id: number;
+          confidence: number | null;
+          created_at: string;
+          evidence_text: string | null;
+          job_id: number;
+          original_text: string | null;
+          policy_version: string | null;
+          reviewed_at: string | null;
+          updated_at: string;
+        };
+        Insert: {
+          assignment_source: string;
+          benefit_id: number;
+          confidence?: number | null;
+          created_at?: string;
+          evidence_text?: string | null;
+          job_id: number;
+          original_text?: string | null;
+          policy_version?: string | null;
+          reviewed_at?: string | null;
+          updated_at?: string;
+        };
+        Update: {
+          assignment_source?: string;
+          benefit_id?: number;
+          confidence?: number | null;
+          created_at?: string;
+          evidence_text?: string | null;
+          job_id?: number;
+          original_text?: string | null;
+          policy_version?: string | null;
+          reviewed_at?: string | null;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "job_benefits_benefit_id_fkey";
+            columns: ["benefit_id"];
+            isOneToOne: false;
+            referencedRelation: "benefits";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "job_benefits_job_id_fkey";
+            columns: ["job_id"];
+            isOneToOne: false;
+            referencedRelation: "jobs";
             referencedColumns: ["id"];
           },
         ];
@@ -958,22 +1166,43 @@ export type Database = {
       };
       job_career_areas: {
         Row: {
+          assignment_source: string;
           career_area_id: number;
+          confidence: number | null;
           created_at: string;
+          evidence_text: string | null;
           is_primary: boolean;
           job_id: number;
+          original_text: string | null;
+          policy_version: string | null;
+          reviewed_at: string | null;
+          updated_at: string;
         };
         Insert: {
+          assignment_source?: string;
           career_area_id: number;
+          confidence?: number | null;
           created_at?: string;
+          evidence_text?: string | null;
           is_primary?: boolean;
           job_id: number;
+          original_text?: string | null;
+          policy_version?: string | null;
+          reviewed_at?: string | null;
+          updated_at?: string;
         };
         Update: {
+          assignment_source?: string;
           career_area_id?: number;
+          confidence?: number | null;
           created_at?: string;
+          evidence_text?: string | null;
           is_primary?: boolean;
           job_id?: number;
+          original_text?: string | null;
+          policy_version?: string | null;
+          reviewed_at?: string | null;
+          updated_at?: string;
         };
         Relationships: [
           {
@@ -988,6 +1217,140 @@ export type Database = {
             columns: ["job_id"];
             isOneToOne: false;
             referencedRelation: "jobs";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      job_locations: {
+        Row: {
+          address_line_1: string | null;
+          address_line_2: string | null;
+          assignment_source: string;
+          confidence: number | null;
+          country_code: string | null;
+          created_at: string;
+          evidence_text: string | null;
+          id: number;
+          is_primary: boolean;
+          job_id: number;
+          latitude: number | null;
+          locality: string | null;
+          longitude: number | null;
+          policy_version: string | null;
+          postal_code: string | null;
+          precision: string;
+          raw_text: string;
+          region: string | null;
+          reviewed_at: string | null;
+          updated_at: string;
+        };
+        Insert: {
+          address_line_1?: string | null;
+          address_line_2?: string | null;
+          assignment_source: string;
+          confidence?: number | null;
+          country_code?: string | null;
+          created_at?: string;
+          evidence_text?: string | null;
+          id?: never;
+          is_primary?: boolean;
+          job_id: number;
+          latitude?: number | null;
+          locality?: string | null;
+          longitude?: number | null;
+          policy_version?: string | null;
+          postal_code?: string | null;
+          precision: string;
+          raw_text: string;
+          region?: string | null;
+          reviewed_at?: string | null;
+          updated_at?: string;
+        };
+        Update: {
+          address_line_1?: string | null;
+          address_line_2?: string | null;
+          assignment_source?: string;
+          confidence?: number | null;
+          country_code?: string | null;
+          created_at?: string;
+          evidence_text?: string | null;
+          id?: never;
+          is_primary?: boolean;
+          job_id?: number;
+          latitude?: number | null;
+          locality?: string | null;
+          longitude?: number | null;
+          policy_version?: string | null;
+          postal_code?: string | null;
+          precision?: string;
+          raw_text?: string;
+          region?: string | null;
+          reviewed_at?: string | null;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "job_locations_job_id_fkey";
+            columns: ["job_id"];
+            isOneToOne: false;
+            referencedRelation: "jobs";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      job_occupations: {
+        Row: {
+          assignment_source: string;
+          confidence: number | null;
+          created_at: string;
+          evidence_text: string | null;
+          is_primary: boolean;
+          job_id: number;
+          occupation_id: number;
+          original_text: string | null;
+          policy_version: string | null;
+          reviewed_at: string | null;
+          updated_at: string;
+        };
+        Insert: {
+          assignment_source: string;
+          confidence?: number | null;
+          created_at?: string;
+          evidence_text?: string | null;
+          is_primary?: boolean;
+          job_id: number;
+          occupation_id: number;
+          original_text?: string | null;
+          policy_version?: string | null;
+          reviewed_at?: string | null;
+          updated_at?: string;
+        };
+        Update: {
+          assignment_source?: string;
+          confidence?: number | null;
+          created_at?: string;
+          evidence_text?: string | null;
+          is_primary?: boolean;
+          job_id?: number;
+          occupation_id?: number;
+          original_text?: string | null;
+          policy_version?: string | null;
+          reviewed_at?: string | null;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "job_occupations_job_id_fkey";
+            columns: ["job_id"];
+            isOneToOne: false;
+            referencedRelation: "jobs";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "job_occupations_occupation_id_fkey";
+            columns: ["occupation_id"];
+            isOneToOne: false;
+            referencedRelation: "occupations";
             referencedColumns: ["id"];
           },
         ];
@@ -1055,6 +1418,7 @@ export type Database = {
           canonical_url: string | null;
           closes_at: string | null;
           content_hash: string | null;
+          country_code: string | null;
           created_at: string;
           detail_content_hash: string | null;
           detail_fetched_at: string | null;
@@ -1074,12 +1438,13 @@ export type Database = {
           id: number;
           job_id: number | null;
           last_seen_at: string;
-          country_code: string | null;
           location_locality: string | null;
           location_region: string | null;
           location_text: string | null;
           mapping_status: string;
           postal_code: string | null;
+          remote_scope_text: string | null;
+          remote_scope_type: string | null;
           source_id: number;
           source_title: string | null;
           source_updated_at: string | null;
@@ -1099,6 +1464,7 @@ export type Database = {
           canonical_url?: string | null;
           closes_at?: string | null;
           content_hash?: string | null;
+          country_code?: string | null;
           created_at?: string;
           detail_content_hash?: string | null;
           detail_fetched_at?: string | null;
@@ -1118,12 +1484,13 @@ export type Database = {
           id?: never;
           job_id?: number | null;
           last_seen_at?: string;
-          country_code?: string | null;
           location_locality?: string | null;
           location_region?: string | null;
           location_text?: string | null;
           mapping_status?: string;
           postal_code?: string | null;
+          remote_scope_text?: string | null;
+          remote_scope_type?: string | null;
           source_id: number;
           source_title?: string | null;
           source_updated_at?: string | null;
@@ -1143,6 +1510,7 @@ export type Database = {
           canonical_url?: string | null;
           closes_at?: string | null;
           content_hash?: string | null;
+          country_code?: string | null;
           created_at?: string;
           detail_content_hash?: string | null;
           detail_fetched_at?: string | null;
@@ -1162,12 +1530,13 @@ export type Database = {
           id?: never;
           job_id?: number | null;
           last_seen_at?: string;
-          country_code?: string | null;
           location_locality?: string | null;
           location_region?: string | null;
           location_text?: string | null;
           mapping_status?: string;
           postal_code?: string | null;
+          remote_scope_text?: string | null;
+          remote_scope_type?: string | null;
           source_id?: number;
           source_title?: string | null;
           source_updated_at?: string | null;
@@ -1204,9 +1573,13 @@ export type Database = {
           authoritative_base_url: string | null;
           created_at: string;
           default_country_code: string | null;
+          description_display_mode: string;
           id: number;
           is_active: boolean;
+          logo_reuse_allowed: boolean;
           name: string;
+          permission_notes: string | null;
+          permissions_reviewed_at: string | null;
           source_type: string;
           updated_at: string;
         };
@@ -1214,9 +1587,13 @@ export type Database = {
           authoritative_base_url?: string | null;
           created_at?: string;
           default_country_code?: string | null;
+          description_display_mode?: string;
           id?: never;
           is_active?: boolean;
+          logo_reuse_allowed?: boolean;
           name: string;
+          permission_notes?: string | null;
+          permissions_reviewed_at?: string | null;
           source_type: string;
           updated_at?: string;
         };
@@ -1224,9 +1601,13 @@ export type Database = {
           authoritative_base_url?: string | null;
           created_at?: string;
           default_country_code?: string | null;
+          description_display_mode?: string;
           id?: never;
           is_active?: boolean;
+          logo_reuse_allowed?: boolean;
           name?: string;
+          permission_notes?: string | null;
+          permissions_reviewed_at?: string | null;
           source_type?: string;
           updated_at?: string;
         };
@@ -1241,8 +1622,8 @@ export type Database = {
           country_code: string | null;
           created_at: string;
           description: string | null;
-          engagement_type: string | null;
           employer_id: number;
+          engagement_type: string | null;
           experience_level: string | null;
           expires_at: string | null;
           hours_type: string | null;
@@ -1254,6 +1635,8 @@ export type Database = {
           posted_at: string | null;
           published_at: string | null;
           region: string | null;
+          remote_scope_text: string | null;
+          remote_scope_type: string | null;
           requirements: string | null;
           responsibilities: string | null;
           salary_currency: string | null;
@@ -1281,8 +1664,8 @@ export type Database = {
           country_code?: string | null;
           created_at?: string;
           description?: string | null;
-          engagement_type?: string | null;
           employer_id: number;
+          engagement_type?: string | null;
           experience_level?: string | null;
           expires_at?: string | null;
           hours_type?: string | null;
@@ -1294,6 +1677,8 @@ export type Database = {
           posted_at?: string | null;
           published_at?: string | null;
           region?: string | null;
+          remote_scope_text?: string | null;
+          remote_scope_type?: string | null;
           requirements?: string | null;
           responsibilities?: string | null;
           salary_currency?: string | null;
@@ -1321,8 +1706,8 @@ export type Database = {
           country_code?: string | null;
           created_at?: string;
           description?: string | null;
-          engagement_type?: string | null;
           employer_id?: number;
+          engagement_type?: string | null;
           experience_level?: string | null;
           expires_at?: string | null;
           hours_type?: string | null;
@@ -1334,6 +1719,8 @@ export type Database = {
           posted_at?: string | null;
           published_at?: string | null;
           region?: string | null;
+          remote_scope_text?: string | null;
+          remote_scope_type?: string | null;
           requirements?: string | null;
           responsibilities?: string | null;
           salary_currency?: string | null;
@@ -1430,6 +1817,79 @@ export type Database = {
             columns: ["job_id"];
             isOneToOne: false;
             referencedRelation: "jobs";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      occupation_aliases: {
+        Row: {
+          alias: string;
+          created_at: string;
+          id: number;
+          normalized_alias: string;
+          occupation_id: number;
+        };
+        Insert: {
+          alias: string;
+          created_at?: string;
+          id?: never;
+          normalized_alias: string;
+          occupation_id: number;
+        };
+        Update: {
+          alias?: string;
+          created_at?: string;
+          id?: never;
+          normalized_alias?: string;
+          occupation_id?: number;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "occupation_aliases_occupation_id_fkey";
+            columns: ["occupation_id"];
+            isOneToOne: false;
+            referencedRelation: "occupations";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      occupations: {
+        Row: {
+          created_at: string;
+          description: string | null;
+          id: number;
+          is_active: boolean;
+          parent_id: number | null;
+          slug: string;
+          title: string;
+          updated_at: string;
+        };
+        Insert: {
+          created_at?: string;
+          description?: string | null;
+          id?: never;
+          is_active?: boolean;
+          parent_id?: number | null;
+          slug: string;
+          title: string;
+          updated_at?: string;
+        };
+        Update: {
+          created_at?: string;
+          description?: string | null;
+          id?: never;
+          is_active?: boolean;
+          parent_id?: number | null;
+          slug?: string;
+          title?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "occupations_parent_id_fkey";
+            columns: ["parent_id"];
+            isOneToOne: false;
+            referencedRelation: "occupations";
             referencedColumns: ["id"];
           },
         ];
@@ -1545,37 +2005,88 @@ export type Database = {
         Row: {
           created_at: string;
           id: boolean;
-          last_heartbeat_at: string | null;
           last_course_sync_claimed_at: string | null;
           last_course_sync_completed_at: string | null;
           last_course_sync_error_code: string | null;
           last_course_sync_status: string | null;
+          last_heartbeat_at: string | null;
           last_import_claimed_at: string | null;
           updated_at: string;
         };
         Insert: {
           created_at?: string;
           id?: boolean;
-          last_heartbeat_at?: string | null;
           last_course_sync_claimed_at?: string | null;
           last_course_sync_completed_at?: string | null;
           last_course_sync_error_code?: string | null;
           last_course_sync_status?: string | null;
+          last_heartbeat_at?: string | null;
           last_import_claimed_at?: string | null;
           updated_at?: string;
         };
         Update: {
           created_at?: string;
           id?: boolean;
-          last_heartbeat_at?: string | null;
           last_course_sync_claimed_at?: string | null;
           last_course_sync_completed_at?: string | null;
           last_course_sync_error_code?: string | null;
           last_course_sync_status?: string | null;
+          last_heartbeat_at?: string | null;
           last_import_claimed_at?: string | null;
           updated_at?: string;
         };
         Relationships: [];
+      };
+      source_record_capabilities: {
+        Row: {
+          capability_id: number;
+          confidence: number;
+          created_at: string;
+          evidence_text: string;
+          importance: string;
+          policy_version: string;
+          relevance_score: number;
+          source_record_id: number;
+          updated_at: string;
+        };
+        Insert: {
+          capability_id: number;
+          confidence: number;
+          created_at?: string;
+          evidence_text: string;
+          importance: string;
+          policy_version: string;
+          relevance_score: number;
+          source_record_id: number;
+          updated_at?: string;
+        };
+        Update: {
+          capability_id?: number;
+          confidence?: number;
+          created_at?: string;
+          evidence_text?: string;
+          importance?: string;
+          policy_version?: string;
+          relevance_score?: number;
+          source_record_id?: number;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "source_record_capabilities_capability_id_fkey";
+            columns: ["capability_id"];
+            isOneToOne: false;
+            referencedRelation: "capabilities";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "source_record_capabilities_source_record_id_fkey";
+            columns: ["source_record_id"];
+            isOneToOne: false;
+            referencedRelation: "job_source_records";
+            referencedColumns: ["id"];
+          },
+        ];
       };
       staff_members: {
         Row: {
@@ -1652,50 +2163,85 @@ export type Database = {
           },
         ];
       };
-      source_record_capabilities: {
+      taxonomy_candidates: {
         Row: {
-          capability_id: number;
           confidence: number;
           created_at: string;
           evidence_text: string;
-          importance: string;
+          id: number;
+          job_id: number;
+          normalized_title: string;
+          original_text: string | null;
           policy_version: string;
-          relevance_score: number;
+          proposed_title: string;
+          resolved_benefit_id: number | null;
+          resolved_occupation_id: number | null;
+          reviewed_at: string | null;
           source_record_id: number;
+          status: string;
+          taxonomy_type: string;
           updated_at: string;
         };
         Insert: {
-          capability_id: number;
           confidence: number;
           created_at?: string;
           evidence_text: string;
-          importance: string;
+          id?: never;
+          job_id: number;
+          normalized_title: string;
+          original_text?: string | null;
           policy_version: string;
-          relevance_score: number;
+          proposed_title: string;
+          resolved_benefit_id?: number | null;
+          resolved_occupation_id?: number | null;
+          reviewed_at?: string | null;
           source_record_id: number;
+          status?: string;
+          taxonomy_type: string;
           updated_at?: string;
         };
         Update: {
-          capability_id?: number;
           confidence?: number;
           created_at?: string;
           evidence_text?: string;
-          importance?: string;
+          id?: never;
+          job_id?: number;
+          normalized_title?: string;
+          original_text?: string | null;
           policy_version?: string;
-          relevance_score?: number;
+          proposed_title?: string;
+          resolved_benefit_id?: number | null;
+          resolved_occupation_id?: number | null;
+          reviewed_at?: string | null;
           source_record_id?: number;
+          status?: string;
+          taxonomy_type?: string;
           updated_at?: string;
         };
         Relationships: [
           {
-            foreignKeyName: "source_record_capabilities_capability_id_fkey";
-            columns: ["capability_id"];
+            foreignKeyName: "taxonomy_candidates_job_id_fkey";
+            columns: ["job_id"];
             isOneToOne: false;
-            referencedRelation: "capabilities";
+            referencedRelation: "jobs";
             referencedColumns: ["id"];
           },
           {
-            foreignKeyName: "source_record_capabilities_source_record_id_fkey";
+            foreignKeyName: "taxonomy_candidates_resolved_benefit_id_fkey";
+            columns: ["resolved_benefit_id"];
+            isOneToOne: false;
+            referencedRelation: "benefits";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "taxonomy_candidates_resolved_occupation_id_fkey";
+            columns: ["resolved_occupation_id"];
+            isOneToOne: false;
+            referencedRelation: "occupations";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "taxonomy_candidates_source_record_id_fkey";
             columns: ["source_record_id"];
             isOneToOne: false;
             referencedRelation: "job_source_records";
@@ -1709,50 +2255,16 @@ export type Database = {
     };
     Functions: {
       change_job_lifecycle: {
-        Args: {
-          p_action: string;
-          p_job_id: number;
-          p_review_note: string;
-        };
+        Args: { p_action: string; p_job_id: number; p_review_note: string };
         Returns: string;
-      };
-      claim_periodic_source_import: {
-        Args: { interval_hours?: number };
-        Returns: boolean;
       };
       claim_periodic_course_sync: {
         Args: { interval_hours?: number };
         Returns: boolean;
       };
-      create_manual_job_draft: {
-        Args: {
-          p_application_url: string;
-          p_canonical_url: string;
-          p_closes_at: string;
-          p_contract_type: string;
-          p_country_code: string;
-          p_description: string;
-          p_engagement_type: string | null;
-          p_employer_name: string;
-          p_employer_slug: string;
-          p_employer_website_url: string | null;
-          p_experience_level: string;
-          p_hours_type: string;
-          p_job_slug: string;
-          p_location_locality: string | null;
-          p_location_region: string | null;
-          p_location_text: string;
-          p_postal_code: string | null;
-          p_posted_at: string | null;
-          p_requirements: string;
-          p_responsibilities: string;
-          p_salary_text: string;
-          p_source_id: number;
-          p_summary: string;
-          p_title: string;
-          p_workplace_type: string;
-        };
-        Returns: number;
+      claim_periodic_source_import: {
+        Args: { interval_hours?: number };
+        Returns: boolean;
       };
       create_job_review_from_submission: {
         Args: {
@@ -1762,16 +2274,75 @@ export type Database = {
         };
         Returns: number;
       };
+      create_manual_job_draft:
+        | {
+            Args: {
+              p_application_url: string;
+              p_canonical_url: string;
+              p_closes_at: string;
+              p_contract_type: string;
+              p_country_code: string;
+              p_description: string;
+              p_employer_name: string;
+              p_employer_slug: string;
+              p_employer_website_url: string;
+              p_engagement_type: string;
+              p_experience_level: string;
+              p_hours_type: string;
+              p_job_slug: string;
+              p_location_text: string;
+              p_posted_at: string;
+              p_requirements: string;
+              p_responsibilities: string;
+              p_salary_text: string;
+              p_source_id: number;
+              p_summary: string;
+              p_title: string;
+              p_workplace_type: string;
+            };
+            Returns: number;
+          }
+        | {
+            Args: {
+              p_application_url: string;
+              p_canonical_url: string;
+              p_closes_at: string;
+              p_contract_type: string;
+              p_country_code: string;
+              p_description: string;
+              p_employer_name: string;
+              p_employer_slug: string;
+              p_employer_website_url: string;
+              p_engagement_type: string;
+              p_experience_level: string;
+              p_hours_type: string;
+              p_job_slug: string;
+              p_location_locality: string;
+              p_location_region: string;
+              p_location_text: string;
+              p_postal_code: string;
+              p_posted_at: string;
+              p_requirements: string;
+              p_responsibilities: string;
+              p_salary_text: string;
+              p_source_id: number;
+              p_summary: string;
+              p_title: string;
+              p_workplace_type: string;
+            };
+            Returns: number;
+          };
       link_source_record_to_job: {
+        Args: { p_job_id: number; p_source_record_id: number };
+        Returns: number;
+      };
+      prepare_automated_job_draft: {
         Args: {
-          p_job_id: number;
+          p_employer_id: number;
+          p_job_slug: string;
           p_source_record_id: number;
         };
         Returns: number;
-      };
-      publish_job_review_draft: {
-        Args: { p_job_id: number };
-        Returns: string;
       };
       publish_automated_source_record: {
         Args: {
@@ -1782,15 +2353,7 @@ export type Database = {
         };
         Returns: number;
       };
-      replace_source_capability_classification: {
-        Args: {
-          p_candidates: Json;
-          p_matches: Json;
-          p_policy_version: string;
-          p_source_record_id: number;
-        };
-        Returns: undefined;
-      };
+      publish_job_review_draft: { Args: { p_job_id: number }; Returns: string };
       redeem_employer_submission_invite: {
         Args: {
           p_application_url: string;
@@ -1818,6 +2381,28 @@ export type Database = {
         };
         Returns: undefined;
       };
+      replace_job_taxonomy_enrichment: {
+        Args: {
+          p_benefit_matches: Json;
+          p_candidates: Json;
+          p_career_area_matches: Json;
+          p_job_id: number;
+          p_locations: Json;
+          p_occupation_matches: Json;
+          p_policy_version: string;
+          p_source_record_id: number;
+        };
+        Returns: undefined;
+      };
+      replace_source_capability_classification: {
+        Args: {
+          p_candidates: Json;
+          p_matches: Json;
+          p_policy_version: string;
+          p_source_record_id: number;
+        };
+        Returns: undefined;
+      };
       review_employer_submission: {
         Args: {
           p_decision: string;
@@ -1825,6 +2410,10 @@ export type Database = {
           p_submission_id: number;
         };
         Returns: string;
+      };
+      sync_automated_job_draft: {
+        Args: { p_source_record_id: number };
+        Returns: number;
       };
       update_employer_review_profile: {
         Args: {
@@ -1835,36 +2424,64 @@ export type Database = {
         };
         Returns: number;
       };
-      update_job_review_draft: {
-        Args: {
-          p_application_url: string;
-          p_canonical_url: string;
-          p_closes_at: string;
-          p_contract_type: string;
-          p_country_code: string;
-          p_description: string;
-          p_engagement_type: string | null;
-          p_employer_mission: string;
-          p_employer_overview: string;
-          p_employer_website_url: string | null;
-          p_experience_level: string;
-          p_hours_type: string;
-          p_job_id: number;
-          p_job_slug: string;
-          p_location_locality: string | null;
-          p_location_region: string | null;
-          p_location_text: string;
-          p_postal_code: string | null;
-          p_posted_at: string | null;
-          p_requirements: string;
-          p_responsibilities: string;
-          p_salary_text: string;
-          p_summary: string;
-          p_title: string;
-          p_workplace_type: string;
-        };
-        Returns: number;
-      };
+      update_job_review_draft:
+        | {
+            Args: {
+              p_application_url: string;
+              p_canonical_url: string;
+              p_closes_at: string;
+              p_contract_type: string;
+              p_country_code: string;
+              p_description: string;
+              p_employer_mission: string;
+              p_employer_overview: string;
+              p_employer_website_url: string;
+              p_engagement_type: string;
+              p_experience_level: string;
+              p_hours_type: string;
+              p_job_id: number;
+              p_job_slug: string;
+              p_location_text: string;
+              p_posted_at: string;
+              p_requirements: string;
+              p_responsibilities: string;
+              p_salary_text: string;
+              p_summary: string;
+              p_title: string;
+              p_workplace_type: string;
+            };
+            Returns: number;
+          }
+        | {
+            Args: {
+              p_application_url: string;
+              p_canonical_url: string;
+              p_closes_at: string;
+              p_contract_type: string;
+              p_country_code: string;
+              p_description: string;
+              p_employer_mission: string;
+              p_employer_overview: string;
+              p_employer_website_url: string;
+              p_engagement_type: string;
+              p_experience_level: string;
+              p_hours_type: string;
+              p_job_id: number;
+              p_job_slug: string;
+              p_location_locality: string;
+              p_location_region: string;
+              p_location_text: string;
+              p_postal_code: string;
+              p_posted_at: string;
+              p_requirements: string;
+              p_responsibilities: string;
+              p_salary_text: string;
+              p_summary: string;
+              p_title: string;
+              p_workplace_type: string;
+            };
+            Returns: number;
+          };
     };
     Enums: {
       [_ in never]: never;

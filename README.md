@@ -4,7 +4,9 @@ WildJobs is WildTeam's independent conservation careers platform, intended for `
 
 The application is connected to its independent Supabase project. Public job discovery, employer profiles and career-area discovery read approved live records; candidate authentication, private saved jobs and explicit job preferences are connected; and authorised staff can curate, review, publish, expire and withdraw jobs with an audit trail. Source connectors check WWT's public vacancy page and the reviewed Countryside Jobs Service RSS feed, automatically every two hours or on demand. Between imports, a bounded enrichment pipeline extracts evidence, builds canonical employer context and records an automatic-publication decision. AI enrichment and live automatic publication have independent master switches and both default off; publication checks run in shadow mode until explicitly enabled. The controlled employer journey creates seven-day, single-use invitation links, validates and consumes them through a protected server route, and sends complete submissions into the staff-only review queue. Course matching still contains clearly labelled prototype content. Analytics and marketing integrations are not implemented yet.
 
-The approved beta direction is documented in `docs/IMPLEMENTATION_PLAN.md` and `docs/EXPERIENCE_BLUEPRINT.md`.
+The approved automated listing lifecycle, field dictionary and publication requirements are documented in
+`docs/LISTING_PIPELINE.md`. `docs/IMPLEMENTATION_PLAN.md` and `docs/EXPERIENCE_BLUEPRINT.md` retain the broader
+product background.
 
 ## Development
 
@@ -48,11 +50,13 @@ Once enrichment work is clear, each heartbeat also refreshes a bounded batch of 
 publication policy. Shadow mode can refresh ten decisions without another AI call; live mode remains limited to
 one decision per heartbeat so a policy change cannot suddenly publish a large batch.
 
-The same protected heartbeat can synchronise the approved public LearnWorlds course catalogue every six hours.
+The same protected heartbeat can synchronise the public LearnWorlds course catalogue every six hours.
 Configure the server-only `LEARNWORLDS_API_URL`, `LEARNWORLDS_CLIENT_ID` and
-`LEARNWORLDS_ACCESS_TOKEN`, the public `LEARNWORLDS_PUBLIC_BASE_URL`, and a comma-separated
-`LEARNWORLDS_APPROVED_COURSE_IDS` allowlist. The API URL must be the version 2 base copied from the
-LearnWorlds API settings. Credentials never reach the browser. After catalogue sync, a structured-output AI pass
+`LEARNWORLDS_ACCESS_TOKEN` and the public `LEARNWORLDS_PUBLIC_BASE_URL`. The sync imports courses from the
+LearnWorlds `ONLINE COURSE` category by default; `LEARNWORLDS_COURSE_CATEGORY` can override that category name.
+Draft, coming-soon, private, closed and unpublished courses remain unavailable in WildJobs, and staff can exclude
+individual exceptions without removing them from LearnWorlds. The API URL must be the version 2 base copied from
+the LearnWorlds API settings. Credentials never reach the browser. After catalogue sync, a structured-output AI pass
 creates one to four evidence-backed outcomes and reusable capabilities per course, prefers existing titles and
 aliases, and stores confidence, provenance and the exact catalogue quote. It never receives learner data. A source
 hash prevents repeat work when the catalogue has not changed, while administrators can rerun either stage from the
@@ -72,7 +76,7 @@ pnpm check
 
 - Published jobs and their source provenance live in Supabase; fixture jobs in `lib/jobs.ts` remain design references only.
 - Source discovery is restricted to explicitly reviewed endpoints. WWT HTML and Countryside Jobs Service RSS are checked every two hours by the protected automation heartbeat and can also be checked manually by an administrator. Enrichment and publication readiness are automated, while live publication remains feature-flagged and evidence-gated.
-- Employer invitations, protected employer submission and staff submission review are connected to production data. Career-area pages use reviewed production taxonomy and live vacancy relationships. Course filters read active, capability-mapped records from Supabase; the LearnWorlds sync remains inactive until its server credentials and approved-course allowlist are configured.
+- Employer invitations, protected employer submission and staff submission review are connected to production data. Career-area pages use reviewed production taxonomy and live vacancy relationships. Course filters read active, capability-mapped records from Supabase; the LearnWorlds sync remains inactive until its server credentials are configured.
 - The site is marked `noindex` until approved data and a production domain are connected.
 - Shared design tokens are pinned to the private `@wildteam-uk/tokens` package released through GitHub Packages. Local development requires a personal package login; CI uses its repository-scoped `GITHUB_TOKEN`.
-- Read `docs/IMPLEMENTATION_PLAN.md`, `docs/EXPERIENCE_BLUEPRINT.md`, `docs/PRODUCT_SCOPE.md`, `docs/ARCHITECTURE.md`, and `docs/DATA_OWNERSHIP.md` before implementation.
+- Read `docs/LISTING_PIPELINE.md`, `docs/IMPLEMENTATION_PLAN.md`, `docs/EXPERIENCE_BLUEPRINT.md`, `docs/PRODUCT_SCOPE.md`, `docs/ARCHITECTURE.md`, and `docs/DATA_OWNERSHIP.md` before implementation.

@@ -11,8 +11,10 @@ function readyInput(): PublicationReadinessInput {
   return {
     applicationUrl: "https://example.org/apply",
     canonicalUrl: "https://example.org/jobs/ranger",
+    careerAreaCount: 1,
     closesAt: "2026-11-30",
     countryCode: "GB",
+    descriptionDisplayMode: "full",
     detailText: "A".repeat(200),
     duplicateCount: 0,
     employer: {
@@ -40,17 +42,20 @@ function readyInput(): PublicationReadinessInput {
       { confidence: 95, field_name: "employer_name", resolution_status: "extracted", value: "Example Trust" },
       { confidence: 95, field_name: "location_text", resolution_status: "extracted", value: "Bristol" },
       { confidence: 90, field_name: "engagement_type", resolution_status: "extracted", value: "paid" },
+      { confidence: 90, field_name: "workplace_type", resolution_status: "extracted", value: "hybrid" },
     ],
     firstSeenAt: "2026-10-20T09:00:00Z",
-    jobId: null,
+    jobId: 23,
     locationText: "Bristol",
-    mappingStatus: "unmapped",
+    mappingStatus: "mapped",
+    occupationCount: 1,
     sourceActive: true,
     sourceEmployerName: "Example Trust",
     sourceEmployerWebsiteUrl: "https://example.org",
     sourceTitle: "Senior Ranger",
     sourceType: "feed",
     summary: "Join the reserve team and help restore important habitats.",
+    structuredLocationCount: 1,
     today: "2026-10-29",
   };
 }
@@ -59,7 +64,7 @@ describe("automated publication readiness", () => {
   it("allows a fully evidenced vacancy without fabricating optional fields", () => {
     const result = evaluatePublicationReadiness(readyInput());
 
-    expect(AUTOMATION_PUBLICATION_POLICY_VERSION).toBe("evidence-gated-v5");
+    expect(AUTOMATION_PUBLICATION_POLICY_VERSION).toBe("canonical-draft-v2-taxonomy");
     expect(result).toMatchObject({ blockers: [], ready: true, score: 100 });
   });
 
@@ -73,7 +78,7 @@ describe("automated publication readiness", () => {
     );
   });
 
-  it("blocks possible duplicates but not absent optional classification evidence", () => {
+  it("blocks possible duplicates and a missing paid-or-volunteer classification", () => {
     const input = readyInput();
     input.duplicateCount = 1;
     input.evidence = input.evidence.filter((item) => item.field_name !== "engagement_type");
@@ -81,7 +86,29 @@ describe("automated publication readiness", () => {
     const result = evaluatePublicationReadiness(input);
 
     expect(result.ready).toBe(false);
-    expect(result.blockers).toEqual(["duplicate_risk"]);
+    expect(result.blockers).toEqual(["duplicate_risk", "engagement_missing"]);
+  });
+
+  it("requires reusable occupation, career-area and structured-location mappings", () => {
+    const input = readyInput();
+    input.careerAreaCount = 0;
+    input.occupationCount = 0;
+    input.structuredLocationCount = 0;
+
+    expect(evaluatePublicationReadiness(input)).toMatchObject({
+      blockers: ["career_area_missing", "occupation_missing", "structured_location_missing"],
+      ready: false,
+    });
+  });
+
+  it("requires a usable source or AI summary", () => {
+    const input = readyInput();
+    input.summary = null;
+
+    expect(evaluatePublicationReadiness(input)).toMatchObject({
+      blockers: ["summary_missing"],
+      ready: false,
+    });
   });
 
   it("does not block on an incomplete employer profile", () => {
@@ -95,6 +122,27 @@ describe("automated publication readiness", () => {
     };
 
     expect(evaluatePublicationReadiness(input)).toMatchObject({ blockers: [], ready: true });
+  });
+
+  it("blocks publication until the source permits the full description", () => {
+    const input = readyInput();
+    input.descriptionDisplayMode = "link_only";
+
+    expect(evaluatePublicationReadiness(input)).toMatchObject({
+      blockers: ["source_permission_unapproved"],
+      ready: false,
+    });
+  });
+
+  it("requires the canonical private draft before publication evaluation can pass", () => {
+    const input = readyInput();
+    input.jobId = null;
+    input.mappingStatus = "unmapped";
+
+    expect(evaluatePublicationReadiness(input)).toMatchObject({
+      blockers: ["draft_missing", "duplicate_risk"],
+      ready: false,
+    });
   });
 
   it("uses the canonical vacancy page when a separate application address is absent", () => {

@@ -15,6 +15,11 @@ function validJobId(jobId: number) {
   return Number.isSafeInteger(jobId) && jobId > 0;
 }
 
+// Supabase's generated RPC types cannot express nullable PostgreSQL parameters.
+function nullableRpcValue(value: string | null): string {
+  return value as string;
+}
+
 export async function updateJobReview(
   jobId: number,
   _previousState: JobReviewActionState,
@@ -43,10 +48,10 @@ export async function updateJobReview(
     p_contract_type: input.contractType ?? "",
     p_country_code: input.countryCode,
     p_description: input.description,
-    p_engagement_type: input.engagementType,
-    p_employer_mission: input.employerMission,
-    p_employer_overview: input.employerOverview,
-    p_employer_website_url: input.employerWebsiteUrl,
+    p_engagement_type: nullableRpcValue(input.engagementType),
+    p_employer_mission: nullableRpcValue(input.employerMission),
+    p_employer_overview: nullableRpcValue(input.employerOverview),
+    p_employer_website_url: nullableRpcValue(input.employerWebsiteUrl),
     p_experience_level: input.experienceLevel ?? "",
     p_hours_type: input.hoursType ?? "",
     p_job_id: jobId,
@@ -55,7 +60,7 @@ export async function updateJobReview(
     p_location_region: input.locationRegion,
     p_location_text: input.locationText,
     p_postal_code: input.postalCode,
-    p_posted_at: input.postedAt,
+    p_posted_at: nullableRpcValue(input.postedAt),
     p_requirements: input.requirements,
     p_responsibilities: input.responsibilities,
     p_salary_text: input.salaryText ?? "",

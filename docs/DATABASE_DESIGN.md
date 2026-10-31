@@ -99,6 +99,18 @@ A stored `tsvector` search column combines the job title, summary, description, 
 
 Career areas are staff-managed reference records with a unique slug, title, description, display order and active flag. The join table allows a role to belong to more than one area.
 
+#### `occupations`, `occupation_aliases` and `job_occupations`
+
+Occupations provide the consistent role vocabulary needed for career pages and historical statistics. They support parent-child relationships and aliases, while jobs retain their original advertised titles. Job mappings record the source wording, evidence, confidence, assignment method and policy version. One occupation may be marked primary per job.
+
+#### `benefits`, `benefit_aliases`, `job_benefits` and `employer_benefits`
+
+Benefits are canonical filterable terms rather than free-text tags. Job-specific benefits and employer-wide benefits remain separate so WildJobs never assumes an organisation-wide policy applies to every vacancy. Every automated mapping retains evidence and provenance.
+
+#### `job_locations`
+
+Jobs can have multiple structured locations while preserving the advertised location text. Each location records its supported address parts, country, optional coordinates, precision and provenance. The existing job-level location fields remain the primary display/search summary during migration. Remote eligibility scope is stored separately from physical locations.
+
 #### `courses`, `capabilities`, `course_capabilities` and `job_capabilities`
 
 These tables implement course-aware discovery without learner data.
@@ -107,8 +119,10 @@ These tables implement course-aware discovery without learner data.
 - `course_learning_outcomes` stores source-attributed outcomes, provenance, confidence and exact catalogue evidence without changing the LearnWorlds course record.
 - `capabilities` and `capability_aliases` form the reusable vocabulary used by both courses and jobs. Course analysis reuses an existing title or alias before creating a new active capability.
 - `course_capabilities` records primary or supporting coverage, a score, rationale, provenance and optional source outcome. Staff-reviewed rows are preserved when generated rows are refreshed.
-- `source_record_capabilities` stores the bounded, evidence-backed capability classification made during vacancy enrichment. When a source record becomes a job, those matches are copied into `job_capabilities` with relevance, confidence, importance, evidence and policy version.
+- `source_record_capabilities` stores the bounded, evidence-backed capability classification made during vacancy enrichment. Because automated jobs are private canonical drafts before enrichment, the same write also updates `job_capabilities` with relevance, confidence, importance, evidence and policy version.
 - `capability_candidates` is an exception queue for repeated concepts that do not fit the existing course-backed vocabulary. Candidates never become public capabilities automatically.
+
+The same vacancy enrichment run maps the linked canonical job to active occupations, benefits and career areas and adds evidence-backed structured locations. AI mappings retain their source wording, exact evidence, confidence and policy version. Staff-reviewed and deterministic mappings are never overwritten by a later AI pass. Occupation or benefit concepts that do not match an active term are stored in `taxonomy_candidates` for exception review and do not become public filters automatically.
 
 A course filter matches jobs through shared capabilities. It does not claim that a candidate enrolled in or completed a course.
 

@@ -1977,6 +1977,68 @@ select {
 .job-card__meta-row .job-card__compact-facts {
   min-width: 0;
 }
+.job-card__training {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 10px;
+  overflow: hidden;
+  padding-top: 2px;
+}
+.job-card__training-label {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 4px;
+  color: var(--wt-color-brand-pink);
+  font-size: 0.78rem;
+  font-weight: var(--wt-font-weight-bold);
+  line-height: 1.35;
+  white-space: nowrap;
+}
+.job-card__training-courses {
+  display: flex;
+  min-width: 0;
+  flex: 1 1 auto;
+  flex-wrap: nowrap;
+  gap: 7px;
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
+  margin: 0;
+  padding: 2px 18px 5px 0;
+  list-style: none;
+  mask-image: linear-gradient(90deg, #000 0, #000 calc(100% - 18px), transparent 100%);
+  scrollbar-width: thin;
+  touch-action: pan-x;
+}
+.job-card__training-courses li {
+  flex: 0 0 auto;
+}
+.job-card__training-pill {
+  --course-colour: var(--wt-color-brand-pink);
+
+  display: inline-flex;
+  min-height: 29px;
+  align-items: center;
+  padding: 5px 10px;
+  border: 1px solid var(--course-colour);
+  border-radius: var(--wt-radius-pill);
+  background: transparent;
+  color: var(--course-colour);
+  font-size: 0.72rem;
+  font-weight: var(--wt-font-weight-bold);
+  line-height: 1.15;
+  white-space: nowrap;
+  transition:
+    background-color 160ms ease,
+    color 160ms ease;
+}
+.job-card__training-pill:hover {
+  background: var(--course-colour);
+  color: var(--wt-color-paper);
+}
 .job-card__posted {
   flex: 0 0 auto;
   margin: 0 0 0 auto;
@@ -1991,7 +2053,8 @@ select {
     margin-top: -12px;
   }
   .job-card--compact .job-card__summary-block,
-  .job-card--compact .job-card__meta-row {
+  .job-card--compact .job-card__meta-row,
+  .job-card--compact .job-card__training {
     margin-left: 91px;
   }
 }
@@ -5256,6 +5319,20 @@ select {
   .job-card__compact-facts svg {
     width: 19px;
     height: 19px;
+  }
+  .job-card__training {
+    gap: 7px;
+    padding-top: 3px;
+  }
+  .job-card__training-label {
+    font-size: 0.75rem;
+  }
+  .job-card__training-courses {
+    gap: 6px;
+  }
+  .job-card__training-pill {
+    min-height: 28px;
+    font-size: 0.68rem;
   }
   .job-pagination {
     grid-template-columns: 1fr 1fr;

@@ -36,6 +36,7 @@ export async function bootstrapCourseCapabilities(
       "id, title, summary, public_url, capability_taxonomy_source_hash, capability_taxonomy_policy_version",
     )
     .eq("is_active", true)
+    .eq("is_job_search_excluded", false)
     .order("id");
   if (courseError) throw new Error("Courses could not be loaded for capability generation.");
   if (!courses?.length) return { status: "no_courses" };

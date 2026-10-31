@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { CSSProperties } from "react";
 import { EmployerLogo } from "@/components/employer-logo";
 import { SaveJobControl, type JobSaveState } from "@/components/save-job-control";
 import {
@@ -70,6 +71,8 @@ export function JobCard({
   const postedLabel = postedAgoLabel(job.publishedAt ?? job.postedAt);
   const aiSummaryExplanation =
     "WildJobs uses AI to turn the original job information into a short summary. Always check the full listing before applying.";
+  const trainingExplanation =
+    "These recommendations connect capabilities used in this job with skills taught in WildTeam courses. A course is not necessarily required and does not guarantee eligibility.";
   const employerLogo = (
     <EmployerLogo
       imageClassName="job-card__logo"
@@ -245,6 +248,42 @@ export function JobCard({
           </div>
         </dl>
       )}
+      {job.relatedCourses?.length ? (
+        <div className="job-card__training">
+          <span className="job-card__training-label">
+            WildTeam Training
+            <span className="job-card__ai-tooltip-anchor">
+              <button
+                aria-describedby={`training-tooltip-${job.slug}`}
+                aria-label="How WildJobs chooses relevant training courses"
+                className="job-card__ai-tooltip-trigger"
+                type="button"
+              >
+                <svg aria-hidden="true" viewBox="0 0 20 20">
+                  <circle cx="10" cy="10" r="8" />
+                  <path d="M10 8.5v5M10 6.25h.01" />
+                </svg>
+              </button>
+              <span className="job-card__ai-tooltip" id={`training-tooltip-${job.slug}`} role="tooltip">
+                {trainingExplanation}
+              </span>
+            </span>
+            <span aria-hidden="true">:</span>
+          </span>
+          <ul aria-label="Relevant WildTeam training courses" className="job-card__training-courses">
+            {job.relatedCourses.map((course) => (
+              <li key={course.slug}>
+                <span
+                  className="job-card__training-pill"
+                  style={{ "--course-colour": course.themeColour } as CSSProperties}
+                >
+                  {course.shortTitle}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
       {!compact ? (
         <div className="job-card__actions">
           {job.availability && job.availability !== "current" ? (

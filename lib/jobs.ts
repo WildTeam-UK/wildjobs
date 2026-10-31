@@ -11,6 +11,13 @@ export type EmploymentType =
   | "Temporary";
 export type EngagementType = "Paid" | "Volunteer";
 
+export type RelatedCourse = Readonly<{
+  slug: string;
+  shortTitle: string;
+  trainingUrl: string;
+  themeColour: string;
+}>;
+
 export type Job = Readonly<{
   id?: number;
   availability?: "current" | "expired" | "unavailable" | "withdrawn";
@@ -49,6 +56,7 @@ export type Job = Readonly<{
   countryCode?: string;
   postalCode?: string;
   publishedAt?: string;
+  relatedCourses?: readonly RelatedCourse[];
   relatedCourseSlugs: readonly string[];
 }>;
 
