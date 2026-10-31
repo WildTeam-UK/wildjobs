@@ -61,7 +61,7 @@ export default async function ReviewJobPage({ params, searchParams }: ReviewPage
   if (!Number.isSafeInteger(id) || id < 1) notFound();
 
   const supabase = await createClient();
-  const [jobResult, sourceResult, eventResult] = await Promise.all([
+  const [jobResult, sourceResult, eventResult, capabilityResult] = await Promise.all([
     supabase
       .from("jobs")
       .select(
@@ -79,12 +79,28 @@ export default async function ReviewJobPage({ params, searchParams }: ReviewPage
       .select("id, action, previous_status, next_status, review_note, created_at")
       .eq("job_id", id)
       .order("created_at", { ascending: true }),
+    supabase
+      .from("job_capabilities")
+      .select(
+        "capability_id, importance, relevance_score, confidence, evidence_text, assignment_source, policy_version, capabilities(title, description, course_capabilities(confidence, coverage_score, is_primary, courses(id, short_title, is_filter_visible)))",
+      )
+      .eq("job_id", id)
+      .order("relevance_score", { ascending: false }),
   ]);
 
   if (jobResult.error || !jobResult.data) notFound();
   const job = jobResult.data;
   const sources = sourceResult.data ?? [];
   const events = eventResult.data ?? [];
+  const capabilityMatches = capabilityResult.data ?? [];
+  const relatedCourses = new Map<number, string>();
+  for (const match of capabilityMatches) {
+    for (const mapping of match.capabilities.course_capabilities) {
+      if (mapping.courses?.is_filter_visible) {
+        relatedCourses.set(mapping.courses.id, mapping.courses.short_title);
+      }
+    }
+  }
   const query = await searchParams;
   const created = query.status === "created";
   const updated = query.status === "updated";
@@ -228,6 +244,73 @@ export default async function ReviewJobPage({ params, searchParams }: ReviewPage
                 <dd>{job.posted_at ? formatDate(job.posted_at) : "Not supplied"}</dd>
               </div>
             </dl>
+          </section>
+
+          <section>
+            <p className="eyebrow">Course matching</p>
+            <h2>Capabilities and recommended courses</h2>
+            {capabilityResult.error ? (
+              <p className="staff-form-message staff-form-message--error" role="alert">
+                Capability assignments could not be loaded. The vacancy record was not changed.
+              </p>
+            ) : capabilityMatches.length ? (
+              <>
+                <p className="capability-match-summary">
+                  {capabilityMatches.length} evidence-backed capabilities connect this vacancy to{" "}
+                  {relatedCourses.size} visible {relatedCourses.size === 1 ? "course" : "courses"}.
+                </p>
+                <div className="job-capability-list">
+                  {capabilityMatches.map((match) => (
+                    <article key={match.capability_id}>
+                      <header>
+                        <div>
+                          <span className="status-badge status-badge--ready">{label(match.importance)}</span>
+                          <h3>{match.capabilities.title}</h3>
+                        </div>
+                        <dl>
+                          <div>
+                            <dt>Relevance</dt>
+                            <dd>{match.relevance_score}%</dd>
+                          </div>
+                          <div>
+                            <dt>Confidence</dt>
+                            <dd>{match.confidence}%</dd>
+                          </div>
+                        </dl>
+                      </header>
+                      <p>{match.capabilities.description}</p>
+                      {match.evidence_text ? <blockquote>“{match.evidence_text}”</blockquote> : null}
+                      <div className="capability-course-links">
+                        {match.capabilities.course_capabilities
+                          .filter((mapping) => mapping.courses?.is_filter_visible)
+                          .map((mapping) => (
+                            <Link href={`/admin/courses/${mapping.courses?.id}`} key={mapping.courses?.id}>
+                              {mapping.courses?.short_title}
+                              <small>
+                                {mapping.is_primary ? "Primary" : "Supporting"} · {mapping.coverage_score}%
+                                coverage
+                              </small>
+                            </Link>
+                          ))}
+                      </div>
+                      <small>
+                        Assigned by {match.assignment_source.replaceAll("_", " ")} · policy{" "}
+                        {match.policy_version}
+                      </small>
+                    </article>
+                  ))}
+                </div>
+              </>
+            ) : (
+              <div className="capability-empty-note">
+                <strong>No relevant course-backed capability has been assigned.</strong>
+                <p>
+                  This can be correct for a classified vacancy. Check the automation workspace if processing
+                  is still underway or a new capability was proposed.
+                </p>
+                <Link href="/admin/automation">Open automation review</Link>
+              </div>
+            )}
           </section>
 
           <section>

@@ -24,7 +24,9 @@ export default async function AdminJobsPage() {
   const supabase = await createClient();
   const { data: jobs, error } = await supabase
     .from("jobs")
-    .select("id, title, status, closes_at, employers(name), job_source_records(job_sources(name))")
+    .select(
+      "id, title, status, closes_at, employers(name), job_source_records(job_sources(name)), job_capabilities(capability_id, capabilities(course_capabilities(courses(id, is_filter_visible))))",
+    )
     .order("updated_at", { ascending: false });
 
   const records = jobs ?? [];
@@ -81,6 +83,14 @@ export default async function AdminJobsPage() {
             {records.map((job) => {
               const label = statusLabel(job.status);
               const source = job.job_source_records[0]?.job_sources?.name ?? "Source pending";
+              const capabilityCount = new Set(job.job_capabilities.map((match) => match.capability_id)).size;
+              const courseCount = new Set(
+                job.job_capabilities.flatMap((match) =>
+                  match.capabilities.course_capabilities.flatMap((mapping) =>
+                    mapping.courses?.is_filter_visible ? [mapping.courses.id] : [],
+                  ),
+                ),
+              ).size;
               return (
                 <article className="review-row" key={job.id}>
                   <div>
@@ -101,8 +111,10 @@ export default async function AdminJobsPage() {
                       <dd>{job.closes_at ? formatDate(job.closes_at) : "Not supplied"}</dd>
                     </div>
                     <div>
-                      <dt>Record</dt>
-                      <dd>#{job.id}</dd>
+                      <dt>Course signals</dt>
+                      <dd>
+                        {capabilityCount} capabilities · {courseCount} courses
+                      </dd>
                     </div>
                   </dl>
                   <Link className="action action--outline" href={`/admin/jobs/${job.id}`}>

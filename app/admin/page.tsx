@@ -85,6 +85,11 @@ export default async function AdminPage() {
             <h3>Review courses</h3>
             <p>Add presentation details, verified outcomes and reusable capability mappings.</p>
           </Link>
+          <Link href="/admin/capabilities">
+            <span>07</span>
+            <h3>Inspect capabilities</h3>
+            <p>See the canonical taxonomy, course connections and published-job coverage in one place.</p>
+          </Link>
         </div>
       </section>
     </main>
