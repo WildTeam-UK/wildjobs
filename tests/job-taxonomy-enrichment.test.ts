@@ -4,6 +4,7 @@ import {
   canonicalJobLocationFallback,
   normaliseTaxonomyCandidateTitle,
   selectExactCapabilityMatches,
+  selectExactOccupationMatch,
   selectStructuredLocations,
   selectTaxonomyCandidates,
   selectTaxonomyMatches,
@@ -27,6 +28,30 @@ describe("job taxonomy enrichment", () => {
       expect.objectContaining({ capabilityId: 1, evidence: "programme delivery" }),
       expect.objectContaining({ capabilityId: 7, evidence: "stakeholder engagement" }),
     ]);
+  });
+
+  it("prefers the most specific occupation phrase in the vacancy title", () => {
+    const occupations = [
+      { aliases: [], id: 91, title: "Gardener" },
+      { aliases: [], id: 98, title: "Project manager" },
+      { aliases: ["Park ranger"], id: 100, title: "Ranger" },
+    ];
+
+    expect(
+      selectExactOccupationMatch(
+        occupations,
+        "Garsdale - Hawes Project Manager with Yorkshire Dales National Park Authority",
+      ),
+    ).toEqual([
+      { confidence: 100, evidence: "Project Manager", originalText: "Project Manager", termId: 98 },
+    ]);
+    expect(selectExactOccupationMatch(occupations, "Assistant Ranger with Kent County Council")).toEqual([
+      { confidence: 100, evidence: "Ranger", originalText: "Ranger", termId: 100 },
+    ]);
+    expect(selectExactOccupationMatch(occupations, "Gardener (Newhailes) with National Trust")).toEqual([
+      { confidence: 100, evidence: "Gardener", originalText: "Gardener", termId: 91 },
+    ]);
+    expect(selectExactOccupationMatch(occupations, "Ranger engagement officer")).toEqual([]);
   });
 
   it("holds a classification for review when its core occupation or career area is missing", () => {
