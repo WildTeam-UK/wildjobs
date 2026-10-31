@@ -857,6 +857,7 @@ select {
 }
 .job-search-hero {
   background: var(--wt-color-paper);
+  box-shadow: 0 72px 0 var(--wt-color-paper);
 }
 .job-search-hero__inner {
   padding-top: clamp(46px, calc(4vw + 14px), 62px);
@@ -1207,14 +1208,16 @@ select {
   z-index: 80;
   top: var(--site-header-height);
   border-bottom: 1px solid transparent;
-  background: var(--wt-color-paper);
+  background: transparent;
   box-shadow: none;
   transition:
+    background-color 160ms ease,
     border-color 160ms ease,
     box-shadow 160ms ease;
 }
 .job-filter-bar--stuck {
   border-bottom-color: color-mix(in srgb, var(--wt-color-brand-purple) 22%, var(--wt-color-rule));
+  background: var(--wt-color-paper);
   box-shadow: 0 14px 34px rgb(31 21 28 / 9%);
 }
 .job-filter-bar__inner {
