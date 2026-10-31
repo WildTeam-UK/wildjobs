@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
-import { syncLearnWorldsCourses } from "@/app/admin/courses/actions";
+import { generateCourseCapabilitiesNow, syncLearnWorldsCourses } from "@/app/admin/courses/actions";
 import { requireStaff } from "@/lib/auth/staff";
 import { createClient } from "@/lib/supabase/server";
 
@@ -12,6 +12,9 @@ type CoursesPageProps = {
 };
 
 const errorMessages: Record<string, string> = {
+  "ai-not-configured": "Course capability generation is not configured for this environment.",
+  "capability-generation-failed":
+    "Course capabilities could not be generated. Existing reviewed mappings were preserved.",
   "not-configured": "The LearnWorlds catalogue connection is not configured for this environment.",
   "sync-failed": "LearnWorlds could not be reached. The existing reviewed catalogue was kept unchanged.",
 };
@@ -41,11 +44,18 @@ export default async function CoursesPage({ searchParams }: CoursesPageProps) {
             mappings.
           </p>
           {staff.role === "admin" ? (
-            <form action={syncLearnWorldsCourses}>
-              <button className="staff-source-toggle" type="submit">
-                Sync LearnWorlds now
-              </button>
-            </form>
+            <div className="staff-hero__stack">
+              <form action={syncLearnWorldsCourses}>
+                <button className="staff-source-toggle" type="submit">
+                  Sync LearnWorlds now
+                </button>
+              </form>
+              <form action={generateCourseCapabilitiesNow}>
+                <button className="staff-source-toggle" type="submit">
+                  Generate capabilities now
+                </button>
+              </form>
+            </div>
           ) : null}
         </div>
       </header>
@@ -56,11 +66,17 @@ export default async function CoursesPage({ searchParams }: CoursesPageProps) {
             <p className="eyebrow">Approved courses</p>
             <h2>{courses?.length ?? 0} records</h2>
           </div>
-          <p>A course only appears as a public filter after it has a reviewed capability mapping.</p>
+          <p>A course appears as a public filter once it has an evidence-backed capability mapping.</p>
         </div>
         {params.status === "synced" ? (
           <p className="staff-form-message" role="status">
             LearnWorlds catalogue synced. Reviewed presentation and capability mappings were preserved.
+          </p>
+        ) : null}
+        {params.status === "capabilities-generated" ? (
+          <p className="staff-form-message" role="status">
+            Course capabilities and learning outcomes generated. Existing staff-reviewed mappings were
+            preserved.
           </p>
         ) : null}
         {params.error ? (

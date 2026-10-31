@@ -257,28 +257,37 @@ export type Database = {
       };
       capabilities: {
         Row: {
+          confidence: number;
           created_at: string;
           description: string;
           id: number;
           is_active: boolean;
+          policy_version: string | null;
+          provenance: string;
           slug: string;
           title: string;
           updated_at: string;
         };
         Insert: {
+          confidence?: number;
           created_at?: string;
           description: string;
           id?: never;
           is_active?: boolean;
+          policy_version?: string | null;
+          provenance?: string;
           slug: string;
           title: string;
           updated_at?: string;
         };
         Update: {
+          confidence?: number;
           created_at?: string;
           description?: string;
           id?: never;
           is_active?: boolean;
+          policy_version?: string | null;
+          provenance?: string;
           slug?: string;
           title?: string;
           updated_at?: string;
@@ -419,33 +428,42 @@ export type Database = {
       course_capabilities: {
         Row: {
           capability_id: number;
+          confidence: number;
           coverage_score: number;
           course_id: number;
           created_at: string;
           is_primary: boolean;
           outcome_id: number | null;
           rationale: string | null;
-          reviewed_at: string;
+          policy_version: string | null;
+          provenance: string;
+          reviewed_at: string | null;
         };
         Insert: {
           capability_id: number;
+          confidence?: number;
           coverage_score?: number;
           course_id: number;
           created_at?: string;
           is_primary?: boolean;
           outcome_id?: number | null;
           rationale?: string | null;
-          reviewed_at: string;
+          policy_version?: string | null;
+          provenance?: string;
+          reviewed_at?: string | null;
         };
         Update: {
           capability_id?: number;
+          confidence?: number;
           coverage_score?: number;
           course_id?: number;
           created_at?: string;
           is_primary?: boolean;
           outcome_id?: number | null;
           rationale?: string | null;
-          reviewed_at?: string;
+          policy_version?: string | null;
+          provenance?: string;
+          reviewed_at?: string | null;
         };
         Relationships: [
           {
@@ -462,39 +480,58 @@ export type Database = {
             referencedRelation: "courses";
             referencedColumns: ["id"];
           },
+          {
+            foreignKeyName: "course_capabilities_outcome_id_fkey";
+            columns: ["outcome_id"];
+            isOneToOne: false;
+            referencedRelation: "course_learning_outcomes";
+            referencedColumns: ["id"];
+          },
         ];
       };
       course_learning_outcomes: {
         Row: {
+          confidence: number;
           course_id: number;
           created_at: string;
           display_order: number;
+          evidence_text: string | null;
           id: number;
           is_active: boolean;
           outcome_text: string;
-          reviewed_at: string;
+          policy_version: string | null;
+          provenance: string;
+          reviewed_at: string | null;
           source_url: string;
           updated_at: string;
         };
         Insert: {
+          confidence?: number;
           course_id: number;
           created_at?: string;
           display_order?: number;
+          evidence_text?: string | null;
           id?: never;
           is_active?: boolean;
           outcome_text: string;
-          reviewed_at: string;
+          policy_version?: string | null;
+          provenance?: string;
+          reviewed_at?: string | null;
           source_url: string;
           updated_at?: string;
         };
         Update: {
+          confidence?: number;
           course_id?: number;
           created_at?: string;
           display_order?: number;
+          evidence_text?: string | null;
           id?: never;
           is_active?: boolean;
           outcome_text?: string;
-          reviewed_at?: string;
+          policy_version?: string | null;
+          provenance?: string;
+          reviewed_at?: string | null;
           source_url?: string;
           updated_at?: string;
         };
@@ -511,6 +548,9 @@ export type Database = {
       courses: {
         Row: {
           availability_status: string;
+          capability_taxonomy_generated_at: string | null;
+          capability_taxonomy_policy_version: string | null;
+          capability_taxonomy_source_hash: string | null;
           created_at: string;
           display_order: number;
           id: number;
@@ -532,6 +572,9 @@ export type Database = {
         };
         Insert: {
           availability_status?: string;
+          capability_taxonomy_generated_at?: string | null;
+          capability_taxonomy_policy_version?: string | null;
+          capability_taxonomy_source_hash?: string | null;
           created_at?: string;
           display_order?: number;
           id?: never;
@@ -553,6 +596,9 @@ export type Database = {
         };
         Update: {
           availability_status?: string;
+          capability_taxonomy_generated_at?: string | null;
+          capability_taxonomy_policy_version?: string | null;
+          capability_taxonomy_source_hash?: string | null;
           created_at?: string;
           display_order?: number;
           id?: never;

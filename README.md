@@ -52,12 +52,13 @@ The same protected heartbeat can synchronise the approved public LearnWorlds cou
 Configure the server-only `LEARNWORLDS_API_URL`, `LEARNWORLDS_CLIENT_ID` and
 `LEARNWORLDS_ACCESS_TOKEN`, the public `LEARNWORLDS_PUBLIC_BASE_URL`, and a comma-separated
 `LEARNWORLDS_APPROVED_COURSE_IDS` allowlist. The API URL must be the version 2 base copied from the
-LearnWorlds API settings. Credentials never reach the browser. The sync updates catalogue metadata only. Course
-outcomes and course-to-capability mappings remain reviewed WildJobs data. Vacancy enrichment can select a small,
-evidence-backed set from that course-backed vocabulary and queue unmatched concepts for staff review; learner
-records are not requested or stored. Administrators can also run the same bounded catalogue sync from the course
-workspace. That manual path uses the signed-in staff session and database RLS, so preview deployments do not need
-the production Supabase secret key.
+LearnWorlds API settings. Credentials never reach the browser. After catalogue sync, a structured-output AI pass
+creates one to four evidence-backed outcomes and reusable capabilities per course, prefers existing titles and
+aliases, and stores confidence, provenance and the exact catalogue quote. It never receives learner data. A source
+hash prevents repeat work when the catalogue has not changed, while administrators can rerun either stage from the
+course workspace. Production uses `OPENAI_API_KEY`; Vercel previews can use their scoped `VERCEL_OIDC_TOKEN` through
+AI Gateway. Vacancy enrichment then selects a small evidence-backed set from that course-backed vocabulary and
+queues genuinely unmatched concepts for staff review.
 
 Run the complete local checks with:
 

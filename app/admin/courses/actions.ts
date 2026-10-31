@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 
+import { bootstrapCourseCapabilities } from "@/lib/admin/course-capability-bootstrap";
 import { syncApprovedLearnWorldsCourses } from "@/lib/admin/learnworlds-course-sync";
 import { requireAdministrator, requireStaff } from "@/lib/auth/staff";
 import { isLearnWorldsCourseSyncConfigured } from "@/lib/learnworlds/client";
@@ -37,6 +38,24 @@ export async function syncLearnWorldsCourses() {
   revalidatePath("/admin/courses");
   revalidatePath("/jobs");
   redirect("/admin/courses?status=synced");
+}
+
+export async function generateCourseCapabilitiesNow() {
+  await requireAdministrator();
+  const supabase = await createClient();
+  let result: Awaited<ReturnType<typeof bootstrapCourseCapabilities>>;
+  try {
+    result = await bootstrapCourseCapabilities(supabase, { force: true });
+  } catch {
+    console.error("Staff-triggered course capability generation failed.");
+    redirect("/admin/courses?error=capability-generation-failed");
+  }
+  if (result.status === "not_configured") redirect("/admin/courses?error=ai-not-configured");
+  revalidatePath("/");
+  revalidatePath("/admin");
+  revalidatePath("/admin/courses");
+  revalidatePath("/jobs");
+  redirect("/admin/courses?status=capabilities-generated");
 }
 
 export async function updateCourseProfile(courseId: number, formData: FormData) {
@@ -102,8 +121,11 @@ export async function addLearningOutcome(courseId: number, formData: FormData) {
   if (!parsedId.success || !parsed.success) redirect(coursePath(courseId, "invalid-outcome"));
   const supabase = await createClient();
   const { error } = await supabase.from("course_learning_outcomes").insert({
+    confidence: 100,
     course_id: parsedId.data,
     outcome_text: parsed.data.outcomeText,
+    policy_version: null,
+    provenance: "staff",
     reviewed_at: new Date().toISOString().slice(0, 10),
     source_url: parsed.data.sourceUrl,
   });
@@ -151,10 +173,13 @@ export async function addCourseCapability(courseId: number, formData: FormData) 
   const { error } = await supabase.from("course_capabilities").upsert(
     {
       capability_id: parsed.data.capabilityId,
+      confidence: 100,
       course_id: parsedId.data,
       coverage_score: parsed.data.coverageScore,
       is_primary: parsed.data.isPrimary,
       outcome_id: parsed.data.outcomeId || null,
+      policy_version: null,
+      provenance: "staff",
       rationale: parsed.data.rationale || null,
       reviewed_at: new Date().toISOString().slice(0, 10),
     },
@@ -212,15 +237,25 @@ export async function createCapability(courseId: number, formData: FormData) {
   const supabase = await createClient();
   const { data: capability, error } = await supabase
     .from("capabilities")
-    .insert({ description: parsed.data.description, slug: parsed.data.slug, title: parsed.data.title })
+    .insert({
+      confidence: 100,
+      description: parsed.data.description,
+      policy_version: null,
+      provenance: "staff",
+      slug: parsed.data.slug,
+      title: parsed.data.title,
+    })
     .select("id")
     .single();
   if (error || !capability) redirect(coursePath(courseId, "capability-failed"));
   const { error: mappingError } = await supabase.from("course_capabilities").insert({
     capability_id: capability.id,
+    confidence: 100,
     course_id: parsedId.data,
     coverage_score: 80,
     is_primary: false,
+    policy_version: null,
+    provenance: "staff",
     rationale: "Created during course review; confirm coverage and connect a learning outcome.",
     reviewed_at: new Date().toISOString().slice(0, 10),
   });

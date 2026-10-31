@@ -73,8 +73,11 @@ stable identifier, title, public description, URL and availability. An environme
 approval boundary. The sync never requests learner endpoints. Failures keep the last reviewed catalogue intact,
 record only a constrained error code and retry on a later six-hour claim. Removing an allowlisted course from the
 provider response makes an existing WildJobs course inactive; it does not delete or alter the LearnWorlds record.
-WildJobs retains the catalogue copy while its reviewed capability mapping is in use and can archive or delete that
-copy independently when the mapping is retired.
+WildJobs retains the catalogue copy while its capability mapping is in use and can archive or delete that copy
+independently when the mapping is retired. After a changed catalogue sync, a bounded structured-output pass creates
+one to four course-backed capabilities per course, reuses canonical names and aliases first, requires exact summary
+evidence and records confidence and policy version. A source hash skips unchanged catalogues; staff-authored records
+are never replaced by the generated set.
 
 Every table in an exposed schema has RLS. Public access is limited to active, approved listings. Staff access requires an active staff record. Current connectors permit only reviewed source endpoints. Administrators can run them on demand. Supabase `pg_cron` calls a protected Vercel heartbeat every minute through `pg_net`, using a bearer secret stored in Supabase Vault. An atomic database claim releases source-import work once every two hours. Between imports, each heartbeat may enrich one pending vacancy and record its publication readiness. Once enrichment is idle, the heartbeat refreshes a bounded batch of decisions created under an older publication policy without repeating AI work. Shadow mode can refresh ten decisions per heartbeat; live mode permits only one. The route uses a server-only Supabase secret key, rejects requests without the matching automation secret and prevents overlapping enrichment work. `AUTO_PUBLISH_ENABLED` defaults off, so readiness initially runs in shadow mode.
 

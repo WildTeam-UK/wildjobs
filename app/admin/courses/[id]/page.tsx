@@ -50,7 +50,7 @@ export default async function CoursePage({ params, searchParams }: CoursePagePro
     supabase
       .from("course_capabilities")
       .select(
-        "capability_id, coverage_score, is_primary, outcome_id, rationale, reviewed_at, capabilities(title)",
+        "capability_id, confidence, coverage_score, is_primary, outcome_id, provenance, rationale, reviewed_at, capabilities(title)",
       )
       .eq("course_id", courseId)
       .order("is_primary", { ascending: false }),
@@ -166,7 +166,7 @@ export default async function CoursePage({ params, searchParams }: CoursePagePro
       <section className="staff-section shell">
         <div className="staff-section__heading">
           <div>
-            <p className="eyebrow">Verified learning</p>
+            <p className="eyebrow">Evidence-backed learning</p>
             <h2>Learning outcomes</h2>
           </div>
           <p>Use an official course page or approved curriculum as the source.</p>
@@ -177,6 +177,11 @@ export default async function CoursePage({ params, searchParams }: CoursePagePro
               outcomes.map((outcome) => (
                 <article className="course-admin-card" key={outcome.id}>
                   <div>
+                    <span className="eyebrow">
+                      {outcome.provenance === "course_summary_ai"
+                        ? `AI generated · ${outcome.confidence}% confidence`
+                        : "Staff reviewed"}
+                    </span>
                     <strong>{outcome.outcome_text}</strong>
                     <p>
                       {outcome.source_url ? (
@@ -227,6 +232,9 @@ export default async function CoursePage({ params, searchParams }: CoursePagePro
                   <div>
                     <span className="eyebrow">
                       {mapping.is_primary ? "Primary" : "Supporting"} · {mapping.coverage_score}% coverage
+                      {mapping.provenance === "course_summary_ai"
+                        ? ` · AI generated · ${mapping.confidence}% confidence`
+                        : " · Staff reviewed"}
                     </span>
                     <strong>{mapping.capabilities?.title ?? "Capability"}</strong>
                     <p>{mapping.rationale ?? "No rationale recorded."}</p>

@@ -24,4 +24,5 @@ The beta LearnWorlds connection is catalogue-only. A server-side read token retr
 course identifiers, titles, descriptions, URLs and availability. WildJobs stores the minimum derived copy needed
 for a resilient search filter, its last-sync time and a bounded operational status. Removing a course from public
 discovery or deleting its WildJobs copy does not change the LearnWorlds course. Capability mappings remain
-WildJobs-owned editorial records and are not overwritten by catalogue sync.
+WildJobs-owned records. A separate evidence-bounded AI stage refreshes generated mappings after sync while
+preserving staff-authored mappings and review decisions.

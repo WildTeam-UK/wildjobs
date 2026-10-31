@@ -2,6 +2,7 @@ import "server-only";
 
 import type { SupabaseClient } from "@supabase/supabase-js";
 
+import { bootstrapCourseCapabilities } from "@/lib/admin/course-capability-bootstrap";
 import { fetchApprovedLearnWorldsCourses, isLearnWorldsCourseSyncConfigured } from "@/lib/learnworlds/client";
 import type { Database } from "@/lib/supabase/database.types";
 
@@ -98,6 +99,11 @@ export async function syncPeriodicLearnWorldsCourses(
 
   try {
     const result = await syncApprovedLearnWorldsCourses(supabase);
+    try {
+      await bootstrapCourseCapabilities(supabase);
+    } catch {
+      console.error("Scheduled course capability generation failed; the catalogue sync was preserved.");
+    }
     await recordCourseSyncState(supabase, {
       last_course_sync_completed_at: new Date().toISOString(),
       last_course_sync_error_code: null,
