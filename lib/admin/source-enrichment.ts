@@ -21,10 +21,7 @@ import {
 import { employerIdentityConflicts, employerIdentityMatches } from "./employer-identity";
 import { looksLikeFavicon, selectEmployerLogo } from "./employer-logo-selection";
 import { toSlug } from "./job-intake-validation";
-import {
-  canonicalJobLocationFallback,
-  taxonomyClassificationNeedsReview,
-} from "./job-taxonomy-enrichment";
+import { canonicalJobLocationFallback, taxonomyClassificationNeedsReview } from "./job-taxonomy-enrichment";
 import { shouldGenerateAiSummary } from "./publication-summary";
 import { isPublishedCapabilityBackfillCandidate } from "./published-capability-backfill";
 import { fetchApprovedVacancyPage, fetchEmployerPage, SourcePageError } from "./source-page-fetch";
@@ -330,7 +327,9 @@ async function claimSourceRecord(
   if (!candidateResult.data && !requestedRecordId && allowAiBackfill) {
     candidateResult = await supabase
       .from("job_source_records")
-      .select("*, job_sources!inner(name, source_type, authoritative_base_url, is_active), jobs!inner(status)")
+      .select(
+        "*, job_sources!inner(name, source_type, authoritative_base_url, is_active), jobs!inner(status)",
+      )
       .not("job_id", "is", null)
       .not("detail_text", "is", null)
       .not("canonical_url", "is", null)
@@ -494,8 +493,7 @@ async function backfillPublishedJobCapabilities(
           ai_model: aiResult.model,
           fields_resolved: 0,
           fields_unresolved:
-            Number(aiResult.occupationMatches.length === 0) +
-            Number(aiResult.careerAreaMatches.length === 0),
+            Number(aiResult.occupationMatches.length === 0) + Number(aiResult.careerAreaMatches.length === 0),
           finished_at: finishedAt,
           input_tokens: aiResult.inputTokens,
           output_tokens: aiResult.outputTokens,
