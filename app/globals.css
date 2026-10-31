@@ -5159,15 +5159,16 @@ select {
 @media (max-width: 640px) {
   .job-search-hero-art::before,
   .job-search-hero-art::after {
-    top: 10%;
-    bottom: 10%;
-    width: 24vw;
+    top: 0;
+    bottom: 0;
+    width: 300px;
+    background-size: 100% 100%;
   }
   .job-search-hero-art::before {
-    transform: translateX(-55%);
+    transform: translateX(-82%);
   }
   .job-search-hero-art::after {
-    transform: translateX(55%);
+    transform: translateX(82%);
   }
   .employer-hiring-carousel h2 {
     margin-bottom: 22px;
@@ -5301,6 +5302,7 @@ select {
     width: 100%;
     min-height: 52px;
     margin: 0;
+    border: 2px solid var(--wt-color-paper);
     border-radius: 999px;
   }
   .job-filter-pills {
