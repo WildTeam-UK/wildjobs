@@ -70,7 +70,7 @@ export async function bootstrapCourseCapabilities(
     id: capability.id,
     title: capability.title,
   }));
-  const generated = await generateCourseCapabilities(courseInputs, existing);
+  const generated = await generateCourseCapabilities(courseInputs, existing, supabase);
   if (!generated.length) throw new Error("No evidence-backed course capabilities were generated.");
 
   const now = new Date().toISOString();

@@ -4,9 +4,11 @@ import { extractVacancyFieldEvidence, type VacancyFieldEvidence } from "./vacanc
 
 type JsonRecord = Record<string, unknown>;
 
-export const SOURCE_PAGE_EXTRACTOR_VERSION = "source-page-rules-v7";
+export const SOURCE_PAGE_EXTRACTOR_VERSION = "source-page-rules-v9";
 
 export type VacancyPageExtraction = {
+  applicationInstructionsFound: boolean;
+  evidenceText: string;
   applicationUrl: string | null;
   closesAt: string | null;
   detailText: string;
@@ -266,11 +268,13 @@ export function parseVacancyPage(html: string, pageUrl: string): VacancyPageExtr
   );
 
   let applicationUrl: string | null = null;
+  let applicationInstructionsFound = false;
   $("a[href]").each((_index, element) => {
     if (applicationUrl) return;
     const label = clean($(element).text(), 160);
     if (!/\bapply(?:\s+now|\s+online|\s+for)?\b/i.test(label)) return;
     applicationUrl = safeHttpsUrl($(element).attr("href"), pageUrl);
+    applicationInstructionsFound = applicationUrl !== null;
   });
 
   if (!applicationUrl) applicationUrl = safeHttpsUrl(jobPosting?.url, pageUrl);
@@ -279,8 +283,36 @@ export function parseVacancyPage(html: string, pageUrl: string): VacancyPageExtr
   const location = structuredLocation(jobPosting);
   const title = clean(jobPosting?.title, 240) || clean($("h1").first().text(), 240) || null;
   const employerName = clean(organisation?.name, 200) || null;
+  let visibleHeader = "";
+  if (new URL(pageUrl).hostname === "environmentjob.co.uk") {
+    const header = $("h1.js-title").closest(".card").clone();
+    header.find(".js-detail, script, style, svg").remove();
+    visibleHeader = clean(header.text(), 3000);
+  }
+  // JobPosting header facts are advertised evidence too. Keep the readable description separate,
+  // while giving downstream generation and validation the same complete evidence bundle.
+  const evidenceText = [
+    visibleHeader ? `Visible advert header: ${visibleHeader}` : null,
+    title ? `Advertised title: ${title}` : null,
+    employerName ? `Hiring organisation: ${employerName}` : null,
+    location?.text ? `Advertised location: ${location.text}` : null,
+    location?.countryCode ? `Advertised country code: ${location.countryCode}` : null,
+    salaryText ? `Advertised salary: ${salaryText}` : null,
+    jobPosting?.employmentType
+      ? `Advertised employment type: ${asArray(jobPosting.employmentType)
+          .map((v) => clean(v, 100))
+          .filter(Boolean)
+          .join(", ")}`
+      : null,
+    detailText,
+  ]
+    .filter(Boolean)
+    .join("\n\n");
 
   return {
+    evidenceText,
+    applicationInstructionsFound:
+      applicationInstructionsFound || /\b(?:apply|application|applications)\b/i.test(detailText),
     applicationUrl,
     closesAt: parseDate(jobPosting?.validThrough),
     detailText,

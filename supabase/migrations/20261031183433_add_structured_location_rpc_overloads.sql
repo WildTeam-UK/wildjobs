@@ -1,7 +1,7 @@
 -- Keep the existing RPC signatures available while adding the structured-location variants
 -- already used by the admin application. PostgreSQL resolves the overload by argument names.
 
-create function public.create_manual_job_draft(
+create or replace function public.create_manual_job_draft(
   p_source_id bigint,
   p_canonical_url text,
   p_employer_name text,
@@ -158,7 +158,7 @@ grant execute on function public.create_manual_job_draft(
   text, text, text, text, text, text, text, text, text, date, date, text
 ) to authenticated;
 
-create function public.update_job_review_draft(
+create or replace function public.update_job_review_draft(
   p_job_id bigint,
   p_job_slug text,
   p_title text,

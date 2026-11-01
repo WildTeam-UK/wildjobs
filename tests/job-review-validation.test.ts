@@ -8,7 +8,8 @@ const validValues = {
   closesAt: "2026-12-20",
   contractType: "fixed_term",
   countryCode: "gb",
-  description: "A complete description of this conservation vacancy and the work involved.",
+  description:
+    "A complete description of this conservation vacancy and the practical habitat restoration work involved with local partners.",
   engagementType: "paid",
   employerMission: "Restore important habitats and help wildlife and communities thrive together.",
   employerOverview: "Example Nature Trust is a conservation charity working with communities and partners.",

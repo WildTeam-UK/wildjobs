@@ -43,7 +43,7 @@ export default async function SourcesPage({ searchParams }: SourcesPageProps) {
   const supabase = await createClient();
   const { data: sources, error } = await supabase
     .from("job_sources")
-    .select("id, name, source_type, authoritative_base_url, is_active, updated_at")
+    .select("id, name, source_type, authoritative_base_url, is_active, updated_at, collection_allowed")
     .order("name");
 
   return (
@@ -89,7 +89,13 @@ export default async function SourcesPage({ searchParams }: SourcesPageProps) {
             {(sources ?? []).map((source) => (
               <article key={source.id}>
                 <div>
-                  <span className="status-badge">{source.is_active ? "Active" : "Paused"}</span>
+                  <span className="status-badge">
+                    {source.is_active && source.collection_allowed
+                      ? "In automation"
+                      : source.is_active
+                        ? "Manual source"
+                        : "Paused"}
+                  </span>
                   <h3>
                     <Link href={`/admin/sources/${source.id}`}>{source.name}</Link>
                   </h3>
@@ -106,6 +112,7 @@ export default async function SourcesPage({ searchParams }: SourcesPageProps) {
                   {staff.role === "admin" ? (
                     <>
                       {source.is_active &&
+                      source.collection_allowed &&
                       getSourceConnector(source.source_type, source.authoritative_base_url) ? (
                         <form action={runSourceDiscovery}>
                           <input name="sourceId" type="hidden" value={source.id} />

@@ -157,10 +157,10 @@ from public.jobs
 where slug in ('current-job', 'expired-saved-job');
 
 insert into public.occupations (slug, title)
-values ('park-ranger', 'Park ranger');
+values ('rls-fixture-park-ranger', 'RLS fixture park ranger');
 
 insert into public.benefits (slug, title)
-values ('flexible-working', 'Flexible working');
+values ('rls-fixture-flexible-working', 'RLS fixture flexible working');
 
 insert into public.job_occupations (
   job_id,
@@ -180,7 +180,7 @@ select
 from public.jobs
 cross join public.occupations
 where jobs.slug = 'current-job'
-  and occupations.slug = 'park-ranger';
+  and occupations.slug = 'rls-fixture-park-ranger';
 
 insert into public.job_occupations (
   job_id,
@@ -200,7 +200,7 @@ select
 from public.jobs
 cross join public.occupations
 where jobs.slug = 'draft-job'
-  and occupations.slug = 'park-ranger';
+  and occupations.slug = 'rls-fixture-park-ranger';
 
 insert into public.job_benefits (
   job_id,
@@ -212,13 +212,13 @@ insert into public.job_benefits (
 select
   jobs.id,
   benefits.id,
-  'Flexible working available',
+  'RLS fixture flexible working available',
   'staff',
   now()
 from public.jobs
 cross join public.benefits
 where jobs.slug = 'current-job'
-  and benefits.slug = 'flexible-working';
+  and benefits.slug = 'rls-fixture-flexible-working';
 
 insert into public.job_benefits (
   job_id,
@@ -236,7 +236,7 @@ select
 from public.jobs
 cross join public.benefits
 where jobs.slug = 'draft-job'
-  and benefits.slug = 'flexible-working';
+  and benefits.slug = 'rls-fixture-flexible-working';
 
 insert into public.employer_benefits (
   employer_id,
@@ -248,13 +248,13 @@ insert into public.employer_benefits (
 select
   employers.id,
   benefits.id,
-  'Flexible working policy',
+  'RLS fixture flexible working policy',
   'staff',
   now()
 from public.employers
 cross join public.benefits
 where employers.slug = 'published-employer'
-  and benefits.slug = 'flexible-working';
+  and benefits.slug = 'rls-fixture-flexible-working';
 
 insert into public.employer_benefits (
   employer_id,
@@ -272,7 +272,7 @@ select
 from public.employers
 cross join public.benefits
 where employers.slug = 'draft-employer'
-  and benefits.slug = 'flexible-working';
+  and benefits.slug = 'rls-fixture-flexible-working';
 
 insert into public.job_locations (
   job_id,
@@ -444,14 +444,14 @@ select results_eq(
 );
 
 select results_eq(
-  $$select title from public.occupations order by title$$,
-  array['Park ranger'::text],
+  $$select title from public.occupations where slug = 'rls-fixture-park-ranger' order by title$$,
+  array['RLS fixture park ranger'::text],
   'Anonymous visitors can read active occupations'
 );
 
 select results_eq(
-  $$select title from public.benefits order by title$$,
-  array['Flexible working'::text],
+  $$select title from public.benefits where slug = 'rls-fixture-flexible-working' order by title$$,
+  array['RLS fixture flexible working'::text],
   'Anonymous visitors can read active benefits'
 );
 

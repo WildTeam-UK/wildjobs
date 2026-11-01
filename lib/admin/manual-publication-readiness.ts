@@ -13,6 +13,9 @@ type Input = {
   job: {
     applicationUrl: string | null;
     closesAt: string | null;
+    expiresAt?: string | null;
+    engagementType?: string | null;
+    countryCode?: string | null;
     description: string | null;
     locationText: string | null;
     status: string;
@@ -21,6 +24,7 @@ type Input = {
   sources: readonly {
     canonicalUrl: string | null;
     verifiedAt: string | null;
+    publicationAllowed?: boolean;
   }[];
   today: string;
 };
@@ -41,26 +45,32 @@ export function manualPublicationChecks(input: Input): ManualPublicationCheck[] 
     },
     {
       key: "vacancy",
-      label: "Summary, description, location, application link and current closing date are complete",
+      label:
+        "Original brief, location, engagement, country, application route and listing lifetime are complete",
       ready:
-        hasText(input.job.summary) &&
-        hasText(input.job.description) &&
+        (input.job.summary?.trim().length ?? 0) >= 20 &&
+        (input.job.description?.trim().length ?? 0) >= 80 &&
         hasText(input.job.locationText) &&
         Boolean(input.job.applicationUrl) &&
-        Boolean(input.job.closesAt && input.job.closesAt >= input.today),
+        Boolean(input.job.engagementType && input.job.countryCode) &&
+        Boolean((input.job.closesAt ?? input.job.expiresAt ?? "") >= input.today),
     },
     {
       key: "source",
-      label: "At least one authoritative source has been verified",
-      ready: input.sources.some((source) => Boolean(source.canonicalUrl && source.verifiedAt)),
+      label: "A permitted authoritative source was checked within the last 48 hours",
+      ready: input.sources.some((source) =>
+        Boolean(
+          source.publicationAllowed &&
+          source.canonicalUrl &&
+          source.verifiedAt &&
+          Date.parse(source.verifiedAt) >= Date.parse(`${input.today}T00:00:00Z`) - 48 * 3600000,
+        ),
+      ),
     },
     {
       key: "employer",
-      label: "Employer website, mission and overview are complete",
-      ready:
-        Boolean(input.employer.websiteUrl) &&
-        hasText(input.employer.mission) &&
-        hasText(input.employer.overview),
+      label: "Employer profiles are reviewed independently of this vacancy",
+      ready: true,
     },
   ];
 }

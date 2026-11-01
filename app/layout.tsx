@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import "./globals.css";
+import { siteIndexingEnabled } from "@/lib/site-indexing";
 
 const vagRounded = localFont({
   src: [
@@ -25,7 +26,7 @@ export const metadata: Metadata = {
   applicationName: "WildJobs",
   creator: "WildTeam",
   publisher: "WildTeam",
-  robots: { index: false, follow: false, noarchive: true },
+  robots: { index: siteIndexingEnabled(), follow: true, noarchive: true },
 };
 
 export default function RootLayout({ children }: Readonly<{ children: ReactNode }>) {

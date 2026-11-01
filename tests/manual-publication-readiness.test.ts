@@ -11,12 +11,21 @@ const completeInput = {
   job: {
     applicationUrl: "https://example.org/apply",
     closesAt: "2026-11-30",
-    description: "Full vacancy description",
+    description:
+      "This original conservation brief explains the habitat restoration work, partnership duties and advertised requirements in detail.",
+    engagementType: "paid",
+    countryCode: "GB",
     locationText: "London",
     status: "in_review",
     summary: "A useful role summary",
   },
-  sources: [{ canonicalUrl: "https://example.org/jobs/1", verifiedAt: "2026-11-01T10:00:00Z" }],
+  sources: [
+    {
+      canonicalUrl: "https://example.org/jobs/1",
+      verifiedAt: "2026-11-01T10:00:00Z",
+      publicationAllowed: true,
+    },
+  ],
   today: "2026-11-01",
 } as const;
 
@@ -37,7 +46,7 @@ describe("manual publication readiness", () => {
       ["status", false],
       ["vacancy", false],
       ["source", false],
-      ["employer", false],
+      ["employer", true],
     ]);
   });
 });

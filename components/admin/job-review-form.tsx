@@ -56,7 +56,10 @@ export function JobReviewForm({
 
       <fieldset>
         <legend>Source and employer</legend>
-        <p>Check the authoritative vacancy page and add enough employer context for a trustworthy listing.</p>
+        <p>
+          Check the authoritative vacancy page. Employer profiles are maintained separately from this job
+          review.
+        </p>
         <div className="staff-job-form__grid">
           <div className="staff-job-form__wide">
             <label htmlFor="canonical-url">Original vacancy URL</label>
@@ -71,40 +74,6 @@ export function JobReviewForm({
           <div>
             <label htmlFor="employer-name">Employer</label>
             <input disabled id="employer-name" value={values.employerName} />
-          </div>
-          <div>
-            <label htmlFor="employer-website-url">Employer website</label>
-            <input
-              defaultValue={values.employerWebsiteUrl}
-              id="employer-website-url"
-              name="employerWebsiteUrl"
-              required
-              type="url"
-            />
-          </div>
-          <div className="staff-job-form__wide">
-            <label htmlFor="employer-mission">Employer mission</label>
-            <textarea
-              defaultValue={values.employerMission}
-              id="employer-mission"
-              maxLength={400}
-              name="employerMission"
-              required
-              rows={3}
-            />
-            <small>20–400 characters, written as a factual summary.</small>
-          </div>
-          <div className="staff-job-form__wide">
-            <label htmlFor="employer-overview">Employer overview</label>
-            <textarea
-              defaultValue={values.employerOverview}
-              id="employer-overview"
-              maxLength={1200}
-              name="employerOverview"
-              required
-              rows={5}
-            />
-            <small>40–1,200 characters explaining who the organisation is and what it does.</small>
           </div>
         </div>
       </fieldset>
@@ -316,15 +285,8 @@ export function JobReviewForm({
             <input defaultValue={values.postedAt} id="posted-at" name="postedAt" type="date" />
           </div>
           <div>
-            <label htmlFor="closes-at">Closing date</label>
-            <input
-              defaultValue={values.closesAt}
-              id="closes-at"
-              min={today}
-              name="closesAt"
-              required
-              type="date"
-            />
+            <label htmlFor="closes-at">Closing date (leave blank if not advertised)</label>
+            <input defaultValue={values.closesAt} id="closes-at" min={today} name="closesAt" type="date" />
           </div>
           <div className="staff-job-form__wide">
             <label htmlFor="application-url">Application URL</label>

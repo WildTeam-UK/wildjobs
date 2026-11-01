@@ -10,7 +10,10 @@ const MAX_DETAIL_BYTES = 900_000;
 const MAX_EMPLOYER_BYTES = 600_000;
 
 export class SourcePageError extends Error {
-  constructor(public readonly code: "detail_too_large" | "invalid_source_page" | "source_unavailable") {
+  constructor(
+    public readonly code: "detail_too_large" | "invalid_source_page" | "source_unavailable",
+    public readonly httpStatus?: number,
+  ) {
     super(code);
   }
 }
@@ -38,7 +41,7 @@ function isPrivateIp(value: string) {
   );
 }
 
-async function assertPublicHttpsUrl(value: string) {
+export async function assertPublicHttpsUrl(value: string) {
   let url: URL;
   try {
     url = new URL(value);
@@ -101,7 +104,7 @@ export async function fetchApprovedVacancyPage(
   const contentLength = Number(response.headers.get("content-length") ?? 0);
   const contentType = response.headers.get("content-type")?.toLocaleLowerCase("en-GB") ?? "";
   if (!response.ok || !contentType.includes("text/html")) {
-    throw new SourcePageError("source_unavailable");
+    throw new SourcePageError("source_unavailable", response.status);
   }
   if (contentLength > MAX_DETAIL_BYTES) throw new SourcePageError("detail_too_large");
 

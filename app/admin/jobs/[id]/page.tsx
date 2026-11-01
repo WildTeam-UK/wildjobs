@@ -66,13 +66,15 @@ export default async function ReviewJobPage({ params, searchParams }: ReviewPage
     supabase
       .from("jobs")
       .select(
-        "id, title, summary, description, responsibilities, requirements, status, location_text, country_code, workplace_type, engagement_type, contract_type, hours_type, experience_level, salary_text, application_url, posted_at, closes_at, employers(id, name, website_url, mission, overview, status)",
+        "id, title, summary, description, responsibilities, requirements, status, location_text, country_code, workplace_type, engagement_type, contract_type, hours_type, experience_level, salary_text, application_url, posted_at, closes_at, expires_at, employers(id, name, website_url, mission, overview, status)",
       )
       .eq("id", id)
       .maybeSingle(),
     supabase
       .from("job_source_records")
-      .select("id, canonical_url, verified_at, mapping_status, job_sources(id, name)")
+      .select(
+        "id, canonical_url, verified_at, mapping_status, job_sources(id, name, publication_allowed, permissions_reviewed_at, permission_notes)",
+      )
       .eq("job_id", id)
       .order("created_at", { ascending: true }),
     supabase
@@ -121,6 +123,9 @@ export default async function ReviewJobPage({ params, searchParams }: ReviewPage
     job: {
       applicationUrl: job.application_url,
       closesAt: job.closes_at,
+      expiresAt: job.expires_at,
+      engagementType: job.engagement_type,
+      countryCode: job.country_code,
       description: job.description,
       locationText: job.location_text,
       status: job.status,
@@ -129,6 +134,11 @@ export default async function ReviewJobPage({ params, searchParams }: ReviewPage
     sources: sources.map((source) => ({
       canonicalUrl: source.canonical_url,
       verifiedAt: source.verified_at,
+      publicationAllowed: Boolean(
+        source.job_sources.publication_allowed &&
+        source.job_sources.permissions_reviewed_at &&
+        source.job_sources.permission_notes,
+      ),
     })),
     today: new Date().toISOString().slice(0, 10),
   });

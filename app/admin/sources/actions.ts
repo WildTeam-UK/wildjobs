@@ -11,7 +11,6 @@ import { getSourceConnector } from "@/lib/admin/source-connector";
 import { buildSourceRecordDraftDefaults, prepareSourceRecordJobInput } from "@/lib/admin/source-record-draft";
 import {
   validateSource,
-  validateSourceDescriptionDisplayMode,
   validateSourceRecordLink,
   validateSourceRecordStatus,
   validateSourceStatus,
@@ -73,40 +72,6 @@ export async function setSourceStatus(formData: FormData) {
   revalidatePath("/admin");
   revalidatePath("/admin/sources");
   redirect(`/admin/sources?status=${result.data.isActive ? "activated" : "paused"}`);
-}
-
-export async function setSourceDescriptionDisplayMode(formData: FormData) {
-  await requireAdministrator();
-  const result = validateSourceDescriptionDisplayMode(formData);
-  if (result.error) redirect("/admin/sources?error=invalid-source");
-
-  const supabase = createTrustedClient();
-  const { data: source, error } = await supabase
-    .from("job_sources")
-    .update({ description_display_mode: result.data.descriptionDisplayMode })
-    .eq("id", result.data.sourceId)
-    .select("id")
-    .maybeSingle();
-  if (error || !source) redirect("/admin/sources?error=unavailable");
-
-  const { error: resetError } = await supabase
-    .from("job_source_records")
-    .update({
-      automation_blockers: [],
-      automation_evaluated_at: null,
-      automation_policy_version: null,
-      automation_score: null,
-      automation_status: "pending",
-    })
-    .eq("source_id", source.id)
-    .eq("mapping_status", "mapped")
-    .neq("automation_status", "published");
-  if (resetError) redirect(`/admin/sources/${source.id}?error=permission-unavailable`);
-
-  revalidatePath("/admin");
-  revalidatePath("/admin/sources");
-  revalidatePath(`/admin/sources/${source.id}`);
-  redirect(`/admin/sources/${source.id}?status=permission-updated`);
 }
 
 export async function setSourceRecordStatus(formData: FormData) {

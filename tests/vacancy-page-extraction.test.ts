@@ -5,6 +5,25 @@ import { parseEmployerPage, parseVacancyPage } from "../lib/admin/vacancy-page-e
 const pageUrl = "https://www.countryside-jobs.com/job/nov26/conservation-officer-example-trust-2910-1";
 
 describe("vacancy page extraction", () => {
+  it("keeps EnvironmentJob contract facts that are absent from structured employmentType", () => {
+    const result = parseVacancyPage(
+      '<div class="card"><h1 class="js-title">Project manager</h1><div>Full Time • Permanent</div><div class="js-detail">Restore wetlands.</div></div><script type="application/ld+json">{"@type":"JobPosting","description":"Restore wetlands.","employmentType":"FULL_TIME"}</script>',
+      "https://environmentjob.co.uk/jobs/123-project-manager",
+    );
+    expect(result.detailText).toBe("Restore wetlands.");
+    expect(result.evidenceText).toContain("Full Time • Permanent");
+    expect(result.evidenceText.match(/Restore wetlands\./g)).toHaveLength(1);
+  });
+
+  it("does not treat a fallback vacancy URL as application instructions", () => {
+    const result = parseVacancyPage(
+      '<script type="application/ld+json">{"@type":"JobPosting","description":"Restore habitats with local communities.","url":"https://example.org/role"}</script>',
+      pageUrl,
+    );
+    expect(result.applicationUrl).toBe("https://example.org/role");
+    expect(result.applicationInstructionsFound).toBe(false);
+  });
+
   it("extracts structured vacancy, application and employer facts without guessing", () => {
     const result = parseVacancyPage(
       `
@@ -43,6 +62,7 @@ describe("vacancy page extraction", () => {
     );
 
     expect(result).toMatchObject({
+      applicationInstructionsFound: true,
       applicationUrl: "https://nature.example.org/apply/123",
       closesAt: "2026-11-30",
       employerLogoUrl: "https://nature.example.org/logo.png",
@@ -60,6 +80,9 @@ describe("vacancy page extraction", () => {
       resolutionStatus: "extracted",
       value: "£31,000",
     });
+    expect(result.evidenceText).toContain("Advertised location: Bristol, City of Bristol, BS1 5AH, GB");
+    expect(result.evidenceText).toContain("Advertised country code: GB");
+    expect(result.evidenceText).toContain("Advertised salary:");
     expect(result.evidence.find((item) => item.fieldName === "workplace_type")).toMatchObject({
       value: "hybrid",
     });

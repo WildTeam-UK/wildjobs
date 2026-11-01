@@ -15,11 +15,6 @@ function validJobId(jobId: number) {
   return Number.isSafeInteger(jobId) && jobId > 0;
 }
 
-// Supabase's generated RPC types cannot express nullable PostgreSQL parameters.
-function nullableRpcValue(value: string | null): string {
-  return value as string;
-}
-
 export async function updateJobReview(
   jobId: number,
   _previousState: JobReviewActionState,
@@ -41,32 +36,30 @@ export async function updateJobReview(
   if (currentJobError || !currentJob) return { error: "The vacancy could not be found." };
 
   const input = result.data;
-  const { error } = await supabase.rpc("update_job_review_draft", {
-    p_application_url: input.applicationUrl,
-    p_canonical_url: input.canonicalUrl,
-    p_closes_at: input.closesAt,
-    p_contract_type: input.contractType ?? "",
-    p_country_code: input.countryCode,
-    p_description: input.description,
-    p_engagement_type: nullableRpcValue(input.engagementType),
-    p_employer_mission: nullableRpcValue(input.employerMission),
-    p_employer_overview: nullableRpcValue(input.employerOverview),
-    p_employer_website_url: nullableRpcValue(input.employerWebsiteUrl),
-    p_experience_level: input.experienceLevel ?? "",
-    p_hours_type: input.hoursType ?? "",
+  const { error } = await supabase.rpc("save_pipeline_review", {
     p_job_id: jobId,
-    p_job_slug: currentJob.slug,
-    p_location_locality: input.locationLocality,
-    p_location_region: input.locationRegion,
-    p_location_text: input.locationText,
-    p_postal_code: input.postalCode,
-    p_posted_at: nullableRpcValue(input.postedAt),
-    p_requirements: input.requirements,
-    p_responsibilities: input.responsibilities,
-    p_salary_text: input.salaryText ?? "",
-    p_summary: input.summary,
-    p_title: input.title,
-    p_workplace_type: input.workplaceType ?? "",
+    p_patch: {
+      title: input.title,
+      summary: input.summary,
+      description: input.description,
+      responsibilities: input.responsibilities,
+      requirements: input.requirements,
+      application_url: input.applicationUrl,
+      source_url: input.canonicalUrl,
+      closes_at: input.closesAt,
+      country_code: input.countryCode,
+      engagement_type: input.engagementType,
+      workplace_type: input.workplaceType,
+      contract_type: input.contractType,
+      hours_type: input.hoursType,
+      experience_level: input.experienceLevel,
+      salary_text: input.salaryText,
+      location_text: input.locationText,
+      locality: input.locationLocality,
+      region: input.locationRegion,
+      postal_code: input.postalCode,
+      posted_at: input.postedAt,
+    },
   });
 
   if (error) {
@@ -86,7 +79,7 @@ export async function publishJobReview(jobId: number) {
   if (!validJobId(jobId)) redirect("/admin/jobs?error=invalid-record");
 
   const supabase = await createClient();
-  const { error } = await supabase.rpc("publish_job_review_draft", { p_job_id: jobId });
+  const { error } = await supabase.rpc("publish_reviewed_brief", { p_job_id: jobId });
 
   if (error) {
     redirect(`/admin/jobs/${jobId}?error=publication-check`);
