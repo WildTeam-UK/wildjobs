@@ -148,7 +148,15 @@ export function advertPage(html: string, pageUrl: string) {
       }
     })
     .slice(0, 12);
-  return { ...structured, description, logoCandidates };
+  let canonical = structured?.canonicalUrl;
+  if (!canonical) {
+    const link = html.match(/<link\b[^>]*\brel\s*=\s*["']canonical["'][^>]*>/i)?.[0];
+    const href = link?.match(/\bhref\s*=\s*["']([^"']+)["']/i)?.[1];
+    try {
+      if (href) canonical = canonicalUrl(href, pageUrl);
+    } catch {}
+  }
+  return { ...structured, description, logoCandidates, canonicalUrl: canonical };
 }
 export async function fetchAdvert(sourceUrl: string) {
   const page = await fetchPublicText(sourceUrl);

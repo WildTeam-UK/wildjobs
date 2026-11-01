@@ -20,6 +20,7 @@ function string(value: unknown): string {
   if (Array.isArray(value)) return value.map(string).join(" ");
   if (typeof value === "string" || typeof value === "number") return String(value);
   const record = object(value);
+  if (record["name"] !== undefined) return string(record["name"]);
   return record["#text"] !== undefined
     ? string(record["#text"])
     : Object.entries(record)
@@ -75,21 +76,39 @@ export function parseSourceFeed(
       rawLink,
       publicUrl(string(object(link)["@_base"]) || entryBase, entryBase).toString(),
     ).toString();
-    const title = plainText(string(item.title));
+    const title = plainText(string(item.title)).slice(0, 300);
     if (!title) throw new Error("A feed item is missing its job title.");
-    const text = plainText(string(item.encoded ?? item.content ?? item.description ?? item.summary));
+    const text = plainText(string(item.encoded ?? item.content ?? item.description ?? item.summary)).slice(
+      0,
+      24000,
+    );
     const organisation =
       plainText(string(item.company ?? item.employer ?? item.hiringOrganization ?? item.companyName)) ||
       "Organisation not stated";
     const location =
       plainText(string(item.location ?? item.jobLocation ?? item.region)) || "Location not stated";
-    const salary = normaliseSalary(plainText(string(item.salary ?? item.baseSalary)));
+    const salaryField = item.salary ?? item.baseSalary;
+    const currency = string(object(salaryField)["@_currency"] ?? item.salaryCurrency).toUpperCase();
+    const amount = plainText(string(salaryField))
+      .replace(/^GBP\s*/i, "£")
+      .replace(/^EUR\s*/i, "€")
+      .replace(/^USD\s*/i, "$");
+    const symbol = ({ GBP: "£", EUR: "€", USD: "$" } as Record<string, string>)[currency];
+    const salary = normaliseSalary(
+      (symbol && /^\d/.test(amount) ? symbol : "") +
+        amount +
+        " " +
+        string(object(salaryField)["@_unitText"] ?? object(salaryField)["@_unit"]),
+    );
     const date = new Date(string(item.pubDate ?? item.published ?? item.date ?? item.updated));
     const closesAt = closingDate(string(item.closingDate ?? item.validThrough ?? ""));
     const feedId = string(item.guid ?? item.id) || canonicalUrl(source);
     const work = string(item.workplace ?? item.jobLocationType).toLowerCase();
     const types = string(item.employmentType ?? item.jobType).toLowerCase();
-    const country = string(item.country ?? item.countryCode).toUpperCase();
+    const rawCountry = string(item.country ?? item.countryCode).toUpperCase();
+    const country =
+      ({ UK: "GB", "UNITED KINGDOM": "GB", "UNITED STATES": "US" } as Record<string, string>)[rawCountry] ??
+      rawCountry;
     const logo = string(item.companyLogo ?? item.logo);
     let logoUrl: string | undefined;
     try {
@@ -120,7 +139,7 @@ export function parseSourceFeed(
           ]),
         )
         .digest("hex"),
-      summary: text || title,
+      summary: text.length > 650 ? text.slice(0, 650).replace(/\s+\S*$/, "") + "…" : text || title,
       summary_source: "source" as const,
       location_text: location,
       locality: location === "Location not stated" ? null : location.split(",")[0],

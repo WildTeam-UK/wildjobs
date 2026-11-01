@@ -71,7 +71,7 @@ create or replace function private.directory_find_job(p jsonb,exclude_id bigint 
    and (private.directory_place(j.location_text)=private.directory_place(p->>'location_text') or private.directory_place(p->>'location_text') in ('','location not stated') or private.directory_place(j.location_text)='location not stated'))
   or (j.identity_key=private.directory_identity(p) and j.is_active and abs(extract(epoch from (j.posted_at-(p->>'posted_at')::timestamptz)))<=2592000
    and coalesce(j.closes_at,j.posted_at+interval '720 hours')>now()
-   and not exists(select 1 from public.directory_source_jobs same_source where same_source.job_id=j.id and same_source.source_id=coalesce((p->>'_source_id')::bigint,(p->>'primary_source_id')::bigint) and same_source.external_id<>p->>'feed_id' and same_source.is_present))
+   and not exists(select 1 from public.directory_source_jobs same_source where same_source.job_id=j.id and same_source.source_id=coalesce((p->>'_source_id')::bigint,(p->>'primary_source_id')::bigint) and same_source.external_id<>p->>'feed_id' ))
  ) order by j.id limit 1
 $$;
 
@@ -89,7 +89,7 @@ begin
  update public.directory_jobs set
  primary_source_id=listing.source_id,primary_external_id=listing.external_id,source_name=listing.name,
  source_url=p->>'source_url',canonical_url=coalesce(p->>'canonical_url',p->>'source_url'),
- title=p->>'title',organisation_name=p->>'organisation_name',feed_text=p->>'feed_text',feed_hash=listing.content_hash,
+ title=p->>'title',organisation_name=p->>'organisation_name',feed_text=left(p->>'feed_text',1200),feed_hash=listing.content_hash,
  processed_hash=case when cached then listing.content_hash when old.feed_hash=listing.content_hash then old.processed_hash else null end,
  summary=case when cached then p->>'summary' when old.feed_hash=listing.content_hash and old.processed_hash=old.feed_hash then old.summary else coalesce(p->>'summary',p->>'title') end,
  summary_source=case when cached or (old.feed_hash=listing.content_hash and old.processed_hash=old.feed_hash) then 'ai' else 'source' end,
@@ -169,17 +169,17 @@ begin
 end $$;
 
 create or replace function public.manage_directory_source(p_action text,p_id bigint default null,p_url text default null,p_name text default null) returns bigint language plpgsql security invoker set search_path='' as $$
-declare source_id bigint; r record;
+declare managed_id bigint; r record;
 begin
  perform pg_advisory_xact_lock(742091);
  if p_action='add' then
   if p_url is null or nullif(trim(p_name),'') is null then raise exception 'Feed URL and name required';end if;
-  select id into source_id from public.directory_sources where feed_url=p_url and removed_at is null;
+  select id into managed_id from public.directory_sources where feed_url=p_url and removed_at is null;
   if found then raise exception 'This feed is already added';end if;
   insert into public.directory_sources(name,feed_url) values(left(trim(p_name),160),p_url)
-   on conflict(feed_url) do update set name=excluded.name,enabled=true,removed_at=null,next_feed_at=now(),last_error=null returning id into source_id;
+   on conflict(feed_url) do update set name=excluded.name,enabled=true,removed_at=null,next_feed_at=now(),last_error=null returning id into managed_id;
  else
-  source_id=p_id;
+  managed_id=p_id;
   if not exists(select 1 from public.directory_sources where id=p_id and removed_at is null) then raise exception 'Source not found';end if;
   if p_action='pause' then update public.directory_sources set enabled=false where id=p_id;
   elsif p_action='resume' then update public.directory_sources set enabled=true,next_feed_at=now() where id=p_id;
@@ -195,7 +195,7 @@ begin
   else raise exception 'Unknown source action';end if;
  end if;
  update public.directory_settings set next_feed_at=coalesce((select min(next_feed_at) from public.directory_sources where enabled and removed_at is null),'9999-12-31'::timestamptz) where id;
- return source_id;
+ return managed_id;
 end $$;
 
 revoke all on function private.directory_normalise(text),private.directory_org(text),private.directory_place(text),private.directory_identity(jsonb),private.directory_find_job(jsonb,bigint),private.refresh_directory_job(bigint) from public,anon,authenticated;
@@ -205,7 +205,7 @@ revoke all on function public.import_directory_feed(bigint,text,jsonb),public.ap
 grant execute on function public.import_directory_feed(bigint,text,jsonb),public.apply_directory_job(bigint,text,jsonb,boolean),public.manage_directory_source(text,bigint,text,text) to service_role;
 
 create function public.directory_pending_jobs() returns setof public.directory_jobs language sql stable security invoker set search_path='' as $$
- select * from public.directory_jobs where is_active and merged_into is null and processed_hash is distinct from feed_hash order by first_seen_at,id limit 20
+ select (jsonb_populate_record(null::public.directory_jobs,to_jsonb(j)||jsonb_build_object('feed_text',l.payload->>'feed_text'))).* from public.directory_jobs j join public.directory_source_jobs l on l.source_id=j.primary_source_id and l.external_id=j.primary_external_id where j.is_active and j.merged_into is null and j.processed_hash is distinct from j.feed_hash order by j.first_seen_at,j.id limit 20
 $$;
 revoke all on function public.directory_pending_jobs() from public,anon,authenticated;
 grant execute on function public.directory_pending_jobs() to service_role;
