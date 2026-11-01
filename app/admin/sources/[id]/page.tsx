@@ -7,6 +7,7 @@ import {
   linkSourceRecordToJob,
   prepareSourceRecordDraft,
   runSourceDiscovery,
+  setSourceDescriptionDisplayMode,
   setSourceRecordStatus,
 } from "@/app/admin/sources/actions";
 import { SubmitButton } from "@/components/submit-button";
@@ -126,7 +127,9 @@ export default async function SourcePage({ params, searchParams }: SourcePagePro
   const [sourceResult, recordsResult, jobsResult, otherSourceRecordsResult] = await Promise.all([
     supabase
       .from("job_sources")
-      .select("id, name, source_type, authoritative_base_url, is_active, default_country_code")
+      .select(
+        "id, name, source_type, authoritative_base_url, is_active, default_country_code, description_display_mode",
+      )
       .eq("id", sourceId)
       .maybeSingle(),
     recordsQuery,
@@ -219,6 +222,17 @@ export default async function SourcePage({ params, searchParams }: SourcePagePro
             Additional source linked to the existing WildJobs vacancy. No new public listing was created.
           </p>
         ) : null}
+        {firstQueryValue(query.status) === "permission-updated" ? (
+          <p className="staff-form-message" role="status">
+            Source description permission updated. Existing private drafts will be checked again
+            automatically.
+          </p>
+        ) : null}
+        {firstQueryValue(query.error) === "permission-unavailable" ? (
+          <p className="staff-form-message staff-form-message--error" role="alert">
+            The permission was saved, but existing drafts could not be queued for another publication check.
+          </p>
+        ) : null}
         {firstQueryValue(query.enrichment) === "completed" ? (
           <p className="staff-form-message" role="status">
             The private vacancy draft and its extracted evidence are up to date.
@@ -262,6 +276,28 @@ export default async function SourcePage({ params, searchParams }: SourcePagePro
             source details manually.
           </p>
         ) : null}
+
+        <form action={setSourceDescriptionDisplayMode} className="staff-source-form source-permission-form">
+          <div>
+            <p className="eyebrow">Description permission</p>
+            <h2>What may WildJobs display?</h2>
+            <p>
+              Choose full only when WildTeam has explicit permission to reproduce complete vacancy adverts
+              from this source. Changing this queues its private drafts for another automation check.
+            </p>
+          </div>
+          <input name="sourceId" type="hidden" value={source.id} />
+          <label htmlFor="description-display-mode">Approved display</label>
+          <select
+            defaultValue={source.description_display_mode}
+            id="description-display-mode"
+            name="descriptionDisplayMode"
+          >
+            <option value="link_only">Link and extracted facts only</option>
+            <option value="full">Full vacancy description permitted</option>
+          </select>
+          {staff.role === "admin" ? <button type="submit">Save permission</button> : null}
+        </form>
         {firstQueryValue(query.run) && firstQueryValue(query.status) !== "checked" ? (
           <p className="staff-form-message" role="status">
             Showing the current records for import run {firstQueryValue(query.run)}. The run counts remain in
