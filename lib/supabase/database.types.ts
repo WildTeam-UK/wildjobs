@@ -288,6 +288,7 @@ export type Database = {
       };
       directory_jobs: {
         Row: {
+          closes_at: string | null;
           contract_type: string | null;
           country_code: string | null;
           course_slugs: string[];
@@ -318,6 +319,7 @@ export type Database = {
           workplace: string;
         };
         Insert: {
+          closes_at?: string | null;
           contract_type?: string | null;
           country_code?: string | null;
           course_slugs?: string[];
@@ -348,6 +350,7 @@ export type Database = {
           workplace?: string;
         };
         Update: {
+          closes_at?: string | null;
           contract_type?: string | null;
           country_code?: string | null;
           course_slugs?: string[];

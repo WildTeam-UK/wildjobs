@@ -2,17 +2,18 @@ import { requireStaff } from "@/lib/auth/staff";
 import { createTrustedClient } from "@/lib/supabase/trusted";
 import { setAutomation, runFeed } from "./actions";
 import { SubmitButton } from "@/components/submit-button";
+import { isDirectoryJobLive } from "@/lib/directory-lifecycle";
 export const maxDuration = 150;
 export default async function AdminPage() {
   await requireStaff();
   const db = createTrustedClient();
   const [settings, jobs, runs] = await Promise.all([
     db.from("directory_settings").select("*").single(),
-    db.from("directory_jobs").select("id,feed_hash,processed_hash,is_active"),
+    db.from("directory_jobs").select("id,feed_hash,processed_hash,is_active,posted_at,closes_at"),
     db.from("directory_runs").select("*").order("started_at", { ascending: false }).limit(1000),
   ]);
   if (settings.error || jobs.error || runs.error) throw new Error("Directory activity could not be loaded.");
-  const active = jobs.data.filter((j) => j.is_active),
+  const active = jobs.data.filter((j) => isDirectoryJobLive(j)),
     pending = active.filter((j) => j.feed_hash !== j.processed_hash).length;
   const today = new Date().toISOString().slice(0, 10),
     recent = runs.data.filter((r) => r.started_at.startsWith(today));

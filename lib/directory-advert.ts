@@ -1,4 +1,5 @@
 import { cleanText } from "./directory-feed";
+import { closingDate } from "./directory-lifecycle";
 
 function plainText(html: string) {
   const named: Record<string, string> = {
@@ -108,7 +109,15 @@ export function parseAdvert(html: string) {
     ({ "United Kingdom": "GB", UK: "GB", Romania: "RO", "Falkland Islands": "FK" } as Record<string, string>)[
       country
     ] ?? (/^[A-Z]{2}$/.test(country) ? country : null);
-  return { description, logoUrl, hours, contract, workplace, countryCode };
+  return {
+    description,
+    logoUrl,
+    hours,
+    contract,
+    workplace,
+    countryCode,
+    closesAt: closingDate(job.validThrough),
+  };
 }
 export async function fetchAdvert(sourceUrl: string) {
   const url = new URL(sourceUrl);

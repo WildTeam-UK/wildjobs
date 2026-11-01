@@ -1,5 +1,6 @@
 import { requireStaff } from "@/lib/auth/staff";
 import { createTrustedClient } from "@/lib/supabase/trusted";
+import { directoryDeadline, isDirectoryJobLive } from "@/lib/directory-lifecycle";
 export default async function JobsAdmin() {
   await requireStaff();
   const { data, error } = await createTrustedClient()
@@ -16,14 +17,16 @@ export default async function JobsAdmin() {
           <h1>Directory cards.</h1>
         </div>
         <p>
-          Jobs are live while present in the EnvironmentJob feed. Feed changes update the card automatically.
+          Jobs retire at the advertised closing date, or 30 days after posting when no date is supplied. Feed
+          changes update the card automatically.
         </p>
       </header>
       <section className="staff-section shell">
         {data.map((j) => (
           <details key={j.id}>
             <summary>
-              {j.is_active ? "Live" : "No longer in feed"} · {j.title} — {j.organisation_name}
+              {!j.is_active ? "No longer in feed" : isDirectoryJobLive(j) ? "Live" : "Retired"} · {j.title} —{" "}
+              {j.organisation_name}
             </summary>
             <p>{j.summary}</p>
             <p>
@@ -34,6 +37,12 @@ export default async function JobsAdmin() {
             <p>
               {j.processed_hash === j.feed_hash ? "AI enrichment complete" : "Awaiting AI enrichment"} ·
               Posted {new Date(j.posted_at).toLocaleDateString("en-GB")}
+            </p>
+            <p>
+              {j.closes_at ? "Closes" : "Retires"}{" "}
+              {new Date(directoryDeadline(j.posted_at, j.closes_at)).toLocaleString("en-GB", {
+                timeZone: "Europe/London",
+              })}
             </p>
             <a href={j.source_url}>Original advert →</a>
           </details>

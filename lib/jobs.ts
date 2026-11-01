@@ -2,7 +2,6 @@ export type LocationType = "Hybrid" | "Not specified" | "On-site" | "Remote";
 export type EmploymentType =
   | "Apprenticeship"
   | "Fixed term"
-  | "Flexible"
   | "Full time"
   | "Internship"
   | "Not stated"
@@ -126,7 +125,7 @@ export function postedAgoLabel(value: string, now = new Date()) {
 
 export function formatDate(value: string) {
   return new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "long", year: "numeric" }).format(
-    new Date(`${value}T12:00:00Z`),
+    new Date(`${value.slice(0, 10)}T12:00:00Z`),
   );
 }
 
