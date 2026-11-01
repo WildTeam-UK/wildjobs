@@ -72,10 +72,11 @@ export function parseFeed(xml: string, now = new Date(), organisationNames: read
             .trim()
             .replace(/\s*\.{3}$/, "…");
     const salaryAt = prefix.search(
-      /(?:up to|from|starting at)\s+(?=[£€$])|(?:£|€|\$)\s*\d|\b(?:unpaid|voluntary|competitive|salary|negotiable)\b/i,
+      /(?:(?:up to|from|starting at)\s+|c\.\s*)(?=[£€$])|(?:£|€|\$)\s*\d|\b(?:unpaid|voluntary|competitive|salary|negotiable)\b/i,
     );
     const location =
       (salaryAt < 0 ? prefix : prefix.slice(0, salaryAt))
+        .replace(/\s*\((?:with )?hybrid working(?: available)?\)/gi, "")
         .replace(/(?:,\s*and\s+home working|(?:,\s*)?(?:with\s+)?hybrid working)\b/gi, "")
         .replace(/^Scotland West Coast of Scotland$/i, "West Coast of Scotland")
         .replace(/[,\s]+$/g, "")
