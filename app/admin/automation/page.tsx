@@ -17,7 +17,7 @@ export default async function AutomationPage({
   const query = await searchParams;
   const start = new Date();
   start.setUTCHours(0, 0, 0, 0);
-  const [tasks, sources, usage, control, heartbeat] = await Promise.all([
+  const [tasks, sources, usage, control, heartbeat, exceptionTasks] = await Promise.all([
     client
       .from("job_pipeline_tasks")
       .select("*,job_source_records(source_title,job_id,pipeline_error),job_sources(name)")
@@ -46,6 +46,12 @@ export default async function AutomationPage({
           .eq("id", true)
           .single()
       : Promise.resolve({ data: null, error: null }),
+    client
+      .from("job_pipeline_tasks")
+      .select("*,job_source_records(source_title,job_id,pipeline_error,source_revision),job_sources(name)")
+      .in("status", ["review", "failed"])
+      .order("created_at", { ascending: false })
+      .limit(1000),
   ]);
   const totals = (usage.data ?? []).reduce(
     (sum, item) => ({
@@ -64,8 +70,19 @@ export default async function AutomationPage({
     (usage.data ?? []).length > 0 &&
     usage.data!.every((u) => u.input_price_per_million !== null && u.output_price_per_million !== null);
   const enabled = control.data?.auto_publish_enabled === true && process.env.AUTO_PUBLISH_ENABLED === "true";
-  const exceptions = (tasks.data ?? []).filter((t) => ["review", "failed"].includes(t.status));
-  const errors = [tasks.error, sources.error, usage.error, control.error, heartbeat.error].some(Boolean);
+  const exceptions = (exceptionTasks.data ?? [])
+    .filter(
+      (task) => !task.job_source_records || task.source_revision === task.job_source_records.source_revision,
+    )
+    .slice(0, 100);
+  const errors = [
+    tasks.error,
+    sources.error,
+    usage.error,
+    control.error,
+    heartbeat.error,
+    exceptionTasks.error,
+  ].some(Boolean);
   return (
     <main className="staff-page">
       <header className="staff-hero shell">
@@ -101,7 +118,7 @@ export default async function AutomationPage({
       <section className="staff-summary staff-summary--four shell">
         <div>
           <span>{exceptions.length}</span>
-          <strong>Exceptions in the latest 100 tasks</strong>
+          <strong>Current exceptions, up to 100 shown</strong>
         </div>
         <div>
           <span>{usage.data?.length ?? 0}</span>
@@ -168,7 +185,7 @@ export default async function AutomationPage({
             ))}
           </div>
         ) : (
-          <p>No exceptions in the latest tasks.</p>
+          <p>No current exceptions in the latest 1,000 exception tasks.</p>
         )}
         <div className="staff-section__heading">
           <h2>Source permissions</h2>
