@@ -154,6 +154,9 @@ async function closeSourceJob(client: Client, record: SourceRecord, code: string
     .from("job_source_records")
     .update({
       automation_status: "blocked",
+      automation_score: 0,
+      automation_evaluated_at: new Date().toISOString(),
+      automation_policy_version: BRIEF_POLICY_VERSION,
       automation_blockers: ["listing_expired"],
       pipeline_error: code,
       next_check_at: new Date(Date.now() + 30 * 86400000).toISOString(),
@@ -566,6 +569,9 @@ async function enrichRecord(client: Client, task: Task) {
         enrichment_status: "needs_review",
         pipeline_error: errors.join("; ").slice(0, 2000),
         automation_status: "blocked",
+        automation_score: 0,
+        automation_evaluated_at: new Date().toISOString(),
+        automation_policy_version: BRIEF_POLICY_VERSION,
         automation_blockers: ["brief_unverified"],
       })
       .eq("id", r.id);

@@ -32,6 +32,7 @@ begin
     'brief',jsonb_build_object('conservationContext','Contributes to habitat restoration.'),
     'career_areas',jsonb_build_array(jsonb_build_object('termId',cid,'confidence',90,'evidence','restores habitats','originalText','restores habitats')),
     'locations',jsonb_build_array(jsonb_build_object('rawText','London','countryCode','GB','precision','locality','locality','London','evidence','London','confidence',90)));
+  update public.job_source_records set automation_status='blocked',automation_score=95,automation_evaluated_at=now(),automation_policy_version='legacy-policy',automation_blockers=array['legacy_blocker'] where id=rid;
   perform public.apply_pipeline_brief(rid,1,repeat('b',64),patched);
   if cardinality(public.pipeline_publish_blockers(rid))<>0 then raise exception 'Complete brief was blocked: %',public.pipeline_publish_blockers(rid);end if;
   update public.automation_controls set auto_publish_enabled=false where id='global';
