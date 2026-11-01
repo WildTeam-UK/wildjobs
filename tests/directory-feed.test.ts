@@ -44,6 +44,14 @@ describe("feed cards", () => {
       parseFeed(xml("Nature Trust, Exeter, Up to £45,000 pa. Manage nature reserves."))[0].location_text,
     ).toBe("Exeter");
   });
+  it("separates workplace wording from the searchable place", () => {
+    expect(
+      parseFeed(xml("Trust, Bristol with hybrid working, £30,000 pa. Work with remote communities."))[0],
+    ).toMatchObject({ location_text: "Bristol", workplace: "Hybrid", country_code: "GB" });
+    expect(
+      parseFeed(xml("Trust, Exeter, Devon, £30,000 pa. Analyse remote sensing data."))[0].workplace,
+    ).toBe("Not specified");
+  });
   it("uses a stable content hash and changes it when feed text changes", () => {
     expect(parseFeed(xml("Trust, Exeter, £30000 pa. Surveys."))[0].feed_hash).not.toBe(
       parseFeed(xml("Trust, Exeter, £35000 pa. Surveys."))[0].feed_hash,

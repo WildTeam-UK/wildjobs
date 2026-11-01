@@ -76,15 +76,17 @@ export function parseFeed(xml: string, now = new Date(), organisationNames: read
     );
     const location =
       (salaryAt < 0 ? prefix : prefix.slice(0, salaryAt))
+        .replace(/(?:,\s*and\s+home working|(?:,\s*)?(?:with\s+)?hybrid working)\b/gi, "")
+        .replace(/^Scotland West Coast of Scotland$/i, "West Coast of Scotland")
         .replace(/[,\s]+$/g, "")
         .replace(/\s*[,;]\s*/g, ", ") || "Location not stated";
     const salary = normaliseSalary(salaryAt < 0 ? prefix : prefix.slice(salaryAt));
     const parts = location.split(", ");
-    const workplace = /\bhybrid\b/i.test(text)
+    const workplace = /\bhybrid\b|\band home working\b/i.test(prefix)
       ? "Hybrid"
-      : /\bremote\b|home[ -]based|work(?:ing)? from home/i.test(text)
+      : /\bremote\b|home[ -]based|work(?:ing)? from home|home working/i.test(prefix)
         ? "Remote"
-        : /\bon[ -]site\b|office[ -]based/i.test(text)
+        : /\bon[ -]site\b|office[ -]based/i.test(prefix)
           ? "On-site"
           : "Not specified";
     const date = new Date(String(item.pubDate));
@@ -105,7 +107,7 @@ export function parseFeed(xml: string, now = new Date(), organisationNames: read
       locality: parts[0],
       region: parts.length > 1 ? parts.at(-1) : null,
       country_code:
-        /\b(?:UK|United Kingdom|England|Scotland|Wales|Somerset|London|Bristol|Devon|Yorkshire|Cornwall)\b/i.test(
+        /\b(?:UK|United Kingdom|England|Scotland|Wales|Northern Ireland|Somerset|London|Bristol|Devon|Yorkshire|Cornwall|Gloucestershire|Surrey|Oxfordshire|Northamptonshire|Cambridgeshire|Wiltshire|Durham|Norfolk|Suffolk|Kent|Sussex|Hampshire|Berkshire|Warwickshire|Bedfordshire|Buckinghamshire|Essex|Cumbria|Derbyshire|Dorset|Lancashire|Leicestershire|Lincolnshire|Nottinghamshire|Northumberland|Shropshire|Staffordshire|Worcestershire|Hertfordshire|Cheshire|Flintshire|Powys|Gwynedd|Cardiff|Edinburgh|Aberdeen|Peterborough|Nottingham|Leeds|Sheffield|Manchester|Liverpool|Newcastle|Glasgow|Belfast)\b/i.test(
           location,
         )
           ? "GB"
