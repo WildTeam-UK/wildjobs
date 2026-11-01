@@ -1,6 +1,8 @@
 "use client";
 
 import { Button } from "@wildteam-uk/ui";
+import { createPortal } from "react-dom";
+import { SectorIcon } from "./sector-icon";
 import {
   Fragment,
   type CSSProperties,
@@ -16,7 +18,14 @@ import { JobCard } from "@/components/job-card";
 import { JobTrainingPromo } from "@/components/job-training-promo";
 import { courseBySlug, type Course } from "@/lib/courses";
 import type { CandidateSaveState } from "@/lib/candidate-saved-jobs";
-import { filterJobs, jobCategories } from "@/lib/job-filtering";
+import {
+  filterJobs,
+  jobCategories,
+  rankCourseFilters,
+  isJobFieldUnspecified,
+  unspecifiedMatchCount,
+  type SparseJobField,
+} from "@/lib/job-filtering";
 import type { EmploymentType, EngagementType, Job, LocationType } from "@/lib/jobs";
 
 const locationTypes: readonly LocationType[] = ["Remote", "Hybrid", "On-site", "Not specified"];
@@ -32,7 +41,7 @@ type FilterIconName =
   | "opportunity"
   | "salary"
   | "sort";
-type FilterOption = Readonly<{ label: string; value: string }>;
+type FilterOption = Readonly<{ label: string; value: string; count?: number }>;
 type LocationSuggestion = Readonly<{ detail?: string; label: string; value: string }>;
 type BrowserFilters = Readonly<{
   query: string;
@@ -45,6 +54,7 @@ type BrowserFilters = Readonly<{
   courseSlugs: readonly string[];
   minimumSalary: number;
   sortOrder: JobSortOrder;
+  includeUnspecified: readonly SparseJobField[];
 }>;
 
 function titleCaseCourseName(title: string) {
@@ -210,6 +220,7 @@ type SingleFilterDropdownProps = {
   placeholder: string;
   value: string;
   multiple?: false;
+  unspecified?: { checked: boolean; count: number; onChange: (checked: boolean) => void };
 };
 
 type MultiFilterDropdownProps = Omit<SingleFilterDropdownProps, "multiple" | "onChange" | "value"> & {
@@ -223,83 +234,118 @@ function FilterDropdown(props: SingleFilterDropdownProps | MultiFilterDropdownPr
   const [isOpen, setIsOpen] = useState(false);
   const [menuPosition, setMenuPosition] = useState<CSSProperties>({});
   const rootRef = useRef<HTMLDivElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
   const optionRefs = useRef<Array<HTMLButtonElement | null>>([]);
   const menuId = useId();
   const selectedValues = props.multiple ? props.value : props.value ? [props.value] : [];
-  const selectedLabel = props.multiple
-    ? selectedValues.length > 1
+  const baseSelectedLabel =
+    props.multiple && selectedValues.length > 1
       ? `${selectedValues.length} courses`
-      : (options.find((option) => option.value === selectedValues[0])?.label ?? placeholder)
-    : (options.find((option) => option.value === props.value)?.label ?? placeholder);
-  const allOptions = [{ label: clearLabel, value: "" }, ...options];
+      : (options.find((option) => option.value === selectedValues[0])?.label ?? placeholder);
+  const selectedLabel =
+    props.unspecified?.checked && selectedValues.length && selectedValues[0] !== "Not specified"
+      ? `${baseSelectedLabel} + unspecified`
+      : baseSelectedLabel;
+  const allOptions: readonly FilterOption[] = [
+    { label: clearLabel, value: "" },
+    ...options,
+    ...(props.unspecified
+      ? [
+          {
+            label: "Include jobs where this isn’t specified",
+            value: "__unspecified",
+            count: props.unspecified.count,
+          },
+        ]
+      : []),
+  ];
+  const isOptionDisabled = (option: FilterOption) =>
+    option.count === 0 &&
+    !(option.value === "__unspecified" ? props.unspecified?.checked : selectedValues.includes(option.value));
   const selectedIndex = Math.max(
     0,
     allOptions.findIndex((option) => selectedValues.includes(option.value)),
   );
-
   useEffect(() => {
     if (!isOpen) return;
-
-    function closeOnOutsidePointer(event: PointerEvent) {
-      if (!rootRef.current?.contains(event.target as Node)) setIsOpen(false);
+    const isInside = (target: EventTarget | null) =>
+      rootRef.current?.contains(target as Node) || menuRef.current?.contains(target as Node);
+    function outside(event: PointerEvent) {
+      if (!isInside(event.target)) setIsOpen(false);
     }
-
-    function closeOnEscape(event: KeyboardEvent) {
-      if (event.key !== "Escape") return;
+    function escape(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setIsOpen(false);
+        buttonRef.current?.focus();
+      }
+    }
+    function moved(event: WheelEvent | TouchEvent) {
+      if (!isInside(event.target)) setIsOpen(false);
+    }
+    function resized() {
       setIsOpen(false);
-      buttonRef.current?.focus();
     }
-
-    function closeOnViewportChange(event: WheelEvent | TouchEvent) {
-      if (rootRef.current?.contains(event.target as Node)) return;
-      setIsOpen(false);
-    }
-
-    document.addEventListener("pointerdown", closeOnOutsidePointer);
-    document.addEventListener("keydown", closeOnEscape);
-    document.addEventListener("wheel", closeOnViewportChange, { capture: true, passive: true });
-    document.addEventListener("touchmove", closeOnViewportChange, { capture: true, passive: true });
+    document.addEventListener("pointerdown", outside);
+    document.addEventListener("keydown", escape);
+    document.addEventListener("wheel", moved, { capture: true, passive: true });
+    document.addEventListener("touchmove", moved, { capture: true, passive: true });
+    window.addEventListener("resize", resized);
     return () => {
-      document.removeEventListener("pointerdown", closeOnOutsidePointer);
-      document.removeEventListener("keydown", closeOnEscape);
-      document.removeEventListener("wheel", closeOnViewportChange, true);
-      document.removeEventListener("touchmove", closeOnViewportChange, true);
+      document.removeEventListener("pointerdown", outside);
+      document.removeEventListener("keydown", escape);
+      document.removeEventListener("wheel", moved, true);
+      document.removeEventListener("touchmove", moved, true);
+      window.removeEventListener("resize", resized);
     };
   }, [isOpen]);
-
   function openMenu(focusIndex = selectedIndex) {
     const trigger = buttonRef.current;
-    if (trigger) {
-      const triggerBounds = trigger.getBoundingClientRect();
-      const menuWidth = Math.min(260, window.innerWidth - 32);
-      const menuHeight = Math.min(allOptions.length * 43 + 16, 320);
-      const idealLeft = triggerBounds.left + triggerBounds.width / 2 - menuWidth / 2;
-      const fitsBelow = triggerBounds.bottom + 8 + menuHeight <= window.innerHeight - 16;
-      setMenuPosition({
-        left: Math.min(Math.max(16, idealLeft), window.innerWidth - menuWidth - 16),
-        top: fitsBelow ? triggerBounds.bottom + 8 : Math.max(16, triggerBounds.top - menuHeight - 8),
-        width: menuWidth,
-      });
-    }
+    if (!trigger) return;
+    const bounds = trigger.getBoundingClientRect(),
+      width = Math.min(300, window.innerWidth - 32),
+      height = Math.min(allOptions.length * 43 + 16, 320);
+    setMenuPosition({
+      left: Math.min(
+        Math.max(16, bounds.left + bounds.width / 2 - width / 2),
+        window.innerWidth - width - 16,
+      ),
+      top:
+        bounds.bottom + 8 + height <= window.innerHeight - 16
+          ? bounds.bottom + 8
+          : Math.max(16, bounds.top - height - 8),
+      width,
+    });
     setIsOpen(true);
-    requestAnimationFrame(() => optionRefs.current[focusIndex]?.focus({ preventScroll: true }));
+    const enabled = allOptions
+      .map((option, index) => (isOptionDisabled(option) ? -1 : index))
+      .filter((index) => index >= 0);
+    const target =
+      focusIndex === allOptions.length - 1
+        ? enabled.at(-1)
+        : (enabled.find((index) => index >= focusIndex) ?? enabled[0]);
+    requestAnimationFrame(() => optionRefs.current[target ?? 0]?.focus({ preventScroll: true }));
   }
-
   function navigateMenu(event: ReactKeyboardEvent<HTMLDivElement>) {
-    const currentIndex = optionRefs.current.findIndex((option) => option === document.activeElement);
-    let nextIndex = currentIndex;
-
-    if (event.key === "ArrowDown") nextIndex = Math.min(currentIndex + 1, allOptions.length - 1);
-    else if (event.key === "ArrowUp") nextIndex = Math.max(currentIndex - 1, 0);
-    else if (event.key === "Home") nextIndex = 0;
-    else if (event.key === "End") nextIndex = allOptions.length - 1;
-    else return;
-
+    const available = allOptions
+      .map((option, index) => (isOptionDisabled(option) ? -1 : index))
+      .filter((index) => index >= 0);
+    const current = optionRefs.current.findIndex((option) => option === document.activeElement),
+      position = available.indexOf(current);
+    const next =
+      event.key === "ArrowDown"
+        ? Math.min(position + 1, available.length - 1)
+        : event.key === "ArrowUp"
+          ? Math.max(position - 1, 0)
+          : event.key === "Home"
+            ? 0
+            : event.key === "End"
+              ? available.length - 1
+              : null;
+    if (next === null) return;
     event.preventDefault();
-    optionRefs.current[nextIndex]?.focus();
+    optionRefs.current[available[next]]?.focus();
   }
-
   return (
     <div
       className={`job-filter-pill${selectedValues.length ? " job-filter-pill--active" : ""}${isOpen ? " job-filter-pill--open" : ""}${className ? ` ${className}` : ""}`}
@@ -311,17 +357,11 @@ function FilterDropdown(props: SingleFilterDropdownProps | MultiFilterDropdownPr
         aria-haspopup="menu"
         aria-label={`${accessibleLabel}: ${selectedLabel}`}
         className="job-filter-pill__trigger"
-        onClick={() => {
-          if (isOpen) setIsOpen(false);
-          else openMenu();
-        }}
+        onClick={() => (isOpen ? setIsOpen(false) : openMenu())}
         onKeyDown={(event) => {
-          if (event.key === "ArrowDown") {
+          if (event.key === "ArrowDown" || event.key === "ArrowUp") {
             event.preventDefault();
-            openMenu();
-          } else if (event.key === "ArrowUp") {
-            event.preventDefault();
-            openMenu(allOptions.length - 1);
+            openMenu(event.key === "ArrowUp" ? allOptions.length - 1 : selectedIndex);
           }
         }}
         ref={buttonRef}
@@ -333,57 +373,84 @@ function FilterDropdown(props: SingleFilterDropdownProps | MultiFilterDropdownPr
           <path d="m1 1.5 5 5 5-5" />
         </svg>
       </button>
-      {isOpen ? (
-        <div
-          aria-label={accessibleLabel}
-          className="job-filter-menu"
-          id={menuId}
-          onKeyDown={navigateMenu}
-          role="menu"
-          style={menuPosition}
-        >
-          {allOptions.map((option, index) => (
-            <button
-              aria-checked={
-                props.multiple && !option.value
-                  ? undefined
+      {isOpen
+        ? createPortal(
+            <div
+              aria-label={accessibleLabel}
+              className="job-filter-menu"
+              id={menuId}
+              onKeyDown={navigateMenu}
+              ref={menuRef}
+              role="menu"
+              style={menuPosition}
+            >
+              {allOptions.map((option, index) => {
+                const unknown = option.value === "__unspecified";
+                const checked = unknown
+                  ? props.unspecified?.checked
                   : option.value
                     ? selectedValues.includes(option.value)
-                    : selectedValues.length === 0
-              }
-              className="job-filter-menu__option"
-              key={option.value}
-              onClick={() => {
-                if (props.multiple) {
-                  props.onChange(
-                    option.value
-                      ? selectedValues.includes(option.value)
-                        ? selectedValues.filter((value) => value !== option.value)
-                        : [...selectedValues, option.value]
-                      : [],
-                  );
-                } else {
-                  props.onChange(option.value);
-                  setIsOpen(false);
-                  buttonRef.current?.focus();
-                }
-              }}
-              ref={(element) => {
-                optionRefs.current[index] = element;
-              }}
-              role={props.multiple ? (option.value ? "menuitemcheckbox" : "menuitem") : "menuitemradio"}
-              type="button"
-            >
-              <span>{option.label}</span>
-              {(option.value ? selectedValues.includes(option.value) : !props.multiple) ? (
-                <svg aria-hidden="true" viewBox="0 0 16 16">
-                  <path d="m3 8 3 3 7-7" />
-                </svg>
-              ) : null}
-            </button>
-          ))}
-        </div>
-      ) : null}
+                    : selectedValues.length === 0;
+                return (
+                  <button
+                    aria-checked={props.multiple && !option.value ? undefined : checked}
+                    className={`job-filter-menu__option${unknown ? " job-filter-menu__option--unspecified" : ""}`}
+                    disabled={isOptionDisabled(option)}
+                    key={option.value}
+                    onClick={() => {
+                      if (unknown) {
+                        props.unspecified?.onChange(!props.unspecified.checked);
+                        return;
+                      }
+                      if (props.multiple)
+                        props.onChange(
+                          option.value
+                            ? selectedValues.includes(option.value)
+                              ? selectedValues.filter((value) => value !== option.value)
+                              : [...selectedValues, option.value]
+                            : [],
+                        );
+                      else {
+                        props.onChange(option.value);
+                        setIsOpen(false);
+                        buttonRef.current?.focus();
+                      }
+                    }}
+                    ref={(element) => {
+                      optionRefs.current[index] = element;
+                    }}
+                    role={
+                      unknown
+                        ? "menuitemcheckbox"
+                        : props.multiple
+                          ? option.value
+                            ? "menuitemcheckbox"
+                            : "menuitem"
+                          : "menuitemradio"
+                    }
+                    type="button"
+                  >
+                    {accessibleLabel === "Sector" && option.value ? (
+                      <SectorIcon title={option.label} />
+                    ) : null}
+                    <span className="job-filter-menu__label">{option.label}</span>
+                    {option.count !== undefined ? (
+                      <span className="job-filter-menu__count" aria-label={`${option.count} jobs`}>
+                        {option.count}
+                      </span>
+                    ) : null}
+                    {checked ? (
+                      <svg aria-hidden="true" viewBox="0 0 16 16">
+                        <path d="m3 8 3 3 7-7" />
+                      </svg>
+                    ) : null}
+                  </button>
+                );
+              })}
+            </div>,
+            document.body,
+          )
+        : null}
     </div>
   );
 }
@@ -517,12 +584,15 @@ export function JobBrowser({
     const availableCourseSlugs = new Set(courses.map((course) => course.slug));
     return (initialFilters.courseSlugs ?? []).filter((slug) => availableCourseSlugs.has(slug));
   });
+  const [includeUnspecified, setIncludeUnspecified] = useState<readonly SparseJobField[]>(
+    initialFilters.includeUnspecified ?? [],
+  );
   const [minimumSalary, setMinimumSalary] = useState(initialFilters.minimumSalary ?? 0);
   const [sortOrder, setSortOrder] = useState<JobSortOrder>(initialFilters.sortOrder ?? "relevance");
   const [currentPage, setCurrentPage] = useState(initialPage);
   const filterBarRef = useRef<HTMLDivElement>(null);
   const filterPillsRef = useRef<HTMLDivElement>(null);
-  const filteredJobs = filterJobs(jobs, {
+  const filterValues = {
     category,
     contractType,
     courseSlugs,
@@ -532,18 +602,41 @@ export function JobBrowser({
     locationType,
     minimumSalary,
     query,
-  }).toSorted((left, right) => {
+    includeUnspecified,
+  };
+  const filteredJobs = filterJobs(jobs, filterValues).toSorted((left, right) => {
+    const unknownOrder =
+      unspecifiedMatchCount(left, filterValues) - unspecifiedMatchCount(right, filterValues);
+    if (unknownOrder) return unknownOrder;
     if (sortOrder === "newest") return right.postedAt.localeCompare(left.postedAt);
     if (sortOrder === "closing") {
+      if (!left.closesAt && !right.closesAt) return 0;
       if (!left.closesAt) return 1;
       if (!right.closesAt) return -1;
       return left.closesAt.localeCompare(right.closesAt);
     }
     return 0;
   });
-  const filteredOrganisationCount = new Set(filteredJobs.map((job) => job.employerSlug ?? job.organisation))
-    .size;
+  const filteredOrganisationCount = new Set(filteredJobs.map((job) => job.organisation)).size;
   const categories = jobCategories(jobs);
+  const workplaceContext = filterJobs(jobs, { ...filterValues, locationType: "" });
+  const hoursContext = filterJobs(jobs, { ...filterValues, employmentType: "" });
+  const contractContext = filterJobs(jobs, { ...filterValues, contractType: "" });
+  const salaryContext = filterJobs(jobs, { ...filterValues, minimumSalary: 0 });
+  const sectorContext = filterJobs(jobs, { ...filterValues, category: "" });
+  const opportunityContext = filterJobs(jobs, { ...filterValues, engagementType: "" });
+  const orderedCourses = rankCourseFilters(courses, filterJobs(jobs, { ...filterValues, courseSlugs: [] }));
+  const unknownOption = (field: SparseJobField, items: readonly Job[]) => ({
+    checked: includeUnspecified.includes(field),
+    count: items.filter((job) => isJobFieldUnspecified(job, field)).length,
+    onChange: (checked: boolean) => {
+      const next = checked
+        ? [...includeUnspecified, field]
+        : includeUnspecified.filter((item) => item !== field);
+      setIncludeUnspecified(next);
+      syncUrl(currentFilters({ includeUnspecified: next }));
+    },
+  });
   const contractTypes = [
     ...new Set(jobs.flatMap((job) => (job.contractType ? [job.contractType] : []))),
   ].toSorted();
@@ -561,7 +654,8 @@ export function JobBrowser({
     contractType ||
     category ||
     courseSlugs.length ||
-    minimumSalary,
+    minimumSalary ||
+    includeUnspecified.length,
   );
   const selectedCourses = courseSlugs.flatMap((slug) => {
     const course = courseBySlug(courses, slug);
@@ -647,7 +741,8 @@ export function JobBrowser({
     if (filters.engagementType) params.set("opportunity", filters.engagementType);
     if (filters.employmentType) params.set("type", filters.employmentType);
     if (filters.contractType) params.set("contract", filters.contractType);
-    if (filters.category) params.set("category", filters.category);
+    if (filters.category) params.set("sector", filters.category);
+    filters.includeUnspecified.forEach((field) => params.append("include_unknown", field));
     filters.courseSlugs.forEach((slug) => params.append("course", slug));
     if (filters.minimumSalary) params.set("salary", String(filters.minimumSalary));
     if (filters.sortOrder !== "relevance") params.set("sort", filters.sortOrder);
@@ -676,6 +771,7 @@ export function JobBrowser({
       minimumSalary,
       query,
       sortOrder,
+      includeUnspecified,
       ...overrides,
     };
   }
@@ -690,6 +786,7 @@ export function JobBrowser({
     setCategory("");
     setCourseSlugs([]);
     setMinimumSalary(0);
+    setIncludeUnspecified([]);
     syncUrl({
       category: "",
       contractType: "",
@@ -699,6 +796,7 @@ export function JobBrowser({
       locationQuery: "",
       locationType: "",
       minimumSalary: 0,
+      includeUnspecified: [],
       query: "",
       sortOrder,
     });
@@ -794,7 +892,11 @@ export function JobBrowser({
                   setCourseSlugs(values);
                   syncUrl(currentFilters({ courseSlugs: values }));
                 }}
-                options={courses.map((course) => ({ label: course.shortTitle, value: course.slug }))}
+                options={orderedCourses.map((course) => ({
+                  label: course.shortTitle,
+                  value: course.slug,
+                  count: course.count,
+                }))}
                 placeholder="Related courses"
                 value={courseSlugs}
               />
@@ -811,7 +913,7 @@ export function JobBrowser({
               }}
               options={[
                 { label: "Newest first", value: "newest" },
-                { label: "Closing soon", value: "closing" },
+                ...(jobs.some((job) => job.closesAt) ? [{ label: "Closing soon", value: "closing" }] : []),
               ]}
               placeholder="Recommended"
               value={sortOrder === "relevance" ? "" : sortOrder}
@@ -826,8 +928,16 @@ export function JobBrowser({
                 syncUrl(currentFilters({ engagementType: nextValue }));
               }}
               options={[
-                { label: "Paid", value: "Paid" },
-                { label: "Volunteer", value: "Volunteer" },
+                {
+                  label: "Paid",
+                  value: "Paid",
+                  count: opportunityContext.filter((job) => job.engagementType === "Paid").length,
+                },
+                {
+                  label: "Volunteer",
+                  value: "Volunteer",
+                  count: opportunityContext.filter((job) => job.engagementType === "Volunteer").length,
+                },
               ]}
               placeholder="Opportunity"
               value={engagementType}
@@ -841,7 +951,12 @@ export function JobBrowser({
                 setLocationType(nextValue);
                 syncUrl(currentFilters({ locationType: nextValue }));
               }}
-              options={locationTypes.map((value) => ({ label: value, value }))}
+              options={locationTypes.map((value) => ({
+                label: value,
+                value,
+                count: workplaceContext.filter((job) => job.locationType === value).length,
+              }))}
+              unspecified={unknownOption("workplace", workplaceContext)}
               placeholder="Work location"
               value={locationType}
             />
@@ -853,7 +968,12 @@ export function JobBrowser({
                 setContractType(value);
                 syncUrl(currentFilters({ contractType: value }));
               }}
-              options={contractTypes.map((value) => ({ label: value, value }))}
+              options={contractTypes.map((value) => ({
+                label: value,
+                value,
+                count: contractContext.filter((job) => job.contractType === value).length,
+              }))}
+              unspecified={unknownOption("contract", contractContext)}
               placeholder="Contract type"
               value={contractType}
             />
@@ -867,23 +987,48 @@ export function JobBrowser({
                 syncUrl(currentFilters({ employmentType: nextValue }));
               }}
               options={[
-                { label: "Full time", value: "Full time" },
-                { label: "Part time", value: "Part time" },
-                { label: "Flexible", value: "Flexible" },
+                {
+                  label: "Full time",
+                  value: "Full time",
+                  count: hoursContext.filter((job) =>
+                    [job.employmentType, job.hoursType, ...(job.hoursTypes ?? [])].includes("Full time"),
+                  ).length,
+                },
+                {
+                  label: "Part time",
+                  value: "Part time",
+                  count: hoursContext.filter((job) =>
+                    [job.employmentType, job.hoursType, ...(job.hoursTypes ?? [])].includes("Part time"),
+                  ).length,
+                },
+                {
+                  label: "Flexible",
+                  value: "Flexible",
+                  count: hoursContext.filter((job) =>
+                    [job.employmentType, job.hoursType, ...(job.hoursTypes ?? [])].includes("Flexible"),
+                  ).length,
+                },
               ]}
+              unspecified={unknownOption("hours", hoursContext)}
               placeholder="Working hours"
               value={employmentType}
             />
             <FilterDropdown
-              accessibleLabel="Category"
-              clearLabel="Any category"
+              accessibleLabel="Sector"
+              clearLabel="Any sector"
               icon="leaf"
               onChange={(value) => {
                 setCategory(value);
                 syncUrl(currentFilters({ category: value }));
               }}
-              options={categories.map((value) => ({ label: value, value }))}
-              placeholder="Category"
+              options={categories.map((value) => ({
+                label: value,
+                value,
+                count: sectorContext.filter(
+                  (job) => job.category === value || job.careerAreas?.includes(value),
+                ).length,
+              }))}
+              placeholder="Sector"
               value={category}
             />
             <FilterDropdown
@@ -896,12 +1041,33 @@ export function JobBrowser({
                 syncUrl(currentFilters({ minimumSalary: nextValue }));
               }}
               options={[
-                { label: "£20,000+", value: "20000" },
-                { label: "£25,000+", value: "25000" },
-                { label: "£30,000+", value: "30000" },
-                { label: "£40,000+", value: "40000" },
-                { label: "£50,000+", value: "50000" },
+                {
+                  label: "£20,000+",
+                  value: "20000",
+                  count: salaryContext.filter((job) => (job.salaryMinimum ?? 0) >= 20000).length,
+                },
+                {
+                  label: "£25,000+",
+                  value: "25000",
+                  count: salaryContext.filter((job) => (job.salaryMinimum ?? 0) >= 25000).length,
+                },
+                {
+                  label: "£30,000+",
+                  value: "30000",
+                  count: salaryContext.filter((job) => (job.salaryMinimum ?? 0) >= 30000).length,
+                },
+                {
+                  label: "£40,000+",
+                  value: "40000",
+                  count: salaryContext.filter((job) => (job.salaryMinimum ?? 0) >= 40000).length,
+                },
+                {
+                  label: "£50,000+",
+                  value: "50000",
+                  count: salaryContext.filter((job) => (job.salaryMinimum ?? 0) >= 50000).length,
+                },
               ]}
+              unspecified={unknownOption("salary", salaryContext)}
               placeholder="Minimum salary"
               value={minimumSalary ? String(minimumSalary) : ""}
             />
@@ -940,7 +1106,9 @@ export function JobBrowser({
                   }}
                   options={[
                     { label: "Newest first", value: "newest" },
-                    { label: "Closing soon", value: "closing" },
+                    ...(jobs.some((job) => job.closesAt)
+                      ? [{ label: "Closing soon", value: "closing" }]
+                      : []),
                   ]}
                   placeholder="Recommended"
                   value={sortOrder === "relevance" ? "" : sortOrder}

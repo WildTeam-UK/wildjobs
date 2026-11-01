@@ -119,13 +119,7 @@ export function JobCard({
               )}
             </h2>
           ) : null}
-          <p className="job-card__organisation">
-            {job.employerSlug ? (
-              <Link href={`/employers/${job.employerSlug}`}>{job.organisation}</Link>
-            ) : (
-              job.organisation
-            )}
-          </p>
+          <p className="job-card__organisation">{job.organisation}</p>
           {!compact ? (
             <div className="job-card__topline">
               <span>{job.category}</span>
@@ -192,9 +186,7 @@ export function JobCard({
                 </li>
               ))}
             </ul>
-            {!hasRelatedCourses ? (
-              <p className="job-card__posted job-card__posted--desktop">{postedLabel}</p>
-            ) : null}
+            {!hasRelatedCourses ? <p className="job-card__posted">{postedLabel}</p> : null}
           </div>
         </>
       ) : (
@@ -245,10 +237,10 @@ export function JobCard({
               </span>
             </span>
           </div>
-          {compact ? <p className="job-card__posted job-card__posted--desktop">{postedLabel}</p> : null}
+          {compact ? <p className="job-card__posted">{postedLabel}</p> : null}
         </div>
       ) : null}
-      {compact ? (
+      {compact && statusPills.length ? (
         <div className="job-card__mobile-footer">
           {statusPills.length ? (
             <div className="job-card__notice-carousel" aria-label="Job notices">
@@ -262,7 +254,6 @@ export function JobCard({
               ))}
             </div>
           ) : null}
-          <p className="job-card__posted job-card__posted--mobile">{postedLabel}</p>
         </div>
       ) : null}
       {!compact ? (
