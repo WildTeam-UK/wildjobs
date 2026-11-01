@@ -70,6 +70,9 @@ describe("vacancy page extraction", () => {
       resolutionStatus: "extracted",
       value: "£31,000",
     });
+    expect(result.evidenceText).toContain("Advertised location: Bristol, City of Bristol, BS1 5AH, GB");
+    expect(result.evidenceText).toContain("Advertised country code: GB");
+    expect(result.evidenceText).toContain("Advertised salary:");
     expect(result.evidence.find((item) => item.fieldName === "workplace_type")).toMatchObject({
       value: "hybrid",
     });

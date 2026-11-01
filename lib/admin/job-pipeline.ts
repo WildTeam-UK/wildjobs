@@ -261,7 +261,7 @@ async function verifyRecord(client: Client, task: Task) {
     }
   }
   const hash = contentHash({
-    text: page.detailText,
+    text: page.evidenceText,
     applicationUrl,
     title: page.title ?? r.source_title,
     employerId,
@@ -282,13 +282,14 @@ async function verifyRecord(client: Client, task: Task) {
   const { data: updated, error: recordError } = await client
     .from("job_source_records")
     .update({
-      detail_text: page.detailText,
+      detail_text: page.evidenceText,
       detail_content_hash: hash,
       detail_fetched_at: now,
       verified_at: now,
       last_http_status: 200,
       employer_id: employerId,
       employer_name: name,
+      source_title: page.title ?? r.source_title,
       employer_website_url: page.employerWebsiteUrl ?? r.employer_website_url,
       source_revision: revision,
       closes_at: closesAt,
