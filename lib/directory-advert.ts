@@ -1,43 +1,14 @@
-import { cleanText } from "./directory-feed";
+import { plainText } from "./directory-text";
+import { fetchPublicText } from "./directory-http";
+import { canonicalUrl, publicUrl } from "./directory-url";
+import { normaliseSalary } from "./directory-feed";
 import { closingDate } from "./directory-lifecycle";
 
-function plainText(html: string) {
-  const named: Record<string, string> = {
-    amp: "&",
-    quot: '"',
-    apos: "'",
-    lt: "<",
-    gt: ">",
-    nbsp: " ",
-    rsquo: "’",
-    lsquo: "‘",
-    rdquo: "”",
-    ldquo: "“",
-    ndash: "–",
-    mdash: "—",
-    pound: "£",
-    bull: "•",
-  };
-  return cleanText(
-    html
-      .replace(/<\/(?:p|li|h[1-6]|div)>|<br\s*\/?\s*>/gi, "\n")
-      .replace(/&(#x[\da-f]+|#\d+|\w+);/gi, (whole, code: string) =>
-        code.startsWith("#")
-          ? String.fromCodePoint(
-              Number.parseInt(
-                code.slice(code[1]?.toLowerCase() === "x" ? 2 : 1),
-                code[1]?.toLowerCase() === "x" ? 16 : 10,
-              ),
-            )
-          : (named[code.toLowerCase()] ?? whole),
-      ),
-  );
-}
 type JsonRecord = Record<string, unknown>;
 function record(value: unknown): JsonRecord {
   return value && typeof value === "object" && !Array.isArray(value) ? (value as JsonRecord) : {};
 }
-export function parseAdvert(html: string) {
+export function parseAdvert(html: string, pageUrl?: string) {
   const objects: JsonRecord[] = [];
   function collect(value: unknown) {
     if (Array.isArray(value)) value.forEach(collect);
@@ -75,7 +46,7 @@ export function parseAdvert(html: string) {
   const preferredLogo = logoStem
     ? sourceImages.find((src) => src?.startsWith(logoStem) && src.includes("_large."))
     : undefined;
-  const logoUrl = (preferredLogo ?? logo).startsWith("https://") ? (preferredLogo ?? logo) : undefined;
+  const logoUrl = preferredLogo ?? logo;
   const types = (Array.isArray(job.employmentType) ? job.employmentType : [job.employmentType]).map((t) =>
     String(t).toUpperCase(),
   );
@@ -104,14 +75,51 @@ export function parseAdvert(html: string) {
             )
           ? "On-site"
           : null;
-  const country = String(address.addressCountry ?? "");
+  const country = String(
+    typeof address.addressCountry === "object"
+      ? (record(address.addressCountry).name ?? "")
+      : (address.addressCountry ?? ""),
+  );
   const countryCode =
     ({ "United Kingdom": "GB", UK: "GB", Romania: "RO", "Falkland Islands": "FK" } as Record<string, string>)[
       country
     ] ?? (/^[A-Z]{2}$/.test(country) ? country : null);
+  const safeUrl = (value: string) => {
+    try {
+      return publicUrl(value, pageUrl).toString();
+    } catch {
+      return undefined;
+    }
+  };
+  const locationText = [address.addressLocality, address.addressRegion, countryCode ?? country]
+    .filter(Boolean)
+    .map(String)
+    .filter((x, i, xs) => xs.indexOf(x) === i)
+    .join(", ");
+  const baseSalary = record(job.baseSalary),
+    amount = record(baseSalary.value);
+  const currency = String(baseSalary.currency ?? job.salaryCurrency ?? ""),
+    symbol = ({ GBP: "£", EUR: "€", USD: "$" } as Record<string, string>)[currency];
+  const low =
+      amount.minValue ?? amount.value ?? (typeof baseSalary.value === "number" ? baseSalary.value : null),
+    high = amount.maxValue;
+  const unit = String(amount.unitText ?? "YEAR").toLowerCase();
+  const salary =
+    symbol && low !== null && low !== undefined
+      ? normaliseSalary(`${symbol}${low}${high !== undefined ? ` - ${symbol}${high}` : ""} per ${unit}`)
+      : null;
+  let canonical: string | undefined;
+  try {
+    if (job.url) canonical = canonicalUrl(String(job.url), pageUrl);
+  } catch {}
   return {
+    title: plainText(String(job.title ?? "")),
+    organisationName: plainText(String(organisation.name ?? "")),
+    locationText,
+    salary,
+    canonicalUrl: canonical,
     description,
-    logoUrl,
+    logoUrl: logoUrl ? safeUrl(logoUrl) : undefined,
     hours,
     contract,
     workplace,
@@ -119,16 +127,30 @@ export function parseAdvert(html: string) {
     closesAt: closingDate(job.validThrough),
   };
 }
+export function advertPage(html: string, pageUrl: string) {
+  const structured = parseAdvert(html, pageUrl);
+  const main =
+    html.match(/<(?:main|article)\b[^>]*>([\s\S]*?)<\/(?:main|article)>/i)?.[1] ??
+    html.match(/<body\b[^>]*>([\s\S]*?)<\/body>/i)?.[1] ??
+    html;
+  const description =
+    structured?.description ||
+    plainText(main.replace(/<(script|style|nav|header|footer|aside|noscript)\b[^>]*>[\s\S]*?<\/\1>/gi, ""));
+  const logoCandidates = [...html.matchAll(/<img\b[^>]*>/gi)]
+    .flatMap((m) => {
+      const src = m[0].match(/\bsrc\s*=\s*["']([^"']+)["']/i)?.[1],
+        alt = plainText(m[0].match(/\balt\s*=\s*["']([^"']*)["']/i)?.[1] ?? "");
+      if (!src || !/logo|employer|company|organisation/i.test(m[0])) return [];
+      try {
+        return [{ url: publicUrl(src, pageUrl).toString(), alt }];
+      } catch {
+        return [];
+      }
+    })
+    .slice(0, 12);
+  return { ...structured, description, logoCandidates };
+}
 export async function fetchAdvert(sourceUrl: string) {
-  const url = new URL(sourceUrl);
-  if (url.protocol !== "https:" || !/^(www\.)?environmentjob\.co\.uk$/.test(url.hostname))
-    throw new Error("Unexpected advert host");
-  const response = await fetch(url, {
-    cache: "no-store",
-    redirect: "error",
-    signal: AbortSignal.timeout(8000),
-    headers: { "User-Agent": "WildJobs/1.0 (WildTeam job directory)" },
-  });
-  if (!response.ok) throw new Error(`Advert HTTP ${response.status}`);
-  return parseAdvert(await response.text());
+  const page = await fetchPublicText(sourceUrl);
+  return advertPage(page.text, page.url);
 }

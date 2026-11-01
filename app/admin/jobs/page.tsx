@@ -6,6 +6,7 @@ export default async function JobsAdmin() {
   const { data, error } = await createTrustedClient()
     .from("directory_jobs")
     .select("*")
+    .is("merged_into", null)
     .order("posted_at", { ascending: false })
     .limit(1000);
   if (error) throw new Error("Jobs could not be loaded.");
@@ -32,6 +33,7 @@ export default async function JobsAdmin() {
             <p>
               {j.location_text} · {j.salary_text} · {j.workplace}
             </p>
+            <p>Source: {j.source_name}</p>
             <p>Sectors: {j.sector_slugs.join(", ") || "Awaiting AI"}</p>
             <p>Courses: {j.course_slugs.join(", ") || "None"}</p>
             <p>

@@ -1,5 +1,5 @@
-import { describe, it, expect, vi, afterEach } from "vitest";
-import { parseAdvert, fetchAdvert } from "../lib/directory-advert";
+import { describe, it, expect, vi } from "vitest";
+import { parseAdvert, fetchAdvert, advertPage } from "../lib/directory-advert";
 const page = (job: Record<string, unknown>, extra = "") =>
   `<script type='application/ld+json'>${JSON.stringify({ "@type": "JobPosting", ...job })}</script>${extra}`;
 describe("EnvironmentJob advert", () => {
@@ -11,10 +11,10 @@ describe("EnvironmentJob advert", () => {
             "<p>A full-time role on a fixed-term contract, with hybrid working.</p><p>Write trusts &amp; foundations applications. We&#39;re supporting nature.</p>",
           employmentType: ["FULL_TIME", "PART_TIME"],
           validThrough: "2026-11-08T23:55:00Z",
-          hiringOrganization: { logo: "https://example.test/trust_open_graph.jpg" },
+          hiringOrganization: { logo: "https://assets.example.org/trust_open_graph.jpg" },
           jobLocation: { address: { addressCountry: "United Kingdom" } },
         },
-        '<img src="https://example.test/trust_large.jpg" alt="Example Trust">',
+        '<img src="https://assets.example.org/trust_large.jpg" alt="Example Trust">',
       ),
     );
     expect(result).toMatchObject({
@@ -25,7 +25,7 @@ describe("EnvironmentJob advert", () => {
       contract: "Fixed term",
       workplace: "Hybrid",
       countryCode: "GB",
-      logoUrl: "https://example.test/trust_large.jpg",
+      logoUrl: "https://assets.example.org/trust_large.jpg",
     });
   });
   it("reads JobPosting from a graph and leaves missing facts unknown", () => {
@@ -54,15 +54,50 @@ describe("EnvironmentJob advert", () => {
       parseAdvert(page({ hiringOrganization: { logo: "javascript:alert(1)" } }))?.logoUrl,
     ).toBeUndefined());
 });
-afterEach(() => vi.unstubAllGlobals());
-it("fetches only the linked EnvironmentJob advert", async () => {
-  const fetch = vi
-    .fn()
-    .mockResolvedValue(new Response(page({ description: "Coordinate a wildlife project." })));
-  vi.stubGlobal("fetch", fetch);
-  expect((await fetchAdvert("https://environmentjob.co.uk/jobs/1-example"))?.description).toBe(
+vi.mock("../lib/directory-http", () => ({ fetchPublicText: vi.fn() }));
+it("uses the shared public-web reader for another source's advert", async () => {
+  const { fetchPublicText } = await import("../lib/directory-http");
+  vi.mocked(fetchPublicText).mockResolvedValue({
+    text: page({ description: "Coordinate a wildlife project." }),
+    url: "https://jobs.example.org/1",
+  });
+  expect((await fetchAdvert("https://jobs.example.org/1")).description).toBe(
     "Coordinate a wildlife project.",
   );
-  await expect(fetchAdvert("https://example.test/jobs/1-example")).rejects.toThrow("Unexpected advert host");
-  expect(fetch).toHaveBeenCalledTimes(1);
+  expect(fetchPublicText).toHaveBeenCalledWith("https://jobs.example.org/1");
+});
+it("reads structured employer, searchable place, pay and canonical job URL", () => {
+  expect(
+    parseAdvert(
+      page({
+        title: "Ecologist",
+        hiringOrganization: { name: "Nature Trust", logo: "/logo.png" },
+        jobLocation: {
+          address: {
+            addressLocality: "Exeter",
+            addressRegion: "Devon",
+            addressCountry: { name: "United Kingdom" },
+          },
+        },
+        baseSalary: { currency: "GBP", value: { minValue: 30000, maxValue: 35000, unitText: "YEAR" } },
+        url: "/job/123?utm_source=rss",
+      }),
+      "https://jobs.example.org/123",
+    ),
+  ).toMatchObject({
+    title: "Ecologist",
+    organisationName: "Nature Trust",
+    locationText: "Exeter, Devon, GB",
+    salary: "£30,000 – £35,000 per year",
+    logoUrl: "https://jobs.example.org/logo.png",
+    canonicalUrl: "https://jobs.example.org/job/123",
+  });
+});
+it("uses the advert body when JobPosting metadata is absent", () => {
+  const result = advertPage(
+    '<body><nav>Other vacancies</nav><main><h1>Ecologist</h1><p>Survey woodland and advise landowners.</p><img class="employer-logo" src="/trust.png" alt="Nature Trust"></main><footer>Subscribe</footer></body>',
+    "https://jobs.example.org/job/123",
+  );
+  expect(result.description).toBe("Ecologist Survey woodland and advise landowners.");
+  expect(result.logoCandidates).toEqual([{ url: "https://jobs.example.org/trust.png", alt: "Nature Trust" }]);
 });

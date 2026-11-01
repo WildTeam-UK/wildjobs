@@ -286,8 +286,84 @@ export type Database = {
         };
         Relationships: [];
       };
+      directory_sources: {
+        Row: {
+          id: number;
+          name: string;
+          feed_url: string;
+          enabled: boolean;
+          removed_at: string | null;
+          next_feed_at: string;
+          last_feed_at: string | null;
+          last_error: string | null;
+          last_seen_count: number;
+          created_at: string;
+        };
+        Insert: {
+          id?: number;
+          name: string;
+          feed_url: string;
+          enabled?: boolean;
+          removed_at?: string | null;
+          next_feed_at?: string;
+          last_feed_at?: string | null;
+          last_error?: string | null;
+          last_seen_count?: number;
+          created_at?: string;
+        };
+        Update: {
+          id?: number;
+          name?: string;
+          feed_url?: string;
+          enabled?: boolean;
+          removed_at?: string | null;
+          next_feed_at?: string;
+          last_feed_at?: string | null;
+          last_error?: string | null;
+          last_seen_count?: number;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
+      directory_source_jobs: {
+        Row: {
+          source_id: number;
+          external_id: string;
+          job_id: number;
+          content_hash: string;
+          payload: Json;
+          is_present: boolean;
+          last_seen_at: string;
+        };
+        Insert: {
+          source_id: number;
+          external_id: string;
+          job_id: number;
+          content_hash: string;
+          payload: Json;
+          is_present?: boolean;
+          last_seen_at?: string;
+        };
+        Update: {
+          source_id?: number;
+          external_id?: string;
+          job_id?: number;
+          content_hash?: string;
+          payload?: Json;
+          is_present?: boolean;
+          last_seen_at?: string;
+        };
+        Relationships: [];
+      };
       directory_jobs: {
         Row: {
+          primary_source_id: number | null;
+          primary_external_id: string | null;
+          source_name: string;
+          canonical_url: string | null;
+          identity_key: string | null;
+          merged_into: number | null;
+
           closes_at: string | null;
           contract_type: string | null;
           country_code: string | null;
@@ -319,6 +395,13 @@ export type Database = {
           workplace: string;
         };
         Insert: {
+          primary_source_id?: number | null;
+          primary_external_id?: string | null;
+          source_name?: string;
+          canonical_url?: string | null;
+          identity_key?: string | null;
+          merged_into?: number | null;
+
           closes_at?: string | null;
           contract_type?: string | null;
           country_code?: string | null;
@@ -350,6 +433,13 @@ export type Database = {
           workplace?: string;
         };
         Update: {
+          primary_source_id?: number | null;
+          primary_external_id?: string | null;
+          source_name?: string;
+          canonical_url?: string | null;
+          identity_key?: string | null;
+          merged_into?: number | null;
+
           closes_at?: string | null;
           contract_type?: string | null;
           country_code?: string | null;
@@ -528,6 +618,28 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
+      directory_card_counts: { Args: Record<PropertyKey, never>; Returns: Json };
+      finish_directory_run: {
+        Args: { p_run_id: number; p_stats: Json; p_error?: string | null };
+        Returns: undefined;
+      };
+      import_directory_feed: {
+        Args: { p_source_id: number; p_feed_url: string; p_items: Json };
+        Returns: Json;
+      };
+      apply_directory_job: {
+        Args: { p_job_id: number; p_feed_hash: string; p_fields: Json; p_ai?: boolean };
+        Returns: Json;
+      };
+      manage_directory_source: {
+        Args: { p_action: string; p_id?: number | null; p_url?: string | null; p_name?: string | null };
+        Returns: number;
+      };
+      directory_pending_jobs: {
+        Args: Record<PropertyKey, never>;
+        Returns: Database["public"]["Tables"]["directory_jobs"]["Row"][];
+      };
+
       claim_directory_run: { Args: { p_force?: boolean }; Returns: boolean };
       replace_candidate_preferences: {
         Args: {

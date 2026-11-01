@@ -3,14 +3,8 @@ import { XMLParser, XMLValidator } from "fast-xml-parser";
 import { closingDate, directoryFacts } from "./directory-lifecycle";
 
 export const FEED_URL = "https://environmentjob.co.uk/jobs.rss";
-export function cleanText(value: unknown): string {
-  return String(value ?? "")
-    .replace(/<[^>]*>/g, " ")
-    .replace(/&nbsp;/g, " ")
-    .replace(/&amp;/g, "&")
-    .replace(/\s+/g, " ")
-    .trim();
-}
+export { cleanText } from "./directory-text";
+import { cleanText } from "./directory-text";
 export function normaliseSalary(value: string): string {
   const annualBands = value.split(/\b(?:pa|per annum|per year)\s*\/\s*(?=[£€$])/i);
   if (annualBands.length > 1) return annualBands.map(normaliseSalary).join(" / ");
@@ -93,9 +87,7 @@ export function parseFeed(xml: string, now = new Date(), organisationNames: read
       ? "Hybrid"
       : /\bremote\b|home[ -]based|work(?:ing)? from home|home working/i.test(prefix)
         ? "Remote"
-        : /\bon[ -]site\b|office[ -]based/i.test(prefix)
-          ? "On-site"
-          : "On-site";
+        : "On-site";
     const date = new Date(String(item.pubDate));
     const feed_id = String(item.guid ?? source.toString());
     const closesAt = closingDate(item.closingDate ?? item.validThrough);
