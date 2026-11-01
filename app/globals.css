@@ -994,11 +994,28 @@ select {
   width: 60%;
   max-width: 700px;
   margin: 0 auto 56px;
-  color: var(--wt-color-muted);
+  color: var(--wt-color-surface-charcoal);
   font-size: clamp(1rem, 1.6vw, 1.22rem);
-  font-weight: var(--wt-font-weight-bold);
+  font-weight: var(--wt-font-weight-regular);
   line-height: 1.55;
   text-align: center;
+}
+.job-search-hero__highlight {
+  color: var(--wt-color-brand-purple);
+  font-weight: var(--wt-font-weight-bold);
+}
+@supports ((background-clip: text) or (-webkit-background-clip: text)) {
+  .job-search-hero__highlight {
+    background: linear-gradient(
+      90deg,
+      var(--wt-color-brand-purple),
+      var(--wt-color-brand-gradient-middle),
+      var(--wt-color-brand-pink)
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
 }
 .job-search-hero__emoji-cluster {
   display: inline-flex;
@@ -6309,7 +6326,8 @@ select {
 }
 
 @media (forced-colors: active) {
-  .job-search-hero h1 {
+  .job-search-hero h1,
+  .job-search-hero__highlight {
     background: none;
     color: CanvasText;
   }

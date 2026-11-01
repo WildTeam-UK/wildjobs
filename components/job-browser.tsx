@@ -734,8 +734,8 @@ export function JobBrowser({
             <div className="job-search-hero__intro-content">
               <h1 id="jobs-page-heading">Do work that matters.</h1>
               <p className="job-search-hero__description">
-                Discover your next meaningful career protecting wildlife, restoring nature and creating a
-                better future for our planet.{" "}
+                Discover your next <strong className="job-search-hero__highlight">meaningful career</strong>{" "}
+                protecting wildlife, restoring nature and creating a better future for our planet.{" "}
                 <span aria-hidden="true" className="job-search-hero__emoji-cluster">
                   <span className="job-search-hero__emoji">{heroEmojis.discovery}</span>
                   <span className="job-search-hero__emoji">{heroEmojis.wildlife}</span>
