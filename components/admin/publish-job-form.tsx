@@ -6,7 +6,11 @@ import { SubmitButton } from "@/components/submit-button";
 
 export function PublishJobForm({ action }: { action: () => Promise<void> }) {
   function confirmPublication(event: FormEvent<HTMLFormElement>) {
-    if (!window.confirm("Publish this vacancy and its employer to the live catalogue?")) {
+    if (
+      !window.confirm(
+        "Publish this reviewed vacancy brief to the live catalogue? Employer profiles are maintained separately.",
+      )
+    ) {
       event.preventDefault();
     }
   }

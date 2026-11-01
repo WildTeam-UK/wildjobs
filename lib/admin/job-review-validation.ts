@@ -9,7 +9,7 @@ import {
 type JobReviewInput = {
   applicationUrl: string;
   canonicalUrl: string;
-  closesAt: string;
+  closesAt: string | null;
   contractType: (typeof contractTypes)[number] | null;
   countryCode: string;
   description: string;
@@ -90,16 +90,18 @@ export function validateJobReview(
   const closesAt = textValue(formData, "closesAt");
 
   if (!isHttpsUrl(canonicalUrl)) return { error: "Enter the HTTPS address of the original vacancy." };
-  if (!isHttpsUrl(employerWebsiteUrl)) return { error: "Enter the employer’s HTTPS website." };
-  if (!hasLength(employerMission, 20, 400)) {
+  if (employerWebsiteUrl && !isHttpsUrl(employerWebsiteUrl))
+    return { error: "Enter the employer’s HTTPS website." };
+  if (employerMission && !hasLength(employerMission, 20, 400)) {
     return { error: "Add a concise employer mission between 20 and 400 characters." };
   }
-  if (!hasLength(employerOverview, 40, 1_200)) {
+  if (employerOverview && !hasLength(employerOverview, 40, 1_200)) {
     return { error: "Add an employer overview between 40 and 1,200 characters." };
   }
   if (!hasLength(title, 2, 180)) return { error: "Enter the vacancy title." };
   if (!hasLength(summary, 20, 500)) return { error: "Add a summary between 20 and 500 characters." };
-  if (!hasLength(description, 40, 20_000)) return { error: "Add a clear vacancy description." };
+  if (!hasLength(description, 80, 20_000))
+    return { error: "Add a clear vacancy description of at least 80 characters." };
   if (!hasLength(locationText, 2, 240)) return { error: "Enter the location shown by the employer." };
   if (locationLocality && !hasLength(locationLocality, 2, 120)) {
     return { error: "Keep the town or city to 120 characters or fewer." };
@@ -134,8 +136,9 @@ export function validateJobReview(
   }
   if (!isHttpsUrl(applicationUrl)) return { error: "The application address must use HTTPS." };
   if (postedAt && !isDate(postedAt)) return { error: "Enter a valid publication date." };
-  if (!isDate(closesAt) || closesAt < today) return { error: "The closing date must be today or later." };
-  if (postedAt && postedAt > closesAt) {
+  if (closesAt && (!isDate(closesAt) || closesAt < today))
+    return { error: "The closing date must be today or later." };
+  if (postedAt && closesAt && postedAt > closesAt) {
     return { error: "The publication date must be before the closing date." };
   }
 
@@ -143,7 +146,7 @@ export function validateJobReview(
     data: {
       applicationUrl,
       canonicalUrl,
-      closesAt,
+      closesAt: closesAt || null,
       contractType: normalisedContractType,
       countryCode,
       description,

@@ -36,6 +36,14 @@ export type JobLocation = Readonly<{
 }>;
 
 export type Job = Readonly<{
+  brief?: import("./job-brief").JobBrief;
+  indexingEligible?: boolean;
+  jobpostingEligible?: boolean;
+  expiresAt?: string;
+  verifiedAt?: string;
+  updatedAt?: string;
+  remoteScopeType?: string;
+  remoteScopeText?: string;
   id?: number;
   availability?: "current" | "expired" | "unavailable" | "withdrawn";
   slug: string;

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
-import { AI_ENRICHMENT_POLICY_VERSION } from "@/lib/admin/ai-vacancy-enrichment";
+import { BRIEF_POLICY_VERSION as AI_ENRICHMENT_POLICY_VERSION } from "@/lib/admin/job-brief-validation";
 import { capabilityCoverage, uniqueIds } from "@/lib/admin/capability-admin";
 import { requireStaff } from "@/lib/auth/staff";
 import { createClient } from "@/lib/supabase/server";

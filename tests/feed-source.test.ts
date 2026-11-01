@@ -106,16 +106,18 @@ describe("vacancy feeds", () => {
     expect(parseCjsVacancyFeed(offDomain)).toEqual([]);
   });
 
-  it("keeps only the latest five EnvironmentJob vacancies and removes feed tracking", () => {
+  it("keeps all EnvironmentJob vacancies in the bounded feed and removes tracking", () => {
     const vacancies = parseEnvironmentJobVacancyFeed(environmentJobRss);
 
-    expect(vacancies).toHaveLength(5);
+    expect(vacancies).toHaveLength(7);
     expect(vacancies.map((vacancy) => vacancy.title)).toEqual([
       "Environment role 1",
       "Environment role 2",
       "Environment role 3",
       "Environment role 4",
       "Environment role 5",
+      "Environment role 6",
+      "Environment role 7",
     ]);
     expect(vacancies[0]?.canonicalUrl).toBe("https://environmentjob.co.uk/jobs/112200-environment-role-1");
   });

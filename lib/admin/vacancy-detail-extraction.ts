@@ -161,9 +161,9 @@ function extractExperienceLevel(value: string): MatchResult {
 }
 
 function extractEngagementType(value: string): MatchResult {
-  const advertisedSalary = /£\s?[\d,.]+/.exec(value);
+  const advertisedSalary = extractSalary(value);
   if (advertisedSalary) {
-    return { evidenceText: clean(advertisedSalary[0]), value: "paid" };
+    return { evidenceText: advertisedSalary.evidenceText, value: "paid" };
   }
 
   return (

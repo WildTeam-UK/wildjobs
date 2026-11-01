@@ -3,6 +3,12 @@ import { describe, expect, it } from "vitest";
 import { extractVacancyDetails, extractVacancyFieldEvidence } from "../lib/admin/vacancy-detail-extraction";
 
 describe("vacancy detail extraction", () => {
+  it("does not treat reimbursed volunteer expenses as paid employment", () => {
+    expect(
+      extractVacancyDetails("This unpaid volunteer role reimburses travel expenses up to £12 per day.")
+        .engagementType,
+    ).toBe("volunteer");
+  });
   it("extracts the labelled details from the live Staffordshire format", () => {
     expect(
       extractVacancyDetails(

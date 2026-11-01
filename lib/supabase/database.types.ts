@@ -821,6 +821,44 @@ export type Database = {
           },
         ];
       };
+      employer_public_identities: {
+        Row: {
+          id: number;
+          is_active: boolean;
+          name: string;
+          profile_published: boolean;
+          short_name: string | null;
+          slug: string;
+          website_url: string | null;
+        };
+        Insert: {
+          id: number;
+          is_active: boolean;
+          name: string;
+          profile_published: boolean;
+          short_name?: string | null;
+          slug: string;
+          website_url?: string | null;
+        };
+        Update: {
+          id?: number;
+          is_active?: boolean;
+          name?: string;
+          profile_published?: boolean;
+          short_name?: string | null;
+          slug?: string;
+          website_url?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "employer_public_identities_id_fkey";
+            columns: ["id"];
+            isOneToOne: true;
+            referencedRelation: "employers";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       employer_submissions: {
         Row: {
           application_url: string;
@@ -1103,6 +1141,53 @@ export type Database = {
           },
         ];
       };
+      job_brief_versions: {
+        Row: {
+          content_hash: string;
+          created_at: string;
+          id: number;
+          model: string;
+          payload: Json;
+          policy_version: string;
+          review_result: Json | null;
+          source_record_id: number;
+          source_revision: number;
+          validation_errors: string[];
+        };
+        Insert: {
+          content_hash: string;
+          created_at?: string;
+          id?: never;
+          model: string;
+          payload: Json;
+          policy_version: string;
+          review_result?: Json | null;
+          source_record_id: number;
+          source_revision: number;
+          validation_errors?: string[];
+        };
+        Update: {
+          content_hash?: string;
+          created_at?: string;
+          id?: never;
+          model?: string;
+          payload?: Json;
+          policy_version?: string;
+          review_result?: Json | null;
+          source_record_id?: number;
+          source_revision?: number;
+          validation_errors?: string[];
+        };
+        Relationships: [
+          {
+            foreignKeyName: "job_brief_versions_source_record_id_fkey";
+            columns: ["source_record_id"];
+            isOneToOne: false;
+            referencedRelation: "job_source_records";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       job_capabilities: {
         Row: {
           assignment_source: string;
@@ -1355,6 +1440,78 @@ export type Database = {
           },
         ];
       };
+      job_pipeline_tasks: {
+        Row: {
+          ai_stage: string;
+          attempts: number;
+          created_at: string;
+          due_at: string;
+          error_code: string | null;
+          finished_at: string | null;
+          id: number;
+          kind: string;
+          lease_expires_at: string | null;
+          lease_token: string | null;
+          max_attempts: number;
+          source_id: number;
+          source_record_id: number | null;
+          source_revision: number | null;
+          status: string;
+          task_key: string;
+        };
+        Insert: {
+          ai_stage?: string;
+          attempts?: number;
+          created_at?: string;
+          due_at?: string;
+          error_code?: string | null;
+          finished_at?: string | null;
+          id?: never;
+          kind: string;
+          lease_expires_at?: string | null;
+          lease_token?: string | null;
+          max_attempts?: number;
+          source_id: number;
+          source_record_id?: number | null;
+          source_revision?: number | null;
+          status?: string;
+          task_key: string;
+        };
+        Update: {
+          ai_stage?: string;
+          attempts?: number;
+          created_at?: string;
+          due_at?: string;
+          error_code?: string | null;
+          finished_at?: string | null;
+          id?: never;
+          kind?: string;
+          lease_expires_at?: string | null;
+          lease_token?: string | null;
+          max_attempts?: number;
+          source_id?: number;
+          source_record_id?: number | null;
+          source_revision?: number | null;
+          status?: string;
+          task_key?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "job_pipeline_tasks_source_id_fkey";
+            columns: ["source_id"];
+            isOneToOne: false;
+            referencedRelation: "job_sources";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "job_pipeline_tasks_source_record_id_fkey";
+            columns: ["source_record_id"];
+            isOneToOne: false;
+            referencedRelation: "job_source_records";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       job_source_field_evidence: {
         Row: {
           confidence: number;
@@ -1437,15 +1594,19 @@ export type Database = {
           first_seen_at: string;
           id: number;
           job_id: number | null;
+          last_http_status: number | null;
           last_seen_at: string;
           location_locality: string | null;
           location_region: string | null;
           location_text: string | null;
           mapping_status: string;
+          next_check_at: string | null;
+          pipeline_error: string | null;
           postal_code: string | null;
           remote_scope_text: string | null;
           remote_scope_type: string | null;
           source_id: number;
+          source_revision: number;
           source_title: string | null;
           source_updated_at: string | null;
           summary: string | null;
@@ -1483,15 +1644,19 @@ export type Database = {
           first_seen_at?: string;
           id?: never;
           job_id?: number | null;
+          last_http_status?: number | null;
           last_seen_at?: string;
           location_locality?: string | null;
           location_region?: string | null;
           location_text?: string | null;
           mapping_status?: string;
+          next_check_at?: string | null;
+          pipeline_error?: string | null;
           postal_code?: string | null;
           remote_scope_text?: string | null;
           remote_scope_type?: string | null;
           source_id: number;
+          source_revision?: number;
           source_title?: string | null;
           source_updated_at?: string | null;
           summary?: string | null;
@@ -1529,15 +1694,19 @@ export type Database = {
           first_seen_at?: string;
           id?: never;
           job_id?: number | null;
+          last_http_status?: number | null;
           last_seen_at?: string;
           location_locality?: string | null;
           location_region?: string | null;
           location_text?: string | null;
           mapping_status?: string;
+          next_check_at?: string | null;
+          pipeline_error?: string | null;
           postal_code?: string | null;
           remote_scope_text?: string | null;
           remote_scope_type?: string | null;
           source_id?: number;
+          source_revision?: number;
           source_title?: string | null;
           source_updated_at?: string | null;
           summary?: string | null;
@@ -1568,46 +1737,99 @@ export type Database = {
           },
         ];
       };
+      job_source_snapshots: {
+        Row: {
+          content_hash: string;
+          fetched_at: string;
+          id: number;
+          kind: string;
+          payload: Json;
+          source_record_id: number;
+        };
+        Insert: {
+          content_hash: string;
+          fetched_at?: string;
+          id?: never;
+          kind: string;
+          payload: Json;
+          source_record_id: number;
+        };
+        Update: {
+          content_hash?: string;
+          fetched_at?: string;
+          id?: never;
+          kind?: string;
+          payload?: Json;
+          source_record_id?: number;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "job_source_snapshots_source_record_id_fkey";
+            columns: ["source_record_id"];
+            isOneToOne: false;
+            referencedRelation: "job_source_records";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       job_sources: {
         Row: {
+          ai_processing_allowed: boolean;
           authoritative_base_url: string | null;
+          collection_allowed: boolean;
           created_at: string;
           default_country_code: string | null;
           description_display_mode: string;
+          http_etag: string | null;
+          http_last_modified: string | null;
           id: number;
           is_active: boolean;
           logo_reuse_allowed: boolean;
           name: string;
+          next_import_at: string;
           permission_notes: string | null;
           permissions_reviewed_at: string | null;
+          publication_allowed: boolean;
           source_type: string;
           updated_at: string;
         };
         Insert: {
+          ai_processing_allowed?: boolean;
           authoritative_base_url?: string | null;
+          collection_allowed?: boolean;
           created_at?: string;
           default_country_code?: string | null;
           description_display_mode?: string;
+          http_etag?: string | null;
+          http_last_modified?: string | null;
           id?: never;
           is_active?: boolean;
           logo_reuse_allowed?: boolean;
           name: string;
+          next_import_at?: string;
           permission_notes?: string | null;
           permissions_reviewed_at?: string | null;
+          publication_allowed?: boolean;
           source_type: string;
           updated_at?: string;
         };
         Update: {
+          ai_processing_allowed?: boolean;
           authoritative_base_url?: string | null;
+          collection_allowed?: boolean;
           created_at?: string;
           default_country_code?: string | null;
           description_display_mode?: string;
+          http_etag?: string | null;
+          http_last_modified?: string | null;
           id?: never;
           is_active?: boolean;
           logo_reuse_allowed?: boolean;
           name?: string;
+          next_import_at?: string;
           permission_notes?: string | null;
           permissions_reviewed_at?: string | null;
+          publication_allowed?: boolean;
           source_type?: string;
           updated_at?: string;
         };
@@ -1617,18 +1839,24 @@ export type Database = {
         Row: {
           application_notes: string | null;
           application_url: string | null;
+          brief_policy_version: string | null;
+          brief_source_hash: string | null;
+          brief_status: string;
           closes_at: string | null;
           contract_type: string | null;
           country_code: string | null;
           created_at: string;
           description: string | null;
+          editorial_brief: Json;
           employer_id: number;
           engagement_type: string | null;
           experience_level: string | null;
           expires_at: string | null;
           hours_type: string | null;
           id: number;
+          indexing_eligible: boolean;
           is_field_based: boolean;
+          jobposting_eligible: boolean;
           locality: string | null;
           location_text: string | null;
           postal_code: string | null;
@@ -1648,6 +1876,8 @@ export type Database = {
           slug: string;
           source_name: string | null;
           source_url: string | null;
+          source_verified_at: string | null;
+          staff_reviewed_fields: string[];
           status: string;
           summary: string | null;
           summary_source: string;
@@ -1659,18 +1889,24 @@ export type Database = {
         Insert: {
           application_notes?: string | null;
           application_url?: string | null;
+          brief_policy_version?: string | null;
+          brief_source_hash?: string | null;
+          brief_status?: string;
           closes_at?: string | null;
           contract_type?: string | null;
           country_code?: string | null;
           created_at?: string;
           description?: string | null;
+          editorial_brief?: Json;
           employer_id: number;
           engagement_type?: string | null;
           experience_level?: string | null;
           expires_at?: string | null;
           hours_type?: string | null;
           id?: never;
+          indexing_eligible?: boolean;
           is_field_based?: boolean;
+          jobposting_eligible?: boolean;
           locality?: string | null;
           location_text?: string | null;
           postal_code?: string | null;
@@ -1690,6 +1926,8 @@ export type Database = {
           slug: string;
           source_name?: string | null;
           source_url?: string | null;
+          source_verified_at?: string | null;
+          staff_reviewed_fields?: string[];
           status?: string;
           summary?: string | null;
           summary_source?: string;
@@ -1701,18 +1939,24 @@ export type Database = {
         Update: {
           application_notes?: string | null;
           application_url?: string | null;
+          brief_policy_version?: string | null;
+          brief_source_hash?: string | null;
+          brief_status?: string;
           closes_at?: string | null;
           contract_type?: string | null;
           country_code?: string | null;
           created_at?: string;
           description?: string | null;
+          editorial_brief?: Json;
           employer_id?: number;
           engagement_type?: string | null;
           experience_level?: string | null;
           expires_at?: string | null;
           hours_type?: string | null;
           id?: never;
+          indexing_eligible?: boolean;
           is_field_based?: boolean;
+          jobposting_eligible?: boolean;
           locality?: string | null;
           location_text?: string | null;
           postal_code?: string | null;
@@ -1732,6 +1976,8 @@ export type Database = {
           slug?: string;
           source_name?: string | null;
           source_url?: string | null;
+          source_verified_at?: string | null;
+          staff_reviewed_fields?: string[];
           status?: string;
           summary?: string | null;
           summary_source?: string;
@@ -1890,6 +2136,62 @@ export type Database = {
             columns: ["parent_id"];
             isOneToOne: false;
             referencedRelation: "occupations";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      pipeline_ai_usage: {
+        Row: {
+          created_at: string;
+          finished_at: string | null;
+          generation_id: string | null;
+          id: string;
+          input_price_per_million: number | null;
+          input_tokens: number;
+          model: string;
+          output_price_per_million: number | null;
+          output_tokens: number;
+          purpose: string;
+          request_key: string;
+          source_record_id: number | null;
+          status: string;
+        };
+        Insert: {
+          created_at?: string;
+          finished_at?: string | null;
+          generation_id?: string | null;
+          id?: string;
+          input_price_per_million?: number | null;
+          input_tokens: number;
+          model: string;
+          output_price_per_million?: number | null;
+          output_tokens: number;
+          purpose: string;
+          request_key: string;
+          source_record_id?: number | null;
+          status?: string;
+        };
+        Update: {
+          created_at?: string;
+          finished_at?: string | null;
+          generation_id?: string | null;
+          id?: string;
+          input_price_per_million?: number | null;
+          input_tokens?: number;
+          model?: string;
+          output_price_per_million?: number | null;
+          output_tokens?: number;
+          purpose?: string;
+          request_key?: string;
+          source_record_id?: number | null;
+          status?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "pipeline_ai_usage_source_record_id_fkey";
+            columns: ["source_record_id"];
+            isOneToOne: false;
+            referencedRelation: "job_source_records";
             referencedColumns: ["id"];
           },
         ];
@@ -2254,6 +2556,15 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
+      apply_pipeline_brief: {
+        Args: {
+          p_record_id: number;
+          p_result: Json;
+          p_revision: number;
+          p_source_hash: string;
+        };
+        Returns: number;
+      };
       change_job_lifecycle: {
         Args: { p_action: string; p_job_id: number; p_review_note: string };
         Returns: string;
@@ -2266,6 +2577,7 @@ export type Database = {
         Args: { interval_hours?: number };
         Returns: boolean;
       };
+      claim_pipeline_task: { Args: { p_record_id?: number }; Returns: Json };
       create_job_review_from_submission: {
         Args: {
           p_employer_slug: string;
@@ -2332,9 +2644,27 @@ export type Database = {
             };
             Returns: number;
           };
+      finish_pipeline_task: {
+        Args: {
+          p_error?: string;
+          p_lease_token: string;
+          p_status: string;
+          p_task_id: number;
+        };
+        Returns: boolean;
+      };
+      ingest_pipeline_feed: {
+        Args: { p_items: Json; p_source_id: number };
+        Returns: Json;
+      };
       link_source_record_to_job: {
         Args: { p_job_id: number; p_source_record_id: number };
         Returns: number;
+      };
+      pipeline_heartbeat_needed: { Args: never; Returns: boolean };
+      pipeline_publish_blockers: {
+        Args: { p_record_id: number };
+        Returns: string[];
       };
       prepare_automated_job_draft: {
         Args: {
@@ -2343,6 +2673,34 @@ export type Database = {
           p_source_record_id: number;
         };
         Returns: number;
+      };
+      public_job_employer: {
+        Args: { p_employer_id: number };
+        Returns: {
+          ai_summary: string;
+          id: number;
+          logo_url: string;
+          name: string;
+          overview: string;
+          profile_published: boolean;
+          short_name: string;
+          slug: string;
+          website_url: string;
+        }[];
+      };
+      public_job_employers: {
+        Args: { p_ids: number[] };
+        Returns: {
+          ai_summary: string;
+          id: number;
+          logo_url: string;
+          name: string;
+          overview: string;
+          profile_published: boolean;
+          short_name: string;
+          slug: string;
+          website_url: string;
+        }[];
       };
       publish_automated_source_record: {
         Args: {
@@ -2354,6 +2712,7 @@ export type Database = {
         Returns: number;
       };
       publish_job_review_draft: { Args: { p_job_id: number }; Returns: string };
+      publish_reviewed_brief: { Args: { p_job_id: number }; Returns: undefined };
       redeem_employer_submission_invite: {
         Args: {
           p_application_url: string;
@@ -2403,6 +2762,22 @@ export type Database = {
         };
         Returns: undefined;
       };
+      reserve_pipeline_ai: {
+        Args: {
+          p_input: number;
+          p_input_limit: number;
+          p_input_price?: number;
+          p_model: string;
+          p_output: number;
+          p_output_limit: number;
+          p_output_price?: number;
+          p_purpose: string;
+          p_record_id?: number;
+          p_request_key: string;
+          p_request_limit: number;
+        };
+        Returns: string;
+      };
       review_employer_submission: {
         Args: {
           p_decision: string;
@@ -2410,6 +2785,10 @@ export type Database = {
           p_submission_id: number;
         };
         Returns: string;
+      };
+      save_pipeline_review: {
+        Args: { p_job_id: number; p_patch: Json };
+        Returns: undefined;
       };
       sync_automated_job_draft: {
         Args: { p_source_record_id: number };

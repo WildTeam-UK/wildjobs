@@ -1,7 +1,9 @@
 import { DEFAULT_COURSE_THEME_COLOUR } from "./courses";
+import { readJobBrief } from "./job-brief";
 import type { Job, JobLocation, JobTaxonomyTerm, RelatedCourse } from "./jobs";
 
 type PublicEmployerRecord = Readonly<{
+  profile_published?: boolean;
   ai_summary: string | null;
   logo_url: string | null;
   name: string;
@@ -69,6 +71,13 @@ type PublicJobLocationRecord = Readonly<{
 }>;
 
 export type PublicJobRecord = Readonly<{
+  editorial_brief?: unknown;
+  indexing_eligible?: boolean;
+  jobposting_eligible?: boolean;
+  source_verified_at?: string | null;
+  updated_at?: string;
+  remote_scope_type?: string | null;
+  remote_scope_text?: string | null;
   id: number;
   application_url: string | null;
   closes_at: string | null;
@@ -302,6 +311,14 @@ export function mapPublicJob(record: PublicJobRecord): Job {
 
   return {
     availability: availability(record),
+    brief: readJobBrief(record.editorial_brief),
+    indexingEligible: record.indexing_eligible ?? false,
+    jobpostingEligible: record.jobposting_eligible ?? false,
+    expiresAt: record.expires_at ?? undefined,
+    verifiedAt: record.source_verified_at ?? undefined,
+    updatedAt: record.updated_at,
+    remoteScopeType: record.remote_scope_type ?? undefined,
+    remoteScopeText: record.remote_scope_text ?? undefined,
     applicationUrl: record.application_url ?? undefined,
     applicationLabel: applicationLabel(record),
     benefits,
@@ -327,7 +344,7 @@ export function mapPublicJob(record: PublicJobRecord): Job {
     employerLogoUrl: employer?.logo_url?.trim() || undefined,
     employerOverview: officialEmployerOverview.length ? officialEmployerOverview : aiEmployerOverview,
     employerOverviewIsAi: !officialEmployerOverview.length && aiEmployerOverview.length > 0,
-    employerSlug: employer?.slug,
+    employerSlug: employer?.profile_published === false ? undefined : employer?.slug,
     employerWebsiteUrl: employer?.website_url?.trim() || undefined,
     employmentType: hoursType ?? contractType ?? "Not stated",
     engagementType: engagementType(record),

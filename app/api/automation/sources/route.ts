@@ -1,80 +1,35 @@
 import { isAutomationRequestAuthorized } from "@/lib/admin/automation-auth";
-import { reevaluateStalePublicationDecisions } from "@/lib/admin/automation-publication";
-import { enrichNextPendingSourceRecord } from "@/lib/admin/source-enrichment";
+import { runPipelineTask, schedulePipelineWork } from "@/lib/admin/job-pipeline";
 import { syncPeriodicLearnWorldsCourses } from "@/lib/admin/learnworlds-course-sync";
-import { importApprovedSource } from "@/lib/admin/source-import";
-import { getSourceConnector } from "@/lib/admin/source-connector";
 import { createTrustedClient } from "@/lib/supabase/trusted";
 
 export const maxDuration = 60;
 
 export async function POST(request: Request) {
-  if (!isAutomationRequestAuthorized(request.headers.get("authorization"), process.env.AUTOMATION_SECRET)) {
+  if (!isAutomationRequestAuthorized(request.headers.get("authorization"), process.env.AUTOMATION_SECRET))
     return new Response("Unauthorized", { status: 401 });
-  }
-
   try {
-    const supabase = createTrustedClient();
-    const { data: claimed, error: claimError } = await supabase.rpc("claim_periodic_source_import", {
-      interval_hours: 2,
-    });
-    if (claimError) throw new Error("The scheduled source check could not be claimed.");
-
-    if (!claimed) {
-      const courseSync = await syncPeriodicLearnWorldsCourses(supabase);
-      if (courseSync.status === "completed" || courseSync.status === "failed") {
-        return Response.json(
-          {
-            action: "course_catalogue_synced",
-            courseSync,
-            ok: courseSync.status === "completed",
-          },
-          { status: courseSync.status === "completed" ? 200 : 500 },
-        );
-      }
-      const publication = await reevaluateStalePublicationDecisions(supabase);
-      const enrichment = await enrichNextPendingSourceRecord(supabase, "automation");
-      return Response.json({
-        action: publication.attempted
-          ? "publication_reevaluated"
-          : enrichment.status !== "idle"
-            ? "enriched"
-            : "idle",
-        enrichment,
-        ok: enrichment.status !== "failed" && publication.failed === 0,
-        publication,
-        courseSync,
-      });
-    }
-
-    const { data: sources, error } = await supabase
-      .from("job_sources")
-      .select("id, source_type, authoritative_base_url, is_active")
-      .eq("is_active", true)
-      .order("id");
-    if (error) throw new Error("Approved sources could not be read.");
-
-    const approvedSources = (sources ?? []).filter((source) =>
-      Boolean(getSourceConnector(source.source_type, source.authoritative_base_url)),
-    );
-    const summary = { completed: 0, failed: 0, skipped: 0, sources: approvedSources.length };
-
-    for (const source of approvedSources) {
-      const result = await importApprovedSource(supabase, source);
-      if (result.status === "completed") summary.completed += 1;
-      if (result.status === "failed") summary.failed += 1;
-      if (result.status === "already_running") summary.skipped += 1;
-    }
-
-    console.info("Scheduled WildJobs source import finished.", summary);
+    const client = createTrustedClient();
+    const { error } = await client
+      .from("source_import_automation")
+      .update({ last_heartbeat_at: new Date().toISOString(), updated_at: new Date().toISOString() })
+      .eq("id", true);
+    if (error) throw new Error("heartbeat_persistence_failed");
+    // A course sync has its own bounded request, rather than sharing a timeout with vacancy generation.
+    const courses = await syncPeriodicLearnWorldsCourses(client);
+    if (courses.status === "completed" || courses.status === "failed")
+      return Response.json(
+        { ok: courses.status === "completed", action: "course_catalogue_synced", courses },
+        { status: courses.status === "failed" ? 500 : 200 },
+      );
+    await schedulePipelineWork(client);
+    const task = await runPipelineTask(client);
     return Response.json(
-      { action: "imported", ok: summary.failed === 0, ...summary },
-      { status: summary.failed ? 500 : 200 },
+      { ok: task.status !== "failed", action: task.status === "idle" ? "idle" : "pipeline_task", task },
+      { status: task.status === "failed" ? 500 : 200 },
     );
   } catch (error) {
-    console.error("WildJobs source automation heartbeat failed.", {
-      message: error instanceof Error ? error.message : "Unknown automation error",
-    });
-    return Response.json({ ok: false }, { status: 500 });
+    console.error("WildJobs heartbeat failed.", { code: error instanceof Error ? error.message : "unknown" });
+    return Response.json({ ok: false, error: "pipeline_unavailable" }, { status: 500 });
   }
 }

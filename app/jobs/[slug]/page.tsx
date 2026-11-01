@@ -8,6 +8,7 @@ import { SaveJobControl } from "@/components/save-job-control";
 import { getCandidateSaveState } from "@/lib/candidate-saved-jobs";
 import { formatDate, listingAgeLabel } from "@/lib/jobs";
 import { getPublicJobBySlug, getPublicJobs } from "@/lib/public-jobs";
+import { SITE_URL, siteIndexingEnabled } from "@/lib/site-indexing";
 
 type JobPageProps = {
   params: Promise<{ slug: string }>;
@@ -21,6 +22,8 @@ export async function generateMetadata({ params }: JobPageProps): Promise<Metada
   return {
     title: job.title,
     description: job.summary,
+    alternates: { canonical: `${SITE_URL}/jobs/${job.slug}` },
+    robots: { index: siteIndexingEnabled() && job.indexingEligible === true, follow: true },
   };
 }
 
@@ -107,7 +110,7 @@ export default async function JobPage({ params, searchParams }: JobPageProps) {
     description: [job.summary, ...job.description, ...job.responsibilities, ...job.requirements].join(" "),
     identifier: { "@type": "PropertyValue", name: "WildJobs", value: job.slug },
     datePosted: job.postedAt,
-    validThrough: job.closesAt ? `${job.closesAt}T23:59:59Z` : undefined,
+    validThrough: job.closesAt || job.expiresAt ? `${job.closesAt ?? job.expiresAt}T23:59:59Z` : undefined,
     employmentType: structuredEmploymentType(job),
     hiringOrganization: { "@type": "Organization", name: job.organisation },
     occupationalCategory: job.occupations?.map((occupation) => occupation.title),
@@ -131,10 +134,12 @@ export default async function JobPage({ params, searchParams }: JobPageProps) {
 
   return (
     <main className="job-detail-page">
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData).replaceAll("<", "\\u003c") }}
-      />
+      {job.jobpostingEligible ? (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData).replaceAll("<", "\\u003c") }}
+        />
+      ) : null}
       <div className="shell">
         <Link className="back-link" href="/">
           <span aria-hidden="true">←</span> Back to all jobs
@@ -222,6 +227,17 @@ export default async function JobPage({ params, searchParams }: JobPageProps) {
 
       <div className="shell job-detail-layout">
         <article className="job-detail-content">
+          {job.brief ? (
+            <section className="job-detail-summary">
+              <p className="eyebrow">WildTeam role brief</p>
+              <h2>How this role connects to conservation</h2>
+              <p>{job.brief.conservationContext}</p>
+              <p className="job-detail-summary__source">
+                Prepared with AI from the advertised evidence and checked against WildJobs publication rules.
+                Confirm current details with the employer before applying.
+              </p>
+            </section>
+          ) : null}
           {job.description.length ? (
             <section className="job-detail-summary">
               <p className="eyebrow">The opportunity</p>
@@ -231,8 +247,8 @@ export default async function JobPage({ params, searchParams }: JobPageProps) {
               ))}
               {job.sourceUrl ? (
                 <p className="job-detail-summary__source">
-                  This concise summary helps you assess the role quickly. Read the original advert for the
-                  complete responsibilities, requirements and application instructions.
+                  This WildTeam brief organises the advertised facts to help you assess the role. The original
+                  advert remains the authority for applications.
                 </p>
               ) : null}
             </section>
@@ -249,13 +265,34 @@ export default async function JobPage({ params, searchParams }: JobPageProps) {
           ) : null}
           {job.requirements.length ? (
             <section>
-              <h2>What they’re looking for</h2>
+              <h2>Essential criteria</h2>
               <ul>
                 {job.requirements.map((requirement) => (
                   <li key={requirement}>{requirement}</li>
                 ))}
               </ul>
             </section>
+          ) : null}
+          {job.brief ? (
+            <>
+              {[
+                ["Desirable criteria", job.brief.desirable],
+                ["Practical considerations", job.brief.practical],
+                ["Before you apply", job.brief.applicationChecklist],
+                ["Information to confirm", job.brief.missingInformation],
+              ].map(([title, items]) =>
+                Array.isArray(items) && items.length ? (
+                  <section key={title as string}>
+                    <h2>{title}</h2>
+                    <ul>
+                      {items.map((item) => (
+                        <li key={item}>{item}</li>
+                      ))}
+                    </ul>
+                  </section>
+                ) : null,
+              )}
+            </>
           ) : null}
           {job.benefits?.length ? (
             <section className="job-detail-benefits">
@@ -434,6 +471,12 @@ export default async function JobPage({ params, searchParams }: JobPageProps) {
                   )}
                 </dd>
               </div>
+              {job.verifiedAt ? (
+                <div>
+                  <dt>Last checked</dt>
+                  <dd>{formatDate(job.verifiedAt.slice(0, 10))}</dd>
+                </div>
+              ) : null}
             </dl>
             {job.locations && job.locations.length > 1 ? (
               <div className="job-facts-card__locations">

@@ -216,6 +216,7 @@ export function parseVacancyFeed(xml: string): FeedVacancy[] {
     : atom
       ? asArray(atom.entry).map(normalizeAtomEntry)
       : [];
+  if (!channel && !atom) throw new Error("The response is not an RSS or Atom feed.");
   const vacancies = new Map<string, FeedVacancy>();
 
   for (const vacancy of candidates.slice(0, 500)) {
@@ -241,7 +242,6 @@ export function parseEnvironmentJobVacancyFeed(xml: string) {
       return url.hostname === "environmentjob.co.uk" && /^\/jobs\/\d+-[^/]+$/.test(url.pathname);
     })
     .sort((left, right) => (right.publishedAt ?? "").localeCompare(left.publishedAt ?? ""))
-    .slice(0, 5)
     .map((vacancy) => {
       const canonicalUrl = new URL(vacancy.canonicalUrl);
       canonicalUrl.searchParams.delete("from_rss");
