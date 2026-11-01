@@ -149,6 +149,7 @@ select {
   height: 0.94em;
   flex: 0 0 0.94em;
   background: url("/wildteam-mark.png") center / contain no-repeat;
+  transform: translateY(-0.15em);
 }
 .brand-lockup__wordmark {
   font-size: inherit;
@@ -995,6 +996,7 @@ select {
   margin: 0 auto 56px;
   color: var(--wt-color-muted);
   font-size: clamp(1rem, 1.6vw, 1.22rem);
+  font-weight: var(--wt-font-weight-bold);
   line-height: 1.55;
   text-align: center;
 }
