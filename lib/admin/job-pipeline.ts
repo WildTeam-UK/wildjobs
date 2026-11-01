@@ -92,6 +92,15 @@ export async function schedulePipelineWork(client: Client) {
       .order("first_seen_at", { ascending: false })
       .limit(1000);
     check(recordError, "pipeline_records_unavailable");
+    const { data: verificationTasks, error: verificationError } = await client
+      .from("job_pipeline_tasks")
+      .select("source_record_id")
+      .eq("source_id", source.id)
+      .eq("kind", "verify")
+      .in("status", ["pending", "running"])
+      .limit(2000);
+    check(verificationError, "verification_queue_unavailable");
+    const verifying = new Set((verificationTasks ?? []).map((task) => task.source_record_id));
     for (const record of records ?? []) {
       const expiry =
         record.closes_at ??
@@ -112,7 +121,7 @@ export async function schedulePipelineWork(client: Client) {
           revision: record.source_revision,
         });
       }
-      if (!record.next_check_at || record.next_check_at <= now.toISOString())
+      if ((!record.next_check_at || record.next_check_at <= now.toISOString()) && !verifying.has(record.id))
         pending.push({
           key: `verify:${record.id}:${record.next_check_at ?? "bootstrap"}`,
           kind: "verify",
@@ -194,6 +203,8 @@ async function resolveEmployer(client: Client, name: string, websiteUrl: string 
 async function verifyRecord(client: Client, task: Task) {
   const r = await readRecord(client, task.source_record_id!);
   const source = r.job_sources;
+  if (task.source_revision !== null && task.source_revision !== r.source_revision)
+    return "cancelled" as const;
   if (r.mapping_status === "ignored") return "cancelled" as const;
   if (!r.canonical_url || !source.authoritative_base_url) throw new Error("source_url_missing");
   let fetched;
