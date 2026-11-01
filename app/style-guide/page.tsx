@@ -157,7 +157,12 @@ export default function StyleGuidePage() {
               <h3>Turn your ambition into practical skills</h3>
               <p>Keep the copy and next action in one clear, aligned row.</p>
             </div>
-            <a className="action action--white" href="https://training.wildteam.org.uk/courses">
+            <a
+              className="action action--white"
+              href="https://training.wildteam.org.uk/courses"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               Explore training <span aria-hidden="true">→</span>
             </a>
           </div>

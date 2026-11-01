@@ -46,7 +46,9 @@ export default async function JobsAdmin() {
                 timeZone: "Europe/London",
               })}
             </p>
-            <a href={j.source_url}>Original advert →</a>
+            <a href={j.source_url} target="_blank" rel="noopener noreferrer">
+              Original advert →
+            </a>
           </details>
         ))}
       </section>
