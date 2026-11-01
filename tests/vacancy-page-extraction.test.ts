@@ -5,6 +5,15 @@ import { parseEmployerPage, parseVacancyPage } from "../lib/admin/vacancy-page-e
 const pageUrl = "https://www.countryside-jobs.com/job/nov26/conservation-officer-example-trust-2910-1";
 
 describe("vacancy page extraction", () => {
+  it("does not treat a fallback vacancy URL as application instructions", () => {
+    const result = parseVacancyPage(
+      '<script type="application/ld+json">{"@type":"JobPosting","description":"Restore habitats with local communities.","url":"https://example.org/role"}</script>',
+      pageUrl,
+    );
+    expect(result.applicationUrl).toBe("https://example.org/role");
+    expect(result.applicationInstructionsFound).toBe(false);
+  });
+
   it("extracts structured vacancy, application and employer facts without guessing", () => {
     const result = parseVacancyPage(
       `
@@ -43,6 +52,7 @@ describe("vacancy page extraction", () => {
     );
 
     expect(result).toMatchObject({
+      applicationInstructionsFound: true,
       applicationUrl: "https://nature.example.org/apply/123",
       closesAt: "2026-11-30",
       employerLogoUrl: "https://nature.example.org/logo.png",

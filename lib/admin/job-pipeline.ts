@@ -226,8 +226,7 @@ async function verifyRecord(client: Client, task: Task) {
   if (!name) throw new Error("employer_identity_missing");
   const applicationUrl = normalizeVacancyUrl(page.applicationUrl ?? fetched.url);
   await assertPublicHttpsUrl(applicationUrl);
-  if (!/\b(?:apply|application|applications)\b/i.test(page.detailText))
-    throw new Error("application_instructions_missing");
+  if (!page.applicationInstructionsFound) throw new Error("application_instructions_missing");
   const employerId = await resolveEmployer(client, name, page.employerWebsiteUrl);
   if (!r.job_id) {
     const { data: duplicates, error: duplicateError } = await client

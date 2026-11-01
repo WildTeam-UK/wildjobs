@@ -7,6 +7,7 @@ type JsonRecord = Record<string, unknown>;
 export const SOURCE_PAGE_EXTRACTOR_VERSION = "source-page-rules-v7";
 
 export type VacancyPageExtraction = {
+  applicationInstructionsFound: boolean;
   applicationUrl: string | null;
   closesAt: string | null;
   detailText: string;
@@ -266,11 +267,13 @@ export function parseVacancyPage(html: string, pageUrl: string): VacancyPageExtr
   );
 
   let applicationUrl: string | null = null;
+  let applicationInstructionsFound = false;
   $("a[href]").each((_index, element) => {
     if (applicationUrl) return;
     const label = clean($(element).text(), 160);
     if (!/\bapply(?:\s+now|\s+online|\s+for)?\b/i.test(label)) return;
     applicationUrl = safeHttpsUrl($(element).attr("href"), pageUrl);
+    applicationInstructionsFound = applicationUrl !== null;
   });
 
   if (!applicationUrl) applicationUrl = safeHttpsUrl(jobPosting?.url, pageUrl);
@@ -281,6 +284,8 @@ export function parseVacancyPage(html: string, pageUrl: string): VacancyPageExtr
   const employerName = clean(organisation?.name, 200) || null;
 
   return {
+    applicationInstructionsFound:
+      applicationInstructionsFound || /\b(?:apply|application|applications)\b/i.test(detailText),
     applicationUrl,
     closesAt: parseDate(jobPosting?.validThrough),
     detailText,
