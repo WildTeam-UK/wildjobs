@@ -20,8 +20,6 @@ import { filterJobs, jobCategories } from "@/lib/job-filtering";
 import type { EmploymentType, EngagementType, Job, LocationType } from "@/lib/jobs";
 
 const locationTypes: readonly LocationType[] = ["Remote", "Hybrid", "On-site", "Not specified"];
-const natureEmojis = ["🌱", "🌿", "🌳", "🌊", "🍄", "🌸"] as const;
-const wildlifeEmojis = ["🐘", "🦊", "🦉", "🐢", "🦋", "🐬", "🦏", "🐝"] as const;
 const jobsPerPage = 25;
 export type JobSortOrder = "closing" | "newest" | "relevance";
 type FilterIconName =
@@ -35,7 +33,6 @@ type FilterIconName =
   | "salary"
   | "sort";
 type FilterOption = Readonly<{ label: string; value: string }>;
-type HeroEmojis = Readonly<{ nature: readonly string[]; wildlife: readonly string[] }>;
 type LocationSuggestion = Readonly<{ detail?: string; label: string; value: string }>;
 type BrowserFilters = Readonly<{
   query: string;
@@ -49,18 +46,6 @@ type BrowserFilters = Readonly<{
   minimumSalary: number;
   sortOrder: JobSortOrder;
 }>;
-
-function randomItems<T>(items: readonly T[], count: number) {
-  const availableItems = [...items];
-  for (let index = availableItems.length - 1; index > 0; index -= 1) {
-    const randomIndex = Math.floor(Math.random() * (index + 1));
-    [availableItems[index], availableItems[randomIndex]] = [
-      availableItems[randomIndex],
-      availableItems[index],
-    ];
-  }
-  return availableItems.slice(0, count);
-}
 
 function titleCaseCourseName(title: string) {
   return title.replace(
@@ -535,10 +520,6 @@ export function JobBrowser({
   const [minimumSalary, setMinimumSalary] = useState(initialFilters.minimumSalary ?? 0);
   const [sortOrder, setSortOrder] = useState<JobSortOrder>(initialFilters.sortOrder ?? "relevance");
   const [currentPage, setCurrentPage] = useState(initialPage);
-  const [heroEmojis, setHeroEmojis] = useState<HeroEmojis>({
-    nature: natureEmojis.slice(0, 4),
-    wildlife: wildlifeEmojis.slice(0, 4),
-  });
   const filterBarRef = useRef<HTMLDivElement>(null);
   const filterPillsRef = useRef<HTMLDivElement>(null);
   const filteredJobs = filterJobs(jobs, {
@@ -587,13 +568,6 @@ export function JobBrowser({
     return course ? [course] : [];
   });
   const savedJobIds = new Set(candidateSaveState.savedJobIds);
-
-  useEffect(() => {
-    setHeroEmojis({
-      nature: randomItems(natureEmojis, 4),
-      wildlife: randomItems(wildlifeEmojis, 4),
-    });
-  }, []);
 
   useEffect(() => {
     const filterPills = filterPillsRef.current;
@@ -740,29 +714,11 @@ export function JobBrowser({
               <h1 id="jobs-page-heading">Do work that matters.</h1>
               <p className="job-search-hero__description">
                 Discover your next <strong className="job-search-hero__highlight">meaningful career</strong>{" "}
-                protecting{" "}
-                <span aria-label="wildlife" className="job-search-hero__emoji-cluster" role="img">
-                  {heroEmojis.wildlife.map((emoji) => (
-                    <span aria-hidden="true" className="job-search-hero__emoji" key={emoji}>
-                      {emoji}
-                    </span>
-                  ))}
+                protecting wildlife, restoring nature and creating a better future for our{" "}
+                <span aria-label="planet Earth" className="job-search-hero__emoji" role="img">
+                  🌍
                 </span>
-                , restoring{" "}
-                <span aria-label="nature" className="job-search-hero__emoji-cluster" role="img">
-                  {heroEmojis.nature.map((emoji) => (
-                    <span aria-hidden="true" className="job-search-hero__emoji" key={emoji}>
-                      {emoji}
-                    </span>
-                  ))}
-                </span>{" "}
-                and creating a better future for our{" "}
-                <span aria-label="planet Earth" className="job-search-hero__emoji-cluster" role="img">
-                  <span aria-hidden="true" className="job-search-hero__emoji">
-                    🌍
-                  </span>
-                </span>
-                .
+                {"."}
               </p>
             </div>
           </div>

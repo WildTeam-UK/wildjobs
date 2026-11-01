@@ -997,12 +997,6 @@ select {
     color: transparent;
   }
 }
-.job-search-hero__emoji-cluster {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.18em;
-  white-space: nowrap;
-}
 .job-search-hero__emoji {
   display: inline-block;
   font-size: 1.55em;
