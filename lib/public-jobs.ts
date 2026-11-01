@@ -39,6 +39,7 @@ export async function mapDirectoryJobs(records: readonly DirectoryJob[]): Promis
             ? "Full time"
             : "Not stated",
       hoursType: row.hours_type ?? undefined,
+      hoursTypes: row.hours_type?.split(" · "),
       contractType: row.contract_type ?? undefined,
       engagementType: row.engagement_type === "Volunteer" ? "Volunteer" : "Paid",
       salary: row.salary_text,
@@ -54,11 +55,6 @@ export async function mapDirectoryJobs(records: readonly DirectoryJob[]): Promis
       availability: row.is_active ? "current" : "unavailable",
       sourceName: "EnvironmentJob",
       sourceUrl: row.source_url,
-      applicationUrl: row.source_url,
-      description: [],
-      responsibilities: [],
-      requirements: [],
-      employerOverview: [],
     };
   });
 }
