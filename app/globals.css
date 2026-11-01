@@ -964,31 +964,11 @@ select {
 .job-search-hero h1 {
   padding-top: 0.08em;
   margin: 0 0 28px;
-  animation: job-hero-title-gradient 14s ease-in-out infinite;
-  background: linear-gradient(
-    90deg,
-    var(--wt-color-brand-purple),
-    var(--wt-color-brand-gradient-middle),
-    var(--wt-color-brand-pink),
-    var(--wt-color-brand-purple)
-  );
-  -webkit-background-clip: text;
-  background-clip: text;
-  background-size: 240% 100%;
-  color: transparent;
+  color: var(--wt-color-surface-charcoal);
   font-size: clamp(3rem, 7vw, 5.8rem);
   line-height: 0.94;
   letter-spacing: -0.045em;
   text-align: center;
-}
-@keyframes job-hero-title-gradient {
-  0%,
-  100% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
 }
 .job-search-hero__description {
   width: 60%;

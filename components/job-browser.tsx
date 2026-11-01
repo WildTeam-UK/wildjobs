@@ -20,7 +20,6 @@ import { filterJobs, jobCategories } from "@/lib/job-filtering";
 import type { EmploymentType, EngagementType, Job, LocationType } from "@/lib/jobs";
 
 const locationTypes: readonly LocationType[] = ["Remote", "Hybrid", "On-site", "Not specified"];
-const discoveryEmojis = ["🔎", "🧭", "✨", "💡", "🔭", "🗺️"] as const;
 const natureEmojis = ["🌱", "🌿", "🌳", "🌊", "🍄", "🌸"] as const;
 const wildlifeEmojis = ["🐘", "🦊", "🦉", "🐢", "🦋", "🐬", "🦏", "🐝"] as const;
 const jobsPerPage = 25;
@@ -36,7 +35,7 @@ type FilterIconName =
   | "salary"
   | "sort";
 type FilterOption = Readonly<{ label: string; value: string }>;
-type HeroEmojis = Readonly<{ discovery: string; nature: string; wildlife: string }>;
+type HeroEmojis = Readonly<{ nature: readonly string[]; wildlife: readonly string[] }>;
 type LocationSuggestion = Readonly<{ detail?: string; label: string; value: string }>;
 type BrowserFilters = Readonly<{
   query: string;
@@ -51,8 +50,16 @@ type BrowserFilters = Readonly<{
   sortOrder: JobSortOrder;
 }>;
 
-function randomItem<T>(items: readonly T[]) {
-  return items[Math.floor(Math.random() * items.length)];
+function randomItems<T>(items: readonly T[], count: number) {
+  const availableItems = [...items];
+  for (let index = availableItems.length - 1; index > 0; index -= 1) {
+    const randomIndex = Math.floor(Math.random() * (index + 1));
+    [availableItems[index], availableItems[randomIndex]] = [
+      availableItems[randomIndex],
+      availableItems[index],
+    ];
+  }
+  return availableItems.slice(0, count);
 }
 
 function titleCaseCourseName(title: string) {
@@ -529,9 +536,8 @@ export function JobBrowser({
   const [sortOrder, setSortOrder] = useState<JobSortOrder>(initialFilters.sortOrder ?? "relevance");
   const [currentPage, setCurrentPage] = useState(initialPage);
   const [heroEmojis, setHeroEmojis] = useState<HeroEmojis>({
-    discovery: discoveryEmojis[0],
-    nature: natureEmojis[0],
-    wildlife: wildlifeEmojis[0],
+    nature: natureEmojis.slice(0, 4),
+    wildlife: wildlifeEmojis.slice(0, 4),
   });
   const filterBarRef = useRef<HTMLDivElement>(null);
   const filterPillsRef = useRef<HTMLDivElement>(null);
@@ -584,9 +590,8 @@ export function JobBrowser({
 
   useEffect(() => {
     setHeroEmojis({
-      discovery: randomItem(discoveryEmojis),
-      nature: randomItem(natureEmojis),
-      wildlife: randomItem(wildlifeEmojis),
+      nature: randomItems(natureEmojis, 4),
+      wildlife: randomItems(wildlifeEmojis, 4),
     });
   }, []);
 
@@ -735,13 +740,29 @@ export function JobBrowser({
               <h1 id="jobs-page-heading">Do work that matters.</h1>
               <p className="job-search-hero__description">
                 Discover your next <strong className="job-search-hero__highlight">meaningful career</strong>{" "}
-                protecting wildlife, restoring nature and creating a better future for our planet.{" "}
-                <span aria-hidden="true" className="job-search-hero__emoji-cluster">
-                  <span className="job-search-hero__emoji">{heroEmojis.discovery}</span>
-                  <span className="job-search-hero__emoji">{heroEmojis.wildlife}</span>
-                  <span className="job-search-hero__emoji">{heroEmojis.nature}</span>
-                  <span className="job-search-hero__emoji">🌍</span>
+                protecting{" "}
+                <span aria-label="wildlife" className="job-search-hero__emoji-cluster" role="img">
+                  {heroEmojis.wildlife.map((emoji) => (
+                    <span aria-hidden="true" className="job-search-hero__emoji" key={emoji}>
+                      {emoji}
+                    </span>
+                  ))}
                 </span>
+                , restoring{" "}
+                <span aria-label="nature" className="job-search-hero__emoji-cluster" role="img">
+                  {heroEmojis.nature.map((emoji) => (
+                    <span aria-hidden="true" className="job-search-hero__emoji" key={emoji}>
+                      {emoji}
+                    </span>
+                  ))}
+                </span>{" "}
+                and creating a better future for our{" "}
+                <span aria-label="planet Earth" className="job-search-hero__emoji-cluster" role="img">
+                  <span aria-hidden="true" className="job-search-hero__emoji">
+                    🌍
+                  </span>
+                </span>
+                .
               </p>
             </div>
           </div>
