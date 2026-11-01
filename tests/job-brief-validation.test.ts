@@ -95,6 +95,9 @@ describe("original job brief quality gates", () => {
   it("normalizes typography without accepting invented evidence", () => {
     expect(evidencePresent("Our nature charity", "Our  nature charity")).toBe(true);
     expect(evidencePresent("Our marine charity", source)).toBe(false);
+    expect(evidencePresent("“Our nature charity”", source)).toBe(true);
+    expect(evidencePresent('"Our nature charity"', source)).toBe(true);
+    expect(evidencePresent("“Our marine charity”", source)).toBe(false);
   });
   it("normalizes tracking parameters without dropping vacancy identifiers", () =>
     expect(normalizeVacancyUrl("https://example.org/job?id=12&utm_source=rss#apply")).toBe(

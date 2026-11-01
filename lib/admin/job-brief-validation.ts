@@ -48,7 +48,11 @@ export function normalizedText(text: string) {
 }
 
 export function evidencePresent(quote: string | null, source: string) {
-  return Boolean(quote?.trim() && normalizedText(source).includes(normalizedText(quote)));
+  const text = quote
+    ?.trim()
+    .replace(/^["“]([\s\S]*)["”]$/, "$1")
+    .trim();
+  return Boolean(text && normalizedText(source).includes(normalizedText(text)));
 }
 
 function numericFacts(text: string): string[] {

@@ -5,6 +5,16 @@ import { parseEmployerPage, parseVacancyPage } from "../lib/admin/vacancy-page-e
 const pageUrl = "https://www.countryside-jobs.com/job/nov26/conservation-officer-example-trust-2910-1";
 
 describe("vacancy page extraction", () => {
+  it("keeps EnvironmentJob contract facts that are absent from structured employmentType", () => {
+    const result = parseVacancyPage(
+      '<div class="card"><h1 class="js-title">Project manager</h1><div>Full Time • Permanent</div><div class="js-detail">Restore wetlands.</div></div><script type="application/ld+json">{"@type":"JobPosting","description":"Restore wetlands.","employmentType":"FULL_TIME"}</script>',
+      "https://environmentjob.co.uk/jobs/123-project-manager",
+    );
+    expect(result.detailText).toBe("Restore wetlands.");
+    expect(result.evidenceText).toContain("Full Time • Permanent");
+    expect(result.evidenceText.match(/Restore wetlands\./g)).toHaveLength(1);
+  });
+
   it("does not treat a fallback vacancy URL as application instructions", () => {
     const result = parseVacancyPage(
       '<script type="application/ld+json">{"@type":"JobPosting","description":"Restore habitats with local communities.","url":"https://example.org/role"}</script>',

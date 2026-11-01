@@ -4,7 +4,7 @@ import { extractVacancyFieldEvidence, type VacancyFieldEvidence } from "./vacanc
 
 type JsonRecord = Record<string, unknown>;
 
-export const SOURCE_PAGE_EXTRACTOR_VERSION = "source-page-rules-v8";
+export const SOURCE_PAGE_EXTRACTOR_VERSION = "source-page-rules-v9";
 
 export type VacancyPageExtraction = {
   applicationInstructionsFound: boolean;
@@ -283,9 +283,16 @@ export function parseVacancyPage(html: string, pageUrl: string): VacancyPageExtr
   const location = structuredLocation(jobPosting);
   const title = clean(jobPosting?.title, 240) || clean($("h1").first().text(), 240) || null;
   const employerName = clean(organisation?.name, 200) || null;
+  let visibleHeader = "";
+  if (new URL(pageUrl).hostname === "environmentjob.co.uk") {
+    const header = $("h1.js-title").closest(".card").clone();
+    header.find(".js-detail, script, style, svg").remove();
+    visibleHeader = clean(header.text(), 3000);
+  }
   // JobPosting header facts are advertised evidence too. Keep the readable description separate,
   // while giving downstream generation and validation the same complete evidence bundle.
   const evidenceText = [
+    visibleHeader ? `Visible advert header: ${visibleHeader}` : null,
     title ? `Advertised title: ${title}` : null,
     employerName ? `Hiring organisation: ${employerName}` : null,
     location?.text ? `Advertised location: ${location.text}` : null,
