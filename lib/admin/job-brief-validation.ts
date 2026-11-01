@@ -17,7 +17,7 @@ export const briefOutputSchema = z.object({
   overview: claim,
   conservationContext: claim,
   responsibilities: z.array(claim).max(6),
-  essential: z.array(claim).max(6),
+  essential: z.array(claim).max(12),
   desirable: z.array(claim).max(4),
   practical: z.array(claim).max(4),
   applicationChecklist: z.array(claim).max(4),

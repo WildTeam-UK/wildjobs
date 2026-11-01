@@ -126,7 +126,7 @@ export async function generateJobBrief(
       "Summary is a concise introduction. Overview adds different role-specific information. Conservation context explains only the connection supported by this advert.",
       "Classify relevance as uncertain when neither conservation/environment work nor support for an explicitly conservation/environment organisation is evidenced.",
       "Separate essential from desirable criteria. Leave absent lists empty. Do not invent salary, qualifications, visa rights, closing dates, employer benefits, application documents or working arrangements.",
-      "Preserve every advertised essential requirement. Group related criteria within the list limit, while retaining distinct process, compliance, communication and experience requirements.",
+      "Preserve every advertised essential requirement, using a separate item for each distinct criterion where possible (up to twelve). Group related criteria only when necessary, retaining process, compliance, communication and experience requirements.",
       "Volunteer expenses and allowances are not a salary. A paid role managing volunteers is paid. Consultancy budgets are not annual salaries. Preserve FTE and actual part-time pay distinctions.",
       "Never infer on-site from a location. Home-based with required office attendance is hybrid. Keep workplace_type null when unstated.",
       "Use only supplied taxonomy IDs with direct supporting quotes. Capabilities must be material duties or requirements, not incidental mentions.",
