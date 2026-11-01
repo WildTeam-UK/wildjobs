@@ -17,6 +17,10 @@ export type SourceStatusValidation =
   | { data: { isActive: boolean; sourceId: number }; error?: never }
   | { data?: never; error: "invalid-source" | "invalid-status" };
 
+export type SourceDescriptionDisplayModeValidation =
+  | { data: { descriptionDisplayMode: "full" | "link_only"; sourceId: number }; error?: never }
+  | { data?: never; error: "invalid-mode" | "invalid-source" };
+
 const sourceRecordStatuses = ["ignored", "possible_duplicate", "unmapped"] as const;
 
 export type SourceRecordStatus = (typeof sourceRecordStatuses)[number];
@@ -67,6 +71,20 @@ export function validateSourceStatus(formData: FormData): SourceStatusValidation
   if (statusValue !== "active" && statusValue !== "paused") return { error: "invalid-status" };
 
   return { data: { isActive: statusValue === "active", sourceId } };
+}
+
+export function validateSourceDescriptionDisplayMode(
+  formData: FormData,
+): SourceDescriptionDisplayModeValidation {
+  const sourceId = Number(formData.get("sourceId"));
+  const descriptionDisplayMode = formData.get("descriptionDisplayMode");
+
+  if (!Number.isSafeInteger(sourceId) || sourceId <= 0) return { error: "invalid-source" };
+  if (descriptionDisplayMode !== "full" && descriptionDisplayMode !== "link_only") {
+    return { error: "invalid-mode" };
+  }
+
+  return { data: { descriptionDisplayMode, sourceId } };
 }
 
 export function validateSourceRecordStatus(formData: FormData): SourceRecordStatusValidation {

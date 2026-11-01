@@ -4826,6 +4826,44 @@ select {
 .review-publication form {
   margin-top: 16px;
 }
+.publication-checklist {
+  display: grid;
+  gap: 10px;
+  margin: 16px 0;
+  padding: 0;
+  list-style: none;
+}
+.publication-checklist li {
+  display: grid;
+  grid-template-columns: 22px 1fr;
+  gap: 8px;
+  align-items: start;
+  font-size: 0.72rem;
+  line-height: 1.45;
+}
+.publication-checklist li > span {
+  display: grid;
+  width: 20px;
+  height: 20px;
+  place-items: center;
+  border-radius: 50%;
+  color: white;
+  font-weight: var(--wt-font-weight-bold);
+}
+.publication-checklist .is-ready > span {
+  background: var(--wt-color-brand-teal);
+}
+.publication-checklist .is-blocked > span {
+  background: var(--wt-color-brand-orange);
+}
+.publication-checklist a {
+  grid-column: 2;
+  width: fit-content;
+  font-weight: var(--wt-font-weight-bold);
+}
+.source-permission-form {
+  margin-bottom: 28px;
+}
 .job-lifecycle-actions {
   display: grid;
   gap: 18px;

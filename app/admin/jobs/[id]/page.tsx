@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import { publishJobReview } from "@/app/admin/jobs/actions";
 import { JobLifecycleActions } from "@/components/admin/job-lifecycle-actions";
 import { PublishJobForm } from "@/components/admin/publish-job-form";
+import { manualPublicationChecks } from "@/lib/admin/manual-publication-readiness";
 import { requireStaff } from "@/lib/auth/staff";
 import { formatDate } from "@/lib/jobs";
 import { createClient } from "@/lib/supabase/server";
@@ -111,6 +112,27 @@ export default async function ReviewJobPage({ params, searchParams }: ReviewPage
   const statusLabel = label(job.status);
   const isPublished = job.status === "published";
   const isClosed = job.status === "expired" || job.status === "withdrawn";
+  const publicationChecks = manualPublicationChecks({
+    employer: {
+      mission: job.employers.mission,
+      overview: job.employers.overview,
+      websiteUrl: job.employers.website_url,
+    },
+    job: {
+      applicationUrl: job.application_url,
+      closesAt: job.closes_at,
+      description: job.description,
+      locationText: job.location_text,
+      status: job.status,
+      summary: job.summary,
+    },
+    sources: sources.map((source) => ({
+      canonicalUrl: source.canonical_url,
+      verifiedAt: source.verified_at,
+    })),
+    today: new Date().toISOString().slice(0, 10),
+  });
+  const publicationReady = publicationChecks.every((check) => check.ready);
   const publish = publishJobReview.bind(null, id);
 
   return (
@@ -164,7 +186,7 @@ export default async function ReviewJobPage({ params, searchParams }: ReviewPage
       {publicationError ? (
         <div className="shell">
           <p className="staff-form-message staff-form-message--error" role="alert">
-            Publication was stopped. Check the required vacancy, employer and source details, then try again.
+            Publication was stopped. The incomplete checks are listed in the publication panel below.
           </p>
         </div>
       ) : null}
@@ -439,11 +461,31 @@ export default async function ReviewJobPage({ params, searchParams }: ReviewPage
               {staff.role === "admin" ? (
                 <div className="review-publication">
                   <strong>Administrator decision</strong>
-                  <p>
-                    Publishing makes the database record readable by the public. This action is recorded in
-                    the audit history.
-                  </p>
-                  <PublishJobForm action={publish} />
+                  <ul className="publication-checklist">
+                    {publicationChecks.map((check) => (
+                      <li className={check.ready ? "is-ready" : "is-blocked"} key={check.key}>
+                        <span aria-hidden="true">{check.ready ? "✓" : "!"}</span>
+                        {check.label}
+                        {!check.ready && check.key === "employer" ? (
+                          <Link href={`/admin/employers/${job.employers.id}`}>Open employer</Link>
+                        ) : null}
+                        {!check.ready && check.key === "source" && sources[0] ? (
+                          <Link href={`/admin/sources/${sources[0].job_sources.id}`}>Open source</Link>
+                        ) : null}
+                      </li>
+                    ))}
+                  </ul>
+                  {publicationReady ? (
+                    <>
+                      <p>
+                        Publishing makes the database record readable by the public. This action is recorded
+                        in the audit history.
+                      </p>
+                      <PublishJobForm action={publish} />
+                    </>
+                  ) : (
+                    <p>Complete the blocked checks above before publishing.</p>
+                  )}
                 </div>
               ) : (
                 <p className="review-permission-note">An administrator must make the publication decision.</p>

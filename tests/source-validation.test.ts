@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   validateSource,
+  validateSourceDescriptionDisplayMode,
   validateSourceRecordLink,
   validateSourceRecordStatus,
   validateSourceStatus,
@@ -56,6 +57,23 @@ describe("source validation", () => {
     );
 
     expect(result).toEqual({ error: "invalid-url" });
+  });
+});
+
+describe("source description permission validation", () => {
+  it("accepts explicit full-description permission", () => {
+    expect(
+      validateSourceDescriptionDisplayMode(sourceForm({ descriptionDisplayMode: "full", sourceId: "13" })),
+    ).toEqual({ data: { descriptionDisplayMode: "full", sourceId: 13 } });
+  });
+
+  it("rejects missing sources and unknown permission modes", () => {
+    expect(
+      validateSourceDescriptionDisplayMode(sourceForm({ descriptionDisplayMode: "full", sourceId: "0" })),
+    ).toEqual({ error: "invalid-source" });
+    expect(
+      validateSourceDescriptionDisplayMode(sourceForm({ descriptionDisplayMode: "scrape", sourceId: "13" })),
+    ).toEqual({ error: "invalid-mode" });
   });
 });
 
