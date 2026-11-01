@@ -131,13 +131,26 @@ select {
 .brand {
   display: inline-flex;
   flex: 0 0 auto;
-  align-items: baseline;
+  align-items: center;
   font-size: var(--wt-font-size-site-wordmark, clamp(1.5rem, 3vw, 2.375rem));
   font-weight: var(--wt-font-weight-black);
   line-height: 1;
   letter-spacing: var(--wt-font-tracking-site-wordmark, -0.015em);
 }
-.brand__wordmark {
+.brand-lockup {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.22em;
+  line-height: 1;
+}
+.brand-lockup__mark {
+  display: block;
+  width: 0.94em;
+  height: 0.94em;
+  flex: 0 0 0.94em;
+  background: url("/wildteam-mark.png") center / contain no-repeat;
+}
+.brand-lockup__wordmark {
   font-size: inherit;
   letter-spacing: inherit;
 }
@@ -2332,11 +2345,6 @@ select {
   margin: 0 0 12px;
   font-size: 1.5rem;
   font-weight: var(--wt-font-weight-black);
-}
-.site-footer__wordmark {
-  color: var(--wt-color-paper);
-  font-size: inherit;
-  letter-spacing: inherit;
 }
 .site-footer__grid p:not(.site-footer__brand) {
   max-width: 520px;

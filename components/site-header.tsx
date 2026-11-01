@@ -1,6 +1,6 @@
 "use client";
 
-import { BrandWordmark } from "@wildteam-uk/ui";
+import { BrandLockup } from "@/components/brand-lockup";
 import Link from "next/link";
 import { useEffect, useRef } from "react";
 
@@ -24,8 +24,8 @@ export function SiteHeader() {
   return (
     <header className="site-header" ref={headerRef}>
       <div className="shell site-header__inner">
-        <Link className="brand" href="/" aria-label="WildJobs home">
-          <BrandWordmark className="brand__wordmark" product="JOBS" />
+        <Link className="brand" href="/" aria-label="WildTeam Jobs home">
+          <BrandLockup />
         </Link>
         <nav className="site-nav" aria-label="Main navigation">
           <Link href="/">Find jobs</Link>

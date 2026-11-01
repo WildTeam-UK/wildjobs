@@ -1,4 +1,4 @@
-import { BrandWordmark } from "@wildteam-uk/ui";
+import { BrandLockup } from "@/components/brand-lockup";
 import Link from "next/link";
 
 export function SiteFooter() {
@@ -7,7 +7,7 @@ export function SiteFooter() {
       <div className="shell site-footer__grid">
         <div>
           <p className="site-footer__brand">
-            <BrandWordmark className="site-footer__wordmark" product="JOBS" />
+            <BrandLockup />
           </p>
           <p>Conservation opportunities presented clearly, with the source always visible.</p>
         </div>
