@@ -3565,12 +3565,6 @@ select {
   opacity: 0.45;
   cursor: default;
 }
-.job-filter-menu__option--unspecified {
-  border-top: 1px solid var(--wt-color-rule);
-  border-radius: 0 0 10px 10px;
-  margin-top: 5px;
-  padding-top: 12px;
-}
 .job-filter-menu__option .job-filter-menu__sector-icon {
   width: 20px;
   height: 20px;

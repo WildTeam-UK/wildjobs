@@ -5,7 +5,6 @@ import { getCandidateSaveState } from "@/lib/candidate-saved-jobs";
 import type { EmploymentType, EngagementType, LocationType } from "@/lib/jobs";
 import { getPublicCourses } from "@/lib/public-courses";
 import { getPublicEmployers } from "@/lib/public-employers";
-import type { SparseJobField } from "@/lib/job-filtering";
 import { getPublicJobs } from "@/lib/public-jobs";
 
 export const metadata: Metadata = {
@@ -14,11 +13,10 @@ export const metadata: Metadata = {
   alternates: { canonical: "/" },
 };
 
-const locationTypes: readonly LocationType[] = ["Remote", "Hybrid", "On-site", "Not specified"];
+const locationTypes: readonly LocationType[] = ["Remote", "Hybrid", "On-site"];
 const employmentTypes: readonly EmploymentType[] = [
   "Full time",
   "Part time",
-  "Flexible",
   "Permanent",
   "Fixed term",
   "Temporary",
@@ -51,6 +49,7 @@ export default async function HomePage({ searchParams }: { searchParams: SearchP
   const employment = valueOf(params.type);
   const engagement = valueOf(params.opportunity);
   const sort = valueOf(params.sort);
+  const sector = valueOf(params.sector ?? params.category);
   const salary = Number(valueOf(params.salary));
   const page = Number(valueOf(params.page));
 
@@ -72,10 +71,7 @@ export default async function HomePage({ searchParams }: { searchParams: SearchP
             ? (employment as EmploymentType)
             : "",
           contractType: valueOf(params.contract),
-          category: valueOf(params.sector ?? params.category),
-          includeUnspecified: valuesOf(params.include_unknown).filter((value): value is SparseJobField =>
-            ["workplace", "hours", "contract", "salary"].includes(value),
-          ),
+          category: sector === "Conservation & Wildlife" ? "Wildlife Conservation" : sector,
           courseSlugs: valuesOf(params.course),
           minimumSalary: Number.isFinite(salary) && salary > 0 ? salary : 0,
           sortOrder: sortOrders.includes(sort as JobSortOrder) ? (sort as JobSortOrder) : "relevance",

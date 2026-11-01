@@ -3,6 +3,7 @@
 import { Button } from "@wildteam-uk/ui";
 import { createPortal } from "react-dom";
 import { SectorIcon } from "./sector-icon";
+import { directoryDeadline } from "@/lib/directory-lifecycle";
 import {
   Fragment,
   type CSSProperties,
@@ -18,17 +19,10 @@ import { JobCard } from "@/components/job-card";
 import { JobTrainingPromo } from "@/components/job-training-promo";
 import { courseBySlug, type Course } from "@/lib/courses";
 import type { CandidateSaveState } from "@/lib/candidate-saved-jobs";
-import {
-  filterJobs,
-  jobCategories,
-  rankCourseFilters,
-  isJobFieldUnspecified,
-  unspecifiedMatchCount,
-  type SparseJobField,
-} from "@/lib/job-filtering";
+import { filterJobs, jobCategories, rankCourseFilters } from "@/lib/job-filtering";
 import type { EmploymentType, EngagementType, Job, LocationType } from "@/lib/jobs";
 
-const locationTypes: readonly LocationType[] = ["Remote", "Hybrid", "On-site", "Not specified"];
+const locationTypes: readonly LocationType[] = ["Remote", "Hybrid", "On-site"];
 const jobsPerPage = 25;
 export type JobSortOrder = "closing" | "newest" | "relevance";
 type FilterIconName =
@@ -54,7 +48,6 @@ type BrowserFilters = Readonly<{
   courseSlugs: readonly string[];
   minimumSalary: number;
   sortOrder: JobSortOrder;
-  includeUnspecified: readonly SparseJobField[];
 }>;
 
 function titleCaseCourseName(title: string) {
@@ -220,7 +213,6 @@ type SingleFilterDropdownProps = {
   placeholder: string;
   value: string;
   multiple?: false;
-  unspecified?: { checked: boolean; count: number; onChange: (checked: boolean) => void };
 };
 
 type MultiFilterDropdownProps = Omit<SingleFilterDropdownProps, "multiple" | "onChange" | "value"> & {
@@ -239,30 +231,13 @@ function FilterDropdown(props: SingleFilterDropdownProps | MultiFilterDropdownPr
   const optionRefs = useRef<Array<HTMLButtonElement | null>>([]);
   const menuId = useId();
   const selectedValues = props.multiple ? props.value : props.value ? [props.value] : [];
-  const baseSelectedLabel =
+  const selectedLabel =
     props.multiple && selectedValues.length > 1
       ? `${selectedValues.length} courses`
       : (options.find((option) => option.value === selectedValues[0])?.label ?? placeholder);
-  const selectedLabel =
-    props.unspecified?.checked && selectedValues.length && selectedValues[0] !== "Not specified"
-      ? `${baseSelectedLabel} + unspecified`
-      : baseSelectedLabel;
-  const allOptions: readonly FilterOption[] = [
-    { label: clearLabel, value: "" },
-    ...options,
-    ...(props.unspecified
-      ? [
-          {
-            label: "Include jobs where this isn’t specified",
-            value: "__unspecified",
-            count: props.unspecified.count,
-          },
-        ]
-      : []),
-  ];
+  const allOptions: readonly FilterOption[] = [{ label: clearLabel, value: "" }, ...options];
   const isOptionDisabled = (option: FilterOption) =>
-    option.count === 0 &&
-    !(option.value === "__unspecified" ? props.unspecified?.checked : selectedValues.includes(option.value));
+    option.count === 0 && !selectedValues.includes(option.value);
   const selectedIndex = Math.max(
     0,
     allOptions.findIndex((option) => selectedValues.includes(option.value)),
@@ -385,23 +360,16 @@ function FilterDropdown(props: SingleFilterDropdownProps | MultiFilterDropdownPr
               style={menuPosition}
             >
               {allOptions.map((option, index) => {
-                const unknown = option.value === "__unspecified";
-                const checked = unknown
-                  ? props.unspecified?.checked
-                  : option.value
-                    ? selectedValues.includes(option.value)
-                    : selectedValues.length === 0;
+                const checked = option.value
+                  ? selectedValues.includes(option.value)
+                  : selectedValues.length === 0;
                 return (
                   <button
                     aria-checked={props.multiple && !option.value ? undefined : checked}
-                    className={`job-filter-menu__option${unknown ? " job-filter-menu__option--unspecified" : ""}`}
+                    className="job-filter-menu__option"
                     disabled={isOptionDisabled(option)}
                     key={option.value}
                     onClick={() => {
-                      if (unknown) {
-                        props.unspecified?.onChange(!props.unspecified.checked);
-                        return;
-                      }
                       if (props.multiple)
                         props.onChange(
                           option.value
@@ -419,15 +387,7 @@ function FilterDropdown(props: SingleFilterDropdownProps | MultiFilterDropdownPr
                     ref={(element) => {
                       optionRefs.current[index] = element;
                     }}
-                    role={
-                      unknown
-                        ? "menuitemcheckbox"
-                        : props.multiple
-                          ? option.value
-                            ? "menuitemcheckbox"
-                            : "menuitem"
-                          : "menuitemradio"
-                    }
+                    role={props.multiple ? (option.value ? "menuitemcheckbox" : "menuitem") : "menuitemradio"}
                     type="button"
                   >
                     {accessibleLabel === "Sector" && option.value ? (
@@ -584,9 +544,6 @@ export function JobBrowser({
     const availableCourseSlugs = new Set(courses.map((course) => course.slug));
     return (initialFilters.courseSlugs ?? []).filter((slug) => availableCourseSlugs.has(slug));
   });
-  const [includeUnspecified, setIncludeUnspecified] = useState<readonly SparseJobField[]>(
-    initialFilters.includeUnspecified ?? [],
-  );
   const [minimumSalary, setMinimumSalary] = useState(initialFilters.minimumSalary ?? 0);
   const [sortOrder, setSortOrder] = useState<JobSortOrder>(initialFilters.sortOrder ?? "relevance");
   const [currentPage, setCurrentPage] = useState(initialPage);
@@ -602,18 +559,14 @@ export function JobBrowser({
     locationType,
     minimumSalary,
     query,
-    includeUnspecified,
   };
   const filteredJobs = filterJobs(jobs, filterValues).toSorted((left, right) => {
-    const unknownOrder =
-      unspecifiedMatchCount(left, filterValues) - unspecifiedMatchCount(right, filterValues);
-    if (unknownOrder) return unknownOrder;
     if (sortOrder === "newest") return right.postedAt.localeCompare(left.postedAt);
     if (sortOrder === "closing") {
-      if (!left.closesAt && !right.closesAt) return 0;
-      if (!left.closesAt) return 1;
-      if (!right.closesAt) return -1;
-      return left.closesAt.localeCompare(right.closesAt);
+      return (
+        new Date(directoryDeadline(left.postedAt, left.closesAt)).valueOf() -
+        new Date(directoryDeadline(right.postedAt, right.closesAt)).valueOf()
+      );
     }
     return 0;
   });
@@ -626,17 +579,6 @@ export function JobBrowser({
   const sectorContext = filterJobs(jobs, { ...filterValues, category: "" });
   const opportunityContext = filterJobs(jobs, { ...filterValues, engagementType: "" });
   const orderedCourses = rankCourseFilters(courses, filterJobs(jobs, { ...filterValues, courseSlugs: [] }));
-  const unknownOption = (field: SparseJobField, items: readonly Job[]) => ({
-    checked: includeUnspecified.includes(field),
-    count: items.filter((job) => isJobFieldUnspecified(job, field)).length,
-    onChange: (checked: boolean) => {
-      const next = checked
-        ? [...includeUnspecified, field]
-        : includeUnspecified.filter((item) => item !== field);
-      setIncludeUnspecified(next);
-      syncUrl(currentFilters({ includeUnspecified: next }));
-    },
-  });
   const contractTypes = [
     ...new Set(jobs.flatMap((job) => (job.contractType ? [job.contractType] : []))),
   ].toSorted();
@@ -654,8 +596,7 @@ export function JobBrowser({
     contractType ||
     category ||
     courseSlugs.length ||
-    minimumSalary ||
-    includeUnspecified.length,
+    minimumSalary,
   );
   const selectedCourses = courseSlugs.flatMap((slug) => {
     const course = courseBySlug(courses, slug);
@@ -742,7 +683,6 @@ export function JobBrowser({
     if (filters.employmentType) params.set("type", filters.employmentType);
     if (filters.contractType) params.set("contract", filters.contractType);
     if (filters.category) params.set("sector", filters.category);
-    filters.includeUnspecified.forEach((field) => params.append("include_unknown", field));
     filters.courseSlugs.forEach((slug) => params.append("course", slug));
     if (filters.minimumSalary) params.set("salary", String(filters.minimumSalary));
     if (filters.sortOrder !== "relevance") params.set("sort", filters.sortOrder);
@@ -771,7 +711,6 @@ export function JobBrowser({
       minimumSalary,
       query,
       sortOrder,
-      includeUnspecified,
       ...overrides,
     };
   }
@@ -786,7 +725,6 @@ export function JobBrowser({
     setCategory("");
     setCourseSlugs([]);
     setMinimumSalary(0);
-    setIncludeUnspecified([]);
     syncUrl({
       category: "",
       contractType: "",
@@ -796,7 +734,6 @@ export function JobBrowser({
       locationQuery: "",
       locationType: "",
       minimumSalary: 0,
-      includeUnspecified: [],
       query: "",
       sortOrder,
     });
@@ -902,6 +839,24 @@ export function JobBrowser({
               />
             ) : null}
             <FilterDropdown
+              accessibleLabel="Sector"
+              clearLabel="Any sector"
+              icon="leaf"
+              onChange={(value) => {
+                setCategory(value);
+                syncUrl(currentFilters({ category: value }));
+              }}
+              options={categories.map((value) => ({
+                label: value,
+                value,
+                count: sectorContext.filter(
+                  (job) => job.category === value || job.careerAreas?.includes(value),
+                ).length,
+              }))}
+              placeholder="Sector"
+              value={category}
+            />
+            <FilterDropdown
               accessibleLabel="Sort jobs"
               className="job-filter-pill--compact-only job-filter-pill--icon-only"
               clearLabel="Recommended"
@@ -913,7 +868,7 @@ export function JobBrowser({
               }}
               options={[
                 { label: "Newest first", value: "newest" },
-                ...(jobs.some((job) => job.closesAt) ? [{ label: "Closing soon", value: "closing" }] : []),
+                { label: "Closing soon", value: "closing" },
               ]}
               placeholder="Recommended"
               value={sortOrder === "relevance" ? "" : sortOrder}
@@ -956,7 +911,6 @@ export function JobBrowser({
                 value,
                 count: workplaceContext.filter((job) => job.locationType === value).length,
               }))}
-              unspecified={unknownOption("workplace", workplaceContext)}
               placeholder="Work location"
               value={locationType}
             />
@@ -973,7 +927,6 @@ export function JobBrowser({
                 value,
                 count: contractContext.filter((job) => job.contractType === value).length,
               }))}
-              unspecified={unknownOption("contract", contractContext)}
               placeholder="Contract type"
               value={contractType}
             />
@@ -1001,35 +954,9 @@ export function JobBrowser({
                     [job.employmentType, job.hoursType, ...(job.hoursTypes ?? [])].includes("Part time"),
                   ).length,
                 },
-                {
-                  label: "Flexible",
-                  value: "Flexible",
-                  count: hoursContext.filter((job) =>
-                    [job.employmentType, job.hoursType, ...(job.hoursTypes ?? [])].includes("Flexible"),
-                  ).length,
-                },
               ]}
-              unspecified={unknownOption("hours", hoursContext)}
               placeholder="Working hours"
               value={employmentType}
-            />
-            <FilterDropdown
-              accessibleLabel="Sector"
-              clearLabel="Any sector"
-              icon="leaf"
-              onChange={(value) => {
-                setCategory(value);
-                syncUrl(currentFilters({ category: value }));
-              }}
-              options={categories.map((value) => ({
-                label: value,
-                value,
-                count: sectorContext.filter(
-                  (job) => job.category === value || job.careerAreas?.includes(value),
-                ).length,
-              }))}
-              placeholder="Sector"
-              value={category}
             />
             <FilterDropdown
               accessibleLabel="Minimum advertised salary"
@@ -1067,7 +994,6 @@ export function JobBrowser({
                   count: salaryContext.filter((job) => (job.salaryMinimum ?? 0) >= 50000).length,
                 },
               ]}
-              unspecified={unknownOption("salary", salaryContext)}
               placeholder="Minimum salary"
               value={minimumSalary ? String(minimumSalary) : ""}
             />
@@ -1106,9 +1032,7 @@ export function JobBrowser({
                   }}
                   options={[
                     { label: "Newest first", value: "newest" },
-                    ...(jobs.some((job) => job.closesAt)
-                      ? [{ label: "Closing soon", value: "closing" }]
-                      : []),
+                    { label: "Closing soon", value: "closing" },
                   ]}
                   placeholder="Recommended"
                   value={sortOrder === "relevance" ? "" : sortOrder}

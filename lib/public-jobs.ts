@@ -6,6 +6,12 @@ import type { Database } from "./supabase/database.types";
 import { createPublicClient } from "./supabase/public";
 import { getPublicCourses } from "./public-courses";
 import { getPublicCareerAreas } from "./public-career-areas";
+import {
+  directoryDeadline,
+  directoryFacts,
+  isDirectoryJobLive,
+  liveDirectoryDateFilter,
+} from "./directory-lifecycle";
 
 type DirectoryJob = Database["public"]["Tables"]["directory_jobs"]["Row"];
 export async function mapDirectoryJobs(records: readonly DirectoryJob[]): Promise<readonly Job[]> {
@@ -19,6 +25,11 @@ export async function mapDirectoryJobs(records: readonly DirectoryJob[]): Promis
   return records.map((row) => {
     const terms = sectors.filter((s) => row.sector_slugs.includes(s.slug));
     const relatedCourses = courses.filter((c) => row.course_slugs.includes(c.slug));
+    const facts = directoryFacts({
+      workplace: row.workplace,
+      hours: row.hours_type,
+      contract: row.contract_type,
+    });
     return {
       id: row.id,
       slug: row.slug,
@@ -31,16 +42,11 @@ export async function mapDirectoryJobs(records: readonly DirectoryJob[]): Promis
       locationLocality: row.locality ?? undefined,
       locationRegion: row.region ?? undefined,
       countryCode: row.country_code ?? undefined,
-      locationType: row.workplace as LocationType,
-      employmentType:
-        row.hours_type === "Part time"
-          ? "Part time"
-          : row.hours_type === "Full time"
-            ? "Full time"
-            : "Not stated",
-      hoursType: row.hours_type ?? undefined,
-      hoursTypes: row.hours_type?.split(" · "),
-      contractType: row.contract_type ?? undefined,
+      locationType: facts.workplace as LocationType,
+      employmentType: facts.hours_type === "Part time" ? "Part time" : "Full time",
+      hoursType: facts.hours_type,
+      hoursTypes: facts.hours_type.split(" · "),
+      contractType: facts.contract_type,
       engagementType: row.engagement_type === "Volunteer" ? "Volunteer" : "Paid",
       salary: row.salary_text,
       salaryMinimum: row.salary_text.includes("per year") ? (row.salary_min ?? undefined) : undefined,
@@ -52,7 +58,8 @@ export async function mapDirectoryJobs(records: readonly DirectoryJob[]): Promis
       postedAt: row.posted_at,
       publishedAt: row.posted_at,
       updatedAt: row.updated_at,
-      availability: row.is_active ? "current" : "unavailable",
+      closesAt: directoryDeadline(row.posted_at, row.closes_at),
+      availability: !row.is_active ? "unavailable" : isDirectoryJobLive(row) ? "current" : "expired",
       sourceName: "EnvironmentJob",
       sourceUrl: row.source_url,
     };
@@ -64,6 +71,7 @@ export const getPublicJobs = cache(async (): Promise<readonly Job[]> => {
     .from("directory_jobs")
     .select("*")
     .eq("is_active", true)
+    .or(liveDirectoryDateFilter())
     .order("posted_at", { ascending: false })
     .limit(1000);
   if (error) throw new Error("Jobs could not be loaded.");

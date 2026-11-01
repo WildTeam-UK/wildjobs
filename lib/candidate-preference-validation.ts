@@ -15,7 +15,6 @@ export const workplaceOptions = [
 export const hoursOptions = [
   { label: "Full time", value: "full_time" },
   { label: "Part time", value: "part_time" },
-  { label: "Flexible", value: "flexible" },
 ] as const;
 
 export const contractOptions = [

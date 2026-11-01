@@ -1,5 +1,6 @@
 import { createHash } from "node:crypto";
 import { XMLParser, XMLValidator } from "fast-xml-parser";
+import { closingDate, directoryFacts } from "./directory-lifecycle";
 
 export const FEED_URL = "https://environmentjob.co.uk/jobs.rss";
 export function cleanText(value: unknown): string {
@@ -94,9 +95,10 @@ export function parseFeed(xml: string, now = new Date(), organisationNames: read
         ? "Remote"
         : /\bon[ -]site\b|office[ -]based/i.test(prefix)
           ? "On-site"
-          : "Not specified";
+          : "On-site";
     const date = new Date(String(item.pubDate));
     const feed_id = String(item.guid ?? source.toString());
+    const closesAt = closingDate(item.closingDate ?? item.validThrough);
     return {
       feed_id,
       slug: source.pathname.split("/").filter(Boolean).at(-1)!,
@@ -105,7 +107,13 @@ export function parseFeed(xml: string, now = new Date(), organisationNames: read
       organisation_name: organisation,
       feed_text: text,
       feed_hash: createHash("sha256")
-        .update(JSON.stringify([title, text, source.toString(), item.pubDate]))
+        .update(
+          JSON.stringify(
+            closesAt
+              ? [title, text, source.toString(), item.pubDate, closesAt]
+              : [title, text, source.toString(), item.pubDate],
+          ),
+        )
         .digest("hex"),
       summary: excerpt || title,
       summary_source: "source" as const,
@@ -120,17 +128,12 @@ export function parseFeed(xml: string, now = new Date(), organisationNames: read
           : null,
       salary_text: salary,
       salary_min: Number(salary.match(/[\d,]+/)?.[0].replaceAll(",", "")) || null,
-      workplace,
-      hours_type: /part[ -]time/i.test(`${title} ${excerpt}`)
-        ? "Part time"
-        : /full[ -]time/i.test(`${title} ${excerpt}`)
-          ? "Full time"
-          : null,
-      contract_type: /\bpermanent\b/i.test(text)
-        ? "Permanent"
-        : /fixed[ -]term/i.test(text)
-          ? "Fixed term"
-          : null,
+      ...directoryFacts({
+        workplace,
+        hours: /part[ -]time/i.test(`${title} ${excerpt}`) ? "Part time" : "Full time",
+        contract: /fixed[ -]term/i.test(text) ? "Fixed term" : "Permanent",
+      }),
+      ...(closesAt ? { closes_at: closesAt } : {}),
       engagement_type: /\bvolunteer|voluntary|unpaid\b/i.test(prefix) ? "Volunteer" : "Paid",
       posted_at: Number.isFinite(date.valueOf()) ? date.toISOString() : now.toISOString(),
       last_seen_at: now.toISOString(),

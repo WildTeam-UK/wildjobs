@@ -15,7 +15,7 @@ describe("feed cards", () => {
       locality: "Exeter",
       region: "Devon",
       salary_text: "£30,000 – £40,000 per year pro rata",
-      workplace: "Not specified",
+      workplace: "On-site",
       summary: "Lead ecological surveys and manage projects.",
       posted_at: "2026-10-30T17:11:15.000Z",
       source_url: "https://environmentjob.co.uk/jobs/123-ecologist",
@@ -50,7 +50,7 @@ describe("feed cards", () => {
     ).toMatchObject({ location_text: "Bristol", workplace: "Hybrid", country_code: "GB" });
     expect(
       parseFeed(xml("Trust, Exeter, Devon, £30,000 pa. Analyse remote sensing data."))[0].workplace,
-    ).toBe("Not specified");
+    ).toBe("On-site");
   });
   it("keeps salary approximation and workplace qualifiers out of place names", () => {
     expect(parseFeed(xml("Trust, London, c.£40,000 pa. Support nature recovery."))[0].location_text).toBe(
@@ -65,7 +65,7 @@ describe("feed cards", () => {
   it("does not treat a salary pro-rata option as advertised working hours", () => {
     expect(
       parseFeed(xml("Trust, Exeter, £30,000 pa pro rata for part-time. Lead nature projects."))[0].hours_type,
-    ).toBeNull();
+    ).toBe("Full time");
   });
   it("uses a stable content hash and changes it when feed text changes", () => {
     expect(parseFeed(xml("Trust, Exeter, £30000 pa. Surveys."))[0].feed_hash).not.toBe(

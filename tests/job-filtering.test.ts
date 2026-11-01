@@ -1,11 +1,5 @@
 import { describe, expect, it } from "vitest";
-import {
-  filterJobs,
-  jobCategories,
-  rankCourseFilters,
-  unspecifiedMatchCount,
-  type JobFilters,
-} from "../lib/job-filtering";
+import { filterJobs, jobCategories, rankCourseFilters, type JobFilters } from "../lib/job-filtering";
 import { jobs } from "./job-fixtures";
 
 function filters(overrides: Partial<JobFilters> = {}): JobFilters {
@@ -103,62 +97,15 @@ describe("job filtering", () => {
   });
 });
 
-describe("missing filter information", () => {
-  const remote = { ...jobs[0], locationType: "Remote" as const };
-  const unknown = {
-    ...jobs[1],
-    locationType: "Not specified" as const,
-    hoursType: undefined,
-    employmentType: "Not stated" as const,
-    contractType: undefined,
-    salaryMinimum: undefined,
-  };
-  it("keeps confirmed matches strict unless missing information is explicitly included", () => {
-    expect(filterJobs([remote, unknown], filters({ locationType: "Remote" }))).toEqual([remote]);
-    expect(
-      filterJobs([remote, unknown], filters({ locationType: "Remote", includeUnspecified: ["workplace"] })),
-    ).toEqual([remote, unknown]);
-  });
-  it("never treats a known conflicting workplace as unspecified", () =>
-    expect(
-      filterJobs(
-        [{ ...remote, locationType: "Hybrid" as const }],
-        filters({ locationType: "Remote", includeUnspecified: ["workplace"] }),
-      ),
-    ).toEqual([]));
-  it("includes unknown hours, contract and salary only for their own chosen filters", () => {
-    expect(
-      filterJobs(
-        [unknown],
-        filters({
-          employmentType: "Full time",
-          contractType: "Permanent",
-          minimumSalary: 30000,
-          includeUnspecified: ["hours", "contract", "salary"],
-        }),
-      ),
-    ).toEqual([unknown]);
-    expect(
-      filterJobs(
-        [unknown],
-        filters({ employmentType: "Full time", contractType: "Permanent", includeUnspecified: ["hours"] }),
-      ),
-    ).toEqual([]);
-  });
-  it("finds both full-time and part-time options from the source metadata", () => {
-    const flexible = {
-      ...remote,
-      hoursType: "Full time · Part time",
-      hoursTypes: ["Full time", "Part time"],
-    };
-    expect(filterJobs([flexible], filters({ employmentType: "Part time" }))).toEqual([flexible]);
-  });
+it("does not include an unknown salary in a minimum salary selection", () => {
+  expect(filterJobs([{ ...jobs[0], salaryMinimum: undefined }], filters({ minimumSalary: 30000 }))).toEqual(
+    [],
+  );
 });
-
-it("ranks confirmed matches before jobs included through missing information", () => {
-  const selection = filters({ locationType: "Remote", includeUnspecified: ["workplace"] });
-  expect(unspecifiedMatchCount({ ...jobs[0], locationType: "Remote" }, selection)).toBe(0);
-  expect(unspecifiedMatchCount({ ...jobs[0], locationType: "Not specified" }, selection)).toBe(1);
+it("finds both full-time and part-time options from the source metadata", () => {
+  const flexible = { ...jobs[0], hoursType: "Full time · Part time", hoursTypes: ["Full time", "Part time"] };
+  expect(filterJobs([flexible], filters({ employmentType: "Part time" }))).toEqual([flexible]);
+  expect(filterJobs([flexible], filters({ employmentType: "Full time" }))).toEqual([flexible]);
 });
 it("orders course options by matching job count, then alphabetically", () => {
   const course = (slug: string, title: string) => ({

@@ -10,6 +10,7 @@ describe("EnvironmentJob advert", () => {
           description:
             "<p>A full-time role on a fixed-term contract, with hybrid working.</p><p>Write trusts &amp; foundations applications. We&#39;re supporting nature.</p>",
           employmentType: ["FULL_TIME", "PART_TIME"],
+          validThrough: "2026-11-08T23:55:00Z",
           hiringOrganization: { logo: "https://example.test/trust_open_graph.jpg" },
           jobLocation: { address: { addressCountry: "United Kingdom" } },
         },
@@ -20,6 +21,7 @@ describe("EnvironmentJob advert", () => {
       description:
         "A full-time role on a fixed-term contract, with hybrid working. Write trusts & foundations applications. We're supporting nature.",
       hours: "Full time · Part time",
+      closesAt: "2026-11-08T23:55:00.000Z",
       contract: "Fixed term",
       workplace: "Hybrid",
       countryCode: "GB",
