@@ -1412,6 +1412,9 @@ select {
 }
 .job-results__heading > p {
   margin: 0;
+  color: var(--wt-color-muted);
+  font-size: 0.94rem;
+  line-height: 1.45;
 }
 .job-sort-control {
   flex: 0 0 auto;
@@ -1755,14 +1758,14 @@ select {
   white-space: nowrap;
 }
 .job-card__status-pill--new {
-  border-color: color-mix(in srgb, var(--wt-color-brand-purple) 28%, var(--wt-color-rule));
-  background: color-mix(in srgb, var(--wt-color-brand-purple) 8%, var(--wt-color-paper));
-  color: var(--wt-color-brand-purple);
+  border-color: color-mix(in srgb, var(--wt-color-success-text) 35%, var(--wt-color-success-surface));
+  background: var(--wt-color-success-surface);
+  color: var(--wt-color-success-text);
 }
 .job-card__status-pill--closing {
-  border-color: color-mix(in srgb, var(--wt-color-accent-coral) 40%, var(--wt-color-rule));
-  background: color-mix(in srgb, var(--wt-color-accent-coral) 9%, var(--wt-color-paper));
-  color: color-mix(in srgb, var(--wt-color-accent-coral) 78%, var(--wt-color-ink));
+  border-color: color-mix(in srgb, var(--wt-color-error-text) 35%, var(--wt-color-error-surface));
+  background: var(--wt-color-error-surface);
+  color: var(--wt-color-error-text);
 }
 .job-card__topline {
   display: flex;
@@ -1859,6 +1862,9 @@ select {
   -webkit-line-clamp: unset;
 }
 .job-card__ai-summary-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
   width: fit-content;
   margin: 0 0 10px;
   font-size: 0.68rem;
@@ -1866,6 +1872,12 @@ select {
   letter-spacing: 0.04em;
   line-height: 1;
   text-transform: uppercase;
+}
+.job-card__ai-summary-label svg {
+  width: 15px;
+  height: 14px;
+  flex: 0 0 auto;
+  fill: var(--wt-color-brand-pink);
 }
 .job-card__ai-summary-label > span {
   background: linear-gradient(
@@ -2144,7 +2156,9 @@ select {
   white-space: nowrap;
 }
 @media (min-width: 641px) {
-  .job-card--compact .job-card__summary-block,
+  .job-card--compact .job-card__summary-block {
+    margin-inline: 91px;
+  }
   .job-card--compact .job-card__meta-row,
   .job-card--compact .job-card__training-row {
     margin-left: 91px;
@@ -3020,6 +3034,9 @@ select {
 }
 
 @media (max-width: 900px) {
+  .job-card--compact .job-card__summary-block {
+    margin-inline: 32px;
+  }
   .job-training-promo {
     height: auto;
     min-height: 0;
@@ -3069,6 +3086,9 @@ select {
 }
 
 @media (max-width: 640px) {
+  .job-card--compact .job-card__summary-block {
+    margin-inline: 0;
+  }
   .job-search-hero-art::before,
   .job-search-hero-art::after {
     display: none;
