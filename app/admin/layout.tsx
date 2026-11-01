@@ -17,19 +17,14 @@ export default async function AdminLayout({ children }: { children: ReactNode })
       <aside className="staff-preview-notice">
         <div className="shell">
           <strong>Secure staff workspace:</strong> Signed in as {staff.email ?? "WildJobs staff"} (
-          {staff.role}). Employer submissions and invitation records are protected staff-only data.
+          {staff.role}).
         </div>
       </aside>
       <nav className="staff-nav shell" aria-label="Staff workspace">
         <Link href="/admin">Overview</Link>
-        <Link href="/admin/sources">Sources</Link>
-        <Link href="/admin/jobs">Job review</Link>
-        <Link href="/admin/imports">Import runs</Link>
-        <Link href="/admin/automation">Automation</Link>
+        <Link href="/admin/jobs">Jobs</Link>
         <Link href="/admin/courses">Courses</Link>
-        <Link href="/admin/capabilities">Capabilities</Link>
-        <Link href="/admin/employers">Employers</Link>
-        <Link href="/admin/submissions">Submissions</Link>
+        <Link href="/admin/organisations">Organisation logos</Link>
       </nav>
       {children}
     </>

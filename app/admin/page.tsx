@@ -1,95 +1,109 @@
-import type { Metadata } from "next";
-import Link from "next/link";
-
 import { requireStaff } from "@/lib/auth/staff";
-import { createClient } from "@/lib/supabase/server";
-
-export const metadata: Metadata = { title: "Staff workspace" };
-
+import { createTrustedClient } from "@/lib/supabase/trusted";
+import { setAutomation, runFeed } from "./actions";
+import { SubmitButton } from "@/components/submit-button";
+export const maxDuration = 150;
 export default async function AdminPage() {
   await requireStaff();
-  const supabase = await createClient();
-  const [sources, jobs, submissions] = await Promise.all([
-    supabase.from("job_sources").select("id", { count: "exact", head: true }).eq("is_active", true),
-    supabase.from("jobs").select("id", { count: "exact", head: true }),
-    supabase
-      .from("employer_submissions")
-      .select("id", { count: "exact", head: true })
-      .in("status", ["new", "changes_requested", "ready_for_job_review"]),
+  const db = createTrustedClient();
+  const [settings, jobs, runs] = await Promise.all([
+    db.from("directory_settings").select("*").single(),
+    db.from("directory_jobs").select("id,feed_hash,processed_hash,is_active"),
+    db.from("directory_runs").select("*").order("started_at", { ascending: false }).limit(1000),
   ]);
-
+  if (settings.error || jobs.error || runs.error) throw new Error("Directory activity could not be loaded.");
+  const active = jobs.data.filter((j) => j.is_active),
+    pending = active.filter((j) => j.feed_hash !== j.processed_hash).length;
+  const today = new Date().toISOString().slice(0, 10),
+    recent = runs.data.filter((r) => r.started_at.startsWith(today));
+  const cost = runs.data.reduce((total, r) => total + r.estimated_cost_usd, 0);
+  const when = (value: string | null) =>
+    value ? new Date(value).toLocaleString("en-GB", { timeZone: "Europe/London" }) : "Not yet";
   return (
-    <main className="staff-page">
+    <main className="staff-page directory-admin">
       <header className="staff-hero shell">
         <div>
-          <p className="eyebrow">Staff workspace</p>
-          <h1>Build a trustworthy jobs catalogue.</h1>
+          <p className="eyebrow">EnvironmentJob directory</p>
+          <h1>Feed to live job cards.</h1>
         </div>
         <p>
-          Start with approved sources, keep every imported record reviewable and publish only complete,
-          current opportunities.
+          Imports publish automatically. AI adds a concise summary, sectors and relevant WildTeam courses.
         </p>
       </header>
-
-      <section className="staff-summary shell" aria-label="Workspace summary">
+      <section className="staff-summary shell">
         <div>
-          <span>{String(sources.count ?? 0).padStart(2, "0")}</span>
-          <strong>Active sources</strong>
+          <span>{active.length}</span>
+          <strong>Live jobs</strong>
         </div>
         <div>
-          <span>{String(jobs.count ?? 0).padStart(2, "0")}</span>
-          <strong>Job records</strong>
+          <span>{pending}</span>
+          <strong>Awaiting AI enrichment · already live</strong>
         </div>
         <div>
-          <span>{String(submissions.count ?? 0).padStart(2, "0")}</span>
-          <strong>Submissions awaiting review</strong>
+          <span>${cost.toFixed(4)}</span>
+          <strong>Estimated AI spend · latest 1,000 runs</strong>
         </div>
       </section>
-
       <section className="staff-section shell">
-        <div className="staff-section__heading">
-          <div>
-            <p className="eyebrow">Start here</p>
-            <h2>Move from source to publication.</h2>
-          </div>
-          <p>Every stage remains visible to staff.</p>
-        </div>
-        <div className="staff-dashboard-grid">
-          <Link href="/admin/sources">
-            <span>01</span>
-            <h3>Manage sources</h3>
-            <p>Add authoritative careers pages, feeds and APIs before any vacancy enters review.</p>
-          </Link>
-          <Link href="/admin/jobs">
-            <span>02</span>
-            <h3>Review jobs</h3>
-            <p>Check completeness, duplicate warnings and publication readiness.</p>
-          </Link>
-          <Link href="/admin/imports">
-            <span>03</span>
-            <h3>Inspect imports</h3>
-            <p>See what arrived, what changed and what needs human attention.</p>
-          </Link>
-          <Link href="/admin/submissions">
-            <span>04</span>
-            <h3>Employer submissions</h3>
-            <p>Keep employer evidence and the final publishing decision separate.</p>
-          </Link>
-          <Link href="/admin/automation">
-            <span>05</span>
-            <h3>Review automation</h3>
-            <p>Inspect AI enrichment, evidence gaps, usage and shadow publication decisions.</p>
-          </Link>
-          <Link href="/admin/courses">
-            <span>06</span>
-            <h3>Review courses</h3>
-            <p>Add presentation details, verified outcomes and reusable capability mappings.</p>
-          </Link>
-          <Link href="/admin/capabilities">
-            <span>07</span>
-            <h3>Inspect capabilities</h3>
-            <p>See the canonical taxonomy, course connections and published-job coverage in one place.</p>
-          </Link>
+        <h2>Automatic feed updates</h2>
+        <p>
+          Automation is <strong>{settings.data.enabled ? "on" : "off"}</strong>. Feed refreshes hourly; AI
+          processes up to 20 jobs per minute while work remains.
+        </p>
+        <p>
+          Last feed: {when(settings.data.last_feed_at)} · Next feed: {when(settings.data.next_feed_at)}
+        </p>
+        <p>
+          Today: {recent.reduce((n, r) => n + r.ai_completed, 0)} AI summaries ·{" "}
+          {recent.reduce((n, r) => n + r.input_tokens, 0).toLocaleString()} input tokens ·{" "}
+          {recent.reduce((n, r) => n + r.output_tokens, 0).toLocaleString()} output tokens · $
+          {recent.reduce((n, r) => n + r.estimated_cost_usd, 0).toFixed(4)} estimated.
+        </p>
+        <p>
+          Cost estimates use gpt-6-luna standard rates: $0.10 per million input tokens and $0.50 per million
+          output tokens, including reasoning tokens. Hosting is billed separately.
+        </p>
+        {settings.data.last_error ? <p role="alert">Latest error: {settings.data.last_error}</p> : null}
+        <form action={setAutomation}>
+          <input name="enabled" type="hidden" value={String(!settings.data.enabled)} />
+          <SubmitButton
+            idleLabel={settings.data.enabled ? "Pause automation" : "Enable automation"}
+            pendingLabel="Saving…"
+          />
+        </form>
+        <form action={runFeed}>
+          <SubmitButton idleLabel="Refresh feed now" pendingLabel="Importing and enriching…" />
+        </form>
+      </section>
+      <section className="staff-section shell">
+        <h2>Recent activity</h2>
+        <div style={{ overflowX: "auto" }}>
+          <table>
+            <thead>
+              <tr>
+                <th>Started (UK)</th>
+                <th>Status</th>
+                <th>Feed jobs</th>
+                <th>Changed</th>
+                <th>AI completed</th>
+                <th>Estimated USD</th>
+                <th>Error</th>
+              </tr>
+            </thead>
+            <tbody>
+              {runs.data.slice(0, 50).map((r) => (
+                <tr key={r.id}>
+                  <td>{when(r.started_at)}</td>
+                  <td>{r.status}</td>
+                  <td>{r.feed_seen}</td>
+                  <td>{r.changed}</td>
+                  <td>{r.ai_completed}</td>
+                  <td>${r.estimated_cost_usd.toFixed(4)}</td>
+                  <td>{r.error}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </section>
     </main>

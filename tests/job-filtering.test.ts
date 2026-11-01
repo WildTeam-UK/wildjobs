@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { filterJobs, jobCategories, type JobFilters } from "../lib/job-filtering";
-import { jobs } from "../lib/jobs";
+import { jobs } from "./job-fixtures";
 
 function filters(overrides: Partial<JobFilters> = {}): JobFilters {
   return {

@@ -33,17 +33,18 @@ export default async function CareersPage() {
               <p className="eyebrow">Career areas</p>
               <h2>Start with what draws you in.</h2>
             </div>
-            <p>
-              Explore the main areas of work and see current roles connected to each one. More practical
-              guidance will be added as it is reviewed.
-            </p>
+            <p>Explore the main areas of work and see current roles connected to each one.</p>
           </div>
           <div className="pathway-grid">
             {careerAreas.map((area, index) => {
               const jobCount = jobCounts.get(area.title) ?? 0;
 
               return (
-                <Link className="career-pathway-card" href={`/careers/${area.slug}`} key={area.id}>
+                <Link
+                  className="career-pathway-card"
+                  href={`/?category=${encodeURIComponent(area.title)}`}
+                  key={area.id}
+                >
                   <div className="career-pathway-card__topline">
                     <span className="career-pathway-card__number">0{index + 1}</span>
                     <span
@@ -53,7 +54,9 @@ export default async function CareersPage() {
                           : "career-pathway-card__status"
                       }
                     >
-                      {jobCount ? `${jobCount} live ${jobCount === 1 ? "role" : "roles"}` : "Career guide"}
+                      {jobCount
+                        ? `${jobCount} live ${jobCount === 1 ? "role" : "roles"}`
+                        : "No current roles"}
                     </span>
                   </div>
                   <div className="career-pathway-card__body">
@@ -61,8 +64,7 @@ export default async function CareersPage() {
                     <p>{area.description}</p>
                   </div>
                   <strong>
-                    {jobCount ? "Explore roles and pathway" : "Explore this pathway"}{" "}
-                    <span aria-hidden="true">→</span>
+                    {jobCount ? "Explore roles" : "Browse this sector"} <span aria-hidden="true">→</span>
                   </strong>
                 </Link>
               );

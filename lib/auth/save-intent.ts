@@ -19,7 +19,7 @@ export function getSaveJobIntent(values: IntentValues): SaveJobIntent | null {
 
   return {
     jobSlug,
-    next: getSafeNextPath(values.next, `/jobs/${jobSlug}`),
+    next: getSafeNextPath(values.next, "/"),
   };
 }
 

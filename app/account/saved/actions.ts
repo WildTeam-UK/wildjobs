@@ -27,8 +27,8 @@ export async function updateSavedJob(
 
   const { error } =
     operation === "save"
-      ? await supabase.from("saved_jobs").insert({ job_id: jobId, user_id: userId })
-      : await supabase.from("saved_jobs").delete().eq("user_id", userId).eq("job_id", jobId);
+      ? await supabase.from("directory_saved_jobs").insert({ job_id: jobId, user_id: userId })
+      : await supabase.from("directory_saved_jobs").delete().eq("user_id", userId).eq("job_id", jobId);
 
   if (error && !(operation === "save" && error.code === "23505")) {
     redirect(addSaveStatus(next, "error"));

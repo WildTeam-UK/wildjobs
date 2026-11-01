@@ -1,28 +1,9 @@
-# WildJobs data ownership
+# Data ownership
 
-| Data                                                           | Owner                                          | Initial status                       |
-| -------------------------------------------------------------- | ---------------------------------------------- | ------------------------------------ |
-| Job listing record                                             | WildJobs                                       | Fixture only                         |
-| Employer or organisation record                                | WildJobs                                       | Fixture only                         |
-| Source attribution and external identifiers                    | WildJobs, derived from approved provider data  | Deferred                             |
-| Import execution history                                       | WildJobs                                       | Deferred                             |
-| Staff access                                                   | WildJobs                                       | Deferred                             |
-| Public profile, saved jobs and preferences                     | WildJobs                                       | Saved jobs and preferences connected |
-| Course-to-job capability mapping                               | WildJobs, based on approved course outcomes    | Schema and public filter connected   |
-| Course catalogue metadata used by WildJobs                     | LearnWorlds, referenced or derived by WildJobs | Sync built; configuration pending    |
-| Learner account, enrolment, purchase, progress and certificate | LearnWorlds                                    | Out of scope                         |
-| Marketing subscriptions and consent evidence                   | Brevo                                          | Out of scope                         |
-| Shared design tokens and UI package code                       | `wildteam-shared`                              | Separate repository                  |
+WildJobs owns its feed-card directory, organisation logo references, saved jobs, candidate profiles/preferences, sector classifications, course recommendations and operational usage history.
 
-## Deletion boundaries
+The original job adverts belong to their source organisations and EnvironmentJob. WildJobs stores the RSS information needed for cards and links readers to the original advert. It does not research employers or reproduce full adverts.
 
-Deleting a future WildJobs profile must not delete or disable a LearnWorlds account. Disconnecting a future training link removes only the verified association. Organisation-wide data-subject requests require coordinated handling but do not change each service's operational ownership.
+LearnWorlds owns learner accounts, purchases, enrolments, training progress and certificates. WildJobs uses a local copy of public course metadata for recommendations. This process neither connects to nor changes learner accounts. Brevo owns marketing subscriptions and consent evidence; the directory has no marketing-system integration.
 
-Selecting a course manually for search is a WildJobs preference and is not evidence of enrolment or completion. Any future completed-course data must come from a verified LearnWorlds connection, remain attributable to LearnWorlds and be removable from WildJobs without altering the training account.
-
-The beta LearnWorlds connection is catalogue-only. A server-side read token retrieves allowlisted public
-course identifiers, titles, descriptions, URLs and availability. WildJobs stores the minimum derived copy needed
-for a resilient search filter, its last-sync time and a bounded operational status. Removing a course from public
-discovery or deleting its WildJobs copy does not change the LearnWorlds course. Capability mappings remain
-WildJobs-owned records. A separate evidence-bounded AI stage refreshes generated mappings after sync while
-preserving staff-authored mappings and review decisions.
+Deleting WildJobs job records or profiles does not delete or disable LearnWorlds accounts. Shared WildTeam packages provide versioned UI foundations, not a shared application database.

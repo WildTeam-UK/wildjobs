@@ -10,9 +10,7 @@ export const getPublicCourses = cache(async (): Promise<readonly Course[]> => {
   await connection();
   const { data, error } = await createPublicClient()
     .from("courses")
-    .select(
-      "slug, title, short_title, summary, public_url, theme_colour, course_capabilities!inner(capability_id)",
-    )
+    .select("slug, title, short_title, summary, public_url, theme_colour")
     .eq("is_active", true)
     .eq("is_filter_visible", true)
     .eq("availability_status", "available")

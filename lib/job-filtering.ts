@@ -31,6 +31,7 @@ export function filterJobs(items: readonly Job[], filters: JobFilters) {
         job.contractType ?? "",
         job.hoursType ?? "",
         job.category,
+        ...(job.careerAreas ?? []),
         job.summary,
       ].join(" "),
     );
@@ -49,7 +50,9 @@ export function filterJobs(items: readonly Job[], filters: JobFilters) {
       (!filters.minimumSalary || (job.salaryMinimum ?? 0) >= filters.minimumSalary) &&
       (!filters.employmentType ||
         [job.employmentType, job.contractType, job.hoursType].includes(filters.employmentType)) &&
-      (!filters.category || job.category === filters.category) &&
+      (!filters.category ||
+        job.category === filters.category ||
+        job.careerAreas?.includes(filters.category)) &&
       (!filters.courseSlugs.length ||
         filters.courseSlugs.some((slug) => job.relatedCourseSlugs.includes(slug)))
     );
@@ -57,5 +60,9 @@ export function filterJobs(items: readonly Job[], filters: JobFilters) {
 }
 
 export function jobCategories(items: readonly Job[]) {
-  return [...new Set(items.map((job) => job.category))].toSorted((left, right) => left.localeCompare(right));
+  return [
+    ...new Set(
+      items.flatMap((job) => (job.careerAreas?.length ? job.careerAreas : [job.category])).filter(Boolean),
+    ),
+  ].toSorted((left, right) => left.localeCompare(right));
 }
