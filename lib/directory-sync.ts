@@ -262,7 +262,13 @@ export async function syncDirectory(force = false, sourceId?: number) {
     }
     const error = sourceErrors.join("; ").slice(0, 1000) || null;
     const status = error ? "partial" : "complete";
-    check(await db.rpc("finish_directory_run", { p_run_id: run.id, p_stats: stats, p_error: error }));
+    check(
+      await db.rpc("finish_directory_run", {
+        p_run_id: run.id,
+        p_stats: stats,
+        ...(error ? { p_error: error } : {}),
+      }),
+    );
     return { status, ...stats };
   } catch (error) {
     const detail = message(error).slice(0, 1000);

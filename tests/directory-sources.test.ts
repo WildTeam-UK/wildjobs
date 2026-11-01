@@ -95,3 +95,22 @@ describe("public feed URLs", () => {
     expect(isPublicAddress("2606:4700:4700::1111")).toBe(true);
   });
 });
+it("uses Atom xml:base and preserves multiple XHTML paragraphs", () => {
+  const feed = parseSourceFeed(
+    '<feed xmlns="http://www.w3.org/2005/Atom" xml:base="https://trust.example.org/careers/"><title>Roles</title><entry><id>urn:job:90</id><title>Ranger</title><link href="90"/><content type="xhtml"><div><p>Manage woodland.</p><p>Support volunteers.</p></div></content></entry></feed>',
+    "https://trust.example.org/feeds/jobs.xml",
+    now,
+  );
+  expect(feed.items[0]).toMatchObject({
+    source_url: "https://trust.example.org/careers/90",
+    feed_text: "Manage woodland. Support volunteers.",
+  });
+});
+it("formats structured RSS pay attributes", () => {
+  const feed = parseSourceFeed(
+    '<rss><channel><title>Roles</title><item><title>Ranger</title><link>https://trust.example.org/jobs/90</link><salary currency="GBP" unitText="HOUR">12.50</salary></item></channel></rss>',
+    "https://trust.example.org/rss",
+    now,
+  );
+  expect(feed.items[0].salary_text).toBe("£12.50 per hour");
+});
