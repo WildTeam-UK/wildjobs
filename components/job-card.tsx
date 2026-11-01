@@ -62,7 +62,7 @@ export function JobCard({
   const compactFacts = [
     { icon: "location", label: "Location", value: compactJobLocation(job) },
     { icon: "salary", label: "Salary", value: job.salary },
-    { icon: "type", label: "Contract type", value: jobType || job.employmentType },
+    { icon: "type", label: "Workplace", value: job.locationType },
   ] as const;
   const statusPills = [
     isNewJob(job.publishedAt ?? job.postedAt) ? { className: "new", label: "New job" } : null,
@@ -71,7 +71,7 @@ export function JobCard({
   const postedLabel = postedAgoLabel(job.publishedAt ?? job.postedAt);
   const hasRelatedCourses = Boolean(job.relatedCourses?.length);
   const trainingExplanation =
-    "These recommendations connect capabilities used in this job with skills taught in WildTeam courses. A course is not necessarily required and does not guarantee eligibility.";
+    "These recommendations match the work described in the feed with skills taught in WildTeam courses. A course is not necessarily required and does not guarantee eligibility.";
   const employerLogo = (
     <EmployerLogo
       imageClassName="job-card__logo"
@@ -101,7 +101,7 @@ export function JobCard({
             <Link
               aria-label={`View ${displayTitle}`}
               className="job-card__logo-anchor"
-              href={`/jobs/${job.slug}`}
+              href={job.sourceUrl ?? "/"}
             >
               {employerLogo}
             </Link>
@@ -115,7 +115,7 @@ export function JobCard({
               {job.availability && job.availability !== "current" ? (
                 displayTitle
               ) : (
-                <Link href={`/jobs/${job.slug}`}>{displayTitle}</Link>
+                <Link href={job.sourceUrl ?? "/"}>{displayTitle}</Link>
               )}
             </h2>
           ) : null}
@@ -169,7 +169,7 @@ export function JobCard({
             {job.availability && job.availability !== "current" ? (
               displayTitle
             ) : (
-              <Link href={`/jobs/${job.slug}`}>{displayTitle}</Link>
+              <Link href={job.sourceUrl ?? "/"}>{displayTitle}</Link>
             )}
           </h2>
           {aiSummaryLabel}
@@ -272,7 +272,7 @@ export function JobCard({
               {job.availability === "expired" ? "Applications closed" : "No longer available"}
             </span>
           ) : (
-            <Link className="action" href={`/jobs/${job.slug}`}>
+            <Link className="action" href={job.sourceUrl ?? "/"}>
               View job <span aria-hidden="true">→</span>
             </Link>
           )}

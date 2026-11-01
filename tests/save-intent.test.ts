@@ -16,10 +16,10 @@ describe("getSaveJobIntent", () => {
     });
   });
 
-  it("uses the job page when no return path is supplied", () => {
+  it("uses the directory when no return path is supplied", () => {
     expect(getSaveJobIntent({ intent: "save", job: "ecologist" })).toEqual({
       jobSlug: "ecologist",
-      next: "/jobs/ecologist",
+      next: "/",
     });
   });
 

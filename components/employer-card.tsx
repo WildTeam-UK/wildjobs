@@ -38,7 +38,7 @@ export function EmployerCard({ employer }: { employer: PublicEmployer }) {
     <Link
       aria-label={`View ${employer.name}`}
       className="employer-directory-card"
-      href={`/employers/${employer.slug}`}
+      href={`/?q=${encodeURIComponent(employer.name)}`}
     >
       <article>
         <header className="employer-directory-card__header">

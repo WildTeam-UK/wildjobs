@@ -98,7 +98,7 @@ export default async function CareerAreaPage({ params }: CareerAreaPageProps) {
             <div className="staff-empty-state">
               <p className="eyebrow">No live matches today</p>
               <h2>There are no current vacancies in this area yet.</h2>
-              <p>New reviewed roles will appear here automatically when they are published.</p>
+              <p>New roles appear here automatically from the feed.</p>
               <Link className="action action--outline" href="/">
                 Browse all jobs
               </Link>
@@ -138,9 +138,7 @@ export default async function CareerAreaPage({ params }: CareerAreaPageProps) {
           <div>
             <p className="eyebrow">Build useful skills</p>
             <h2>Learn with real conservation work in mind.</h2>
-            <p>
-              Explore WildTeam training while reviewed course-to-career recommendations are being developed.
-            </p>
+            <p>Explore WildTeam training connected to practical conservation work.</p>
           </div>
           <a
             className="action action--white"

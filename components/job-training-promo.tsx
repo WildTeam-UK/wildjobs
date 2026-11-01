@@ -4,7 +4,7 @@ import Link from "next/link";
 const trainingBenefits = [
   {
     title: "Find opportunities made for you.",
-    description: "Discover jobs related to the capabilities covered by WildTeam courses.",
+    description: "Discover jobs that use the skills taught in WildTeam courses.",
   },
   {
     title: "Stand out from the crowd.",

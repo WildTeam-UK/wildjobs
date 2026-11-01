@@ -25,7 +25,6 @@
     "@supabase/supabase-js": "2.118.0",
     "@wildteam-uk/tokens": "0.3.0",
     "@wildteam-uk/ui": "0.2.1",
-    "cheerio": "1.2.0",
     "fast-xml-parser": "5.11.2",
     "next": "16.4.3",
     "openai": "7.39.0",

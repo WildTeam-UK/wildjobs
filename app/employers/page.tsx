@@ -18,7 +18,7 @@ export default async function EmployersPage() {
             <p className="eyebrow">Employers</p>
             <h1>Meet organisations working for nature.</h1>
           </div>
-          <p>Learn what they do, how they work and which opportunities are currently open.</p>
+          <p>Find organisations with current opportunities in the EnvironmentJob feed.</p>
         </div>
       </section>
       <section className="content-section">
@@ -44,9 +44,9 @@ export default async function EmployersPage() {
             </div>
           ) : (
             <div className="staff-empty-state">
-              <p className="eyebrow">Profiles are being prepared</p>
-              <h2>Reviewed conservation employers will appear here.</h2>
-              <p>You can still explore every current vacancy while we build the directory.</p>
+              <p className="eyebrow">No current organisations</p>
+              <h2>Organisations with live vacancies will appear here.</h2>
+              <p>The directory updates automatically from EnvironmentJob.</p>
               <Link className="action action--outline" href="/">
                 Browse current jobs
               </Link>

@@ -31,7 +31,7 @@ export function SaveJobControl({
   iconOnly = false,
   jobId,
   jobSlug,
-  returnTo = `/jobs/${jobSlug}`,
+  returnTo = "/",
   state,
 }: {
   className?: string;
@@ -48,7 +48,7 @@ export function SaveJobControl({
         className={className}
         href={{
           pathname: "/sign-in",
-          query: { intent: "save", job: jobSlug, next: `/jobs/${jobSlug}` },
+          query: { intent: "save", job: jobSlug, next: returnTo },
         }}
       >
         {iconOnly ? <HeartIcon /> : <span aria-hidden="true">♡</span>}

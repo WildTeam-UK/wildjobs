@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import type { CandidatePreferences } from "../lib/candidate-preferences";
 import { matchJobsToPreferences, preferenceMatchScore } from "../lib/job-preference-matching";
-import { jobs } from "../lib/jobs";
+import { jobs } from "./job-fixtures";
 
 const preferences: CandidatePreferences = {
   careerAreaIds: [1],
