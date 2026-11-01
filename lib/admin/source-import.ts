@@ -4,7 +4,7 @@ import { createHash } from "node:crypto";
 
 import type { SupabaseClient } from "@supabase/supabase-js";
 
-import { parseCjsVacancyFeed } from "@/lib/admin/feed-source";
+import { parseApprovedVacancyFeed } from "@/lib/admin/feed-source";
 import { getSourceConnector, type SourceConnector } from "@/lib/admin/source-connector";
 import { extractVacancyFieldEvidence } from "@/lib/admin/vacancy-detail-extraction";
 import { parseWwtVacancies } from "@/lib/admin/wwt-source";
@@ -65,7 +65,8 @@ async function fetchSourceVacancies(connector: SourceConnector, url: string) {
   if (body.byteLength > MAX_SOURCE_BYTES) throw new Error("The source response was too large.");
 
   const sourceBody = new TextDecoder().decode(body);
-  const vacancies = connector === "rss" ? parseCjsVacancyFeed(sourceBody) : parseWwtVacancies(sourceBody);
+  const vacancies =
+    connector === "rss" ? parseApprovedVacancyFeed(sourceBody, url) : parseWwtVacancies(sourceBody);
   if (!vacancies.length) throw new Error("No verified vacancy records were found.");
   return vacancies;
 }

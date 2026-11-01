@@ -1,6 +1,7 @@
 import { XMLParser, XMLValidator } from "fast-xml-parser";
 
 export const CJS_RSS_URL = "https://www.countryside-jobs.com/jobs-feed-items";
+export const ENVIRONMENT_JOB_RSS_URL = "https://environmentjob.co.uk/jobs.rss";
 
 export type FeedVacancy = {
   canonicalUrl: string;
@@ -165,15 +166,23 @@ export function isSupportedRssSource(value: string | null) {
 
   try {
     const url = new URL(value);
-    return (
+    const isCjs =
       url.protocol === "https:" &&
       url.hostname === "www.countryside-jobs.com" &&
       url.pathname === "/jobs-feed-items" &&
       !url.search &&
       !url.hash &&
       !url.username &&
-      !url.password
-    );
+      !url.password;
+    const isEnvironmentJob =
+      url.protocol === "https:" &&
+      url.hostname === "environmentjob.co.uk" &&
+      url.pathname === "/jobs.rss" &&
+      !url.search &&
+      !url.hash &&
+      !url.username &&
+      !url.password;
+    return isCjs || isEnvironmentJob;
   } catch {
     return false;
   }
@@ -223,4 +232,25 @@ export function parseCjsVacancyFeed(xml: string) {
     const url = new URL(vacancy.canonicalUrl);
     return url.hostname === "www.countryside-jobs.com" && url.pathname.startsWith("/job/");
   });
+}
+
+export function parseEnvironmentJobVacancyFeed(xml: string) {
+  return parseVacancyFeed(xml)
+    .filter((vacancy) => {
+      const url = new URL(vacancy.canonicalUrl);
+      return url.hostname === "environmentjob.co.uk" && /^\/jobs\/\d+-[^/]+$/.test(url.pathname);
+    })
+    .sort((left, right) => (right.publishedAt ?? "").localeCompare(left.publishedAt ?? ""))
+    .slice(0, 5)
+    .map((vacancy) => {
+      const canonicalUrl = new URL(vacancy.canonicalUrl);
+      canonicalUrl.searchParams.delete("from_rss");
+      return { ...vacancy, canonicalUrl: canonicalUrl.toString() };
+    });
+}
+
+export function parseApprovedVacancyFeed(xml: string, sourceUrl: string) {
+  return sourceUrl === ENVIRONMENT_JOB_RSS_URL
+    ? parseEnvironmentJobVacancyFeed(xml)
+    : parseCjsVacancyFeed(xml);
 }

@@ -4,7 +4,7 @@ import type { LookupAddress } from "node:dns";
 import { lookup } from "node:dns/promises";
 import { isIP } from "node:net";
 
-import { getSourceConnector } from "./source-connector";
+import { isApprovedVacancyDetailUrl } from "./source-url-validation";
 
 const MAX_DETAIL_BYTES = 900_000;
 const MAX_EMPLOYER_BYTES = 600_000;
@@ -63,23 +63,6 @@ async function assertPublicHttpsUrl(value: string) {
     throw new SourcePageError("invalid_source_page");
   }
   return url;
-}
-
-export function isApprovedVacancyDetailUrl(value: string, sourceType: string, sourceUrl: string) {
-  const connector = getSourceConnector(sourceType, sourceUrl);
-  if (!connector) return false;
-
-  try {
-    const url = new URL(value);
-    if (url.protocol !== "https:" || url.username || url.password || url.searchParams.has("url"))
-      return false;
-    if (connector === "rss") {
-      return url.hostname === "www.countryside-jobs.com" && url.pathname.startsWith("/job/");
-    }
-    return url.hostname === "vacancies.wwt.org.uk" && /^\/vacancies\/\d+\/[^/]+\.html$/.test(url.pathname);
-  } catch {
-    return false;
-  }
 }
 
 export async function fetchApprovedVacancyPage(
