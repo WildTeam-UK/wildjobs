@@ -57,6 +57,13 @@ export function EmployerCard({ employer }: { employer: PublicEmployer }) {
         <div className="employer-directory-card__body">
           <h3>{employer.name}</h3>
           <p className="employer-directory-card__summary">{description}</p>
+          {employer.profileStatus === "ai-assisted" ? (
+            <p className="employer-directory-card__provenance">AI-assisted profile</p>
+          ) : employer.profileStatus === "reviewed" ? (
+            <p className="employer-directory-card__provenance employer-directory-card__provenance--reviewed">
+              WildJobs reviewed
+            </p>
+          ) : null}
         </div>
         <ul className="employer-directory-card__facts">
           <li>

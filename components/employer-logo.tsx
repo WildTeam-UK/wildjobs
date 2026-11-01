@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 
 function initials(name: string) {
   return name
@@ -16,21 +16,18 @@ function initials(name: string) {
 export function EmployerLogo({
   imageClassName,
   logoUrl,
+  minimumPixels = 64,
   monogramClassName,
   name,
 }: {
   imageClassName: string;
   logoUrl?: string;
+  minimumPixels?: number;
   monogramClassName: string;
   name: string;
 }) {
-  const imageRef = useRef<HTMLImageElement>(null);
-  const [imageFailed, setImageFailed] = useState(false);
-
-  useEffect(() => {
-    const image = imageRef.current;
-    if (image?.complete && image.naturalWidth === 0) setImageFailed(true);
-  }, [logoUrl]);
+  const [rejectedLogoUrl, setRejectedLogoUrl] = useState<string>();
+  const imageFailed = rejectedLogoUrl === logoUrl;
 
   if (!logoUrl || imageFailed) {
     return (
@@ -42,7 +39,17 @@ export function EmployerLogo({
 
   return (
     <div className={imageClassName}>
-      <img alt={`${name} logo`} onError={() => setImageFailed(true)} ref={imageRef} src={logoUrl} />
+      <img
+        alt={`${name} logo`}
+        onError={() => setRejectedLogoUrl(logoUrl)}
+        onLoad={(event) => {
+          const image = event.currentTarget;
+          if (Math.max(image.naturalWidth, image.naturalHeight) < minimumPixels) {
+            setRejectedLogoUrl(logoUrl);
+          }
+        }}
+        src={logoUrl}
+      />
     </div>
   );
 }

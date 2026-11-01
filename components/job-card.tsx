@@ -120,7 +120,7 @@ export function JobCard({
             </h2>
           ) : null}
           <p className="job-card__organisation">
-            {!compact && job.employerSlug ? (
+            {job.employerSlug ? (
               <Link href={`/employers/${job.employerSlug}`}>{job.organisation}</Link>
             ) : (
               job.organisation

@@ -42,6 +42,7 @@ describe("public employer mapping", () => {
     expect(result.locations).toEqual(["Slimbridge", "London, United Kingdom"]);
     expect(result.openRoles).toEqual([job]);
     expect(result.overview).toEqual(["First paragraph.", "Second paragraph."]);
+    expect(result.profileStatus).toBe("reviewed");
   });
 
   it("uses honest fallbacks without inventing employer facts", () => {
@@ -84,7 +85,31 @@ describe("public employer mapping", () => {
       aiSummarySourceUrl: "https://example.org/jobs/ranger",
       overview: ["A conservation charity working with communities to restore local habitats."],
       overviewIsAi: true,
+      profileStatus: "reviewed",
     });
+  });
+
+  it("marks unreviewed enrichment as AI-assisted and derives role themes from live jobs", () => {
+    const enrichedJob = {
+      ...job,
+      capabilities: [{ slug: "stakeholder-engagement", title: "Stakeholder engagement" }],
+      careerAreaTerms: [{ slug: "community-conservation", title: "Community conservation" }],
+      category: "Programme management",
+    } as Job;
+    const result = mapPublicEmployer(
+      {
+        ...employer,
+        ai_summary: "A profile assembled from public organisation information.",
+        ai_summary_generated_at: "2026-10-29T12:00:00Z",
+        reviewed_at: null,
+      },
+      [enrichedJob],
+    );
+
+    expect(result.profileStatus).toBe("ai-assisted");
+    expect(result.roleCapabilities).toEqual(["Stakeholder engagement"]);
+    expect(result.roleCareerAreas).toEqual(["Community conservation"]);
+    expect(result.roleCategories).toEqual(["Programme management"]);
   });
 
   it("preserves a short organisation acronym as its monogram", () => {

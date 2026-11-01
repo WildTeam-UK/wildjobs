@@ -31,8 +31,12 @@ export type PublicEmployer = Readonly<{
   openRoles: readonly Job[];
   overview: readonly string[];
   overviewIsAi: boolean;
+  profileStatus: "ai-assisted" | "basic" | "reviewed";
   publishedAt?: string;
   reviewedAt?: string;
+  roleCapabilities: readonly string[];
+  roleCareerAreas: readonly string[];
+  roleCategories: readonly string[];
   shortName: string;
   slug: string;
   websiteUrl?: string;
@@ -75,6 +79,16 @@ export function mapPublicEmployer(record: PublicEmployerRecord, jobs: readonly J
 
   const officialOverview = paragraphs(record.overview);
   const aiOverview = paragraphs(record.ai_summary);
+  const uniqueTerms = (values: readonly (string | undefined)[]) => [
+    ...new Set(values.map((value) => value?.trim()).filter((value): value is string => Boolean(value))),
+  ];
+  const roleCareerAreas = uniqueTerms(
+    openRoles.flatMap((job) => job.careerAreaTerms?.map((term) => term.title) ?? job.careerAreas ?? []),
+  );
+  const roleCapabilities = uniqueTerms(
+    openRoles.flatMap((job) => job.capabilities?.map((capability) => capability.title) ?? []),
+  );
+  const roleCategories = uniqueTerms(openRoles.map((job) => job.category));
 
   return {
     aiSummarySourceUrl: record.ai_summary_source_url?.trim() || undefined,
@@ -88,8 +102,12 @@ export function mapPublicEmployer(record: PublicEmployerRecord, jobs: readonly J
     openRoles,
     overview: officialOverview.length ? officialOverview : aiOverview,
     overviewIsAi: !officialOverview.length && aiOverview.length > 0,
+    profileStatus: record.reviewed_at ? "reviewed" : record.ai_summary_generated_at ? "ai-assisted" : "basic",
     publishedAt: dateOnly(record.published_at),
     reviewedAt: dateOnly(record.reviewed_at),
+    roleCapabilities,
+    roleCareerAreas,
+    roleCategories,
     shortName: record.short_name?.trim() || initials(record.name),
     slug: record.slug,
     websiteUrl: record.website_url?.trim() || undefined,
