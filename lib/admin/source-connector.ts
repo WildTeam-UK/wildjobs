@@ -1,5 +1,5 @@
-import { isSupportedRssSource } from "@/lib/admin/feed-source";
-import { isSupportedWwtSource } from "@/lib/admin/wwt-source";
+import { isSupportedRssSource } from "./feed-source";
+import { isSupportedWwtSource } from "./wwt-source";
 
 export type SourceConnector = "rss" | "wwt";
 
