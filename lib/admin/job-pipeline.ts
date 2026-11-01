@@ -21,41 +21,46 @@ import {
 type Client = SupabaseClient<Database>;
 type Task = Database["public"]["Tables"]["job_pipeline_tasks"]["Row"];
 type SourceRecord = Database["public"]["Tables"]["job_source_records"]["Row"];
+type TaskInput = {
+  key: string;
+  kind: Task["kind"];
+  sourceId: number;
+  recordId?: number;
+  revision?: number;
+  dueAt?: string;
+  stage?: Task["ai_stage"];
+};
 export const contentHash = (value: unknown) =>
   createHash("sha256").update(JSON.stringify(value)).digest("hex");
 const check = (error: { message: string } | null, code: string) => {
   if (error) throw new Error(code);
 };
 
-export async function enqueuePipelineTask(
-  client: Client,
-  input: {
-    key: string;
-    kind: Task["kind"];
-    sourceId: number;
-    recordId?: number;
-    revision?: number;
-    dueAt?: string;
-    stage?: Task["ai_stage"];
-  },
-) {
-  const { error } = await client.from("job_pipeline_tasks").upsert(
-    {
-      task_key: input.key,
-      kind: input.kind,
-      source_id: input.sourceId,
-      source_record_id: input.recordId,
-      source_revision: input.revision,
-      ai_stage: input.stage ?? "primary",
-      due_at: input.dueAt ?? new Date().toISOString(),
-    },
-    { onConflict: "task_key", ignoreDuplicates: true },
-  );
-  check(error, "task_enqueue_failed");
+export async function enqueuePipelineTask(client: Client, input: TaskInput) {
+  await enqueuePipelineTasks(client, [input]);
+}
+
+async function enqueuePipelineTasks(client: Client, inputs: TaskInput[]) {
+  for (let offset = 0; offset < inputs.length; offset += 500) {
+    const { error } = await client.from("job_pipeline_tasks").upsert(
+      inputs.slice(offset, offset + 500).map((input) => ({
+        task_key: input.key,
+        kind: input.kind,
+        source_id: input.sourceId,
+        source_record_id: input.recordId,
+        source_revision: input.revision,
+        ai_stage: input.stage ?? "primary",
+        due_at: input.dueAt ?? new Date().toISOString(),
+      })),
+      { onConflict: "task_key", ignoreDuplicates: true },
+    );
+    check(error, "task_enqueue_failed");
+  }
 }
 
 export async function schedulePipelineWork(client: Client) {
   const now = new Date();
+  const pending: TaskInput[] = [];
   const { data: control, error: controlError } = await client
     .from("automation_controls")
     .select("*")
@@ -72,7 +77,7 @@ export async function schedulePipelineWork(client: Client) {
   for (const source of sources ?? []) {
     if (!getSourceConnector(source.source_type, source.authoritative_base_url)) continue;
     if (source.next_import_at <= now.toISOString())
-      await enqueuePipelineTask(client, {
+      pending.push({
         key: `import:${source.id}:${source.next_import_at}`,
         kind: "import",
         sourceId: source.id,
@@ -99,7 +104,7 @@ export async function schedulePipelineWork(client: Client) {
         (control.auto_publish_source_record_id === null ||
           control.auto_publish_source_record_id === record.id)
       ) {
-        await enqueuePipelineTask(client, {
+        pending.push({
           key: `release:${record.id}:${record.source_revision}:${control.updated_at}`,
           kind: "publish",
           sourceId: source.id,
@@ -108,7 +113,7 @@ export async function schedulePipelineWork(client: Client) {
         });
       }
       if (!record.next_check_at || record.next_check_at <= now.toISOString())
-        await enqueuePipelineTask(client, {
+        pending.push({
           key: `verify:${record.id}:${record.next_check_at ?? "bootstrap"}`,
           kind: "verify",
           sourceId: source.id,
@@ -117,6 +122,7 @@ export async function schedulePipelineWork(client: Client) {
         });
     }
   }
+  await enqueuePipelineTasks(client, pending);
 }
 
 async function readRecord(client: Client, id: number) {
@@ -446,6 +452,8 @@ function briefApplication(output: BriefOutput, r: SourceRecord) {
 
 async function enrichRecord(client: Client, task: Task) {
   const r = await readRecord(client, task.source_record_id!);
+  if (!r.job_sources.is_active || !r.job_sources.collection_allowed || !r.job_sources.ai_processing_allowed)
+    return "cancelled" as const;
   if (r.source_revision !== task.source_revision) return "cancelled" as const;
   if (!r.detail_text || !r.detail_content_hash || !r.job_id) throw new Error("verified_evidence_missing");
   const text = `${r.source_title}\n${r.detail_text}`;

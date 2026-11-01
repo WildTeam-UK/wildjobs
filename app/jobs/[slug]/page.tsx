@@ -402,7 +402,7 @@ export default async function JobPage({ params, searchParams }: JobPageProps) {
             {job.employerOverview.length ? (
               job.employerOverview.map((paragraph) => <p key={paragraph}>{paragraph}</p>)
             ) : (
-              <p>Explore this organisation’s profile and current conservation opportunities.</p>
+              <p>Visit the organisation’s website to learn more about its conservation work.</p>
             )}
             {job.employerOverviewIsAi ? (
               <p className="job-employer-card__ai-note">

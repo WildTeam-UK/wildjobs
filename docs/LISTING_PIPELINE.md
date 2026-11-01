@@ -38,7 +38,7 @@ Every AI call reserves request, input and output capacity atomically. The ledger
 
 Normal defaults: gpt-6-luna generation; gpt-6.1-sol escalation/review; low reasoning; 35-second provider timeout; 4,000 output-token ceiling for generation and 1,000 for review. These are configurable and should be evaluated on the source-specific labelled set. No web research is part of the vacancy generation request. Course and employer context are reusable enhancements, not repeated vacancy work.
 
-The staff pipeline workspace shows source permissions, controls, latest tasks, exact exceptions and all used/reserved tokens. Token reporting is not a provider invoice. Price estimates remain explicitly unavailable until rates are configured; no invented pound saving is reported.
+The staff pipeline workspace shows source permissions, controls, latest tasks, exact exceptions and all used/reserved tokens. Token reporting is not a provider invoice. Price estimates remain explicitly unavailable until rates are configured. The example configuration uses standard API rates checked on 2026-11-01: Luna $0.10/$0.50 and Sol $2/$10 per million input/output tokens ([OpenAI pricing](https://developers.openai.com/api/docs/pricing)). These are estimates rather than invoices; update the configured rates when changing models or processing tiers.
 
 ## Search and public delivery
 
@@ -51,3 +51,17 @@ Run `pnpm check` and both rollback-only SQL suites under `supabase/tests`. The p
 Then verify a real EnvironmentJob record through fetch, original brief, independent review, publication and rendered desktop/mobile page. Compare source and output for changed facts and important omissions. Keep automatic publication off until that pilot passes. Enable one record, inspect the result, then allow the approved source. Source permission, master switches and indexing launch are separate release steps.
 
 No deployment, source activation or DNS change is implied by applying schema migrations alone.
+
+## Release checklist prepared on 2026-11-01
+
+The replacement is in draft PR #14. Schema-only migrations are installed; source activation and production deployment await explicit release approval following automatic approval review. CJS and WWT operational flags were not changed. EnvironmentJob collection, AI and publication permissions remain off until the replacement worker is deployed. The deployed staff RPC signatures delegate to the replacement review checks during the transition.
+
+Release environment: `AI_ENRICHMENT_ENABLED=true`, `AUTO_PUBLISH_ENABLED=false`, `PIPELINE_REVIEW_ALL=true`, Luna generation and Sol review, 200 requests / 500,000 input / 80,000 output tokens per UTC day. Replace the earlier temporary backfill limits. Set the model-specific price rates from `.env.example`. Keep site indexing off during the pilot.
+
+After deployment, enable only the exact EnvironmentJob RSS source, set `summary_only`, leave logo reuse off, and record the user's 2026-11-01 approval for collection and original evidence-backed briefs in the permission notes. Run a single-record shadow pilot first, inspect its source and generated page, then enable targeted publication before source-wide automatic publication. Never grant another source by copying these settings.
+
+`pipeline_heartbeat_needed()` is a database-side predicate for the existing minute cron. Install the prepared operational SQL in `supabase/operations/enable_pipeline_heartbeat.sql` only during the approved release. It avoids invoking Vercel when imports, rechecks, release work, tasks and course refresh are not due. This does not add a second scheduler.
+
+Verification to date: 201 unit tests, TypeScript, formatting, lint and production build pass. A synthetic original brief renders at desktop and 390px widths without horizontal page overflow; canonical points at the intended production domain, development stays noindex and no JobPosting markup is emitted. CI replays all migrations and runs schema lint plus both SQL suites. The legacy migration overload declarations were made replaceable because they already duplicate signatures installed earlier in the migration history. The security test taxonomy fixtures are namespaced to avoid collisions with reference data.
+
+A real provider-to-published-page pilot remains a release gate. Synthetic and rollback-only tests do not establish model quality on the live EnvironmentJob feed.

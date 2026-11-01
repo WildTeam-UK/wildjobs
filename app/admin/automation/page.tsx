@@ -20,7 +20,7 @@ export default async function AutomationPage({
   const [tasks, sources, usage, control, heartbeat] = await Promise.all([
     client
       .from("job_pipeline_tasks")
-      .select("*,job_source_records(source_title,job_id),job_sources(name)")
+      .select("*,job_source_records(source_title,job_id,pipeline_error),job_sources(name)")
       .order("created_at", { ascending: false })
       .limit(100),
     client
@@ -146,7 +146,11 @@ export default async function AutomationPage({
                 <p>
                   {task.kind} · {task.status} · attempt {task.attempts}/{task.max_attempts}
                 </p>
-                <p>{task.error_code ?? "Check the source and brief before approving this vacancy."}</p>
+                <p>
+                  {task.error_code ??
+                    task.job_source_records?.pipeline_error ??
+                    "Check the source and brief before approving this vacancy."}
+                </p>
                 <div className="source-list__actions">
                   {task.job_source_records?.job_id ? (
                     <Link href={`/admin/jobs/${task.job_source_records.job_id}`}>Review job</Link>
