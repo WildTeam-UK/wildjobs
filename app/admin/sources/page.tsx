@@ -65,7 +65,9 @@ export default async function SourcesAdmin({
             <article className="directory-source-card" key={source.id}>
               <h2>{source.name}</h2>
               <p>
-                <a href={source.feed_url}>{source.feed_url}</a>
+                <a href={source.feed_url} target="_blank" rel="noopener noreferrer">
+                  {source.feed_url}
+                </a>
               </p>
               <p>
                 <strong>{source.enabled ? "Importing automatically" : "Imports paused"}</strong> ·{" "}

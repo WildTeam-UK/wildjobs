@@ -235,7 +235,12 @@ function FilterDropdown(props: SingleFilterDropdownProps | MultiFilterDropdownPr
     props.multiple && selectedValues.length > 1
       ? `${selectedValues.length} courses`
       : (options.find((option) => option.value === selectedValues[0])?.label ?? placeholder);
-  const allOptions: readonly FilterOption[] = [{ label: clearLabel, value: "" }, ...options];
+  const orderedOptions = options.every((option) => option.count !== undefined)
+    ? options.toSorted(
+        (left, right) => (right.count ?? 0) - (left.count ?? 0) || left.label.localeCompare(right.label),
+      )
+    : options;
+  const allOptions: readonly FilterOption[] = [{ label: clearLabel, value: "" }, ...orderedOptions];
   const isOptionDisabled = (option: FilterOption) =>
     option.count === 0 && !selectedValues.includes(option.value);
   const selectedIndex = Math.max(
@@ -1050,8 +1055,14 @@ export function JobBrowser({
                 </p>
                 <p className="course-match-note__training">
                   Haven&apos;t taken a WildTeam course yet?{" "}
-                  <a href="https://training.wildteam.org.uk/courses">Explore our training courses</a> and
-                  discover how you could build the skills to take your conservation career further.
+                  <a
+                    href="https://training.wildteam.org.uk/courses"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Explore our training courses
+                  </a>{" "}
+                  and discover how you could build the skills to take your conservation career further.
                 </p>
               </div>
             ) : null}

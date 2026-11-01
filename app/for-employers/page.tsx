@@ -22,7 +22,12 @@ export default function ForEmployers() {
               Our job cards show a concise summary, salary, location and relevant WildTeam training.
               Candidates follow the card to your original advert on EnvironmentJob.
             </p>
-            <a className="action" href="https://environmentjob.co.uk/advertise">
+            <a
+              className="action"
+              href="https://environmentjob.co.uk/advertise"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               Advertise with EnvironmentJob →
             </a>
           </div>

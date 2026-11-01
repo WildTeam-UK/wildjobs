@@ -24,7 +24,9 @@ export default async function CoursesAdmin() {
         {data.map((c) => (
           <form action={updateCourse} key={c.slug}>
             <h2>
-              <a href={c.public_url}>{c.title}</a>
+              <a href={c.public_url} target="_blank" rel="noopener noreferrer">
+                {c.title}
+              </a>
             </h2>
             <p>{c.summary}</p>
             <input name="slug" type="hidden" value={c.slug} />
