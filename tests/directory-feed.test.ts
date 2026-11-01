@@ -62,6 +62,11 @@ describe("feed cards", () => {
       )[0].location_text,
     ).toBe("Hook, Hampshire");
   });
+  it("does not treat a salary pro-rata option as advertised working hours", () => {
+    expect(
+      parseFeed(xml("Trust, Exeter, £30,000 pa pro rata for part-time. Lead nature projects."))[0].hours_type,
+    ).toBeNull();
+  });
   it("uses a stable content hash and changes it when feed text changes", () => {
     expect(parseFeed(xml("Trust, Exeter, £30000 pa. Surveys."))[0].feed_hash).not.toBe(
       parseFeed(xml("Trust, Exeter, £35000 pa. Surveys."))[0].feed_hash,
@@ -78,6 +83,14 @@ describe("salary formatting", () => {
     ["£6,187 for 10 hours/week for 9 months", "£6,187 total"],
     ["£12.71 per hour", "£12.71 per hour"],
     ["£250/day", "£250 per day"],
+    [
+      "£29,248 - £37,248 pa / £40,000 - £46,000 pa depending on experience",
+      "£29,248 – £37,248 per year / £40,000 – £46,000 per year",
+    ],
+    [
+      "£5,288 - £7,932 (part-time, six-month contract), depending on agreed hours (£26,440 FTE)",
+      "£5,288 – £7,932",
+    ],
     ["Competitive", "Not stated"],
   ])("formats %s", (source, expected) => {
     expect(normaliseSalary(source)).toBe(expected);

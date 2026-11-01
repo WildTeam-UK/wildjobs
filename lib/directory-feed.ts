@@ -10,7 +10,9 @@ export function cleanText(value: unknown): string {
     .replace(/\s+/g, " ")
     .trim();
 }
-export function normaliseSalary(value: string) {
+export function normaliseSalary(value: string): string {
+  const annualBands = value.split(/\b(?:pa|per annum|per year)\s*\/\s*(?=[£€$])/i);
+  if (annualBands.length > 1) return annualBands.map(normaliseSalary).join(" / ");
   const amount = value.match(
     /(?:£|€|\$)\s*\d[\d,]*(?:\.\d+)?(?:\s*[–—-]\s*(?:£|€|\$)?\s*\d[\d,]*(?:\.\d+)?)?/,
   );
@@ -30,7 +32,10 @@ export function normaliseSalary(value: string) {
           ? "per month"
           : /^for \d+\s*(?:hours?|days?|months?|weeks?)\b|^total\b|\b(?:stipend|bursary)\b/i.test(payContext)
             ? "total"
-            : "per year";
+            : /\b(?:\d+|three|six|nine|twelve)[ -]months?\b/i.test(payContext) &&
+                !/\bpa\b|per year|per annum/i.test(payContext)
+              ? ""
+              : "per year";
   return [
     money,
     period,
@@ -116,7 +121,11 @@ export function parseFeed(xml: string, now = new Date(), organisationNames: read
       salary_text: salary,
       salary_min: Number(salary.match(/[\d,]+/)?.[0].replaceAll(",", "")) || null,
       workplace,
-      hours_type: /part[ -]time/i.test(text) ? "Part time" : /full[ -]time/i.test(text) ? "Full time" : null,
+      hours_type: /part[ -]time/i.test(`${title} ${excerpt}`)
+        ? "Part time"
+        : /full[ -]time/i.test(`${title} ${excerpt}`)
+          ? "Full time"
+          : null,
       contract_type: /\bpermanent\b/i.test(text)
         ? "Permanent"
         : /fixed[ -]term/i.test(text)
