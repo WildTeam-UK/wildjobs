@@ -56,6 +56,13 @@ export async function enqueuePipelineTask(
 
 export async function schedulePipelineWork(client: Client) {
   const now = new Date();
+  const { data: control, error: controlError } = await client
+    .from("automation_controls")
+    .select("*")
+    .eq("id", "global")
+    .single();
+  check(controlError, "pipeline_control_unavailable");
+  const live = process.env.AUTO_PUBLISH_ENABLED === "true" && control?.auto_publish_enabled;
   const { data: sources, error } = await client
     .from("job_sources")
     .select("*")
@@ -72,7 +79,9 @@ export async function schedulePipelineWork(client: Client) {
       });
     const { data: records, error: recordError } = await client
       .from("job_source_records")
-      .select("id,source_revision,next_check_at,first_seen_at,closes_at,mapping_status,job_id")
+      .select(
+        "id,source_revision,next_check_at,first_seen_at,closes_at,mapping_status,job_id,automation_status,automation_policy_version",
+      )
       .eq("source_id", source.id)
       .neq("mapping_status", "ignored")
       .order("first_seen_at", { ascending: false })
@@ -83,6 +92,21 @@ export async function schedulePipelineWork(client: Client) {
         record.closes_at ??
         new Date(Date.parse(record.first_seen_at) + 30 * 86400000).toISOString().slice(0, 10);
       if (expiry < now.toISOString().slice(0, 10)) continue;
+      if (
+        live &&
+        record.automation_status === "ready" &&
+        record.automation_policy_version === BRIEF_POLICY_VERSION &&
+        (control.auto_publish_source_record_id === null ||
+          control.auto_publish_source_record_id === record.id)
+      ) {
+        await enqueuePipelineTask(client, {
+          key: `release:${record.id}:${record.source_revision}:${control.updated_at}`,
+          kind: "publish",
+          sourceId: source.id,
+          recordId: record.id,
+          revision: record.source_revision,
+        });
+      }
       if (!record.next_check_at || record.next_check_at <= now.toISOString())
         await enqueuePipelineTask(client, {
           key: `verify:${record.id}:${record.next_check_at ?? "bootstrap"}`,
@@ -463,7 +487,7 @@ async function enrichRecord(client: Client, task: Task) {
     });
     check(error, "brief_cache_save_failed");
   }
-  if (task.ai_stage === "escalation") {
+  if (task.ai_stage === "escalation" && cached?.model !== (process.env.AI_REVIEW_MODEL ?? "gpt-6.1-sol")) {
     const generated = await generateJobBrief(client, {
       recordId: r.id,
       revision: r.source_revision,

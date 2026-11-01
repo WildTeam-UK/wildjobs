@@ -7,7 +7,6 @@ import {
   linkSourceRecordToJob,
   prepareSourceRecordDraft,
   runSourceDiscovery,
-  setSourceDescriptionDisplayMode,
   setSourceRecordStatus,
 } from "@/app/admin/sources/actions";
 import { SubmitButton } from "@/components/submit-button";
@@ -277,27 +276,17 @@ export default async function SourcePage({ params, searchParams }: SourcePagePro
           </p>
         ) : null}
 
-        <form action={setSourceDescriptionDisplayMode} className="staff-source-form source-permission-form">
+        <section className="staff-source-form source-permission-form">
           <div>
-            <p className="eyebrow">Description permission</p>
-            <h2>What may WildJobs display?</h2>
+            <p className="eyebrow">Source permissions</p>
+            <h2>Original WildTeam vacancy briefs</h2>
             <p>
-              Choose full only when WildTeam has explicit permission to reproduce complete vacancy adverts
-              from this source. Changing this queues its private drafts for another automation check.
+              Collection, AI processing and publication permissions are managed together in automation
+              settings.
             </p>
+            <Link href="/admin/automation">Manage source permissions and publishing</Link>
           </div>
-          <input name="sourceId" type="hidden" value={source.id} />
-          <label htmlFor="description-display-mode">Approved display</label>
-          <select
-            defaultValue={source.description_display_mode}
-            id="description-display-mode"
-            name="descriptionDisplayMode"
-          >
-            <option value="link_only">Link and extracted facts only</option>
-            <option value="full">Full vacancy description permitted</option>
-          </select>
-          {staff.role === "admin" ? <button type="submit">Save permission</button> : null}
-        </form>
+        </section>
         {firstQueryValue(query.run) && firstQueryValue(query.status) !== "checked" ? (
           <p className="staff-form-message" role="status">
             Showing the current records for import run {firstQueryValue(query.run)}. The run counts remain in
