@@ -28,11 +28,10 @@ function employerLocation(locations: readonly string[]) {
 
 export function EmployerCard({ employer }: { employer: PublicEmployer }) {
   const openRoles = employer.openRoles.length;
-  const topics = [
-    employer.focus,
-    ...employer.openRoles.flatMap((job) => [job.category, ...(job.careerAreas ?? [])]),
-  ].filter((topic, index, values) => topic && values.indexOf(topic) === index);
-  const description = employer.overview[0] ?? employer.mission;
+  const topics = employer.openRoles
+    .flatMap((job) => [job.category, ...(job.careerAreas ?? [])])
+    .filter((topic, index, values) => topic && values.indexOf(topic) === index);
+  const description = `Explore current opportunities with ${employer.name}.`;
 
   return (
     <Link
@@ -57,13 +56,6 @@ export function EmployerCard({ employer }: { employer: PublicEmployer }) {
         <div className="employer-directory-card__body">
           <h3>{employer.name}</h3>
           <p className="employer-directory-card__summary">{description}</p>
-          {employer.profileStatus === "ai-assisted" ? (
-            <p className="employer-directory-card__provenance">AI-assisted profile</p>
-          ) : employer.profileStatus === "reviewed" ? (
-            <p className="employer-directory-card__provenance employer-directory-card__provenance--reviewed">
-              WildJobs reviewed
-            </p>
-          ) : null}
         </div>
         <ul className="employer-directory-card__facts">
           <li>

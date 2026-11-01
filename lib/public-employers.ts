@@ -17,15 +17,6 @@ export const getPublicEmployers = cache(async (): Promise<readonly PublicEmploye
       logoUrl: openRoles[0]?.employerLogoUrl,
       openRoles,
       locations: [...new Set(openRoles.map((j) => j.location))],
-      focus: "",
-      mission: `Explore current opportunities with ${name}.`,
-      overview: [],
-      overviewIsAi: false,
-      profileStatus: "basic",
-      benefits: [],
-      roleCapabilities: [],
-      roleCareerAreas: [],
-      roleCategories: [],
     };
   });
 });

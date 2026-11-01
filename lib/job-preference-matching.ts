@@ -44,8 +44,9 @@ export function preferenceMatchScore(job: Job, preferences: CandidatePreferences
   if (isWorkplaceType(workplaceType) && preferences.workplaceTypes.includes(workplaceType)) score += 1;
   const contractType = job.contractType ? normalise(job.contractType) : "";
   if (isContractType(contractType) && preferences.contractTypes.includes(contractType)) score += 1;
-  const hoursType = normalise(job.hoursType ?? job.employmentType);
-  if (isHoursType(hoursType) && preferences.hoursTypes.includes(hoursType)) score += 1;
+  const hoursTypes = (job.hoursTypes ?? [job.hoursType ?? job.employmentType]).map(normalise);
+  if (hoursTypes.some((hoursType) => isHoursType(hoursType) && preferences.hoursTypes.includes(hoursType)))
+    score += 1;
   if (
     preferences.preferredLocation &&
     job.location.toLocaleLowerCase("en-GB").includes(preferences.preferredLocation.toLocaleLowerCase("en-GB"))

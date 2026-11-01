@@ -24,30 +24,11 @@ export type JobTaxonomyTerm = Readonly<{
   title: string;
 }>;
 
-export type JobLocation = Readonly<{
-  addressLine1?: string;
-  addressLine2?: string;
-  countryCode?: string;
-  isPrimary: boolean;
-  label: string;
-  locality?: string;
-  postalCode?: string;
-  region?: string;
-}>;
-
 export type Job = Readonly<{
-  indexingEligible?: boolean;
-  jobpostingEligible?: boolean;
-  expiresAt?: string;
-  verifiedAt?: string;
   updatedAt?: string;
-  remoteScopeType?: string;
-  remoteScopeText?: string;
   id?: number;
   availability?: "current" | "expired" | "unavailable" | "withdrawn";
   slug: string;
-  applicationUrl?: string;
-  applicationLabel?: string;
   title: string;
   organisation: string;
   location: string;
@@ -59,29 +40,19 @@ export type Job = Readonly<{
   contractType?: string;
   experienceLevel?: string;
   hoursType?: string;
+  hoursTypes?: readonly string[];
   category: string;
   careerAreas?: readonly string[];
   careerAreaTerms?: readonly JobTaxonomyTerm[];
-  occupations?: readonly JobTaxonomyTerm[];
-  capabilities?: readonly JobTaxonomyTerm[];
-  benefits?: readonly JobTaxonomyTerm[];
-  locations?: readonly JobLocation[];
   salary: string;
   salaryMinimum?: number;
   summary: string;
   summarySource?: "ai" | "excerpt" | "source";
-  description: readonly string[];
-  responsibilities: readonly string[];
-  requirements: readonly string[];
   postedAt: string;
   closesAt?: string;
   sourceName: string;
   sourceUrl?: string;
-  employerSlug?: string;
   employerLogoUrl?: string;
-  employerOverview: readonly string[];
-  employerOverviewIsAi?: boolean;
-  employerWebsiteUrl?: string;
   countryCode?: string;
   postalCode?: string;
   publishedAt?: string;

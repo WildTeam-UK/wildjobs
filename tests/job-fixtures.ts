@@ -11,24 +11,9 @@ export const jobs: readonly Job[] = [
     salary: "£31,000–£35,000",
     summary:
       "Coordinate community-led habitat projects and help local partners turn practical plans into measurable action.",
-    description: [
-      "This demonstration vacancy shows how a future WildJobs listing could present a conservation role clearly and consistently.",
-      "The successful candidate would coordinate partners, support delivery planning and make project information accessible to communities.",
-    ],
-    responsibilities: [
-      "Coordinate delivery plans with community and conservation partners.",
-      "Support workshops, reporting and practical habitat activities.",
-      "Maintain clear records of actions, risks and outcomes.",
-    ],
-    requirements: [
-      "Experience supporting community or environmental projects.",
-      "Clear written and verbal communication.",
-      "Confidence coordinating several partners and deadlines.",
-    ],
     postedAt: "2026-10-24",
     closesAt: "2026-11-28",
     sourceName: "Demonstration data",
-    employerOverview: [],
     relatedCourseSlugs: ["project-management", "project-planning", "stakeholder-engagement"],
   },
   {
@@ -42,24 +27,9 @@ export const jobs: readonly Job[] = [
     salary: "£29,500–£33,500",
     summary:
       "Support coastal restoration surveys, volunteer activity and evidence-led delivery across priority marine habitats.",
-    description: [
-      "This demonstration listing represents a field-based marine restoration position.",
-      "The role combines practical monitoring, volunteer coordination and accessible reporting for partners.",
-    ],
-    responsibilities: [
-      "Help deliver ecological surveys and restoration activities.",
-      "Coordinate volunteers and maintain safe field procedures.",
-      "Prepare monitoring records and partner updates.",
-    ],
-    requirements: [
-      "Practical experience in marine or coastal conservation.",
-      "Comfort working outdoors in variable conditions.",
-      "Ability to organise accurate field data.",
-    ],
     postedAt: "2026-10-22",
     closesAt: "2026-11-24",
     sourceName: "Demonstration data",
-    employerOverview: [],
     relatedCourseSlugs: ["project-planning", "monitoring-and-evaluation"],
   },
   {
@@ -73,24 +43,9 @@ export const jobs: readonly Job[] = [
     salary: "£36,000–£42,000",
     summary:
       "Turn ecological datasets into reliable evidence for conservation teams, funders and decision-makers.",
-    description: [
-      "This demonstration vacancy shows a remote technical role in the conservation sector.",
-      "The analyst would work with monitoring data, reproducible methods and clear visual explanations.",
-    ],
-    responsibilities: [
-      "Clean, analyse and document ecological datasets.",
-      "Build reproducible reports for programme teams.",
-      "Explain uncertainty and limitations to non-technical audiences.",
-    ],
-    requirements: [
-      "Experience analysing environmental or ecological data.",
-      "Working knowledge of reproducible analysis methods.",
-      "Strong written communication and attention to detail.",
-    ],
     postedAt: "2026-10-20",
     closesAt: "2026-12-01",
     sourceName: "Demonstration data",
-    employerOverview: [],
     relatedCourseSlugs: ["monitoring-and-evaluation"],
   },
   {
@@ -104,24 +59,9 @@ export const jobs: readonly Job[] = [
     salary: "£43,000–£49,000",
     summary:
       "Lead a portfolio of collaborative forest projects, supporting teams to deliver durable ecological and community outcomes.",
-    description: [
-      "This demonstration vacancy represents a senior programme-delivery role.",
-      "The role would hold delivery oversight while helping specialist teams collaborate effectively.",
-    ],
-    responsibilities: [
-      "Lead programme planning, budgets, risks and reporting.",
-      "Support project leads and external delivery partners.",
-      "Maintain a clear view of progress and outcomes across the portfolio.",
-    ],
-    requirements: [
-      "Substantial experience managing multi-partner programmes.",
-      "Strong financial, risk and stakeholder-management skills.",
-      "An understanding of conservation programme delivery.",
-    ],
     postedAt: "2026-10-18",
     closesAt: "2026-11-21",
     sourceName: "Demonstration data",
-    employerOverview: [],
     relatedCourseSlugs: ["project-management", "project-planning", "monitoring-and-evaluation"],
   },
   {
@@ -135,24 +75,9 @@ export const jobs: readonly Job[] = [
     salary: "£30,000 pro rata",
     summary:
       "Create clear, useful communications that connect wildlife evidence with supporters, communities and partners.",
-    description: [
-      "This demonstration vacancy represents a part-time communications position.",
-      "The role would translate technical work into accurate and engaging content across several channels.",
-    ],
-    responsibilities: [
-      "Plan and produce digital and supporter communications.",
-      "Work with specialists to check accuracy and context.",
-      "Measure performance and improve future content.",
-    ],
-    requirements: [
-      "Professional communications or editorial experience.",
-      "Ability to explain technical subjects clearly.",
-      "Careful fact-checking and project organisation.",
-    ],
     postedAt: "2026-10-16",
     closesAt: "2026-11-18",
     sourceName: "Demonstration data",
-    employerOverview: [],
     relatedCourseSlugs: ["stakeholder-engagement", "grant-writing"],
   },
   {
@@ -166,24 +91,9 @@ export const jobs: readonly Job[] = [
     salary: "£24,000 pro rata",
     summary:
       "Build practical experience supporting wetland monitoring, volunteer days and project administration.",
-    description: [
-      "This demonstration vacancy shows how an accessible early-career opportunity could be presented.",
-      "The internship would combine structured learning with practical project support.",
-    ],
-    responsibilities: [
-      "Support field monitoring and volunteer activities.",
-      "Organise project information and equipment.",
-      "Take part in regular learning and feedback sessions.",
-    ],
-    requirements: [
-      "An interest in practical conservation work.",
-      "Reliability and willingness to learn.",
-      "Ability to work respectfully with volunteers and colleagues.",
-    ],
     postedAt: "2026-10-14",
     closesAt: "2026-11-16",
     sourceName: "Demonstration data",
-    employerOverview: [],
     relatedCourseSlugs: ["launching-your-career", "project-planning"],
   },
 ];

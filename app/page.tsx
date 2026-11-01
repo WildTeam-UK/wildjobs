@@ -5,6 +5,7 @@ import { getCandidateSaveState } from "@/lib/candidate-saved-jobs";
 import type { EmploymentType, EngagementType, LocationType } from "@/lib/jobs";
 import { getPublicCourses } from "@/lib/public-courses";
 import { getPublicEmployers } from "@/lib/public-employers";
+import type { SparseJobField } from "@/lib/job-filtering";
 import { getPublicJobs } from "@/lib/public-jobs";
 
 export const metadata: Metadata = {
@@ -71,7 +72,10 @@ export default async function HomePage({ searchParams }: { searchParams: SearchP
             ? (employment as EmploymentType)
             : "",
           contractType: valueOf(params.contract),
-          category: valueOf(params.category),
+          category: valueOf(params.sector ?? params.category),
+          includeUnspecified: valuesOf(params.include_unknown).filter((value): value is SparseJobField =>
+            ["workplace", "hours", "contract", "salary"].includes(value),
+          ),
           courseSlugs: valuesOf(params.course),
           minimumSalary: Number.isFinite(salary) && salary > 0 ? salary : 0,
           sortOrder: sortOrders.includes(sort as JobSortOrder) ? (sort as JobSortOrder) : "relevance",
