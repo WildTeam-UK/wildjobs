@@ -157,10 +157,10 @@ from public.jobs
 where slug in ('current-job', 'expired-saved-job');
 
 insert into public.occupations (slug, title)
-values ('rls-fixture-park-ranger', 'Park ranger');
+values ('rls-fixture-park-ranger', 'RLS fixture park ranger');
 
 insert into public.benefits (slug, title)
-values ('rls-fixture-flexible-working', 'Flexible working');
+values ('rls-fixture-flexible-working', 'RLS fixture flexible working');
 
 insert into public.job_occupations (
   job_id,
@@ -212,7 +212,7 @@ insert into public.job_benefits (
 select
   jobs.id,
   benefits.id,
-  'Flexible working available',
+  'RLS fixture flexible working available',
   'staff',
   now()
 from public.jobs
@@ -248,7 +248,7 @@ insert into public.employer_benefits (
 select
   employers.id,
   benefits.id,
-  'Flexible working policy',
+  'RLS fixture flexible working policy',
   'staff',
   now()
 from public.employers
@@ -445,13 +445,13 @@ select results_eq(
 
 select results_eq(
   $$select title from public.occupations where slug = 'rls-fixture-park-ranger' order by title$$,
-  array['Park ranger'::text],
+  array['RLS fixture park ranger'::text],
   'Anonymous visitors can read active occupations'
 );
 
 select results_eq(
   $$select title from public.benefits where slug = 'rls-fixture-flexible-working' order by title$$,
-  array['Flexible working'::text],
+  array['RLS fixture flexible working'::text],
   'Anonymous visitors can read active benefits'
 );
 
