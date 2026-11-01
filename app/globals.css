@@ -911,6 +911,9 @@ select {
   grid-row: 1;
   background: transparent;
 }
+.job-search-hero:has(.job-location-menu) {
+  z-index: 90;
+}
 .job-search-hero__inner {
   position: relative;
   padding-top: clamp(46px, calc(4vw + 14px), 62px);

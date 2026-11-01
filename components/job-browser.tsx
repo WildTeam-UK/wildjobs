@@ -259,7 +259,8 @@ function FilterDropdown(props: SingleFilterDropdownProps | MultiFilterDropdownPr
       buttonRef.current?.focus();
     }
 
-    function closeOnViewportChange() {
+    function closeOnViewportChange(event: WheelEvent | TouchEvent) {
+      if (rootRef.current?.contains(event.target as Node)) return;
       setIsOpen(false);
     }
 
