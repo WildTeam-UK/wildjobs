@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
 
-import { isSupportedRssSource, parseCjsVacancyFeed, parseVacancyFeed } from "../lib/admin/feed-source";
+import {
+  isSupportedRssSource,
+  parseCjsVacancyFeed,
+  parseEnvironmentJobVacancyFeed,
+  parseVacancyFeed,
+} from "../lib/admin/feed-source";
 
 const rss = `<?xml version="1.0" encoding="UTF-8" ?>
 <rss version="2.0" xmlns:cjsFeed="http://countryside-jobs.com/feeds/cjsFeedModule/">
@@ -31,6 +36,22 @@ const atom = `<?xml version="1.0" encoding="utf-8"?>
     <summary>Restore river habitats with local partners.</summary>
   </entry>
 </feed>`;
+
+const environmentJobRss = `<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+  <channel>
+    ${Array.from(
+      { length: 7 },
+      (_, index) => `<item>
+        <title>Environment role ${index + 1}</title>
+        <link>https://environmentjob.co.uk/jobs/${112_200 - index}-environment-role-${index + 1}?from_rss=true</link>
+        <description>Example Employer, Example location. Help restore nature.</description>
+        <pubDate>${new Date(Date.UTC(2026, 9, 30, 17 - index)).toUTCString()}</pubDate>
+        <guid>https://environmentjob.co.uk/posts/${112_200 - index}-environment-role-${index + 1}</guid>
+      </item>`,
+    ).join("\n")}
+  </channel>
+</rss>`;
 
 describe("vacancy feeds", () => {
   it("normalises a CJS RSS 2.0 vacancy", () => {
@@ -68,8 +89,10 @@ describe("vacancy feeds", () => {
     expect(() => parseVacancyFeed("<!DOCTYPE rss><rss><channel /></rss>")).toThrow("approved XML format");
   });
 
-  it("accepts only the reviewed CJS feed endpoint", () => {
+  it("accepts only reviewed feed endpoints", () => {
     expect(isSupportedRssSource("https://www.countryside-jobs.com/jobs-feed-items")).toBe(true);
+    expect(isSupportedRssSource("https://environmentjob.co.uk/jobs.rss")).toBe(true);
+    expect(isSupportedRssSource("https://www.environmentjob.co.uk/jobs.rss")).toBe(false);
     expect(isSupportedRssSource("https://www.countryside-jobs.com/other-feed")).toBe(false);
     expect(isSupportedRssSource("https://example.org/jobs-feed-items")).toBe(false);
   });
@@ -81,5 +104,28 @@ describe("vacancy feeds", () => {
     );
 
     expect(parseCjsVacancyFeed(offDomain)).toEqual([]);
+  });
+
+  it("keeps only the latest five EnvironmentJob vacancies and removes feed tracking", () => {
+    const vacancies = parseEnvironmentJobVacancyFeed(environmentJobRss);
+
+    expect(vacancies).toHaveLength(5);
+    expect(vacancies.map((vacancy) => vacancy.title)).toEqual([
+      "Environment role 1",
+      "Environment role 2",
+      "Environment role 3",
+      "Environment role 4",
+      "Environment role 5",
+    ]);
+    expect(vacancies[0]?.canonicalUrl).toBe("https://environmentjob.co.uk/jobs/112200-environment-role-1");
+  });
+
+  it("rejects off-domain EnvironmentJob vacancy links", () => {
+    const offDomain = environmentJobRss.replaceAll(
+      "https://environmentjob.co.uk/jobs/",
+      "https://example.org/jobs/",
+    );
+
+    expect(parseEnvironmentJobVacancyFeed(offDomain)).toEqual([]);
   });
 });
