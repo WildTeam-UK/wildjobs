@@ -288,6 +288,7 @@ export type Database = {
       };
       directory_jobs: {
         Row: {
+          canonical_url: string | null;
           closes_at: string | null;
           contract_type: string | null;
           country_code: string | null;
@@ -299,18 +300,23 @@ export type Database = {
           first_seen_at: string;
           hours_type: string | null;
           id: number;
+          identity_key: string | null;
           is_active: boolean;
           last_seen_at: string;
           locality: string | null;
           location_text: string;
+          merged_into: number | null;
           organisation_name: string;
           posted_at: string;
+          primary_external_id: string | null;
+          primary_source_id: number | null;
           processed_hash: string | null;
           region: string | null;
           salary_min: number | null;
           salary_text: string;
           sector_slugs: string[];
           slug: string;
+          source_name: string;
           source_url: string;
           summary: string;
           summary_source: string;
@@ -319,6 +325,7 @@ export type Database = {
           workplace: string;
         };
         Insert: {
+          canonical_url?: string | null;
           closes_at?: string | null;
           contract_type?: string | null;
           country_code?: string | null;
@@ -330,18 +337,23 @@ export type Database = {
           first_seen_at?: string;
           hours_type?: string | null;
           id?: never;
+          identity_key?: string | null;
           is_active?: boolean;
           last_seen_at?: string;
           locality?: string | null;
           location_text: string;
+          merged_into?: number | null;
           organisation_name: string;
           posted_at: string;
+          primary_external_id?: string | null;
+          primary_source_id?: number | null;
           processed_hash?: string | null;
           region?: string | null;
           salary_min?: number | null;
           salary_text: string;
           sector_slugs?: string[];
           slug: string;
+          source_name?: string;
           source_url: string;
           summary: string;
           summary_source?: string;
@@ -350,6 +362,7 @@ export type Database = {
           workplace?: string;
         };
         Update: {
+          canonical_url?: string | null;
           closes_at?: string | null;
           contract_type?: string | null;
           country_code?: string | null;
@@ -361,18 +374,23 @@ export type Database = {
           first_seen_at?: string;
           hours_type?: string | null;
           id?: never;
+          identity_key?: string | null;
           is_active?: boolean;
           last_seen_at?: string;
           locality?: string | null;
           location_text?: string;
+          merged_into?: number | null;
           organisation_name?: string;
           posted_at?: string;
+          primary_external_id?: string | null;
+          primary_source_id?: number | null;
           processed_hash?: string | null;
           region?: string | null;
           salary_min?: number | null;
           salary_text?: string;
           sector_slugs?: string[];
           slug?: string;
+          source_name?: string;
           source_url?: string;
           summary?: string;
           summary_source?: string;
@@ -380,7 +398,22 @@ export type Database = {
           updated_at?: string;
           workplace?: string;
         };
-        Relationships: [];
+        Relationships: [
+          {
+            foreignKeyName: "directory_jobs_merged_into_fkey";
+            columns: ["merged_into"];
+            isOneToOne: false;
+            referencedRelation: "directory_jobs";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "directory_jobs_primary_source_id_fkey";
+            columns: ["primary_source_id"];
+            isOneToOne: false;
+            referencedRelation: "directory_sources";
+            referencedColumns: ["id"];
+          },
+        ];
       };
       directory_organisations: {
         Row: {
@@ -499,6 +532,90 @@ export type Database = {
         };
         Relationships: [];
       };
+      directory_source_jobs: {
+        Row: {
+          content_hash: string;
+          external_id: string;
+          is_present: boolean;
+          job_id: number;
+          last_seen_at: string;
+          payload: Json;
+          source_id: number;
+        };
+        Insert: {
+          content_hash: string;
+          external_id: string;
+          is_present?: boolean;
+          job_id: number;
+          last_seen_at?: string;
+          payload: Json;
+          source_id: number;
+        };
+        Update: {
+          content_hash?: string;
+          external_id?: string;
+          is_present?: boolean;
+          job_id?: number;
+          last_seen_at?: string;
+          payload?: Json;
+          source_id?: number;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "directory_source_jobs_job_id_fkey";
+            columns: ["job_id"];
+            isOneToOne: false;
+            referencedRelation: "directory_jobs";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "directory_source_jobs_source_id_fkey";
+            columns: ["source_id"];
+            isOneToOne: false;
+            referencedRelation: "directory_sources";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      directory_sources: {
+        Row: {
+          created_at: string;
+          enabled: boolean;
+          feed_url: string;
+          id: number;
+          last_error: string | null;
+          last_feed_at: string | null;
+          last_seen_count: number;
+          name: string;
+          next_feed_at: string;
+          removed_at: string | null;
+        };
+        Insert: {
+          created_at?: string;
+          enabled?: boolean;
+          feed_url: string;
+          id?: never;
+          last_error?: string | null;
+          last_feed_at?: string | null;
+          last_seen_count?: number;
+          name: string;
+          next_feed_at?: string;
+          removed_at?: string | null;
+        };
+        Update: {
+          created_at?: string;
+          enabled?: boolean;
+          feed_url?: string;
+          id?: never;
+          last_error?: string | null;
+          last_feed_at?: string | null;
+          last_seen_count?: number;
+          name?: string;
+          next_feed_at?: string;
+          removed_at?: string | null;
+        };
+        Relationships: [];
+      };
       staff_members: {
         Row: {
           created_at: string;
@@ -528,7 +645,80 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
+      apply_directory_job: {
+        Args: {
+          p_ai?: boolean;
+          p_feed_hash: string;
+          p_fields: Json;
+          p_job_id: number;
+        };
+        Returns: Json;
+      };
       claim_directory_run: { Args: { p_force?: boolean }; Returns: boolean };
+      directory_card_counts: { Args: never; Returns: Json };
+      directory_pending_jobs: {
+        Args: never;
+        Returns: {
+          canonical_url: string | null;
+          closes_at: string | null;
+          contract_type: string | null;
+          country_code: string | null;
+          course_slugs: string[];
+          engagement_type: string | null;
+          feed_hash: string;
+          feed_id: string;
+          feed_text: string;
+          first_seen_at: string;
+          hours_type: string | null;
+          id: number;
+          identity_key: string | null;
+          is_active: boolean;
+          last_seen_at: string;
+          locality: string | null;
+          location_text: string;
+          merged_into: number | null;
+          organisation_name: string;
+          posted_at: string;
+          primary_external_id: string | null;
+          primary_source_id: number | null;
+          processed_hash: string | null;
+          region: string | null;
+          salary_min: number | null;
+          salary_text: string;
+          sector_slugs: string[];
+          slug: string;
+          source_name: string;
+          source_url: string;
+          summary: string;
+          summary_source: string;
+          title: string;
+          updated_at: string;
+          workplace: string;
+        }[];
+        SetofOptions: {
+          from: "*";
+          to: "directory_jobs";
+          isOneToOne: false;
+          isSetofReturn: true;
+        };
+      };
+      finish_directory_run: {
+        Args: { p_error?: string; p_run_id: number; p_stats: Json };
+        Returns: undefined;
+      };
+      import_directory_feed: {
+        Args: { p_feed_url: string; p_items: Json; p_source_id: number };
+        Returns: Json;
+      };
+      manage_directory_source: {
+        Args: {
+          p_action: string;
+          p_id?: number;
+          p_name?: string;
+          p_url?: string;
+        };
+        Returns: number;
+      };
       replace_candidate_preferences: {
         Args: {
           p_career_area_ids: number[];

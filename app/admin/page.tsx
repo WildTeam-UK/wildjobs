@@ -1,20 +1,20 @@
 import { requireStaff } from "@/lib/auth/staff";
 import { createTrustedClient } from "@/lib/supabase/trusted";
 import { setAutomation, runFeed } from "./actions";
+import Link from "next/link";
 import { SubmitButton } from "@/components/submit-button";
-import { isDirectoryJobLive } from "@/lib/directory-lifecycle";
 export const maxDuration = 150;
 export default async function AdminPage() {
   await requireStaff();
   const db = createTrustedClient();
   const [settings, jobs, runs] = await Promise.all([
     db.from("directory_settings").select("*").single(),
-    db.from("directory_jobs").select("id,feed_hash,processed_hash,is_active,posted_at,closes_at"),
+    db.rpc("directory_card_counts"),
     db.from("directory_runs").select("*").order("started_at", { ascending: false }).limit(1000),
   ]);
   if (settings.error || jobs.error || runs.error) throw new Error("Directory activity could not be loaded.");
-  const active = jobs.data.filter((j) => isDirectoryJobLive(j)),
-    pending = active.filter((j) => j.feed_hash !== j.processed_hash).length;
+  const counts = jobs.data as { live: number; pending: number };
+  const pending = counts.pending;
   const today = new Date().toISOString().slice(0, 10),
     recent = runs.data.filter((r) => r.started_at.startsWith(today));
   const cost = runs.data.reduce((total, r) => total + r.estimated_cost_usd, 0);
@@ -24,8 +24,8 @@ export default async function AdminPage() {
     <main className="staff-page directory-admin">
       <header className="staff-hero shell">
         <div>
-          <p className="eyebrow">EnvironmentJob directory</p>
-          <h1>Feed to live job cards.</h1>
+          <p className="eyebrow">Jobs directory</p>
+          <h1>Feeds to live job cards.</h1>
         </div>
         <p>
           Imports publish automatically. AI adds a concise summary, sectors and relevant WildTeam courses.
@@ -33,7 +33,7 @@ export default async function AdminPage() {
       </header>
       <section className="staff-summary shell">
         <div>
-          <span>{active.length}</span>
+          <span>{counts.live}</span>
           <strong>Live jobs</strong>
         </div>
         <div>
@@ -48,8 +48,11 @@ export default async function AdminPage() {
       <section className="staff-section shell">
         <h2>Automatic feed updates</h2>
         <p>
-          Automation is <strong>{settings.data.enabled ? "on" : "off"}</strong>. Feed refreshes hourly; AI
-          processes up to 20 jobs per minute while work remains.
+          <Link href="/admin/sources">Add and manage job feeds →</Link>
+        </p>
+        <p>
+          Automation is <strong>{settings.data.enabled ? "on" : "off"}</strong>. Enabled feeds refresh hourly;
+          AI processes up to 20 jobs per minute while work remains.
         </p>
         <p>
           Last feed: {when(settings.data.last_feed_at)} · Next feed: {when(settings.data.next_feed_at)}
@@ -85,7 +88,7 @@ export default async function AdminPage() {
                 <th>Started (UK)</th>
                 <th>Status</th>
                 <th>Feed jobs</th>
-                <th>Changed</th>
+                <th>Changed listings</th>
                 <th>AI completed</th>
                 <th>Estimated USD</th>
                 <th>Error</th>

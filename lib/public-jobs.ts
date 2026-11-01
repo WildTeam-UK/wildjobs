@@ -60,20 +60,27 @@ export async function mapDirectoryJobs(records: readonly DirectoryJob[]): Promis
       updatedAt: row.updated_at,
       closesAt: directoryDeadline(row.posted_at, row.closes_at),
       availability: !row.is_active ? "unavailable" : isDirectoryJobLive(row) ? "current" : "expired",
-      sourceName: "EnvironmentJob",
+      sourceName: row.source_name,
       sourceUrl: row.source_url,
     };
   });
 }
 export const getPublicJobs = cache(async (): Promise<readonly Job[]> => {
   await connection();
-  const { data, error } = await createPublicClient()
-    .from("directory_jobs")
-    .select("*")
-    .eq("is_active", true)
-    .or(liveDirectoryDateFilter())
-    .order("posted_at", { ascending: false })
-    .limit(1000);
-  if (error) throw new Error("Jobs could not be loaded.");
-  return mapDirectoryJobs(data);
+  const db = createPublicClient();
+  const records: DirectoryJob[] = [];
+  for (let from = 0; ; from += 1000) {
+    const { data, error } = await db
+      .from("directory_jobs")
+      .select("*")
+      .eq("is_active", true)
+      .or(liveDirectoryDateFilter())
+      .order("posted_at", { ascending: false })
+      .order("id")
+      .range(from, from + 999);
+    if (error) throw new Error("Jobs could not be loaded.");
+    records.push(...data);
+    if (data.length < 1000) break;
+  }
+  return mapDirectoryJobs(records);
 });

@@ -23,6 +23,7 @@ export default async function AdminLayout({ children }: { children: ReactNode })
       <nav className="staff-nav shell" aria-label="Staff workspace">
         <Link href="/admin">Overview</Link>
         <Link href="/admin/jobs">Jobs</Link>
+        {staff.role === "admin" ? <Link href="/admin/sources">Sources</Link> : null}
         <Link href="/admin/courses">Courses</Link>
         <Link href="/admin/organisations">Organisation logos</Link>
       </nav>

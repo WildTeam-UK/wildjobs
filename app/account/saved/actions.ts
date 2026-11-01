@@ -25,10 +25,17 @@ export async function updateSavedJob(
   const profileError = await ensureCandidateProfile(supabase, userId);
   if (profileError) redirect(addSaveStatus(next, "error"));
 
+  const { data: card, error: lookupError } = await supabase
+    .from("directory_jobs")
+    .select("merged_into")
+    .eq("id", jobId)
+    .maybeSingle();
+  if (lookupError) redirect(addSaveStatus(next, "error"));
+  const canonicalId = card?.merged_into ?? jobId;
   const { error } =
     operation === "save"
-      ? await supabase.from("directory_saved_jobs").insert({ job_id: jobId, user_id: userId })
-      : await supabase.from("directory_saved_jobs").delete().eq("user_id", userId).eq("job_id", jobId);
+      ? await supabase.from("directory_saved_jobs").insert({ job_id: canonicalId, user_id: userId })
+      : await supabase.from("directory_saved_jobs").delete().eq("user_id", userId).eq("job_id", canonicalId);
 
   if (error && !(operation === "save" && error.code === "23505")) {
     redirect(addSaveStatus(next, "error"));
