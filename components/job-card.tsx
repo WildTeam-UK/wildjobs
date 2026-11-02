@@ -42,7 +42,6 @@ export function JobFactIcon({ type }: { type: "location" | "salary" | "type" }) 
 export function JobCard({
   compact = false,
   detailPanel = false,
-  employerRoleCount,
   job,
   saveReturnTo,
   saveState = "signed-out",
@@ -50,7 +49,6 @@ export function JobCard({
 }: {
   compact?: boolean;
   detailPanel?: boolean;
-  employerRoleCount?: number;
   job: Job;
   saveReturnTo?: string;
   saveState?: JobSaveState;
@@ -132,20 +130,7 @@ export function JobCard({
               )}
             </h2>
           ) : null}
-          {detailPanel ? (
-            <div className="job-card__employer-meta">
-              <p className="job-card__organisation">{job.organisation}</p>
-              {employerRoleCount ? (
-                <span className="job-card__hiring-count">
-                  <span className="icon-label">
-                    Hiring for {employerRoleCount} {employerRoleCount === 1 ? "role" : "roles"}
-                  </span>
-                </span>
-              ) : null}
-            </div>
-          ) : (
-            <p className="job-card__organisation">{job.organisation}</p>
-          )}
+          <p className="job-card__organisation">{job.organisation}</p>
           {!compact ? (
             <div className="job-card__topline">
               <span>{job.category}</span>

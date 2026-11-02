@@ -67,10 +67,10 @@ export function JobTrainingPromo({ compact = false, position }: { compact?: bool
             rel="noopener noreferrer"
             target="_blank"
           >
-            Explore WildTeam Training
+            Explore training
           </a>
           <Link className="action action--outline" href="/conservation-career-guides/">
-            Explore career paths
+            Career guides
           </Link>
         </div>
       </div>
