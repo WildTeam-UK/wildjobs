@@ -1529,6 +1529,272 @@ a[role="button"],
   gap: 26px;
   margin-top: 24px;
 }
+.job-results__controls {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 14px;
+}
+.job-layout-switch {
+  display: inline-flex;
+  gap: 3px;
+  padding: 3px;
+  border: 1px solid var(--wt-color-rule);
+  border-radius: var(--wt-radius-control);
+  background: var(--wt-color-paper);
+}
+.job-layout-switch button {
+  display: grid;
+  width: 40px;
+  height: 40px;
+  place-items: center;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--wt-color-muted);
+}
+.job-layout-switch button:hover {
+  color: var(--wt-color-brand-pink);
+}
+.job-layout-switch button[aria-pressed="true"] {
+  background: var(--wt-color-brand-purple);
+  color: var(--wt-color-paper);
+}
+.job-layout-switch svg {
+  width: 22px;
+  height: 22px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+}
+.job-split-view {
+  display: grid;
+  grid-template-columns: minmax(0, 0.36fr) minmax(0, 0.64fr);
+  align-items: start;
+  gap: 24px;
+  margin-top: 24px;
+}
+.job-split-view__list {
+  display: grid;
+  min-width: 0;
+  gap: 14px;
+}
+.job-preview-card {
+  position: relative;
+  min-width: 0;
+  padding: 24px 22px;
+  border: 1px solid var(--wt-color-rule);
+  border-radius: var(--wt-radius-panel);
+  background: var(--wt-color-paper);
+}
+.job-preview-card:hover {
+  border-color: var(--wt-color-brand-pink);
+}
+.job-preview-card--selected {
+  border-color: var(--wt-color-brand-purple);
+  background: color-mix(in srgb, var(--wt-color-brand-purple) 4%, var(--wt-color-paper));
+  box-shadow: inset 4px 0 var(--wt-color-brand-purple);
+}
+.job-preview-card__identity {
+  display: grid;
+  grid-template-columns: 52px minmax(0, 1fr);
+  align-items: start;
+  gap: 14px;
+  padding-right: 28px;
+}
+.job-preview-card__logo,
+.job-preview-card__monogram {
+  display: grid;
+  width: 52px;
+  aspect-ratio: 1;
+  place-items: center;
+  color: var(--wt-color-brand-purple);
+  font-size: 0.72rem;
+  font-weight: var(--wt-font-weight-bold);
+}
+.job-preview-card__logo img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.job-preview-card__monogram {
+  border: 1px solid var(--wt-color-rule);
+  border-radius: 9px;
+  background: var(--wt-color-paper);
+}
+.job-preview-card__title {
+  margin: 0;
+  color: var(--wt-color-surface-charcoal);
+  font-size: 1.12rem;
+  line-height: 1.18;
+  overflow-wrap: anywhere;
+}
+.job-preview-card__select {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  text-transform: none;
+}
+.job-preview-card__select::after {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  content: "";
+}
+.job-preview-card__select:focus-visible {
+  outline: 0;
+}
+.job-preview-card:has(.job-preview-card__select:focus-visible) {
+  outline: 3px solid var(--wt-color-brand-pink);
+  outline-offset: 3px;
+}
+.job-preview-card__organisation,
+.job-preview-card__salary,
+.job-preview-card__posted {
+  margin: 7px 0 0;
+  color: var(--wt-color-muted);
+  font-size: 0.82rem;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+.job-preview-card__salary {
+  margin-top: 20px;
+  color: var(--wt-color-ink);
+}
+.job-preview-card__posted {
+  margin-top: 9px;
+  font-size: 0.74rem;
+}
+.job-preview-card__save {
+  position: absolute;
+  z-index: 2;
+  top: 16px;
+  right: 12px;
+}
+.job-detail-panel {
+  position: sticky;
+  top: calc(var(--site-header-height) + 86px);
+  min-width: 0;
+}
+.job-detail-panel__content {
+  max-height: calc(100svh - var(--site-header-height) - 110px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  border: 1px solid var(--wt-color-rule);
+  border-radius: var(--wt-radius-panel);
+  background: var(--wt-color-paper);
+}
+.job-detail-panel .job-card {
+  gap: 25px;
+  padding: 30px;
+  border: 0;
+  border-radius: 0;
+  cursor: auto;
+}
+.job-detail-panel .job-card:hover {
+  box-shadow: none;
+  transform: none;
+}
+.job-detail-panel .job-card__header {
+  position: relative;
+  display: grid;
+  grid-template-columns: 75px minmax(0, 1fr);
+  padding-top: 42px;
+}
+.job-detail-panel .job-card__header-actions {
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+.job-detail-panel .job-card__identity {
+  align-self: center;
+}
+.job-detail-panel .job-card h2 {
+  font-size: 1.75rem;
+}
+.job-detail-panel .job-card h2 a::after {
+  content: none;
+}
+.job-detail-panel .job-card h2 a:focus-visible {
+  outline: 3px solid var(--wt-color-brand-pink);
+}
+.job-detail-panel .job-card .job-card__summary-block,
+.job-detail-panel .job-card .job-card__meta-row,
+.job-detail-panel .job-card .job-card__training-row {
+  margin-inline: 0;
+}
+.job-detail-panel .job-card__meta-row,
+.job-detail-panel .job-card__training-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 18px;
+}
+.job-detail-panel .job-card__compact-facts {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 14px;
+}
+.job-detail-panel .job-card__compact-facts li {
+  white-space: normal;
+}
+.job-detail-panel .job-card__compact-facts li > span:last-child {
+  overflow: visible;
+}
+.job-detail-panel .job-card__training {
+  display: grid;
+  gap: 12px;
+}
+.job-detail-panel .job-card__posted {
+  margin-left: 0;
+}
+.job-detail-panel__actions {
+  padding: 0 30px 30px;
+}
+.job-split-view__promotion {
+  grid-column: 1 / -1;
+}
+@media (max-width: 900px) {
+  .job-results__heading {
+    flex-wrap: wrap;
+  }
+  .job-results__controls {
+    margin-left: auto;
+  }
+  .job-split-view {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 18px;
+  }
+  .job-split-view__list {
+    display: flex;
+    gap: 12px;
+    overflow-x: auto;
+    padding: 4px 4px 12px;
+    scroll-snap-type: x mandatory;
+  }
+  .job-preview-card {
+    flex: 0 0 min(85%, 330px);
+    padding: 22px 18px;
+    scroll-snap-align: start;
+  }
+  .job-detail-panel {
+    position: static;
+  }
+  .job-detail-panel__content {
+    max-height: none;
+    overflow: hidden;
+  }
+  .job-detail-panel .job-card {
+    padding: 22px;
+  }
+  .job-detail-panel .job-card h2 {
+    font-size: 1.4rem;
+  }
+  .job-detail-panel__actions {
+    padding: 0 22px 22px;
+  }
+}
 .job-pagination {
   display: grid;
   max-width: 520px;
