@@ -1,5 +1,9 @@
 import { plainText } from "./directory-text";
 
+export function formatSalaryLabel(value: string): string {
+  return value.replace(/\(\s*pro[\s-]*rata\s*\)|\bpro[\s-]*rata\b/gi, "(pro rata)");
+}
+
 // Keep ISO currencies explicit; a bare $ or ¥ does not identify a country.
 const currencies = new Set(Intl.supportedValuesOf("currency"));
 const symbols: Record<string, string> = {

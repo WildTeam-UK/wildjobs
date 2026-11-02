@@ -1,5 +1,6 @@
 import Image from "next/image";
 import type { ReactNode } from "react";
+import { formatSalaryLabel } from "@/lib/job-salary";
 
 export const careerCourseUrl =
   "https://training.wildteam.org.uk/course/launching-your-career-in-wildlife-conservation";
@@ -335,7 +336,7 @@ export function ExampleJobs({ employer = false }: { employer?: boolean }) {
           </div>
           <ul>
             <li>{job.location}</li>
-            <li>{job.salary}</li>
+            <li>{formatSalaryLabel(job.salary)}</li>
             <li>Full time</li>
           </ul>
           <details>

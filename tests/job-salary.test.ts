@@ -2,10 +2,24 @@ import { describe, expect, it } from "vitest";
 import {
   completeSalary,
   extractSalary,
+  formatSalaryLabel,
   minimumGbpSalary,
   parseSalary,
   structuredSalary,
 } from "../lib/job-salary";
+
+describe("salary labels", () => {
+  it.each([
+    ["£30,000 per year pro rata", "£30,000 per year (pro rata)"],
+    ["£30,000 PRO-RATA + Benefits", "£30,000 (pro rata) + Benefits"],
+    ["£30,000 (pro rata)", "£30,000 (pro rata)"],
+    ["£30,000 ( pro rata )", "£30,000 (pro rata)"],
+    ["£30,000 per year", "£30,000 per year"],
+    ["Not stated", "Not stated"],
+  ])("formats %s without changing the salary facts", (input, expected) => {
+    expect(formatSalaryLabel(input)).toBe(expected);
+  });
+});
 
 describe("international salary formatting", () => {
   it.each([

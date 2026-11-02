@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { CSSProperties } from "react";
 import { EmployerLogo } from "@/components/employer-logo";
 import { SaveJobControl, type JobSaveState } from "@/components/save-job-control";
+import { formatSalaryLabel } from "@/lib/job-salary";
 import {
   compactJobLocation,
   formatDate,
@@ -12,7 +13,7 @@ import {
   type Job,
 } from "@/lib/jobs";
 
-function JobFactIcon({ type }: { type: "location" | "salary" | "type" }) {
+export function JobFactIcon({ type }: { type: "location" | "salary" | "type" }) {
   if (type === "location") {
     return (
       <svg aria-hidden="true" viewBox="0 0 24 24">
@@ -40,12 +41,14 @@ function JobFactIcon({ type }: { type: "location" | "salary" | "type" }) {
 
 export function JobCard({
   compact = false,
+  detailPanel = false,
   job,
   saveReturnTo,
   saveState = "signed-out",
   showSaveAction = true,
 }: {
   compact?: boolean;
+  detailPanel?: boolean;
   job: Job;
   saveReturnTo?: string;
   saveState?: JobSaveState;
@@ -61,7 +64,7 @@ export function JobCard({
       : job.title;
   const compactFacts = [
     { icon: "location", label: "Location", value: compactJobLocation(job) },
-    { icon: "salary", label: "Salary", value: job.salary },
+    { icon: "salary", label: "Salary", value: formatSalaryLabel(job.salary) },
     { icon: "type", label: "Workplace", value: job.locationType },
   ] as const;
   const statusPills = [
@@ -190,7 +193,7 @@ export function JobCard({
                 </li>
               ))}
             </ul>
-            {!hasRelatedCourses ? <p className="job-card__posted">{postedLabel}</p> : null}
+            {!hasRelatedCourses && !detailPanel ? <p className="job-card__posted">{postedLabel}</p> : null}
           </div>
         </>
       ) : (
@@ -205,7 +208,7 @@ export function JobCard({
           </div>
           <div>
             <dt>Salary</dt>
-            <dd>{job.salary}</dd>
+            <dd>{formatSalaryLabel(job.salary)}</dd>
           </div>
           <div>
             <dt>Closes</dt>
@@ -238,9 +241,10 @@ export function JobCard({
               Why are we recommending these courses?
             </Link>
           </div>
-          {compact ? <p className="job-card__posted">{postedLabel}</p> : null}
+          {compact && !detailPanel ? <p className="job-card__posted">{postedLabel}</p> : null}
         </div>
       ) : null}
+      {detailPanel ? <p className="job-card__posted">{postedLabel}</p> : null}
       {!compact ? (
         <div className="job-card__actions">
           {job.availability && job.availability !== "current" ? (
