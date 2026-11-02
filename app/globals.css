@@ -942,14 +942,56 @@ select {
   pointer-events: none;
 }
 .job-search-hero-art::before {
+  --wt-canopy-direction: -1;
   left: 0;
   background-image: url("/images/jobs-hero-left.svg");
   background-position: left center;
+  transform-origin: left center;
 }
 .job-search-hero-art::after {
+  --wt-canopy-direction: 1;
   right: 0;
   background-image: url("/images/jobs-hero-right.svg");
   background-position: right center;
+  transform-origin: right center;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .job-search-hero-art::before,
+  .job-search-hero-art::after {
+    animation: canopy-arrive 800ms ease-out both;
+  }
+  .job-search-hero-art::after {
+    animation-delay: 80ms;
+  }
+}
+@keyframes canopy-arrive {
+  0% {
+    transform: translateX(calc(112% * var(--wt-canopy-direction)));
+    animation-timing-function: cubic-bezier(0.16, 0.8, 0.3, 1);
+  }
+  42% {
+    transform: translateX(calc(-18px * var(--wt-canopy-direction)))
+      rotate(calc(-1.5deg * var(--wt-canopy-direction))) scaleX(1.06);
+    animation-timing-function: ease-in-out;
+  }
+  60% {
+    transform: translateX(calc(10px * var(--wt-canopy-direction)))
+      rotate(calc(1deg * var(--wt-canopy-direction))) scaleX(0.98);
+    animation-timing-function: ease-in-out;
+  }
+  75% {
+    transform: translateX(calc(-5px * var(--wt-canopy-direction)))
+      rotate(calc(-0.5deg * var(--wt-canopy-direction))) scaleX(1.02);
+    animation-timing-function: ease-in-out;
+  }
+  88% {
+    transform: translateX(calc(2px * var(--wt-canopy-direction)))
+      rotate(calc(0.2deg * var(--wt-canopy-direction)));
+    animation-timing-function: ease-in-out;
+  }
+  100% {
+    transform: none;
+  }
 }
 .job-search-hero {
   position: relative;
