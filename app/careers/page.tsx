@@ -63,9 +63,7 @@ export default async function CareersPage() {
                     <h3>{area.title}</h3>
                     <p>{area.description}</p>
                   </div>
-                  <strong>
-                    {jobCount ? "Explore roles" : "Browse this sector"} <span aria-hidden="true">→</span>
-                  </strong>
+                  <strong>{jobCount ? "Explore roles" : "Browse this sector"}</strong>
                 </Link>
               );
             })}
@@ -85,7 +83,7 @@ export default async function CareersPage() {
             target="_blank"
             rel="noopener noreferrer"
           >
-            Explore training <span aria-hidden="true">→</span>
+            Explore training
           </a>
         </div>
       </section>

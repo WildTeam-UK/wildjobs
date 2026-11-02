@@ -2,15 +2,18 @@
 
 import { useId, useState } from "react";
 import { EmployerLogo } from "@/components/employer-logo";
-import { JobCard } from "@/components/job-card";
+import { JobCard, JobFactIcon } from "@/components/job-card";
 import { JobTrainingPromo } from "@/components/job-training-promo";
 import { SaveJobControl, type JobSaveState } from "@/components/save-job-control";
-import { postedAgoLabel, type Job } from "@/lib/jobs";
+import { compactJobLocation, postedAgoLabel, type Job } from "@/lib/jobs";
+import { formatSalaryLabel } from "@/lib/job-salary";
 
 export function JobSplitView({
+  allJobs,
   jobs,
   saveStateFor,
 }: {
+  allJobs: readonly Job[];
   jobs: readonly Job[];
   saveStateFor: (job: Job) => JobSaveState;
 }) {
@@ -20,6 +23,7 @@ export function JobSplitView({
   const selectedJob = jobs.find((job) => job.slug === selectedSlug) ?? jobs[0];
 
   if (!selectedJob) return null;
+  const employerRoleCount = allJobs.filter((job) => job.organisation === selectedJob.organisation).length;
 
   return (
     <div className="job-split-view">
@@ -54,7 +58,18 @@ export function JobSplitView({
                   <p className="job-preview-card__organisation">{job.organisation}</p>
                 </div>
               </div>
-              <p className="job-preview-card__salary">{job.salary}</p>
+              <div className="job-preview-card__facts">
+                <p className="job-preview-card__fact">
+                  <JobFactIcon type="salary" />
+                  <span className="wt-visually-hidden">Salary: </span>
+                  <span className="icon-label">{formatSalaryLabel(job.salary)}</span>
+                </p>
+                <p className="job-preview-card__fact">
+                  <JobFactIcon type="location" />
+                  <span className="wt-visually-hidden">Location: </span>
+                  <span className="icon-label">{compactJobLocation(job)}</span>
+                </p>
+              </div>
               <p className="job-preview-card__posted">{postedAgoLabel(job.publishedAt ?? job.postedAt)}</p>
               <div className="job-preview-card__save">
                 <SaveJobControl
@@ -74,11 +89,17 @@ export function JobSplitView({
           Showing {selectedJob.title} at {selectedJob.organisation}
         </p>
         <div className="job-detail-panel__content" key={selectedJob.slug}>
-          <JobCard compact job={selectedJob} saveState={saveStateFor(selectedJob)} />
+          <JobCard
+            compact
+            detailPanel
+            employerRoleCount={employerRoleCount}
+            job={selectedJob}
+            saveState={saveStateFor(selectedJob)}
+          />
           {selectedJob.sourceUrl ? (
             <div className="job-detail-panel__actions">
               <a className="action" href={selectedJob.sourceUrl} rel="noopener noreferrer" target="_blank">
-                View original advert <span aria-hidden="true">↗</span>
+                View original advert
               </a>
             </div>
           ) : null}

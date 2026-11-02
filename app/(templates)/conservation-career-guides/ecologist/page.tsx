@@ -46,7 +46,7 @@ export default function EcologistGuideTemplate() {
             </p>
             <div className="tpl-actions">
               <a className="action" href="#the-role">
-                Find your route in <span aria-hidden="true">↓</span>
+                Find your route in
               </a>
             </div>
           </div>
@@ -369,7 +369,7 @@ export default function EcologistGuideTemplate() {
             <p className="tpl-small">
               Choose learning that fits your next step. These are complementary skills, not substitutes for
               required ecological qualifications, technical training or experience.{" "}
-              <Link href="/course-recommendations">How our course recommendations work →</Link>
+              <Link href="/course-recommendations">How our course recommendations work </Link>
             </p>
           </GuideSection>
 
@@ -464,17 +464,17 @@ export default function EcologistGuideTemplate() {
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  National Careers Service · Ecologist profile ↗
+                  National Careers Service · Ecologist profile
                 </a>
               </li>
               <li>
                 <a href="https://cieem.net/" target="_blank" rel="noopener noreferrer">
-                  CIEEM · Professional ecology and environmental management ↗
+                  CIEEM · Professional ecology and environmental management
                 </a>
               </li>
               <li>
                 <a href="https://www.britishecologicalsociety.org/" target="_blank" rel="noopener noreferrer">
-                  British Ecological Society · Explore the profession ↗
+                  British Ecological Society · Explore the profession
                 </a>
               </li>
             </ul>
@@ -485,9 +485,9 @@ export default function EcologistGuideTemplate() {
         <TrainingBanner membership />
         <div className="tpl-footer-links">
           <Link href="/conservation-sector/wildlife-conservation">
-            Explore the Wildlife Conservation sector →
+            Explore the Wildlife Conservation sector
           </Link>
-          <Link href="/course-recommendations">Find training for your next step →</Link>
+          <Link href="/course-recommendations">Find training for your next step </Link>
         </div>
       </div>
     </main>

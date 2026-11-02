@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { CSSProperties } from "react";
 import { EmployerLogo } from "@/components/employer-logo";
 import { SaveJobControl, type JobSaveState } from "@/components/save-job-control";
+import { formatSalaryLabel } from "@/lib/job-salary";
 import {
   compactJobLocation,
   formatDate,
@@ -12,7 +13,7 @@ import {
   type Job,
 } from "@/lib/jobs";
 
-function JobFactIcon({ type }: { type: "location" | "salary" | "type" }) {
+export function JobFactIcon({ type }: { type: "location" | "salary" | "type" }) {
   if (type === "location") {
     return (
       <svg aria-hidden="true" viewBox="0 0 24 24">
@@ -40,12 +41,16 @@ function JobFactIcon({ type }: { type: "location" | "salary" | "type" }) {
 
 export function JobCard({
   compact = false,
+  detailPanel = false,
+  employerRoleCount,
   job,
   saveReturnTo,
   saveState = "signed-out",
   showSaveAction = true,
 }: {
   compact?: boolean;
+  detailPanel?: boolean;
+  employerRoleCount?: number;
   job: Job;
   saveReturnTo?: string;
   saveState?: JobSaveState;
@@ -61,7 +66,7 @@ export function JobCard({
       : job.title;
   const compactFacts = [
     { icon: "location", label: "Location", value: compactJobLocation(job) },
-    { icon: "salary", label: "Salary", value: job.salary },
+    { icon: "salary", label: "Salary", value: formatSalaryLabel(job.salary) },
     { icon: "type", label: "Workplace", value: job.locationType },
   ] as const;
   const statusPills = [
@@ -97,7 +102,28 @@ export function JobCard({
   return (
     <article className={`job-card${compact ? " job-card--compact" : ""}`}>
       <header className="job-card__header">
-        {compact ? (
+        {detailPanel ? (
+          <div className="job-card__employer-profile">
+            {employerLogo}
+            {employerRoleCount ? (
+              <span className="job-card__hiring-pill">
+                <span className="icon-label">
+                  Hiring for {employerRoleCount} {employerRoleCount === 1 ? "role" : "roles"}
+                </span>
+              </span>
+            ) : null}
+            {job.employerWebsiteUrl ? (
+              <a
+                className="job-card__employer-website"
+                href={job.employerWebsiteUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {new URL(job.employerWebsiteUrl).hostname.replace(/^www\./, "")}
+              </a>
+            ) : null}
+          </div>
+        ) : compact ? (
           job.availability && job.availability !== "current" ? (
             <span className="job-card__logo-anchor">{employerLogo}</span>
           ) : (
@@ -186,11 +212,11 @@ export function JobCard({
                 <li key={fact.label}>
                   <JobFactIcon type={fact.icon} />
                   <span className="wt-visually-hidden">{fact.label}: </span>
-                  <span>{fact.value}</span>
+                  <span className="icon-label">{fact.value}</span>
                 </li>
               ))}
             </ul>
-            {!hasRelatedCourses ? <p className="job-card__posted">{postedLabel}</p> : null}
+            {!hasRelatedCourses && !detailPanel ? <p className="job-card__posted">{postedLabel}</p> : null}
           </div>
         </>
       ) : (
@@ -205,7 +231,7 @@ export function JobCard({
           </div>
           <div>
             <dt>Salary</dt>
-            <dd>{job.salary}</dd>
+            <dd>{formatSalaryLabel(job.salary)}</dd>
           </div>
           <div>
             <dt>Closes</dt>
@@ -226,7 +252,7 @@ export function JobCard({
                     rel="noopener noreferrer"
                     style={{ "--course-colour": course.themeColour } as CSSProperties}
                   >
-                    {course.shortTitle}
+                    <span className="icon-label">{course.shortTitle}</span>
                   </a>
                 </li>
               ))}
@@ -235,12 +261,13 @@ export function JobCard({
               className="job-card__training-why job-card__training-explainer"
               href="/course-recommendations/"
             >
-              Why are we recommending these courses?
+              <span className="icon-label">Why are we recommending these courses?</span>
             </Link>
           </div>
-          {compact ? <p className="job-card__posted">{postedLabel}</p> : null}
+          {compact && !detailPanel ? <p className="job-card__posted">{postedLabel}</p> : null}
         </div>
       ) : null}
+      {detailPanel ? <p className="job-card__posted">{postedLabel}</p> : null}
       {!compact ? (
         <div className="job-card__actions">
           {job.availability && job.availability !== "current" ? (
@@ -249,7 +276,7 @@ export function JobCard({
             </span>
           ) : (
             <Link className="action" href={job.sourceUrl ?? "/"} {...sourceLinkAttributes}>
-              View job <span aria-hidden="true">→</span>
+              View job
             </Link>
           )}
           {showSaveAction && !compact ? (

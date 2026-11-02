@@ -169,7 +169,7 @@ export default function SectorTemplate() {
                   Ecologists, surveyors and research staff turn observations into evidence. Relevant technical
                   knowledge and careful methods are central.
                 </p>
-                <Link href="/conservation-career-guides/ecologist">Explore the ecologist career guide →</Link>
+                <Link href="/conservation-career-guides/ecologist">Explore the ecologist career guide </Link>
               </div>
               <div className="tpl-feature-card">
                 <span>02</span>
@@ -309,7 +309,7 @@ export default function SectorTemplate() {
             </p>
             <CourseTiles />
             <p>
-              <Link href="/course-recommendations">Why we recommend these courses →</Link>
+              <Link href="/course-recommendations">Why we recommend these courses </Link>
             </p>
           </GuideSection>
           <TrainingBanner courseTheme="green" />
@@ -374,7 +374,7 @@ export default function SectorTemplate() {
             style={{ display: "block" }}
           >
             <span>Conservation employer</span>
-            <h3>Wildmere Nature Trust ↗</h3>
+            <h3>Wildmere Nature Trust </h3>
             <p>A local charity connecting habitat restoration, ecological evidence and community action.</p>
           </Link>
         </div>
@@ -382,8 +382,8 @@ export default function SectorTemplate() {
       <div className="shell">
         <TrainingBanner membership />
         <div className="tpl-footer-links">
-          <Link href="/conservation-career-guides/ecologist">Read the ecologist career guide →</Link>
-          <Link href="/course-recommendations">Explore course recommendations →</Link>
+          <Link href="/conservation-career-guides/ecologist">Read the ecologist career guide </Link>
+          <Link href="/course-recommendations">Explore course recommendations </Link>
         </div>
       </div>
     </main>

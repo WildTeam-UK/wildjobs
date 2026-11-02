@@ -36,13 +36,13 @@ export default async function AccountPage() {
         <Link href="/account/saved">
           <span>{String(savedJobs.length).padStart(2, "0")}</span>
           <strong>Saved jobs</strong>
-          <small>Review roles and closing dates →</small>
+          <small>Review roles and closing dates </small>
         </Link>
         <Link href="/account/preferences">
           <span>{String(preferences.preferenceCount).padStart(2, "0")}</span>
           <strong>Job preferences</strong>
           <small>
-            {preferences.hasPreferences ? "Inspect and change them →" : "Choose what makes a role useful →"}
+            {preferences.hasPreferences ? "Inspect and change them" : "Choose what makes a role useful"}
           </small>
         </Link>
         <div>
@@ -66,7 +66,7 @@ export default async function AccountPage() {
               </h2>
             </div>
             <Link className="text-link" href="/">
-              Explore all jobs →
+              Explore all jobs
             </Link>
           </div>
           {relevantJobs.length ? (

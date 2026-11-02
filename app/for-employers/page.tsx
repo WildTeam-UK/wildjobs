@@ -28,7 +28,7 @@ export default function ForEmployers() {
               target="_blank"
               rel="noopener noreferrer"
             >
-              Advertise with EnvironmentJob →
+              Advertise with EnvironmentJob
             </a>
           </div>
         </div>

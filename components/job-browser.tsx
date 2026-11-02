@@ -15,6 +15,7 @@ import {
   useMemo,
   useRef,
   useState,
+  useSyncExternalStore,
 } from "react";
 import { JobCard } from "@/components/job-card";
 import { JobSplitView } from "@/components/job-split-view";
@@ -26,6 +27,22 @@ import type { EmploymentType, EngagementType, Job, LocationType } from "@/lib/jo
 
 const locationTypes: readonly LocationType[] = ["Remote", "Hybrid", "On-site"];
 const jobsPerPage = 25;
+const desktopLayoutQuery = "(min-width: 901px)";
+
+function subscribeToDesktopLayout(onChange: () => void) {
+  const media = window.matchMedia(desktopLayoutQuery);
+  media.addEventListener("change", onChange);
+  return () => media.removeEventListener("change", onChange);
+}
+
+function getDesktopLayoutSnapshot() {
+  return window.matchMedia(desktopLayoutQuery).matches;
+}
+
+function getServerLayoutSnapshot() {
+  return false;
+}
+
 export type JobSortOrder = "closing" | "newest" | "relevance";
 type FilterIconName =
   | "briefcase"
@@ -350,7 +367,7 @@ function FilterDropdown(props: SingleFilterDropdownProps | MultiFilterDropdownPr
         type="button"
       >
         <FilterIcon name={icon} />
-        <span className="job-filter-pill__value">{selectedLabel}</span>
+        <span className="job-filter-pill__value icon-label">{selectedLabel}</span>
         <svg className="job-filter-pill__chevron" aria-hidden="true" viewBox="0 0 12 8">
           <path d="m1 1.5 5 5 5-5" />
         </svg>
@@ -400,9 +417,9 @@ function FilterDropdown(props: SingleFilterDropdownProps | MultiFilterDropdownPr
                     {accessibleLabel === "Sector" && option.value ? (
                       <SectorIcon title={option.label} />
                     ) : null}
-                    <span className="job-filter-menu__label">{option.label}</span>
+                    <span className="job-filter-menu__label icon-label">{option.label}</span>
                     {option.count !== undefined ? (
-                      <span className="job-filter-menu__count" aria-label={`${option.count} jobs`}>
+                      <span className="job-filter-menu__count icon-label" aria-label={`${option.count} jobs`}>
                         {option.count}
                       </span>
                     ) : null}
@@ -555,6 +572,11 @@ export function JobBrowser({
   const [sortOrder, setSortOrder] = useState<JobSortOrder>(initialFilters.sortOrder ?? "relevance");
   const [currentPage, setCurrentPage] = useState(initialPage);
   const [layout, setLayout] = useState<"list" | "grid">("list");
+  const canUseGridLayout = useSyncExternalStore(
+    subscribeToDesktopLayout,
+    getDesktopLayoutSnapshot,
+    getServerLayoutSnapshot,
+  );
   const filterBarRef = useRef<HTMLDivElement>(null);
   const filterPillsRef = useRef<HTMLDivElement>(null);
   const filterValues = {
@@ -1099,8 +1121,9 @@ export function JobBrowser({
                 </p>
               </div>
             ) : null}
-            {filteredJobs.length && layout === "grid" ? (
+            {filteredJobs.length && layout === "grid" && canUseGridLayout ? (
               <JobSplitView
+                allJobs={jobs}
                 jobs={paginatedJobs}
                 saveStateFor={(job) =>
                   candidateSaveState.isSignedIn && job.id && savedJobIds.has(job.id)

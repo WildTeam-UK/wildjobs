@@ -19,10 +19,10 @@ export async function mapDirectoryJobs(records: readonly DirectoryJob[]): Promis
   const [courses, sectors, organisations] = await Promise.all([
     getPublicCourses(),
     getPublicCareerAreas(),
-    createPublicClient().from("directory_organisations").select("name,logo_url"),
+    createPublicClient().from("directory_organisations").select("name,logo_url,website_url"),
   ]);
   if (organisations.error) throw new Error("Organisation logos could not be loaded.");
-  const logos = new Map(organisations.data.map((o) => [o.name, o.logo_url]));
+  const employers = new Map(organisations.data.map((o) => [o.name, o]));
   return records.map((row) => {
     const terms = sectors.filter((s) => row.sector_slugs.includes(s.slug));
     const relatedCourses = courses.filter((c) => row.course_slugs.includes(c.slug));
@@ -37,7 +37,8 @@ export async function mapDirectoryJobs(records: readonly DirectoryJob[]): Promis
       slug: row.slug,
       title: row.title,
       organisation: row.organisation_name,
-      employerLogoUrl: logos.get(row.organisation_name) ?? undefined,
+      employerLogoUrl: employers.get(row.organisation_name)?.logo_url ?? undefined,
+      employerWebsiteUrl: employers.get(row.organisation_name)?.website_url ?? undefined,
       summary: row.summary,
       summarySource: row.summary_source === "ai" ? "ai" : "source",
       location: row.location_text,

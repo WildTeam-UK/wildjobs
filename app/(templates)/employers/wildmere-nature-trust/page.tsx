@@ -39,7 +39,7 @@ export default function EmployerTemplate() {
             target="_blank"
             rel="noopener noreferrer"
           >
-            Visit website <span aria-hidden="true">↗</span>
+            Visit website
           </a>
         </header>
       </div>
@@ -193,9 +193,9 @@ export default function EmployerTemplate() {
         <TrainingBanner />
         <div className="tpl-footer-links">
           <Link href="/conservation-sector/wildlife-conservation">
-            Explore the Wildlife Conservation sector →
+            Explore the Wildlife Conservation sector
           </Link>
-          <Link href="/conservation-career-guides/ecologist">See the ecologist career guide →</Link>
+          <Link href="/conservation-career-guides/ecologist">See the ecologist career guide </Link>
         </div>
       </div>
     </main>

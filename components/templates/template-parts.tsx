@@ -1,5 +1,6 @@
 import Image from "next/image";
 import type { ReactNode } from "react";
+import { formatSalaryLabel } from "@/lib/job-salary";
 
 export const careerCourseUrl =
   "https://training.wildteam.org.uk/course/launching-your-career-in-wildlife-conservation";
@@ -75,7 +76,7 @@ export function TemplatePhoto({
           target="_blank"
           rel="noopener noreferrer"
         >
-          {woodland ? "Darren Bockman" : "Pascal Debrunner"} / Unsplash ↗
+          {woodland ? "Darren Bockman" : "Pascal Debrunner"} / Unsplash
         </a>
       </figcaption>
     </figure>
@@ -133,7 +134,6 @@ export function ComparisonList({
             {item.href ? (
               <a href={item.href} target="_blank" rel="noopener noreferrer">
                 {item.value}
-                <span aria-hidden="true">↗</span>
               </a>
             ) : (
               <strong>{item.value}</strong>
@@ -182,7 +182,7 @@ export function GuideContents({ items }: { items: readonly { id: string; label: 
         <h3>A good place to start</h3>
         <p>Make a plan for your next move with our free career course.</p>
         <a href={careerCourseUrl} target="_blank" rel="noopener noreferrer">
-          Start learning, free ↗
+          Start learning, free
         </a>
       </div>
     </aside>
@@ -223,7 +223,6 @@ export function TrainingBanner({
           rel="noopener noreferrer"
         >
           {membership ? "Explore memberships" : "Start the free career course"}{" "}
-          <span aria-hidden="true">↗</span>
         </a>
       </div>
       <div className="tpl-training-banner__art" aria-hidden="true">
@@ -263,7 +262,6 @@ export function CourseTiles() {
         >
           <div>
             <span className="tpl-course-tile__number">0{index + 1}</span>
-            <span aria-hidden="true">↗</span>
           </div>
           <h3>{course.title}</h3>
           <p>{course.description}</p>
@@ -335,7 +333,7 @@ export function ExampleJobs({ employer = false }: { employer?: boolean }) {
           </div>
           <ul>
             <li>{job.location}</li>
-            <li>{job.salary}</li>
+            <li>{formatSalaryLabel(job.salary)}</li>
             <li>Full time</li>
           </ul>
           <details>
