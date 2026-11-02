@@ -56,7 +56,7 @@ export default async function CareerAreaPage({ params }: CareerAreaPageProps) {
         <div className="shell career-area-intro__layout">
           <div className="section-heading">
             <p className="eyebrow">Explore the work</p>
-            <h2>Use real vacancies to understand this field.</h2>
+            <h2>Use real vacancies to understand this field</h2>
           </div>
           <div>
             <p>
@@ -97,7 +97,7 @@ export default async function CareerAreaPage({ params }: CareerAreaPageProps) {
           ) : (
             <div className="staff-empty-state">
               <p className="eyebrow">No live matches today</p>
-              <h2>There are no current vacancies in this area yet.</h2>
+              <h2>There are no current vacancies in this area yet</h2>
               <p>New roles appear here automatically from the feed.</p>
               <Link className="action action--outline" href="/">
                 Browse all jobs
@@ -112,7 +112,7 @@ export default async function CareerAreaPage({ params }: CareerAreaPageProps) {
           <div className="section-heading section-heading--with-link">
             <div>
               <p className="eyebrow">Keep exploring</p>
-              <h2>Other conservation career areas.</h2>
+              <h2>Other conservation career areas</h2>
             </div>
             <Link className="text-link" href="/careers">
               View all areas <span aria-hidden="true">→</span>
@@ -137,7 +137,7 @@ export default async function CareerAreaPage({ params }: CareerAreaPageProps) {
         <div className="shell training-callout__inner">
           <div>
             <p className="eyebrow">Build useful skills</p>
-            <h2>Learn with real conservation work in mind.</h2>
+            <h2>Learn with real conservation work in mind</h2>
             <p>Explore WildTeam training connected to practical conservation work.</p>
           </div>
           <a

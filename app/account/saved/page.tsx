@@ -14,7 +14,7 @@ export default async function SavedJobsPage({ searchParams }: { searchParams: Pr
         <div className="shell account-hero__layout">
           <div>
             <p className="eyebrow">Saved jobs</p>
-            <h1>Keep promising opportunities close.</h1>
+            <h1>Keep promising opportunities close</h1>
           </div>
           <p>Review your shortlist and closing dates without losing where you were in your search.</p>
         </div>
@@ -47,7 +47,7 @@ export default async function SavedJobsPage({ searchParams }: { searchParams: Pr
             <div className="empty-saved">
               <span aria-hidden="true">♡</span>
               <p className="eyebrow">Your shortlist is empty</p>
-              <h2>Save roles you want to return to.</h2>
+              <h2>Save roles you want to return to</h2>
               <p>Saved jobs are private to your account and easy to remove at any time.</p>
             </div>
           )}

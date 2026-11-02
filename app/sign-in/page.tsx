@@ -36,7 +36,7 @@ export default async function SignInPage({ searchParams }: { searchParams: Searc
       <section className="auth-panel shell">
         <div className="auth-panel__intro">
           <p className="eyebrow">Candidate account</p>
-          <h1>{savingJob ? "Save this role and return to it later." : "Welcome back to WildJobs."}</h1>
+          <h1>{savingJob ? "Save this role and return to it later" : "Welcome back to WildJobs"}</h1>
           <p>
             Your account keeps saved jobs and explicit preferences together. You never need an account to
             browse or apply.

@@ -7,7 +7,7 @@ export default function ForEmployers() {
         <div className="shell interior-hero__layout">
           <div>
             <p className="eyebrow">For employers</p>
-            <h1>Help people find your conservation roles.</h1>
+            <h1>Help people find your conservation roles</h1>
           </div>
           <p>
             WildJobs brings opportunities from the EnvironmentJob feed into a simple, searchable directory.
@@ -17,7 +17,7 @@ export default function ForEmployers() {
       <section className="content-section">
         <div className="shell employer-proposition">
           <div className="section-heading">
-            <h2>Your original advert stays the source.</h2>
+            <h2>Your original advert stays the source</h2>
             <p>
               Our job cards show a concise summary, salary, location and relevant WildTeam training.
               Candidates follow the card to your original advert on EnvironmentJob.

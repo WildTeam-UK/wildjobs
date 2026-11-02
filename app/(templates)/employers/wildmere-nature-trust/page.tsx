@@ -55,9 +55,9 @@ export default function EmployerTemplate() {
         <div>
           <p className="eyebrow">Our mission</p>
           <h2>
-            More wild places.
+            More wild places
             <br />
-            <span className="tpl-gradient">More people connected to them.</span>
+            <span className="tpl-gradient">More people connected to them</span>
           </h2>
           <p>
             Wildmere Nature Trust is a local conservation charity. Its mission is to restore a connected
@@ -103,8 +103,8 @@ export default function EmployerTemplate() {
             <div>
               <p className="eyebrow">Working towards something together</p>
               <h2>
-                A team with different skills.
-                <br />A shared purpose.
+                A team with different skills
+                <br />A shared purpose
               </h2>
             </div>
           </div>
@@ -145,7 +145,7 @@ export default function EmployerTemplate() {
         <div className="tpl-section-heading">
           <div>
             <p className="eyebrow">Our hiring picture</p>
-            <h2>Understand the kinds of opportunity.</h2>
+            <h2>Understand the kinds of opportunity</h2>
           </div>
         </div>
         <ExampleStats
@@ -182,7 +182,7 @@ export default function EmployerTemplate() {
           <div className="tpl-section-heading">
             <div>
               <p className="eyebrow">Make your next move</p>
-              <h2>Current jobs at Wildmere.</h2>
+              <h2>Current jobs at Wildmere</h2>
             </div>
             <span className="tpl-hiring-pill">3 opportunities</span>
           </div>

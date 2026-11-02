@@ -23,9 +23,9 @@ export default function CourseRecommendationsTemplate() {
         <div className="tpl-hero__grid">
           <div>
             <h1>
-              Build your skills.
+              Build your skills
               <br />
-              <span className="tpl-gradient">Back yourself.</span>
+              <span className="tpl-gradient">Back yourself</span>
             </h1>
             <p className="tpl-hero__lead">
               A job advert tells you what an employer needs. Relevant learning can help you understand the
@@ -56,9 +56,9 @@ export default function CourseRecommendationsTemplate() {
           <div className="tpl-centred-intro">
             <p className="eyebrow">Why are we recommending these courses?</p>
             <h2>
-              Because the work calls for skills.
+              Because the work calls for skills
               <br />
-              <span className="tpl-gradient">And skills can be developed.</span>
+              <span className="tpl-gradient">And skills can be developed</span>
             </h2>
             <p>
               We connect the responsibilities described in a job with topics taught in WildTeam training. The
@@ -107,7 +107,7 @@ export default function CourseRecommendationsTemplate() {
         <div className="tpl-free-feature">
           <div>
             <p className="eyebrow">A useful place to begin · Free course</p>
-            <h2>Launching Your Career in Wildlife Conservation.</h2>
+            <h2>Launching Your Career in Wildlife Conservation</h2>
             <p>
               You do not have to work out your whole job search alone. Start with a structured way to explore
               the work you want, prepare your experience and approach your next application.
@@ -124,17 +124,17 @@ export default function CourseRecommendationsTemplate() {
           <div className="tpl-free-feature__steps">
             <div>
               <span>FIND YOUR DIRECTION</span>
-              <h3>Choose work that fits you.</h3>
+              <h3>Choose work that fits you</h3>
               <p>Explore your interests and build a more focused plan for the roles you want to pursue.</p>
             </div>
             <div>
               <span>TELL YOUR STORY</span>
-              <h3>Make your experience count.</h3>
+              <h3>Make your experience count</h3>
               <p>Prepare to explain what you bring through applications and conversations with employers.</p>
             </div>
             <div>
               <span>MAKE YOUR NEXT MOVE</span>
-              <h3>Approach it with purpose.</h3>
+              <h3>Approach it with purpose</h3>
               <p>
                 Develop a thoughtful approach to opportunities, interviews and decisions about your future.
               </p>
@@ -149,7 +149,7 @@ export default function CourseRecommendationsTemplate() {
           <h2>
             From a responsibility
             <br />
-            to a practical learning goal.
+            to a practical learning goal
           </h2>
           <p>
             A course is most useful when you know what you want to get from it. Start with a responsibility in
@@ -194,7 +194,7 @@ export default function CourseRecommendationsTemplate() {
         </section>
         <section className="tpl-guide-section">
           <p className="eyebrow">How to use a recommendation well</p>
-          <h2>Choose learning with a purpose.</h2>
+          <h2>Choose learning with a purpose</h2>
           <ol className="tpl-steps">
             <li>
               <strong>Read the actual requirements</strong>
@@ -230,9 +230,9 @@ export default function CourseRecommendationsTemplate() {
         <section className="tpl-guide-section">
           <p className="eyebrow">A note on the matching</p>
           <h2>
-            Helpful connections.
+            Helpful connections
             <br />
-            Your judgement still matters.
+            Your judgement still matters
           </h2>
           <p>
             WildJobs uses AI to connect information in a job description with relevant WildTeam course topics.
@@ -255,7 +255,7 @@ export default function CourseRecommendationsTemplate() {
           <h2>
             Training for the work
             <br />
-            you want to do.
+            you want to do
           </h2>
           <CourseTiles />
           <p>
@@ -269,7 +269,7 @@ export default function CourseRecommendationsTemplate() {
         </section>
         <section className="tpl-guide-section">
           <p className="eyebrow">Your questions, answered</p>
-          <h2>Good to know before you start.</h2>
+          <h2>Good to know before you start</h2>
           <div className="tpl-faq">
             <details>
               <summary>Do I have to take a course to apply for a job?</summary>

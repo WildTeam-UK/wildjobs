@@ -16,7 +16,7 @@ export default async function CoursesAdmin() {
       <header className="staff-hero shell">
         <div>
           <p className="eyebrow">WildTeam courses</p>
-          <h1>Direct matches to the work.</h1>
+          <h1>Direct matches to the work</h1>
         </div>
         <p>AI uses the course description and these optional notes when matching new or changed feed jobs.</p>
       </header>

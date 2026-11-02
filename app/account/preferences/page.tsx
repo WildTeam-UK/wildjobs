@@ -65,7 +65,7 @@ export default async function PreferencesPage({
         <div className="shell account-hero__layout">
           <div>
             <p className="eyebrow">Job preferences</p>
-            <h1>Tell us what useful looks like.</h1>
+            <h1>Tell us what useful looks like</h1>
           </div>
           <p>
             You can inspect, change or remove these choices at any time. They guide discovery—not eligibility.
@@ -202,7 +202,7 @@ export default async function PreferencesPage({
             <div className="section-heading">
               <p className="eyebrow">Preference preview</p>
               <h2>
-                {matchingJobs.length ? "Current roles that share your choices." : "No current matches yet."}
+                {matchingJobs.length ? "Current roles that share your choices" : "No current matches yet"}
               </h2>
               <p>
                 This preview uses only the choices shown above. A role can appear when any saved preference
@@ -222,7 +222,7 @@ export default async function PreferencesPage({
               </div>
             ) : (
               <div className="empty-state">
-                <h3>Your preferences are saved.</h3>
+                <h3>Your preferences are saved</h3>
                 <p>New roles will be checked against them as they are published.</p>
               </div>
             )}

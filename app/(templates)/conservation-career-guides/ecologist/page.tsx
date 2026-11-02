@@ -38,7 +38,7 @@ export default function EcologistGuideTemplate() {
         <div className="tpl-hero__grid">
           <div>
             <h1>
-              Become an <span className="tpl-gradient">ecologist.</span>
+              Become an <span className="tpl-gradient">ecologist</span>
             </h1>
             <p className="tpl-hero__lead">
               Turn your curiosity about wildlife into evidence that helps protect it. Explore the work, the
@@ -71,7 +71,7 @@ export default function EcologistGuideTemplate() {
           <GuideSection
             id="the-role"
             number="01 · Understand the career"
-            title="Give nature a voice in the decisions that matter."
+            title="Give nature a voice in the decisions that matter"
           >
             <p>
               Ecologists investigate how living things interact with one another and with their environment.
@@ -111,7 +111,7 @@ export default function EcologistGuideTemplate() {
           <GuideSection
             id="day-to-day"
             number="02 · The everyday work"
-            title="A field notebook. A spreadsheet. A conversation that changes a plan."
+            title="A field notebook, a spreadsheet, a conversation that changes a plan"
           >
             <p>
               There is no single typical day. A useful way to picture the role is as a cycle: prepare a
@@ -152,7 +152,7 @@ export default function EcologistGuideTemplate() {
           <GuideSection
             id="routes-in"
             number="03 · Find a route that fits"
-            title="Build the foundations. Then make them practical."
+            title="Build the foundations, then make them practical"
           >
             <p>
               A relevant degree is a common route into professional ecology. Subjects can include ecology,
@@ -197,7 +197,7 @@ export default function EcologistGuideTemplate() {
           <GuideSection
             id="skills"
             number="04 · Turn interest into evidence"
-            title="Skills you can show, not just list."
+            title="Skills you can show, not just list"
           >
             <p>
               Employers need to understand what you can do and how you work. Build a few strong accounts of
@@ -241,7 +241,7 @@ export default function EcologistGuideTemplate() {
 
           <TrainingBanner />
 
-          <GuideSection id="salary" number="05 · Pay & working life" title="Understand the whole offer.">
+          <GuideSection id="salary" number="05 · Pay & working life" title="Understand the whole offer">
             <p>
               Salary is one part of a role’s value. The work location, hours, contract length, travel
               expectations, supervision and development opportunities also shape what the job will be like.
@@ -287,7 +287,7 @@ export default function EcologistGuideTemplate() {
           <GuideSection
             id="progression"
             number="06 · Look beyond the first role"
-            title="A career can branch in more than one direction."
+            title="A career can branch in more than one direction"
           >
             <p>
               As you build experience, you may choose to deepen a technical specialism, take responsibility
@@ -327,7 +327,7 @@ export default function EcologistGuideTemplate() {
           <GuideSection
             id="applications"
             number="07 · Make your experience legible"
-            title="Help an employer see how you could contribute."
+            title="Help an employer see how you could contribute"
           >
             <p>
               A convincing application connects your experience to the work described in the advert. Start
@@ -358,7 +358,7 @@ export default function EcologistGuideTemplate() {
           <GuideSection
             id="training"
             number="08 · Build useful professional skills"
-            title="Ecological knowledge, with the skills to put it to work."
+            title="Ecological knowledge, with the skills to put it to work"
           >
             <p>
               Alongside technical development, you may need to coordinate a project, work with different
@@ -376,7 +376,7 @@ export default function EcologistGuideTemplate() {
           <GuideSection
             id="next-steps"
             number="09 · Make the next step manageable"
-            title="Your next three months."
+            title="Your next three months"
           >
             <ol className="tpl-steps">
               <li>
@@ -407,7 +407,7 @@ export default function EcologistGuideTemplate() {
             </p>
           </GuideSection>
 
-          <GuideSection id="jobs" number="10 · Picture your next move" title="Find your next opportunity.">
+          <GuideSection id="jobs" number="10 · Picture your next move" title="Find your next opportunity">
             <p>Explore ecology roles and see how your skills could contribute to the work.</p>
             <ExampleJobs />
           </GuideSection>
@@ -415,7 +415,7 @@ export default function EcologistGuideTemplate() {
           <GuideSection
             id="questions"
             number="11 · A few useful answers"
-            title="Before you take the next step."
+            title="Before you take the next step"
           >
             <div className="tpl-faq">
               <details>

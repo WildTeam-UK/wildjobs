@@ -3,15 +3,15 @@ import Link from "next/link";
 
 const trainingBenefits = [
   {
-    title: "Find opportunities made for you.",
+    title: "Find opportunities made for you",
     description: "Discover jobs that use the skills taught in WildTeam courses.",
   },
   {
-    title: "Stand out from the crowd.",
+    title: "Stand out from the crowd",
     description: "Build practical skills and feel better prepared to land the role you really want.",
   },
   {
-    title: "Turn your passion into progress.",
+    title: "Turn your passion into progress",
     description: "Take meaningful steps towards a career protecting the natural world.",
   },
 ] as const;
@@ -40,7 +40,7 @@ export function JobTrainingPromo({ position }: { position: number }) {
       </div>
       <div className="job-training-promo__content">
         <div className="job-training-promo__intro">
-          <h2 id={headingId}>Your dream job starts with the right skills.</h2>
+          <h2 id={headingId}>Your dream job starts with the right skills</h2>
           <p>
             Build your confidence, develop practical conservation skills and discover where your training
             could take you.
@@ -66,7 +66,7 @@ export function JobTrainingPromo({ position }: { position: number }) {
           >
             Explore WildTeam Training
           </a>
-          <Link className="action action--outline" href="/careers">
+          <Link className="action action--outline" href="/conservation-career-guides/">
             Explore career paths
           </Link>
         </div>

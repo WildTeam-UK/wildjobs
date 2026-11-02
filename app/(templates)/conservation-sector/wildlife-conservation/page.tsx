@@ -34,7 +34,7 @@ export default function SectorTemplate() {
         <div className="tpl-hero__grid">
           <div>
             <h1>
-              Wildlife <span className="tpl-gradient">Conservation.</span>
+              Wildlife <span className="tpl-gradient">Conservation</span>
             </h1>
             <p className="tpl-hero__lead">
               Many skills. One living planet. Find your place in the work to protect species, restore habitats
@@ -83,7 +83,7 @@ export default function SectorTemplate() {
           <GuideSection
             id="sector-overview"
             number="01 · The bigger picture"
-            title="Conservation takes more than one kind of person."
+            title="Conservation takes more than one kind of person"
           >
             <p>
               Wildlife conservation brings together work to understand species, protect habitats and support
@@ -113,7 +113,7 @@ export default function SectorTemplate() {
           <GuideSection
             id="the-work"
             number="02 · What the sector includes"
-            title="From a single species to a whole landscape."
+            title="From a single species to a whole landscape"
           >
             <p>
               Conservation happens at different scales and through different kinds of organisation. These
@@ -159,7 +159,7 @@ export default function SectorTemplate() {
           <GuideSection
             id="career-routes"
             number="03 · Find your place"
-            title="Different routes. Shared purpose."
+            title="Different routes, shared purpose"
           >
             <div className="tpl-feature-grid">
               <div className="tpl-feature-card">
@@ -218,7 +218,7 @@ export default function SectorTemplate() {
           <GuideSection
             id="sector-skills"
             number="04 · What connects the roles"
-            title="Good ideas need people who can deliver them."
+            title="Good ideas need people who can deliver them"
           >
             <p>
               Different roles call for different technical skills. Across conservation projects, clear
@@ -256,7 +256,7 @@ export default function SectorTemplate() {
           <GuideSection
             id="sector-pay"
             number="05 · Understand the conditions"
-            title="Compare like with like."
+            title="Compare like with like"
           >
             <p>
               A single sector-wide pay figure hides a lot of variation. Role level, location, hours, contract
@@ -300,7 +300,7 @@ export default function SectorTemplate() {
           <GuideSection
             id="sector-training"
             number="06 · Put your learning to work"
-            title="Build the skills behind the impact."
+            title="Build the skills behind the impact"
           >
             <p>
               Choose professional development around a task you want to do better: plan a project, engage a
@@ -313,18 +313,14 @@ export default function SectorTemplate() {
             </p>
           </GuideSection>
           <TrainingBanner courseTheme="green" />
-          <GuideSection
-            id="jobs"
-            number="07 · Explore the possibilities"
-            title="Opportunities in the sector."
-          >
+          <GuideSection id="jobs" number="07 · Explore the possibilities" title="Opportunities in the sector">
             <p>Find conservation opportunities that connect with your skills and interests.</p>
             <ExampleJobs employer />
           </GuideSection>
           <GuideSection
             id="sector-faq"
             number="08 · Plan your next step"
-            title="Questions you might be asking."
+            title="Questions you might be asking"
           >
             <div className="tpl-faq">
               <details>
@@ -356,7 +352,7 @@ export default function SectorTemplate() {
                 </p>
               </details>
             </div>
-            <h3>Make your next move a deliberate one.</h3>
+            <h3>Make your next move a deliberate one</h3>
             <p>
               Choose a type of contribution, compare a few roles and build evidence around the capabilities
               they need. Your path can change as you gain a clearer picture of the work.
@@ -369,7 +365,7 @@ export default function SectorTemplate() {
           <div className="tpl-section-heading">
             <div>
               <p className="eyebrow">Meet a conservation employer</p>
-              <h2>See the people behind the opportunities.</h2>
+              <h2>See the people behind the opportunities</h2>
             </div>
           </div>
           <Link

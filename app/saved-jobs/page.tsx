@@ -12,7 +12,7 @@ export default async function SavedJobsPage() {
         <div className="shell account-hero__layout">
           <div>
             <p className="eyebrow">Saved jobs</p>
-            <h1>Keep promising opportunities close.</h1>
+            <h1>Keep promising opportunities close</h1>
           </div>
           <p>Review your shortlist and closing dates without losing where you were in your search.</p>
         </div>

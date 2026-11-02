@@ -30,7 +30,7 @@ export function BrowserSavedJobs({ jobs }: { jobs: readonly Job[] }) {
                 <JobCard compact job={job} key={id} />
               ) : (
                 <article className="staff-empty-state" key={id}>
-                  <h3>This saved job is no longer available.</h3>
+                  <h3>This saved job is no longer available</h3>
                   <p>Its advert may have closed or been removed from the directory.</p>
                   <button className="save-action" onClick={() => toggleBrowserSavedJob(id)} type="button">
                     Remove from shortlist
@@ -42,7 +42,7 @@ export function BrowserSavedJobs({ jobs }: { jobs: readonly Job[] }) {
         ) : (
           <div className="empty-saved">
             <span aria-hidden="true">♡</span>
-            <h2>Save roles you want to return to.</h2>
+            <h2>Save roles you want to return to</h2>
             <p>Select the heart on any job to add it to this browser’s shortlist.</p>
           </div>
         )}
