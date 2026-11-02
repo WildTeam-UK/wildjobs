@@ -1000,7 +1000,7 @@ export function JobBrowser({
                   count: salaryContext.filter((job) => (minimumGbpSalary(job) ?? 0) >= 50000).length,
                 },
               ]}
-              placeholder="Minimum salary (GBP)"
+              placeholder="Minimum salary"
               value={minimumSalary ? String(minimumSalary) : ""}
             />
             {hasFilters ? (
