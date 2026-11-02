@@ -1497,6 +1497,7 @@ a[role="button"],
 }
 .job-results__heading {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: 30px;
@@ -1534,9 +1535,122 @@ a[role="button"],
   gap: 26px;
   margin-top: 24px;
 }
+.job-list,
+.job-split-view__list {
+  overflow-anchor: none;
+}
+.job-result-item {
+  min-width: 0;
+}
+.dismiss-job-action {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  width: 42px;
+  min-height: 42px;
+  flex: 0 0 auto;
+  place-items: start center;
+  padding: 2px 0 0;
+  border: 0;
+  background: transparent;
+  color: var(--wt-color-brand-purple);
+}
+.dismiss-job-action svg {
+  width: 21px;
+  height: 21px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.6;
+}
+.dismiss-job-action:hover,
+.dismiss-job-action:focus-visible {
+  color: var(--wt-color-brand-pink);
+}
+.job-dismissed-toggle,
+.job-dismissed-note button,
+.job-dismissal-feedback button {
+  min-height: 42px;
+  padding: 9px 13px;
+  border: 1px solid var(--wt-color-brand-purple);
+  border-radius: var(--wt-radius-control);
+  background: var(--wt-color-paper);
+  color: var(--wt-color-brand-purple);
+  font-size: 0.74rem;
+  font-weight: var(--wt-font-weight-bold);
+}
+.job-dismissed-toggle:hover,
+.job-dismissed-note button:hover,
+.job-dismissal-feedback button:hover {
+  background: var(--wt-color-brand-purple);
+  color: var(--wt-color-paper);
+}
+.job-dismissed-note {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 24px;
+  margin: 18px 0 0;
+  color: var(--wt-color-muted);
+  font-size: 0.9rem;
+}
+.job-dismissed-note p {
+  margin: 0;
+}
+.job-dismissal-feedback {
+  position: fixed;
+  z-index: 30;
+  right: 20px;
+  bottom: 20px;
+  left: 20px;
+  pointer-events: none;
+}
+.job-dismissal-feedback__content {
+  display: flex;
+  max-width: 510px;
+  align-items: center;
+  gap: 20px;
+  margin: auto;
+  padding: 16px 20px;
+  border: 1px solid var(--wt-color-brand-purple);
+  border-radius: var(--wt-radius-panel);
+  background: var(--wt-color-paper);
+  color: var(--wt-color-brand-purple);
+  pointer-events: auto;
+}
+.job-dismissal-feedback p {
+  display: grid;
+  min-width: 0;
+  gap: 3px;
+  margin: 0;
+  font-size: 0.9rem;
+}
+.job-dismissal-feedback p span {
+  display: -webkit-box;
+  overflow: hidden;
+  color: var(--wt-color-muted);
+  font-size: 0.8rem;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+.job-dismissal-feedback button {
+  flex: 0 0 auto;
+  margin-left: auto;
+}
+.job-dismissal-feedback .job-dismissal-feedback__close {
+  width: 28px;
+  min-height: 42px;
+  margin-left: -10px;
+  padding: 0;
+  border: 0;
+  font-size: 1.4rem;
+  font-weight: 400;
+}
 .job-results__controls {
   display: flex;
   flex: 0 0 auto;
+  flex-wrap: wrap;
   align-items: center;
   gap: 14px;
 }
@@ -1609,7 +1723,7 @@ a[role="button"],
   grid-template-columns: var(--preview-logo-size) minmax(0, 1fr);
   align-items: center;
   gap: var(--preview-identity-gap);
-  padding-right: 28px;
+  padding-right: 72px;
 }
 .job-preview-card__identity-copy {
   display: grid;
@@ -1714,6 +1828,8 @@ a[role="button"],
   z-index: 2;
   top: 16px;
   right: 12px;
+  display: flex;
+  gap: 2px;
 }
 .job-detail-panel {
   position: sticky;
@@ -3687,6 +3803,23 @@ a[role="button"],
   .job-card--compact .job-card__header {
     align-items: center;
     gap: 10px;
+  }
+  .job-card--compact:has(.dismiss-job-action) .job-card__header {
+    display: grid;
+    grid-template-columns: 75px minmax(0, 1fr);
+    gap: 14px 10px;
+  }
+  .job-card--compact:has(.dismiss-job-action) .job-card__logo-anchor {
+    grid-column: 1;
+    grid-row: 1;
+  }
+  .job-card--compact:has(.dismiss-job-action) .job-card__header-actions {
+    grid-column: 2;
+    grid-row: 1;
+    justify-self: end;
+  }
+  .job-card--compact:has(.dismiss-job-action) .job-card__identity {
+    grid-column: 1 / -1;
   }
   .job-card--compact .job-card__identity {
     align-self: flex-end;
