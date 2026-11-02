@@ -1889,85 +1889,6 @@ select {
   background-clip: text;
   color: transparent;
 }
-.job-card__ai-tooltip-trigger {
-  z-index: 3;
-  display: inline-grid;
-  width: 18px;
-  height: 18px;
-  margin: 0;
-  padding: 0;
-  border: 0;
-  border-radius: 999px;
-  place-items: center;
-  background: transparent;
-  color: var(--wt-color-brand-pink);
-  cursor: help;
-  vertical-align: -0.18em;
-}
-.job-card__ai-tooltip-anchor {
-  position: relative;
-  display: inline-flex;
-  vertical-align: -0.18em;
-}
-.job-card__ai-tooltip-trigger svg {
-  width: 17px;
-  height: 17px;
-  fill: none;
-  stroke: currentColor;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  stroke-width: 1.7;
-}
-.job-card__ai-tooltip-trigger:hover {
-  color: var(--wt-color-brand-purple);
-}
-.job-card__ai-tooltip-trigger:focus-visible {
-  outline: 2px solid var(--wt-color-brand-pink);
-  outline-offset: 2px;
-}
-.job-card__ai-tooltip {
-  position: absolute;
-  z-index: 5;
-  bottom: calc(100% + 10px);
-  left: 50%;
-  width: min(270px, calc(100vw - 64px));
-  padding: 11px 13px;
-  border: 1px solid color-mix(in srgb, var(--wt-color-brand-pink) 55%, transparent);
-  border-radius: var(--wt-radius-control);
-  background: var(--wt-color-ink);
-  box-shadow: 0 12px 28px rgb(31 21 28 / 18%);
-  color: var(--wt-color-paper);
-  font-size: 0.76rem;
-  font-weight: 400;
-  line-height: 1.4;
-  opacity: 0;
-  pointer-events: none;
-  text-align: left;
-  text-decoration: none;
-  transform: translate(-50%, 4px);
-  transition:
-    opacity 140ms ease,
-    transform 140ms ease,
-    visibility 140ms ease;
-  visibility: hidden;
-  white-space: normal;
-}
-.job-card__ai-tooltip::after {
-  position: absolute;
-  top: 100%;
-  left: 50%;
-  width: 10px;
-  height: 10px;
-  background: var(--wt-color-ink);
-  content: "";
-  transform: translate(-50%, -5px) rotate(45deg);
-}
-.job-card__ai-tooltip-trigger:hover + .job-card__ai-tooltip,
-.job-card__ai-tooltip-trigger:focus-visible + .job-card__ai-tooltip {
-  opacity: 1;
-  transform: translate(-50%, 0);
-  visibility: visible;
-}
 .ai-summary-label {
   width: fit-content;
   margin: 14px 0 0;
@@ -2100,6 +2021,9 @@ select {
   white-space: nowrap;
   cursor: pointer;
   vertical-align: baseline;
+}
+.job-card__training-explainer:hover {
+  color: var(--wt-color-brand-purple);
 }
 .job-card__training-courses {
   display: flex;

@@ -71,8 +71,6 @@ export function JobCard({
   const postedLabel = postedAgoLabel(job.publishedAt ?? job.postedAt);
   const hasRelatedCourses = Boolean(job.relatedCourses?.length);
   const sourceLinkAttributes = job.sourceUrl ? { target: "_blank", rel: "noopener noreferrer" } : {};
-  const trainingExplanation =
-    "These recommendations match the work described in the feed with skills taught in WildTeam courses. A course is not necessarily required and does not guarantee eligibility.";
   const employerLogo = (
     <EmployerLogo
       imageClassName="job-card__logo"
@@ -237,18 +235,12 @@ export function JobCard({
                 </li>
               ))}
             </ul>
-            <span className="job-card__ai-tooltip-anchor job-card__training-why">
-              <button
-                aria-describedby={`training-tooltip-${job.slug}`}
-                className="job-card__ai-tooltip-trigger job-card__training-explainer"
-                type="button"
-              >
-                Why are we recommending these courses?
-              </button>
-              <span className="job-card__ai-tooltip" id={`training-tooltip-${job.slug}`} role="tooltip">
-                {trainingExplanation}
-              </span>
-            </span>
+            <Link
+              className="job-card__training-why job-card__training-explainer"
+              href="/course-recommendations/"
+            >
+              Why are we recommending these courses?
+            </Link>
           </div>
           {compact ? <p className="job-card__posted">{postedLabel}</p> : null}
         </div>
