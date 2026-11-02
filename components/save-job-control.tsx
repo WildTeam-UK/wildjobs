@@ -1,9 +1,6 @@
 "use client";
 
-import Link from "next/link";
-
-import { updateSavedJob } from "@/app/account/saved/actions";
-import { SubmitButton } from "@/components/submit-button";
+import { toggleBrowserSavedJob, useBrowserSavedJobs } from "@/lib/browser-saved-jobs";
 
 export type JobSaveState = "available" | "saved" | "signed-out";
 
@@ -30,9 +27,6 @@ export function SaveJobControl({
   className = "save-action",
   iconOnly = false,
   jobId,
-  jobSlug,
-  returnTo = "/",
-  state,
 }: {
   className?: string;
   iconOnly?: boolean;
@@ -41,42 +35,24 @@ export function SaveJobControl({
   returnTo?: string;
   state: JobSaveState;
 }) {
-  if (state === "signed-out" || !jobId) {
-    return (
-      <Link
-        aria-label={iconOnly ? "Save job" : undefined}
-        className={className}
-        href={{
-          pathname: "/sign-in",
-          query: { intent: "save", job: jobSlug, next: returnTo },
-        }}
-      >
-        {iconOnly ? <HeartIcon /> : <span aria-hidden="true">♡</span>}
-        {iconOnly ? null : " Save job"}
-      </Link>
-    );
-  }
-
-  const operation = state === "saved" ? "remove" : "save";
-  const action = updateSavedJob.bind(null, jobId, operation, returnTo);
+  const { ids, persistent } = useBrowserSavedJobs();
+  if (!jobId) return null;
+  const saved = ids.includes(jobId);
 
   return (
-    <form action={action}>
-      <SubmitButton
-        className={`${className}${iconOnly && state === "saved" ? " save-action--saved" : ""}`}
-        idleAriaLabel={iconOnly ? (state === "saved" ? "Remove saved job" : "Save job") : undefined}
-        idleLabel={
-          iconOnly ? (
-            <HeartIcon filled={state === "saved"} />
-          ) : state === "saved" ? (
-            "♥ Saved · remove"
-          ) : (
-            "♡ Save job"
-          )
-        }
-        pendingAriaLabel={iconOnly ? (state === "saved" ? "Removing saved job" : "Saving job") : undefined}
-        pendingLabel={iconOnly ? "…" : state === "saved" ? "Removing…" : "Saving…"}
-      />
-    </form>
+    <button
+      aria-label={iconOnly ? (saved ? "Remove saved job" : "Save job") : undefined}
+      aria-pressed={saved}
+      className={`${className}${saved ? " save-action--saved" : ""}`}
+      onClick={() => toggleBrowserSavedJob(jobId)}
+      title={
+        persistent
+          ? "Saved on this browser only"
+          : "Browser storage is unavailable; saved for this visit only"
+      }
+      type="button"
+    >
+      {iconOnly ? <HeartIcon filled={saved} /> : saved ? "♥ Saved · remove" : "♡ Save job"}
+    </button>
   );
 }

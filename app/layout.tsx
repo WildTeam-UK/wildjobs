@@ -5,6 +5,7 @@ import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import "./globals.css";
 import { siteIndexingEnabled } from "@/lib/site-indexing";
+import { AnalyticsConsent } from "@/components/analytics-consent";
 
 const vagRounded = localFont({
   src: [
@@ -36,6 +37,10 @@ export default function RootLayout({ children }: Readonly<{ children: ReactNode 
         <SiteHeader />
         {children}
         <SiteFooter />
+        <AnalyticsConsent
+          enabled={process.env.VERCEL_ENV === "production"}
+          containerId={process.env.NEXT_PUBLIC_GTM_ID ?? ""}
+        />
       </body>
     </html>
   );

@@ -7,6 +7,7 @@ import { SubmitButton } from "@/components/submit-button";
 import { getSafeNextPath } from "@/lib/auth/redirects";
 import { getSaveJobIntent } from "@/lib/auth/save-intent";
 import { createClient } from "@/lib/supabase/server";
+import { PUBLIC_SIGNUPS_ENABLED } from "@/lib/soft-launch";
 
 export const metadata: Metadata = { title: "Create an account" };
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
@@ -19,6 +20,7 @@ const messages: Record<string, string> = {
 };
 
 export default async function CreateAccountPage({ searchParams }: { searchParams: SearchParams }) {
+  if (!PUBLIC_SIGNUPS_ENABLED) redirect("/saved-jobs");
   const params = await searchParams;
   const next = getSafeNextPath(params.next);
   const saveIntent = getSaveJobIntent(params);

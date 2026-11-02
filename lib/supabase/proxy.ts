@@ -5,6 +5,9 @@ import { getSupabaseConfig } from "./config";
 import type { Database } from "./database.types";
 
 export async function updateSession(request: NextRequest) {
+  if (request.nextUrl.pathname === "/account/saved") {
+    return NextResponse.redirect(new URL("/saved-jobs", request.url));
+  }
   let response = NextResponse.next({ request });
   const { publishableKey, url } = getSupabaseConfig();
 

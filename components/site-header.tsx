@@ -97,7 +97,7 @@ export function SiteHeader() {
             </Link>
             <Link
               className="site-navigation-button site-navigation-button--saved"
-              href="/account/saved"
+              href="/saved-jobs"
               onClick={closeMenu}
             >
               Saved jobs

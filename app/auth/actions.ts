@@ -11,6 +11,7 @@ import { saveRequestedJob } from "@/lib/auth/save-request";
 import { hasAcceptedTerms, validateCredentials } from "@/lib/auth/validation";
 import { getRequestOrigin } from "@/lib/request-origin";
 import { createClient } from "@/lib/supabase/server";
+import { PUBLIC_SIGNUPS_ENABLED } from "@/lib/soft-launch";
 
 export async function signIn(formData: FormData) {
   const next = getSafeNextPath(formData.get("next"));
@@ -72,6 +73,7 @@ export async function signIn(formData: FormData) {
 }
 
 export async function signUp(formData: FormData) {
+  if (!PUBLIC_SIGNUPS_ENABLED) redirect("/saved-jobs");
   const next = getSafeNextPath(formData.get("next"));
   const saveIntent = getSaveJobIntent({
     intent: formData.get("intent"),

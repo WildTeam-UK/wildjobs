@@ -1,5 +1,9 @@
 # Approved feed directory replacement
 
+## Approved soft launch · 2 November 2026
+
+The user requested putting WildJobs on `jobs.wildteam.org.uk` with analytics and search-console setup, with content, policy and source-permission work following after launch. Close public signup until the future SSO approach is agreed; retain existing staff access. Browser-only saved jobs were explicitly approved for the soft launch. Store only a bounded, versioned list of public job IDs in browser storage, without introducing accounts, a new database model or an SSO integration. Use the existing WildTeam GTM/GA4 property with a visitor analytics choice and denied advertising consent. Verify source/build checks, public browsing and filtering, browser saves/removal/persistence, signup closure, domain HTTPS, indexing output and tracking before reporting completion.
+
 Approved by the user on 1 November 2026: rebuild around EnvironmentJob, retain the jobs page and card design, recreate admin, remove the old pipeline, individual job pages, automations and job data, and publish automatically.
 
 The implementation is a single RSS importer, one read of each new/changed linked advert, and one AI enrichment call per batch. It uses the existing Next.js application, Supabase project, Vercel project and OpenAI integration. No new service is introduced.

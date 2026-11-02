@@ -1,3 +1,5 @@
+import { CookieSettingsButton } from "@/components/analytics-consent";
+
 type FooterLink = {
   label: string;
   href?: string;
@@ -93,6 +95,9 @@ function FooterColumn({ title, links }: { title: string; links: FooterLink[] }) 
           <span key={link.label}>{link.label}</span>
         ),
       )}
+      {title === "Legal" && process.env.VERCEL_ENV === "production" && process.env.NEXT_PUBLIC_GTM_ID ? (
+        <CookieSettingsButton />
+      ) : null}
     </section>
   );
 }
