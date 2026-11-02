@@ -101,3 +101,22 @@ it("uses the advert body when JobPosting metadata is absent", () => {
   expect(result.description).toBe("Ecologist Survey woodland and advise landowners.");
   expect(result.logoCandidates).toEqual([{ url: "https://jobs.example.org/trust.png", alt: "Nature Trust" }]);
 });
+
+it("reads international JobPosting pay, including numeric strings", () => {
+  expect(
+    parseAdvert(
+      page({
+        baseSalary: { currency: "NZD", value: { minValue: "70000", maxValue: "90000", unitText: "YEAR" } },
+      }),
+    )?.salary,
+  ).toBe("NZD 70,000 – NZD 90,000 per year");
+});
+
+it("extracts pay from an advert without structured salary data", () => {
+  expect(
+    advertPage(
+      "<main><p>Work with wildlife. Salary: EUR 3500 monthly.</p></main>",
+      "https://trust.example.org/job/1",
+    ).salary,
+  ).toBe("€3,500 per month");
+});

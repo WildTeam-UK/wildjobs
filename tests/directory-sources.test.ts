@@ -114,3 +114,21 @@ it("formats structured RSS pay attributes", () => {
   );
   expect(feed.items[0].salary_text).toBe("£12.50 per hour");
 });
+
+it("extracts salary from full RSS content before the AI pass", () => {
+  const feed = parseSourceFeed(
+    '<rss xmlns:content="http://purl.org/rss/1.0/modules/content/"><channel><item><title>Gardener</title><link>https://trust.example.org/jobs/91</link><description>Short excerpt.</description><content:encoded><![CDATA[<p>Maintain gardens.</p><p>Salary: $31–$33 per hour.</p>]]></content:encoded></item></channel></rss>',
+    "https://trust.example.org/feed",
+    now,
+  );
+  expect(feed.items[0]).toMatchObject({ salary_text: "$31 – $33 per hour", salary_min: 31 });
+});
+
+it("keeps international structured pay ahead of incidental amounts in descriptions", () => {
+  const feed = parseSourceFeed(
+    '<rss><channel><item><title>Ecologist</title><link>https://trust.example.org/jobs/92</link><salary currency="AUD" unit="YEAR">80000–95000</salary><description>Training budget $2000.</description></item></channel></rss>',
+    "https://trust.example.org/feed",
+    now,
+  );
+  expect(feed.items[0]).toMatchObject({ salary_text: "AUD 80,000 – AUD 95,000 per year", salary_min: 80000 });
+});

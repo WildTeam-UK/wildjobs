@@ -8,7 +8,7 @@ import { parseSourceFeed } from "./directory-sources";
 import { fetchPublicText } from "./directory-http";
 import { fetchAdvert } from "./directory-advert";
 import { directoryFacts } from "./directory-lifecycle";
-import { normaliseSalary } from "./directory-feed";
+import { extractSalary, normaliseSalary, parseSalary } from "./job-salary";
 import { plainText } from "./directory-text";
 
 type DirectoryJob = Database["public"]["Tables"]["directory_jobs"]["Row"];
@@ -116,7 +116,8 @@ export async function syncDirectory(force = false, sourceId?: number) {
             jobId: job.id,
             error: message(result.reason),
           });
-          enrichedJobs.push({ job, description: job.feed_text, logos: [] });
+          const salary = job.salary_text === "Not stated" ? extractSalary(job.feed_text) : job.salary_text;
+          enrichedJobs.push({ job: { ...job, salary_text: salary }, description: job.feed_text, logos: [] });
           continue;
         }
         const advert = result.value;
@@ -126,10 +127,10 @@ export async function syncDirectory(force = false, sourceId?: number) {
           ...(advert.locationText && job.location_text === "Location not stated"
             ? { location_text: advert.locationText, locality: advert.locationText.split(",")[0] }
             : {}),
-          ...(advert.salary && job.salary_text === "Not stated"
+          ...(advert.salary && advert.salary !== "Not stated" && job.salary_text === "Not stated"
             ? {
                 salary_text: advert.salary,
-                salary_min: Number(advert.salary.match(/[\d,]+/)?.[0].replaceAll(",", "")) || null,
+                salary_min: parseSalary(advert.salary).minimum,
               }
             : {}),
           ...(advert.logoUrl ? { logo_url: advert.logoUrl } : {}),
@@ -224,7 +225,7 @@ export async function syncDirectory(force = false, sourceId?: number) {
             : job.location_text;
         const salary =
           job.salary_text === "Not stated" && item.salary_text
-            ? normaliseSalary(item.salary_text)
+            ? normaliseSalary(item.salary_text, { defaultAnnual: false })
             : job.salary_text;
         const fields = {
           summary: item.summary.trim(),
@@ -237,7 +238,7 @@ export async function syncDirectory(force = false, sourceId?: number) {
             job.country_code ??
             (item.country_code && /^[A-Z]{2}$/.test(item.country_code) ? item.country_code : null),
           salary_text: salary,
-          salary_min: Number(salary.match(/[\d,]+/)?.[0].replaceAll(",", "")) || null,
+          salary_min: parseSalary(salary).minimum,
           ...directoryFacts({
             workplace: job.workplace === "On-site" ? (item.workplace ?? job.workplace) : job.workplace,
             hours: job.hours_type === "Full time" ? (item.hours_type ?? job.hours_type) : job.hours_type,
