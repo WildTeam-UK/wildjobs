@@ -1746,6 +1746,42 @@ a[role="button"],
 .job-detail-panel .job-card__identity {
   align-self: center;
 }
+.job-card__employer-profile {
+  display: grid;
+  justify-items: center;
+  gap: 13px;
+  padding-bottom: 12px;
+}
+.job-card__hiring-pill {
+  display: inline-flex;
+  min-height: 30px;
+  align-items: center;
+  padding: 7px 13px;
+  border: 1px solid transparent;
+  border-radius: var(--wt-radius-pill);
+  background:
+    linear-gradient(110deg, #fff2f9, #faf4fc) padding-box,
+    linear-gradient(110deg, var(--wt-color-brand-purple), var(--wt-color-brand-pink)) border-box;
+  font-size: 0.68rem;
+  font-weight: var(--wt-font-weight-bold);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+.job-card__hiring-pill > span {
+  background: linear-gradient(100deg, var(--wt-color-brand-purple), var(--wt-color-brand-pink));
+  background-clip: text;
+  color: transparent;
+}
+.job-card__employer-website {
+  color: var(--wt-color-brand-purple);
+  font-size: 0.82rem;
+  text-decoration: underline;
+  text-underline-offset: 0.18em;
+  overflow-wrap: anywhere;
+}
+.job-card__employer-website:hover {
+  color: var(--wt-color-brand-pink);
+}
 .job-detail-panel .job-card--compact .job-card__logo,
 .job-detail-panel .job-card--compact .job-card__monogram {
   width: 160px;

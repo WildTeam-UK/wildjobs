@@ -33,7 +33,7 @@ export default function CourseRecommendationsTemplate() {
             </p>
             <div className="tpl-actions">
               <a className="action" href="#free-course">
-                Start with our free career course ↓
+                Start with our free career course
               </a>
             </div>
           </div>
@@ -114,7 +114,7 @@ export default function CourseRecommendationsTemplate() {
             </p>
             <div className="tpl-actions">
               <a className="action" href={careerCourseUrl} target="_blank" rel="noopener noreferrer">
-                Explore the free course <span aria-hidden="true">↗</span>
+                Explore the free course
               </a>
             </div>
             <p className="tpl-small" style={{ color: "#f3c4e3", marginTop: 18 }}>
@@ -261,7 +261,7 @@ export default function CourseRecommendationsTemplate() {
           <p>
             For ongoing learning across topics,{" "}
             <a href={membershipUrl} target="_blank" rel="noopener noreferrer">
-              explore WildTeam memberships ↗
+              explore WildTeam memberships
             </a>
             . Compare the available options with your interests, time and budget. The free career course is a
             useful starting point if you are still deciding where to focus.
@@ -312,9 +312,9 @@ export default function CourseRecommendationsTemplate() {
       <div className="shell">
         <TrainingBanner membership />
         <div className="tpl-footer-links">
-          <Link href="/conservation-career-guides/ecologist">Explore the ecologist career guide →</Link>
-          <Link href="/conservation-sector/wildlife-conservation">Find your place in conservation →</Link>
-          <Link href="/">Back to jobs →</Link>
+          <Link href="/conservation-career-guides/ecologist">Explore the ecologist career guide </Link>
+          <Link href="/conservation-sector/wildlife-conservation">Find your place in conservation </Link>
+          <Link href="/">Back to jobs </Link>
         </div>
       </div>
     </main>

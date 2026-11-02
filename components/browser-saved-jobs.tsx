@@ -48,7 +48,7 @@ export function BrowserSavedJobs({ jobs }: { jobs: readonly Job[] }) {
         )}
         <div className="saved-jobs-footer">
           <Link className="action" href="/">
-            Find more jobs <span aria-hidden="true">→</span>
+            Find more jobs
           </Link>
         </div>
       </div>

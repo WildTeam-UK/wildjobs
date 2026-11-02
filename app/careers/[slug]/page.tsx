@@ -38,7 +38,7 @@ export default async function CareerAreaPage({ params }: CareerAreaPageProps) {
     <main>
       <div className="shell career-area-back">
         <Link className="back-link" href="/careers">
-          <span aria-hidden="true">←</span> All career areas
+          All career areas
         </Link>
       </div>
 
@@ -64,7 +64,7 @@ export default async function CareerAreaPage({ params }: CareerAreaPageProps) {
               useful roles to build a clearer picture of what interests you and what employers ask for.
             </p>
             <Link className="text-link" href={`/?category=${encodeURIComponent(area.title)}`}>
-              Search this career area <span aria-hidden="true">→</span>
+              Search this career area
             </Link>
           </div>
         </div>
@@ -115,7 +115,7 @@ export default async function CareerAreaPage({ params }: CareerAreaPageProps) {
               <h2>Other conservation career areas</h2>
             </div>
             <Link className="text-link" href="/careers">
-              View all areas <span aria-hidden="true">→</span>
+              View all areas
             </Link>
           </div>
           <div className="career-area-list">
@@ -126,7 +126,6 @@ export default async function CareerAreaPage({ params }: CareerAreaPageProps) {
                   <h3>{careerArea.title}</h3>
                   <p>{careerArea.description}</p>
                 </div>
-                <strong aria-hidden="true">↗</strong>
               </Link>
             ))}
           </div>
@@ -146,7 +145,7 @@ export default async function CareerAreaPage({ params }: CareerAreaPageProps) {
             target="_blank"
             rel="noopener noreferrer"
           >
-            Explore training <span aria-hidden="true">→</span>
+            Explore training
           </a>
         </div>
       </section>

@@ -42,6 +42,7 @@ export function JobFactIcon({ type }: { type: "location" | "salary" | "type" }) 
 export function JobCard({
   compact = false,
   detailPanel = false,
+  employerRoleCount,
   job,
   saveReturnTo,
   saveState = "signed-out",
@@ -49,6 +50,7 @@ export function JobCard({
 }: {
   compact?: boolean;
   detailPanel?: boolean;
+  employerRoleCount?: number;
   job: Job;
   saveReturnTo?: string;
   saveState?: JobSaveState;
@@ -100,7 +102,28 @@ export function JobCard({
   return (
     <article className={`job-card${compact ? " job-card--compact" : ""}`}>
       <header className="job-card__header">
-        {compact ? (
+        {detailPanel ? (
+          <div className="job-card__employer-profile">
+            {employerLogo}
+            {employerRoleCount ? (
+              <span className="job-card__hiring-pill">
+                <span className="icon-label">
+                  Hiring for {employerRoleCount} {employerRoleCount === 1 ? "role" : "roles"}
+                </span>
+              </span>
+            ) : null}
+            {job.employerWebsiteUrl ? (
+              <a
+                className="job-card__employer-website"
+                href={job.employerWebsiteUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {new URL(job.employerWebsiteUrl).hostname.replace(/^www\./, "")}
+              </a>
+            ) : null}
+          </div>
+        ) : compact ? (
           job.availability && job.availability !== "current" ? (
             <span className="job-card__logo-anchor">{employerLogo}</span>
           ) : (
@@ -253,7 +276,7 @@ export function JobCard({
             </span>
           ) : (
             <Link className="action" href={job.sourceUrl ?? "/"} {...sourceLinkAttributes}>
-              View job <span aria-hidden="true">→</span>
+              View job
             </Link>
           )}
           {showSaveAction && !compact ? (

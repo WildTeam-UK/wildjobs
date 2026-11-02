@@ -11,6 +11,7 @@ import { directoryFacts } from "./directory-lifecycle";
 import { completeSalary, extractSalary, normaliseSalary, parseSalary } from "./job-salary";
 import { findOrganisationLogo } from "./organisation-logo";
 import { plainText } from "./directory-text";
+import { findEmployerWebsite } from "./employer-websites";
 
 type DirectoryJob = Database["public"]["Tables"]["directory_jobs"]["Row"];
 function check<T>(result: { data: T; error: unknown }): { data: NonNullable<T> } {
@@ -58,9 +59,12 @@ export async function syncDirectory(force = false, sourceId?: number) {
       .limit(3);
     if (sourceId) query = query.eq("id", sourceId);
     const sources = check(await query).data;
-    const organisations = check(await db.from("directory_organisations").select("name,logo_url")).data;
+    const organisations = check(
+      await db.from("directory_organisations").select("name,logo_url,website_url"),
+    ).data;
     const names = organisations.map((o) => o.name);
     const logoCache = new Map(organisations.filter((o) => o.logo_url).map((o) => [o.name, o.logo_url!]));
+    const websiteCache = new Set(organisations.filter((o) => o.website_url).map((o) => o.name));
     const feeds = await Promise.allSettled(
       sources.map(async (source) => {
         const response = await fetchPublicText(source.feed_url, 20000);
@@ -114,7 +118,16 @@ export async function syncDirectory(force = false, sourceId?: number) {
     // The same linked-advert read also extracts identity before spending AI on duplicates.
     for (let offset = 0; offset < pending.length; offset += 4) {
       const group = pending.slice(offset, offset + 4);
-      const adverts = await Promise.allSettled(group.map((job) => fetchAdvert(job.source_url)));
+      const adverts = await Promise.allSettled(
+        group.map(async (job) => {
+          const advert = await fetchAdvert(job.source_url);
+          const name = advert.organisationName || job.organisation_name;
+          const website = websiteCache.has(name)
+            ? null
+            : await findEmployerWebsite(name, job.source_url, advert);
+          return { advert, website };
+        }),
+      );
       for (let i = 0; i < group.length; i++) {
         const job = group[i],
           result = adverts[i];
@@ -132,7 +145,7 @@ export async function syncDirectory(force = false, sourceId?: number) {
           });
           continue;
         }
-        const advert = result.value;
+        const { advert, website } = result.value;
         const salary = completeSalary(job.salary_text, advert.salary);
         const fields = {
           ...(advert.organisationName ? { organisation_name: advert.organisationName } : {}),
@@ -166,6 +179,16 @@ export async function syncDirectory(force = false, sourceId?: number) {
           ).data,
         );
         if (updated && advert.logoUrl) logoCache.set(updated.organisation_name, advert.logoUrl);
+        if (updated && website && !websiteCache.has(updated.organisation_name)) {
+          check(
+            await db
+              .from("directory_organisations")
+              .update({ website_url: website })
+              .eq("name", updated.organisation_name)
+              .is("website_url", null),
+          );
+          websiteCache.add(updated.organisation_name);
+        }
         if (
           updated &&
           updated.id === job.id &&

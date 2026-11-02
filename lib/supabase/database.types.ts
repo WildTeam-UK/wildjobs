@@ -419,14 +419,17 @@ export type Database = {
         Row: {
           logo_url: string | null;
           name: string;
+          website_url: string | null;
         };
         Insert: {
           logo_url?: string | null;
           name: string;
+          website_url?: string | null;
         };
         Update: {
           logo_url?: string | null;
           name?: string;
+          website_url?: string | null;
         };
         Relationships: [];
       };

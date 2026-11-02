@@ -9,9 +9,11 @@ import { compactJobLocation, postedAgoLabel, type Job } from "@/lib/jobs";
 import { formatSalaryLabel } from "@/lib/job-salary";
 
 export function JobSplitView({
+  allJobs,
   jobs,
   saveStateFor,
 }: {
+  allJobs: readonly Job[];
   jobs: readonly Job[];
   saveStateFor: (job: Job) => JobSaveState;
 }) {
@@ -21,6 +23,7 @@ export function JobSplitView({
   const selectedJob = jobs.find((job) => job.slug === selectedSlug) ?? jobs[0];
 
   if (!selectedJob) return null;
+  const employerRoleCount = allJobs.filter((job) => job.organisation === selectedJob.organisation).length;
 
   return (
     <div className="job-split-view">
@@ -86,11 +89,17 @@ export function JobSplitView({
           Showing {selectedJob.title} at {selectedJob.organisation}
         </p>
         <div className="job-detail-panel__content" key={selectedJob.slug}>
-          <JobCard compact detailPanel job={selectedJob} saveState={saveStateFor(selectedJob)} />
+          <JobCard
+            compact
+            detailPanel
+            employerRoleCount={employerRoleCount}
+            job={selectedJob}
+            saveState={saveStateFor(selectedJob)}
+          />
           {selectedJob.sourceUrl ? (
             <div className="job-detail-panel__actions">
               <a className="action" href={selectedJob.sourceUrl} rel="noopener noreferrer" target="_blank">
-                View original advert <span aria-hidden="true">↗</span>
+                View original advert
               </a>
             </div>
           ) : null}

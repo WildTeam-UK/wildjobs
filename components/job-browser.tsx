@@ -1123,6 +1123,7 @@ export function JobBrowser({
             ) : null}
             {filteredJobs.length && layout === "grid" && canUseGridLayout ? (
               <JobSplitView
+                allJobs={jobs}
                 jobs={paginatedJobs}
                 saveStateFor={(job) =>
                   candidateSaveState.isSignedIn && job.id && savedJobIds.has(job.id)

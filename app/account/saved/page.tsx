@@ -55,7 +55,7 @@ export default async function SavedJobsPage({ searchParams }: { searchParams: Pr
             <p>Looking for something different? Your preferences can make the next visit more useful.</p>
             <div>
               <Link className="action" href="/">
-                Find more jobs <span aria-hidden="true">→</span>
+                Find more jobs
               </Link>
               <Link className="action action--outline" href="/account/preferences">
                 Update preferences

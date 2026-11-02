@@ -35,7 +35,7 @@ export default function StyleGuidePage() {
               The working source of truth for typography, colour, controls and reusable interface patterns.
             </p>
             <Link className="action action--white" href="/">
-              View WildJobs <span aria-hidden="true">→</span>
+              View WildJobs
             </Link>
           </div>
         </div>
@@ -100,19 +100,20 @@ export default function StyleGuidePage() {
             <p className="eyebrow">03 — Buttons and links</p>
             <h2 id="guide-actions">Pink first, purple on hover</h2>
             <p>
-              Action button labels use uppercase. Filters and sort controls keep their natural casing. White
-              actions become pink on hover. Every action keeps a strong, visible keyboard focus state.
+              Action button labels use uppercase without decorative arrows. Filters and sort controls keep
+              their natural casing. White actions become pink on hover. Every action keeps a strong, visible
+              keyboard focus state.
             </p>
           </div>
           <div className="guide-demo guide-demo--dark">
             <a className="action action--primary" href="#guide-actions">
-              Primary action <span aria-hidden="true">→</span>
+              Primary action
             </a>
             <a className="action action--white" href="#guide-actions">
-              White action <span aria-hidden="true">→</span>
+              White action
             </a>
             <a className="text-link" href="#guide-actions">
-              Text action <span aria-hidden="true">→</span>
+              Text action
             </a>
           </div>
         </section>
@@ -164,7 +165,7 @@ export default function StyleGuidePage() {
               target="_blank"
               rel="noopener noreferrer"
             >
-              Explore training <span aria-hidden="true">→</span>
+              Explore training
             </a>
           </div>
         </section>

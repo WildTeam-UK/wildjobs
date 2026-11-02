@@ -51,7 +51,7 @@ export default function HowWeUseAIPage() {
             you can spend more of yours on the opportunities that matter to you.
           </p>
           <a className="action" href="#where-ai-helps">
-            SEE HOW IT WORKS <span aria-hidden="true">↓</span>
+            SEE HOW IT WORKS
           </a>
         </div>
         <figure className={styles.visual} aria-label="The information AI helps organise on a WildJobs card">
@@ -172,7 +172,7 @@ export default function HowWeUseAIPage() {
             interview or a job.
           </p>
           <Link className="action" href="/course-recommendations">
-            ABOUT OUR RECOMMENDATIONS <span aria-hidden="true">→</span>
+            ABOUT OUR RECOMMENDATIONS
           </Link>
         </div>
         <div className={styles.nextStep}>
@@ -181,9 +181,7 @@ export default function HowWeUseAIPage() {
             Your next role <br />
             could be out there
           </h3>
-          <Link href="/">
-            EXPLORE THE JOBS <span aria-hidden="true">↗</span>
-          </Link>
+          <Link href="/">EXPLORE THE JOBS</Link>
         </div>
       </aside>
     </main>

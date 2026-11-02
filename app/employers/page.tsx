@@ -33,7 +33,7 @@ export default async function EmployersPage() {
               </p>
             </div>
             <Link className="text-link" href="/">
-              See all jobs →
+              See all jobs
             </Link>
           </div>
           {employers.length ? (
