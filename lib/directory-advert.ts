@@ -1,7 +1,8 @@
 import { plainText } from "./directory-text";
 import { fetchPublicText } from "./directory-http";
 import { canonicalUrl, publicUrl } from "./directory-url";
-import { extractSalary, structuredSalary } from "./job-salary";
+import { completeSalary, extractSalary, structuredSalary } from "./job-salary";
+import { employerWebsiteCandidates } from "./organisation-logo";
 import { closingDate } from "./directory-lifecycle";
 
 type JsonRecord = Record<string, unknown>;
@@ -38,7 +39,9 @@ export function parseAdvert(html: string, pageUrl?: string) {
     address = record(location.address);
   const description = plainText(String(job.description ?? ""));
   const logo =
-    typeof organisation.logo === "string" ? organisation.logo : String(record(organisation.logo).url ?? "");
+    typeof organisation.logo === "string"
+      ? organisation.logo
+      : String(record(organisation.logo).url ?? record(organisation.logo).contentUrl ?? "");
   const logoStem = logo.includes("_open_graph.") ? logo.slice(0, logo.indexOf("_open_graph.")) : null;
   const sourceImages = [...html.matchAll(/<img\b[^>]*>/gi)].map(
     (match) => match[0].match(/\bsrc\s*=\s*["']([^"']+)["']/i)?.[1],
@@ -85,6 +88,7 @@ export function parseAdvert(html: string, pageUrl?: string) {
       country
     ] ?? (/^[A-Z]{2}$/.test(country) ? country : null);
   const safeUrl = (value: string) => {
+    if (!value) return undefined;
     try {
       return publicUrl(value, pageUrl).toString();
     } catch {
@@ -97,7 +101,7 @@ export function parseAdvert(html: string, pageUrl?: string) {
     .filter((x, i, xs) => xs.indexOf(x) === i)
     .join(", ");
   const statedSalary = structuredSalary(job.baseSalary, String(job.salaryCurrency ?? ""));
-  const salary = statedSalary === "Not stated" ? extractSalary(description) : statedSalary;
+  const salary = completeSalary(statedSalary, extractSalary(description));
   let canonical: string | undefined;
   try {
     if (job.url) canonical = canonicalUrl(String(job.url), pageUrl);
@@ -105,6 +109,7 @@ export function parseAdvert(html: string, pageUrl?: string) {
   return {
     title: plainText(String(job.title ?? "")),
     organisationName: plainText(String(organisation.name ?? "")),
+    organisationWebsite: safeUrl(String(organisation.url ?? organisation.sameAs ?? "")),
     locationText,
     salary,
     canonicalUrl: canonical,
@@ -123,9 +128,12 @@ export function advertPage(html: string, pageUrl: string) {
     html.match(/<(?:main|article)\b[^>]*>([\s\S]*?)<\/(?:main|article)>/i)?.[1] ??
     html.match(/<body\b[^>]*>([\s\S]*?)<\/body>/i)?.[1] ??
     html;
-  const description =
-    structured?.description ||
-    plainText(main.replace(/<(script|style|nav|header|footer|aside|noscript)\b[^>]*>[\s\S]*?<\/\1>/gi, ""));
+  const visible = main.replace(
+    /<(script|style|nav|header|footer|aside|noscript)\b[^>]*>[\s\S]*?<\/\1>/gi,
+    "",
+  );
+  const visibleText = plainText(visible);
+  const description = structured?.description || visibleText;
   const logoCandidates = [...html.matchAll(/<img\b[^>]*>/gi)]
     .flatMap((m) => {
       const src = m[0].match(/\bsrc\s*=\s*["']([^"']+)["']/i)?.[1],
@@ -148,12 +156,10 @@ export function advertPage(html: string, pageUrl: string) {
   }
   return {
     ...structured,
-    salary:
-      structured?.salary && structured.salary !== "Not stated"
-        ? structured.salary
-        : extractSalary(description),
+    salary: completeSalary(structured?.salary ?? "Not stated", extractSalary(visibleText)),
     description,
     logoCandidates,
+    websiteCandidates: employerWebsiteCandidates(visible, pageUrl, structured?.organisationWebsite),
     canonicalUrl: canonical,
   };
 }

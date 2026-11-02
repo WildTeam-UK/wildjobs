@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { extractSalary, minimumGbpSalary, parseSalary, structuredSalary } from "../lib/job-salary";
+import {
+  completeSalary,
+  extractSalary,
+  minimumGbpSalary,
+  parseSalary,
+  structuredSalary,
+} from "../lib/job-salary";
 
 describe("international salary formatting", () => {
   it.each([
@@ -84,4 +90,17 @@ it("only compares confirmed GBP annual minimums in the GBP filter", () => {
   ]) {
     expect(minimumGbpSalary(job(salary))).toBeUndefined();
   }
+});
+
+it("reads feed pay headers and completes only matching amounts", () => {
+  expect(extractSalary("Ecologist $8,055 - $11,054 per month -- Nature Trust")).toBe(
+    "$8,055 – $11,054 per month",
+  );
+  expect(completeSalary("USD 8,055 – USD 11,054", "$8,055 – $11,054 per month")).toBe(
+    "USD 8,055 – USD 11,054 per month",
+  );
+  expect(completeSalary("USD 70,000 – USD 85,000", "$31 – $33 per hour")).toBe("USD 70,000 – USD 85,000");
+  expect(completeSalary("USD 70,000 per year", "$70,000 per month")).toBe("USD 70,000 per year");
+  expect(completeSalary("$70,000 per year", "USD 70,000")).toBe("USD 70,000 per year");
+  expect(completeSalary("$70,000 per year", "GBP 70,000")).toBe("$70,000 per year");
 });

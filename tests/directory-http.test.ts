@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { EventEmitter } from "node:events";
 import { Readable } from "node:stream";
 import type { RequestOptions } from "node:https";
-import { fetchPublicText } from "../lib/directory-http";
+import { fetchPublicText, fetchWebsiteIcon, verifyPublicImage } from "../lib/directory-http";
 const mocks = vi.hoisted(() => ({ lookup: vi.fn(), https: vi.fn(), http: vi.fn() }));
 vi.mock("node:dns/promises", () => ({ lookup: mocks.lookup }));
 vi.mock("node:https", () => ({ request: mocks.https }));
@@ -63,5 +63,17 @@ describe("public feed HTTP reader", () => {
   it("bounds response size", async () => {
     response("x".repeat(3_000_001));
     await expect(fetchPublicText("https://jobs.example.org/feed")).rejects.toThrow("too large");
+  });
+  it("accepts an actual image response and rejects HTML masquerading as an image", async () => {
+    response("image bytes", 200, { "content-type": "image/png" });
+    expect(await verifyPublicImage("https://nature.org/logo.png")).toBe("https://nature.org/logo.png");
+    response("<html>Not an image</html>", 200, { "content-type": "text/html" });
+    expect(await verifyPublicImage("https://nature.org/missing-logo.png")).toBeNull();
+  });
+  it("caches website icons as embedded images and rejects the missing-icon response", async () => {
+    response("png", 200, { "content-type": "image/png" });
+    expect(await fetchWebsiteIcon("https://nature.org")).toMatch(/^data:image\/svg\+xml,/);
+    response("generic icon", 404, { "content-type": "image/png" });
+    expect(await fetchWebsiteIcon("https://missing.org")).toBeNull();
   });
 });

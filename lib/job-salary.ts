@@ -176,7 +176,42 @@ export function extractSalary(value: string): string {
     const salary = parseSalary(context, { unit });
     if (salary.text !== "Not stated") return salary.text;
   }
+  // Short feed headers often say "$70,000 per year — Employer", without a salary label.
+  for (const match of text.matchAll(moneyPattern)) {
+    if (!match[1] && !match[5]) continue;
+    const before = text.slice(Math.max(0, match.index - 70), match.index);
+    if (/\b(?:budget|reimbursement|expenses|award|bonus|equipment|development fund)\b/i.test(before))
+      continue;
+    const salary = parseSalary(text.slice(match.index, match.index + match[0].length + 100));
+    if (salary.period) return salary.text;
+  }
   return "Not stated";
+}
+
+export function completeSalary(primary: string, fallback: string): string {
+  if (primary === "Not stated") return fallback;
+  const stated = parseSalary(primary),
+    extra = parseSalary(fallback);
+  if (
+    (stated.period && stated.currency) ||
+    (stated.currency && extra.currency && stated.currency !== extra.currency)
+  )
+    return primary;
+  const numbers = (text: string) => text.match(/\d[\d,.]*/g)?.join("|");
+  if (numbers(stated.text) !== numbers(extra.text)) return primary;
+  const currency = stated.currency ?? extra.currency ?? undefined;
+  const ambiguous = primary.match(/[$¥]/)?.[0];
+  if (!stated.currency && currency && ambiguous) {
+    const symbol = new Intl.NumberFormat("en", {
+      style: "currency",
+      currency,
+      currencyDisplay: "narrowSymbol",
+    })
+      .formatToParts(1)
+      .find((part) => part.type === "currency")?.value;
+    if (symbol !== ambiguous) return primary;
+  }
+  return parseSalary(primary, { unit: stated.period ?? extra.period ?? undefined, currency }).text;
 }
 
 export function minimumGbpSalary(job: { salary: string; salaryMinimum?: number }): number | undefined {

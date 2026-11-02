@@ -19,3 +19,9 @@ The user requested adding feed URLs through admin with automatic shared processi
 ## International salaries
 
 Salary parsing is shared by feed fields, linked adverts, AI output and public cards. Preserve original pay and its stated period; use explicit ISO currency codes for currencies other than GBP (£) and EUR (€). Bare $ and ¥ remain ambiguous unless the source supplies a currency. Do not convert currencies or annualise hourly, monthly or fortnightly pay. Description extraction looks for pay wording, excluding nearby budgets, expenses and awards. The existing minimum-salary filter is labelled GBP and matches confirmed annual GBP minimums only; international jobs remain visible without that filter. Existing salary text and numeric columns suffice; no migration, extra service or additional AI call is needed.
+
+Malformed salary units in advert metadata fall back to the matching amount in visible advert text or the RSS pay header. Explicit advertised currencies can clarify bare symbols without overriding stated pay periods.
+
+## Employer branding
+
+Reuse `directory_organisations.logo_url` across an employer’s listings. The existing AI pass chooses an official employer website when no logo is available, using advert links and business email domains as candidates. Normal importer code fetches and checks the employer site and a real logo image; AI never generates logos or guesses image URLs. Simple inline brand SVGs can also be cached. If an advert-linked site blocks the read or its declared images fail, fetch its branded website icon through Google’s public favicon endpoint and embed the image in the cached logo value. Visitors do not request that icon service. Missing-icon responses and generic platform favicons are rejected. Lookups are deduplicated within each batch, bounded in time, and failures leave the existing card fallback without holding publication. The admin logo override remains available.

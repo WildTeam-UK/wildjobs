@@ -1,8 +1,12 @@
 import { beforeEach, expect, it, vi } from "vitest";
-const mocks = vi.hoisted(() => ({ client: vi.fn(), read: vi.fn(), ai: vi.fn() }));
+const mocks = vi.hoisted(() => ({ client: vi.fn(), read: vi.fn(), ai: vi.fn(), logo: vi.fn() }));
 vi.mock("server-only", () => ({}));
 vi.mock("../lib/supabase/trusted", () => ({ createTrustedClient: mocks.client }));
 vi.mock("../lib/directory-http", () => ({ fetchPublicText: mocks.read }));
+vi.mock("../lib/organisation-logo", async (original) => ({
+  ...(await original<typeof import("../lib/organisation-logo")>()),
+  findOrganisationLogo: mocks.logo,
+}));
 vi.mock("openai", () => ({ default: mocks.ai }));
 import { syncDirectory } from "../lib/directory-sync";
 beforeEach(() => vi.resetAllMocks());
@@ -73,7 +77,7 @@ it("preserves a broken feed, imports the healthy source, and skips AI for an alr
   );
 });
 
-it("persists international advert pay through the existing single AI pass", async () => {
+it("persists international pay and reuses one employer logo lookup within the single AI pass", async () => {
   const job = {
     id: 1,
     feed_hash: "current",
@@ -88,17 +92,22 @@ it("persists international advert pay through the existing single AI pass", asyn
     contract_type: "Permanent",
     workplace: "On-site",
   };
-  const rpc = vi.fn(async (name: string, args?: { p_fields?: Record<string, unknown> }) => ({
-    data:
-      name === "claim_directory_run"
-        ? true
-        : name === "directory_pending_jobs"
-          ? [job]
-          : name === "apply_directory_job"
-            ? { ...job, ...args?.p_fields }
-            : null,
-    error: null,
-  }));
+  const rpc = vi.fn(
+    async (
+      name: string,
+      args?: { p_job_id?: number; p_ai?: boolean; p_fields?: Record<string, unknown> },
+    ) => ({
+      data:
+        name === "claim_directory_run"
+          ? true
+          : name === "directory_pending_jobs"
+            ? [job, { ...job, id: 2 }]
+            : name === "apply_directory_job"
+              ? { ...job, id: args?.p_job_id, ...args?.p_fields }
+              : null,
+      error: null,
+    }),
+  );
   function from(table: string) {
     const query = {
       select: () => query,
@@ -126,27 +135,30 @@ it("persists international advert pay through the existing single AI pass", asyn
       baseSalary: { currency: "CAD", value: { minValue: "31.50", maxValue: "33.75", unitText: "HOUR" } },
     })}</script>`,
   });
+  mocks.logo.mockResolvedValue("https://nature.org/logo.svg");
   const parse = vi.fn().mockResolvedValue({
     output_parsed: {
-      jobs: [
-        {
-          id: 1,
-          summary: "Care for wildlife and maintain habitats.",
-          sector_slugs: [],
-          course_slugs: [],
-          salary_text: "£90000 per year",
-        },
-      ],
+      jobs: [1, 2].map((id) => ({
+        id,
+        summary: "Care for wildlife and maintain habitats.",
+        sector_slugs: [],
+        course_slugs: [],
+        salary_text: "£90000 per year",
+        organisation_website: "https://nature.org",
+      })),
     },
     usage: { input_tokens: 100, output_tokens: 50 },
   });
   mocks.ai.mockImplementation(function () {
     return { responses: { parse } };
   });
-  expect(await syncDirectory()).toMatchObject({ status: "complete", ai_completed: 1 });
+  expect(await syncDirectory()).toMatchObject({ status: "complete", ai_completed: 2 });
   const writes = rpc.mock.calls.filter(([name]) => name === "apply_directory_job");
-  expect(writes).toHaveLength(2);
+  expect(writes).toHaveLength(4);
   for (const [, args] of writes)
     expect(args?.p_fields).toMatchObject({ salary_text: "CAD 31.50 – CAD 33.75 per hour", salary_min: 31.5 });
   expect(parse).toHaveBeenCalledTimes(1);
+  expect(mocks.logo).toHaveBeenCalledTimes(1);
+  for (const [, args] of writes.filter(([, args]) => args?.p_ai))
+    expect(args?.p_fields).toMatchObject({ logo_url: "https://nature.org/logo.svg" });
 });

@@ -120,3 +120,18 @@ it("extracts pay from an advert without structured salary data", () => {
     ).salary,
   ).toBe("€3,500 per month");
 });
+
+it("recovers an hourly period from visible content when JobPosting incorrectly uses a currency as its unit", () => {
+  const result = advertPage(
+    page(
+      {
+        baseSalary: { currency: "USD", value: { minValue: 40.15, maxValue: 45.19, unitText: "USD" } },
+        description: "Support conservation programmes.",
+      },
+      '<main><p>Salary $40.15 - $45.19 per hour.</p><a href="mailto:jobs@nature.org">Apply</a></main>',
+    ),
+    "https://board.example.org/job/1",
+  );
+  expect(result.salary).toBe("USD 40.15 – USD 45.19 per hour");
+  expect(result.websiteCandidates).toEqual(["https://nature.org"]);
+});

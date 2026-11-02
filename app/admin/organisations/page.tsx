@@ -17,7 +17,8 @@ export default async function OrganisationsAdmin() {
           <h1>Logos for job cards.</h1>
         </div>
         <p>
-          The RSS feed does not supply logos. Known logos are reused; other cards show organisation initials.
+          Logos are collected from feeds, adverts and employer websites, then reused across their jobs. You
+          can update an organisation’s logo here.
         </p>
       </header>
       <section className="staff-section shell">
