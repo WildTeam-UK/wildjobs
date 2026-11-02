@@ -919,7 +919,7 @@ select {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   padding: 0 0 clamp(58px, 8vw, 92px);
-  background-color: var(--page-surface-light);
+  background-color: #fafafa;
 }
 .job-search-hero-art {
   position: relative;
