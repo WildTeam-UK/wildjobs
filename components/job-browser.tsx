@@ -414,7 +414,7 @@ function FilterDropdown(props: SingleFilterDropdownProps | MultiFilterDropdownPr
                     role={props.multiple ? (option.value ? "menuitemcheckbox" : "menuitem") : "menuitemradio"}
                     type="button"
                   >
-                    {accessibleLabel === "Sector" && option.value ? (
+                    {accessibleLabel === "Role category" && option.value ? (
                       <SectorIcon title={option.label} />
                     ) : null}
                     <span className="job-filter-menu__label icon-label">{option.label}</span>
@@ -869,8 +869,8 @@ export function JobBrowser({
               />
             ) : null}
             <FilterDropdown
-              accessibleLabel="Sector"
-              clearLabel="Any sector"
+              accessibleLabel="Role category"
+              clearLabel="Any role category"
               icon="leaf"
               onChange={(value) => {
                 setCategory(value);
@@ -883,7 +883,7 @@ export function JobBrowser({
                   (job) => job.category === value || job.careerAreas?.includes(value),
                 ).length,
               }))}
-              placeholder="Sector"
+              placeholder="Role category"
               value={category}
             />
             <FilterDropdown

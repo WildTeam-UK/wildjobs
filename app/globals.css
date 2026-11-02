@@ -1707,7 +1707,8 @@ a[role="button"],
   transform: translateY(-50%);
 }
 .job-preview-card__posted {
-  margin: 12px 0 0 calc(var(--preview-logo-size) + var(--preview-identity-gap));
+  margin: 12px 0 0;
+  text-align: right;
   font-size: 0.74rem;
 }
 .job-preview-card__save {
@@ -1757,7 +1758,7 @@ a[role="button"],
 }
 .job-card__employer-profile {
   display: grid;
-  justify-items: center;
+  justify-items: start;
 }
 .job-card__employer-meta {
   display: flex;
@@ -1768,35 +1769,12 @@ a[role="button"],
 .job-card__employer-meta .job-card__organisation {
   text-box: trim-both cap alphabetic;
 }
-.job-card__hiring-pill {
-  display: inline-flex;
-  min-height: 30px;
-  align-items: center;
-  padding: 7px 13px;
-  border: 1px solid transparent;
-  border-radius: var(--wt-radius-pill);
-  background:
-    linear-gradient(110deg, #fff2f9, #faf4fc) padding-box,
-    linear-gradient(110deg, var(--wt-color-brand-purple), var(--wt-color-brand-pink)) border-box;
-  font-size: 0.68rem;
+.job-card__hiring-count {
+  color: var(--wt-color-brand-purple);
+  font-size: 0.78rem;
   font-weight: var(--wt-font-weight-bold);
-  letter-spacing: 0.05em;
+  letter-spacing: 0.03em;
   text-transform: uppercase;
-}
-.job-card__hiring-pill > span {
-  background: linear-gradient(100deg, var(--wt-color-brand-purple), var(--wt-color-brand-pink));
-  background-clip: text;
-  color: transparent;
-}
-.job-card__employer-website {
-  color: var(--wt-color-muted);
-  font-size: 0.75rem;
-  text-decoration: underline;
-  text-underline-offset: 0.18em;
-  overflow-wrap: anywhere;
-}
-.job-card__employer-website:hover {
-  color: var(--wt-color-brand-pink);
 }
 .job-detail-panel .job-card--compact .job-card__logo,
 .job-detail-panel .job-card--compact .job-card__monogram {
@@ -1853,7 +1831,8 @@ a[role="button"],
   text-box: trim-both cap alphabetic;
 }
 .job-detail-panel .job-card__posted {
-  margin-left: 0;
+  margin-left: auto;
+  text-align: right;
 }
 .job-detail-panel__actions {
   padding: 0 30px 30px;
@@ -1908,7 +1887,7 @@ a[role="button"],
 }
 .job-training-promo {
   display: flex;
-  height: 292px;
+  height: auto;
   min-width: 0;
   min-height: 292px;
   overflow: hidden;
@@ -1953,9 +1932,9 @@ a[role="button"],
 }
 .job-training-promo__media {
   position: relative;
-  width: auto;
+  width: 32%;
   min-width: 0;
-  height: 100%;
+  height: auto;
   flex: 0 0 auto;
   overflow: hidden;
   aspect-ratio: 4 / 3;
@@ -1998,7 +1977,7 @@ a[role="button"],
 .job-training-promo__benefits li {
   display: grid;
   min-width: 0;
-  grid-template-columns: 20px max-content minmax(0, 1fr);
+  grid-template-columns: 20px minmax(0, 1fr);
   align-items: center;
   column-gap: 8px;
 }
@@ -2012,29 +1991,41 @@ a[role="button"],
   stroke-width: 1.8;
 }
 .job-training-promo__benefits div {
-  display: contents;
+  display: grid;
+  gap: 3px;
 }
 .job-training-promo__benefits strong {
   color: var(--wt-color-surface-charcoal);
-  font-size: 0.8rem;
+  font-size: 1rem;
   line-height: 1.25;
-  white-space: nowrap;
+  white-space: normal;
 }
 .job-training-promo__benefits span {
   color: var(--wt-color-muted);
   font-size: 0.74rem;
   line-height: 1.3;
-  white-space: nowrap;
+  white-space: normal;
 }
 .job-training-promo__actions {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 10px;
 }
 .job-training-promo__actions .action {
+  min-width: 0;
   min-height: 42px;
-  padding: 10px 16px;
+  padding: 10px 12px;
   font-size: 0.74rem;
+  text-align: center;
+}
+.job-training-promo__actions .action--outline {
+  border-color: var(--wt-color-brand-pink);
+  color: var(--wt-color-brand-pink);
+}
+.job-training-promo__actions .action--outline:hover {
+  border-color: var(--wt-color-brand-purple);
+  background: var(--wt-color-brand-purple);
+  color: var(--wt-color-paper);
 }
 .job-training-promo--compact {
   height: auto;
@@ -2064,7 +2055,7 @@ a[role="button"],
   gap: 3px;
 }
 .job-training-promo--compact .job-training-promo__benefits strong {
-  font-size: 0.84rem;
+  font-size: 1rem;
   white-space: normal;
 }
 .job-training-promo--compact .job-training-promo__benefits span {
@@ -2073,7 +2064,6 @@ a[role="button"],
 }
 .job-training-promo--compact .job-training-promo__actions {
   align-items: stretch;
-  flex-direction: column;
 }
 .job-training-promo--compact .job-training-promo__actions .action {
   width: 100%;
@@ -3638,7 +3628,7 @@ a[role="button"],
     gap: 3px;
   }
   .job-training-promo__benefits strong {
-    font-size: 0.84rem;
+    font-size: 1rem;
     white-space: normal;
   }
   .job-training-promo__benefits span {
@@ -3647,7 +3637,6 @@ a[role="button"],
   }
   .job-training-promo__actions {
     align-items: stretch;
-    flex-direction: column;
   }
   .job-training-promo__actions .action {
     width: 100%;

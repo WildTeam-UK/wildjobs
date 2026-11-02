@@ -136,21 +136,11 @@ export function JobCard({
             <div className="job-card__employer-meta">
               <p className="job-card__organisation">{job.organisation}</p>
               {employerRoleCount ? (
-                <span className="job-card__hiring-pill">
+                <span className="job-card__hiring-count">
                   <span className="icon-label">
                     Hiring for {employerRoleCount} {employerRoleCount === 1 ? "role" : "roles"}
                   </span>
                 </span>
-              ) : null}
-              {job.employerWebsiteUrl ? (
-                <a
-                  className="job-card__employer-website"
-                  href={job.employerWebsiteUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  {new URL(job.employerWebsiteUrl).hostname.replace(/^www\./, "")}
-                </a>
               ) : null}
             </div>
           ) : (
