@@ -155,26 +155,84 @@ select {
   font-size: inherit;
   letter-spacing: inherit;
 }
+.site-navigation {
+  display: flex;
+  align-items: center;
+  gap: 34px;
+  margin-left: auto;
+}
 .site-nav {
   display: flex;
   align-items: center;
-  gap: clamp(18px, 3vw, 34px);
-  font-size: 0.76rem;
-  font-weight: var(--wt-font-weight-bold);
+  gap: 28px;
+  color: var(--wt-color-brand-purple);
+  font-size: 13px;
+  font-weight: var(--wt-font-weight-black);
+  line-height: 1;
+  letter-spacing: 0.025em;
+  text-transform: uppercase;
+}
+.site-nav a {
+  padding: 12px 0;
+  white-space: nowrap;
 }
 .site-nav a:hover {
   color: var(--wt-color-brand-pink);
 }
-.site-nav__saved {
-  padding: 10px 14px;
-  border: 1px solid var(--wt-color-brand-purple);
-  border-radius: var(--wt-radius-control);
+.site-navigation-actions {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+.site-navigation-button {
+  display: inline-flex;
+  min-height: 46px;
+  align-items: center;
+  justify-content: center;
+  padding: 0 20px;
+  border: 2px solid var(--wt-color-brand-pink);
+  /* Match the established WildNews navigation control shape. */
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: var(--wt-font-weight-black);
+  line-height: 1;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  transition:
+    background 150ms ease,
+    border-color 150ms ease,
+    color 150ms ease;
+}
+.site-navigation-button--outline {
+  color: var(--wt-color-brand-pink);
+}
+.site-navigation-button--outline:hover {
+  border-color: var(--wt-color-brand-purple);
   color: var(--wt-color-brand-purple);
 }
-.site-nav__saved:hover {
-  border-color: var(--wt-color-brand-pink);
+.site-navigation-button--saved {
   background: var(--wt-color-brand-pink);
-  color: var(--wt-color-paper) !important;
+  color: var(--wt-color-paper);
+}
+.site-navigation-button--saved:hover {
+  border-color: var(--wt-color-brand-purple);
+  background: var(--wt-color-brand-purple);
+}
+.site-menu-toggle {
+  display: none;
+  width: 44px;
+  height: 44px;
+  margin-left: auto;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--wt-color-ink);
+}
+.site-menu-toggle svg {
+  width: 28px;
+  height: 28px;
+  stroke-width: 2.5;
 }
 
 .home-hero {
@@ -3038,6 +3096,58 @@ select {
   .brand {
     font-size: var(--wt-font-size-site-wordmark-tablet, 1.75rem);
   }
+  .site-menu-toggle {
+    display: grid;
+    place-items: center;
+  }
+  .site-navigation {
+    position: absolute;
+    z-index: 60;
+    top: 100%;
+    right: 0;
+    left: 0;
+    display: none;
+    align-items: stretch;
+    flex-direction: column;
+    gap: 22px;
+    max-height: calc(100dvh - var(--site-header-height));
+    overflow-y: auto;
+    margin: 0;
+    padding: 20px 24px 26px;
+    border-top: 1px solid var(--wt-color-rule);
+    border-bottom: 4px solid var(--wt-color-brand-pink);
+    background: var(--wt-color-paper);
+  }
+  .site-navigation.is-open {
+    display: flex;
+  }
+  .site-nav {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 0;
+  }
+  .site-nav a {
+    width: 100%;
+    padding: 13px 0;
+    border-bottom: 1px solid var(--wt-color-rule);
+  }
+  .site-navigation-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  .site-navigation-button {
+    min-height: 48px;
+  }
+}
+
+@media (max-width: 560px) {
+  .site-navigation {
+    padding-inline: var(--wt-layout-page-gutter-compact, 0.9375rem);
+  }
+  .site-navigation-actions {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 900px) {
@@ -3135,24 +3245,6 @@ select {
   }
   .job-training-promo__actions .action {
     width: 100%;
-  }
-  .site-header__inner {
-    align-items: flex-start;
-    flex-direction: column;
-    justify-content: center;
-    padding-top: 18px;
-    padding-bottom: 18px;
-  }
-  .site-nav {
-    width: 100%;
-    gap: 16px;
-    overflow-x: auto;
-    padding-bottom: 3px;
-    white-space: nowrap;
-  }
-  .site-nav__saved {
-    padding: 0;
-    border: 0;
   }
   .home-hero h1 {
     font-size: clamp(3.4rem, 17vw, 5rem);

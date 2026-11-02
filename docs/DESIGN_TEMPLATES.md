@@ -1,9 +1,10 @@
 # Static page design previews
 
-These are deployed design previews, not data-backed directory features. The four routes use static sample copy, literal illustrative statistics, a fictional employer and sample vacancies. They make no database, feed, AI or Unsplash API calls. The template layout applies `noindex, nofollow`; these routes have not been added to the sitemap or public main navigation. The user approved deploying the designs on 2 November 2026 while retaining this static, design-only scope.
+These are deployed design previews, not data-backed directory features. The four original routes use static sample copy, literal illustrative statistics, a fictional employer and sample vacancies. They make no database, feed, AI or Unsplash API calls. The template layout applies `noindex, nofollow`; these routes have not been added to the sitemap. The user approved deploying the designs on 2 November 2026 while retaining this static, design-only scope. The subsequently requested Career Guides navigation link points to a static `/conservation-career-guides` index, which links to the ecologist design and inherits the same `noindex, nofollow` settings.
 
 ## Preview routes
 
+- `/conservation-career-guides`: a static index for the career-guide designs, linked from the requested main navigation.
 - `/conservation-career-guides/ecologist`: a long-form career guide with a contents sidebar, routes into the profession, day-to-day work, skills, practical experience, salary context, progression, applications, courses, an action plan, sample jobs, FAQs and source notes.
 - `/conservation-sector/wildlife-conservation`: sector overview, areas of work, role families, career-change routes, illustrative skills and working-pattern insights, training and sample opportunities.
 - `/employers/wildmere-nature-trust`: a fictional employer with an original placeholder mark, mission, organisation facts, working-environment copy, hiring status, historical job metrics and sample current vacancies.
