@@ -1720,8 +1720,9 @@ a[role="button"],
 .job-detail-panel .job-card__header {
   position: relative;
   display: grid;
-  grid-template-columns: 108px minmax(0, 1fr);
-  padding-top: 42px;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 18px;
+  padding-top: 0;
 }
 .job-detail-panel .job-card__header-actions {
   position: absolute;
@@ -1733,7 +1734,10 @@ a[role="button"],
 }
 .job-detail-panel .job-card--compact .job-card__logo,
 .job-detail-panel .job-card--compact .job-card__monogram {
-  width: 108px;
+  width: 160px;
+}
+.job-detail-panel .job-card--compact .job-card__monogram {
+  font-size: 1.3rem;
 }
 .job-detail-panel .job-card__summary-block {
   padding: 0;
