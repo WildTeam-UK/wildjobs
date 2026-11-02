@@ -312,7 +312,7 @@ export default function SectorTemplate() {
               <Link href="/course-recommendations">Why we recommend these courses →</Link>
             </p>
           </GuideSection>
-          <TrainingBanner />
+          <TrainingBanner courseTheme="green" />
           <GuideSection
             id="jobs"
             number="07 · Explore the possibilities"

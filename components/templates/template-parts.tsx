@@ -189,9 +189,18 @@ export function GuideContents({ items }: { items: readonly { id: string; label: 
   );
 }
 
-export function TrainingBanner({ membership = false }: { membership?: boolean }) {
+export function TrainingBanner({
+  membership = false,
+  courseTheme = "brand",
+}: {
+  membership?: boolean;
+  courseTheme?: "brand" | "green";
+}) {
+  const greenCourse = !membership && courseTheme === "green";
   return (
-    <aside className={`tpl-training-banner${membership ? " tpl-training-banner--membership" : ""}`}>
+    <aside
+      className={`tpl-training-banner${membership ? " tpl-training-banner--membership" : greenCourse ? " tpl-training-banner--green" : ""}`}
+    >
       <div>
         <p className="eyebrow">{membership ? "WildTeam memberships" : "Free WildTeam course"}</p>
         <h2>
@@ -228,10 +237,12 @@ export function TrainingBanner({ membership = false }: { membership?: boolean })
           </>
         ) : (
           <Image
-            src="/images/job-training-cta-pastel.jpg"
+            src={
+              greenCourse ? "/images/career-course-eco-explorers.png" : "/images/job-training-cta-pastel.jpg"
+            }
             alt=""
             fill
-            sizes="(max-width: 640px) 100vw, 400px"
+            sizes="(max-width: 1000px) 100vw, 400px"
           />
         )}
       </div>

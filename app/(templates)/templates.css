@@ -438,6 +438,31 @@
 .tpl-training-banner__art img {
   object-fit: cover;
 }
+.tpl-training-banner--green {
+  --wt-career-course-primary: #9aca3c;
+  --wt-career-course-secondary: #62a73b;
+  --wt-career-course-ink: color-mix(in srgb, var(--wt-career-course-secondary) 65%, var(--wt-color-ink));
+  border-color: color-mix(in srgb, var(--wt-career-course-secondary) 30%, white);
+  background: color-mix(in srgb, var(--wt-career-course-primary) 12%, white);
+}
+.tpl-training-banner--green h2,
+.tpl-training-banner--green .eyebrow {
+  color: var(--wt-career-course-ink);
+}
+.tpl-training-banner--green p {
+  color: #38472e;
+}
+.tpl-training-banner--green .action {
+  background: var(--wt-career-course-primary);
+  color: var(--wt-color-ink);
+}
+.tpl-training-banner--green .action:hover {
+  background: var(--wt-career-course-secondary);
+  color: var(--wt-color-ink);
+}
+.tpl-training-banner--green .tpl-training-banner__art img {
+  object-position: 35% center;
+}
 .tpl-training-banner--membership {
   background: var(--wt-color-brand-purple);
   border-color: var(--wt-color-brand-purple);
