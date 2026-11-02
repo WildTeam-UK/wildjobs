@@ -18,19 +18,19 @@ function Sparkle() {
 const features = [
   {
     number: "01",
-    title: "A useful first look.",
+    title: "A useful first look",
     text: "We turn the job description into a concise summary of the work and requirements, so you can decide which opportunities to explore in full.",
     detail: "Job summaries",
   },
   {
     number: "02",
-    title: "A place to start.",
+    title: "A place to start",
     text: "We suggest sectors that fit the role, helping you discover work connected to your interests, from ecology to climate and sustainability.",
     detail: "Relevant sectors",
   },
   {
     number: "03",
-    title: "A connection to learning.",
+    title: "A connection to learning",
     text: "We match the responsibilities in an advert with WildTeam course topics, pointing you towards skills that could support your application and development.",
     detail: "Course suggestions",
   },
@@ -42,9 +42,9 @@ export default function HowWeUseAIPage() {
       <section className={"shell " + styles.hero}>
         <div>
           <h1>
-            How we use AI.
+            How we use AI
             <br />
-            <span className={styles.gradient}>A clearer first look.</span>
+            <span className={styles.gradient}>A clearer first look</span>
           </h1>
           <p className={styles.lead}>
             Finding your place in conservation takes time. We use AI to make job adverts easier to explore, so
@@ -72,9 +72,7 @@ export default function HowWeUseAIPage() {
           </div>
           <div className={styles.card}>
             <div className={styles.summary}>
-              <span className={styles.summaryLabel}>
-                <Sparkle /> AI SUMMARY
-              </span>
+              <span className={styles.summaryLabel}>ROLE SUMMARY</span>
               <p>
                 The work, the requirements and the purpose of the role, brought together in one concise
                 overview.
@@ -107,7 +105,7 @@ export default function HowWeUseAIPage() {
             <h2>
               Three ways AI helps
               <br />
-              <span className={styles.gradient}>you explore.</span>
+              <span className={styles.gradient}>you explore</span>
             </h2>
             <p>
               Our starting point is the information in the advert. Here’s how we make it easier to browse.
@@ -132,7 +130,7 @@ export default function HowWeUseAIPage() {
           <h2>
             The original advert
             <br />
-            <span className={styles.gradient}>comes first.</span>
+            <span className={styles.gradient}>comes first</span>
           </h2>
           <p>
             AI can miss context or make mistakes, and job details can change. Treat our summary as your
@@ -143,21 +141,21 @@ export default function HowWeUseAIPage() {
           <li>
             <span aria-hidden="true">↗</span>
             <div>
-              <h3>Read the whole role.</h3>
+              <h3>Read the whole role</h3>
               <p>Get the employer’s full description and understand what they need.</p>
             </div>
           </li>
           <li>
             <span aria-hidden="true">↗</span>
             <div>
-              <h3>Check the details.</h3>
+              <h3>Check the details</h3>
               <p>Confirm the pay, location, deadline and application instructions.</p>
             </div>
           </li>
           <li>
             <span aria-hidden="true">↗</span>
             <div>
-              <h3>Make it your decision.</h3>
+              <h3>Make it your decision</h3>
               <p>Consider how the work fits your experience, interests and next step.</p>
             </div>
           </li>
@@ -181,7 +179,7 @@ export default function HowWeUseAIPage() {
           <Sparkle />
           <h3>
             Your next role <br />
-            could be out there.
+            could be out there
           </h3>
           <Link href="/">
             EXPLORE THE JOBS <span aria-hidden="true">↗</span>

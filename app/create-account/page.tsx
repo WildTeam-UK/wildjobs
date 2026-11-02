@@ -35,7 +35,7 @@ export default async function CreateAccountPage({ searchParams }: { searchParams
       <section className="auth-panel shell">
         <div className="auth-panel__intro">
           <p className="eyebrow">Create your WildJobs account</p>
-          <h1>Make returning to the right role easier.</h1>
+          <h1>Make returning to the right role easier</h1>
           <ul>
             <li>Save opportunities and keep an eye on closing dates.</li>
             <li>Choose job preferences you can inspect and change.</li>

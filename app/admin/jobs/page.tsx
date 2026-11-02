@@ -15,7 +15,7 @@ export default async function JobsAdmin() {
       <header className="staff-hero shell">
         <div>
           <p className="eyebrow">Feed jobs</p>
-          <h1>Directory cards.</h1>
+          <h1>Directory cards</h1>
         </div>
         <p>
           Jobs retire at the advertised closing date, or 30 days after posting when no date is supplied. Feed

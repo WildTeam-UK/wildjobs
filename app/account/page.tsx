@@ -26,7 +26,7 @@ export default async function AccountPage() {
         <div className="shell account-hero__layout">
           <div>
             <p className="eyebrow">Your WildJobs</p>
-            <h1>Welcome back.</h1>
+            <h1>Welcome back</h1>
           </div>
           <p>Return to promising roles and keep your job preferences clear and under your control.</p>
         </div>
@@ -61,8 +61,8 @@ export default async function AccountPage() {
               </p>
               <h2>
                 {preferences.hasPreferences
-                  ? "Roles that share your choices."
-                  : "More roles worth a closer look."}
+                  ? "Roles that share your choices"
+                  : "More roles worth a closer look"}
               </h2>
             </div>
             <Link className="text-link" href="/">
@@ -77,7 +77,7 @@ export default async function AccountPage() {
             </div>
           ) : (
             <div className="empty-state">
-              <h3>{preferences.hasPreferences ? "No current matches yet." : "You’re caught up."}</h3>
+              <h3>{preferences.hasPreferences ? "No current matches yet" : "You’re caught up"}</h3>
               <p>
                 {preferences.hasPreferences
                   ? "Your choices are saved and new roles will be checked against them."

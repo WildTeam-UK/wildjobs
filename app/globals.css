@@ -37,6 +37,13 @@ button,
 select {
   cursor: pointer;
 }
+button,
+input[type="submit"],
+input[type="button"],
+a[role="button"],
+.wt-button {
+  text-transform: uppercase;
+}
 :focus-visible {
   outline: 3px solid var(--wt-color-brand-pink);
   outline-offset: 3px;
@@ -61,6 +68,7 @@ select {
 
 .action,
 .primary-action {
+  text-transform: uppercase;
   display: inline-flex;
   min-height: 46px;
   align-items: center;
@@ -1947,12 +1955,6 @@ select {
   letter-spacing: 0.04em;
   line-height: 1;
   text-transform: uppercase;
-}
-.job-card__ai-summary-label svg {
-  width: 15px;
-  height: 14px;
-  flex: 0 0 auto;
-  fill: var(--wt-color-brand-pink);
 }
 .job-card__ai-summary-label > span {
   background: linear-gradient(

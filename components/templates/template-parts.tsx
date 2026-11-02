@@ -179,7 +179,7 @@ export function GuideContents({ items }: { items: readonly { id: string; label: 
       </nav>
       <div className="tpl-contents__course">
         <Sparkle />
-        <h3>A good place to start.</h3>
+        <h3>A good place to start</h3>
         <p>Make a plan for your next move with our free career course.</p>
         <a href={careerCourseUrl} target="_blank" rel="noopener noreferrer">
           Start learning, free ↗
@@ -204,7 +204,7 @@ export function TrainingBanner({
       <div>
         <p className="eyebrow">{membership ? "WildTeam memberships" : "Free WildTeam course"}</p>
         <h2>
-          {membership ? "Keep growing. Keep making a difference." : "Your next chapter starts with a plan."}
+          {membership ? "Keep growing and keep making a difference" : "Your next chapter starts with a plan"}
         </h2>
         <p>
           {membership ? (
@@ -330,9 +330,7 @@ export function ExampleJobs({ employer = false }: { employer?: boolean }) {
             <span className="tpl-example-badge">Open role</span>
           </header>
           <div className="tpl-example-job__summary">
-            <span>
-              <Sparkle /> AI summary
-            </span>
+            <span>Role summary</span>
             <p>{job.text}</p>
           </div>
           <ul>

@@ -21,7 +21,7 @@ export default async function CareersPage() {
         <div className="shell interior-hero__layout">
           <div>
             <p className="eyebrow">Explore careers</p>
-            <h1>Find your place in conservation.</h1>
+            <h1>Find your place in conservation</h1>
           </div>
           <p>Understand the work, the skills and the many routes into a career that helps nature recover.</p>
         </div>
@@ -31,7 +31,7 @@ export default async function CareersPage() {
           <div className="section-heading section-heading--split">
             <div>
               <p className="eyebrow">Career areas</p>
-              <h2>Start with what draws you in.</h2>
+              <h2>Start with what draws you in</h2>
             </div>
             <p>Explore the main areas of work and see current roles connected to each one.</p>
           </div>
@@ -76,7 +76,7 @@ export default async function CareersPage() {
         <div className="shell training-callout__inner">
           <div>
             <p className="eyebrow">Build useful skills</p>
-            <h2>Learn with real conservation work in mind.</h2>
+            <h2>Learn with real conservation work in mind</h2>
             <p>WildTeam training is designed around practical tools and challenges from the sector.</p>
           </div>
           <a

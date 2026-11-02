@@ -17,7 +17,7 @@ export default async function CheckEmailPage({ searchParams }: { searchParams: S
       <section className="auth-panel shell">
         <div className="auth-panel__intro">
           <p className="eyebrow">One more step</p>
-          <h1>Check your email to finish creating your account.</h1>
+          <h1>Check your email to finish creating your account</h1>
           <p>
             Open the confirmation email from WildJobs in the same browser if you can. The link will verify
             your address and securely sign you in.

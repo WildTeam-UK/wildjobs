@@ -22,7 +22,7 @@ export default async function SourcesAdmin({
       <header className="staff-hero shell">
         <div>
           <p className="eyebrow">Job feeds</p>
-          <h1>Sources.</h1>
+          <h1>Sources</h1>
         </div>
         <p>
           Add a feed URL. Jobs use the same summaries, sectors, course matching and retirement rules.

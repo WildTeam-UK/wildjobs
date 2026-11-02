@@ -25,9 +25,9 @@ export default function StyleGuidePage() {
           <div>
             <p className="eyebrow">WildTeam digital system</p>
             <h1>
-              One brand.
+              One brand
               <br />
-              One visual language.
+              One visual language
             </h1>
           </div>
           <div className="guide-hero__intro">
@@ -98,9 +98,10 @@ export default function StyleGuidePage() {
         <section className="guide-section" aria-labelledby="guide-actions">
           <div className="guide-section__heading">
             <p className="eyebrow">03 — Buttons and links</p>
-            <h2 id="guide-actions">Pink first. Purple on hover.</h2>
+            <h2 id="guide-actions">Pink first, purple on hover</h2>
             <p>
-              White actions become pink on hover. Every action keeps a strong, visible keyboard focus state.
+              All button labels use uppercase. White actions become pink on hover. Every action keeps a
+              strong, visible keyboard focus state.
             </p>
           </div>
           <div className="guide-demo guide-demo--dark">
@@ -136,7 +137,7 @@ export default function StyleGuidePage() {
         <section className="guide-section" aria-labelledby="guide-surfaces">
           <div className="guide-section__heading">
             <p className="eyebrow">05 — Surfaces and CTAs</p>
-            <h2 id="guide-surfaces">Flat surfaces. Clear hierarchy.</h2>
+            <h2 id="guide-surfaces">Flat surfaces, clear hierarchy</h2>
             <p>Panels use colour, whitespace and subtle rules—not chunky outlines or offset shadows.</p>
           </div>
           <div className="surface-grid">

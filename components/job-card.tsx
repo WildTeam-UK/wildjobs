@@ -79,21 +79,17 @@ export function JobCard({
       name={job.organisation}
     />
   );
-  const aiSummaryLabel =
+  const summaryLabel =
     job.summarySource === "ai" ? (
       <h3 className="job-card__ai-summary-label">
-        <svg aria-hidden="true" viewBox="0 0 18 16">
-          <path d="M8 1.5C8.45 4.95 10.05 6.55 13.5 7 10.05 7.45 8.45 9.05 8 12.5 7.55 9.05 5.95 7.45 2.5 7 5.95 6.55 7.55 4.95 8 1.5Z" />
-          <path d="M14.5 10.5c.18 1.37.81 2 2.18 2.18-1.37.18-2 .81-2.18 2.18-.18-1.37-.81-2-2.18-2.18 1.37-.18 2-.81 2.18-2.18Z" />
-        </svg>
-        <span>AI summary</span>
+        <span>Role summary</span>
       </h3>
     ) : null;
   const summaryBlock = (
     <div
       className={`job-card__summary-block${job.summarySource === "ai" ? " job-card__summary-block--ai" : ""}`}
     >
-      {aiSummaryLabel}
+      {summaryLabel}
       <p className="job-card__summary">{job.summary}</p>
     </div>
   );

@@ -14,7 +14,7 @@ export default async function OrganisationsAdmin() {
       <header className="staff-hero shell">
         <div>
           <p className="eyebrow">Organisation logos</p>
-          <h1>Logos for job cards.</h1>
+          <h1>Logos for job cards</h1>
         </div>
         <p>
           Logos are collected from feeds, adverts and employer websites, then reused across their jobs. You

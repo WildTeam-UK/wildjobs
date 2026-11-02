@@ -25,7 +25,7 @@ export default async function AdminPage() {
       <header className="staff-hero shell">
         <div>
           <p className="eyebrow">Jobs directory</p>
-          <h1>Feeds to live job cards.</h1>
+          <h1>Feeds to live job cards</h1>
         </div>
         <p>
           Imports publish automatically. AI adds a concise summary, sectors and relevant WildTeam courses.
