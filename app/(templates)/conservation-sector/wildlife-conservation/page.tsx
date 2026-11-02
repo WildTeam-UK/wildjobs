@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import {
   ComparisonList,
@@ -7,7 +8,6 @@ import {
   ExampleStats,
   GuideContents,
   GuideSection,
-  TemplatePhoto,
   TrainingBanner,
 } from "@/components/templates/template-parts";
 
@@ -42,14 +42,29 @@ export default function SectorTemplate() {
             </p>
             <div className="tpl-actions">
               <a className="action" href="#career-routes">
-                Explore the career paths ↓
-              </a>
-              <a className="tpl-text-link" href="#jobs">
-                See current opportunities ↗
+                Explore the career paths
               </a>
             </div>
           </div>
-          <TemplatePhoto kind="wetland" priority />
+          <figure className="tpl-photo">
+            <Image
+              src="/images/design/wildlife-deer.jpg"
+              alt="Deer among trees in a woodland"
+              width={1800}
+              height={1200}
+              sizes="(max-width: 800px) 100vw, 50vw"
+              preload
+            />
+            <figcaption>
+              <a
+                href="https://unsplash.com/photos/brown-deer-on-forest-during-daytime-SXczrJECIEo"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Unleashed Agency / Unsplash
+              </a>
+            </figcaption>
+          </figure>
         </div>
       </section>
       <div className="shell">

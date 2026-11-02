@@ -4,7 +4,7 @@ These are deployed design previews, not data-backed directory features. The four
 
 ## Preview routes
 
-- `/conservation-career-guides`: a static index for the career-guide designs, linked from the requested main navigation.
+- `/conservation-career-guides`: a static index with 11 illustrated sector tiles and eight career cards, linked from the main navigation. Only Wildlife Conservation and Ecologist link to existing designs. Sector illustrations were supplied by the user; a small CSS crop hides white image edges without altering the originals.
 - `/conservation-career-guides/ecologist`: a long-form career guide with a contents sidebar, routes into the profession, day-to-day work, skills, practical experience, salary context, progression, applications, courses, an action plan, sample jobs, FAQs and source notes.
 - `/conservation-sector/wildlife-conservation`: sector overview, areas of work, role families, career-change routes, illustrative skills and working-pattern insights, training and sample opportunities.
 - `/employers/wildmere-nature-trust`: a fictional employer with an original placeholder mark, mission, organisation facts, working-environment copy, hiring status, historical job metrics and sample current vacancies.
@@ -22,7 +22,7 @@ The proposed simple career label on each job and career-guide creation after ten
 
 ## Images and sources
 
-Static sample photos have visible Unsplash credits; provenance is recorded in `public/images/design/ATTRIBUTION.md`. Images are illustrative and do not depict the fictional employer. The existing WildTeam illustration is reused for training sections. Confirm the automated image workflow and its attribution requirements before the future data-backed launch.
+Static sample photos have visible Unsplash credits; provenance is recorded in `public/images/design/ATTRIBUTION.md`. Images are illustrative and do not depict the fictional employer. The existing WildTeam illustration is reused for training sections. The Wildlife Conservation hero uses an attributed Unsplash wildlife photograph. Confirm the automated image workflow and its attribution requirements before the future data-backed launch.
 
 Reference checks for the sample copy and links:
 
