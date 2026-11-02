@@ -1791,6 +1791,7 @@ select {
 }
 .job-card--compact .job-card__identity {
   flex: 1 1 auto;
+  align-self: flex-end;
   gap: 3px;
 }
 .job-card__save {
@@ -3372,7 +3373,7 @@ select {
     gap: 10px;
   }
   .job-card--compact .job-card__identity {
-    align-self: center;
+    align-self: flex-end;
   }
   .job-card--compact h2 {
     margin-left: 0;
