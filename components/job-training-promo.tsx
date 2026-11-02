@@ -25,11 +25,14 @@ function TickIcon() {
   );
 }
 
-export function JobTrainingPromo({ position }: { position: number }) {
+export function JobTrainingPromo({ compact = false, position }: { compact?: boolean; position: number }) {
   const headingId = `job-training-promo-title-${position}`;
 
   return (
-    <aside className="job-training-promo" aria-labelledby={headingId}>
+    <aside
+      className={`job-training-promo${compact ? " job-training-promo--compact" : ""}`}
+      aria-labelledby={headingId}
+    >
       <div className="job-training-promo__media">
         <Image
           alt="Conservation explorers overlooking wildlife in a pastel mountain landscape"

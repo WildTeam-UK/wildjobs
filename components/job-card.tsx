@@ -103,26 +103,7 @@ export function JobCard({
     <article className={`job-card${compact ? " job-card--compact" : ""}`}>
       <header className="job-card__header">
         {detailPanel ? (
-          <div className="job-card__employer-profile">
-            {employerLogo}
-            {employerRoleCount ? (
-              <span className="job-card__hiring-pill">
-                <span className="icon-label">
-                  Hiring for {employerRoleCount} {employerRoleCount === 1 ? "role" : "roles"}
-                </span>
-              </span>
-            ) : null}
-            {job.employerWebsiteUrl ? (
-              <a
-                className="job-card__employer-website"
-                href={job.employerWebsiteUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                {new URL(job.employerWebsiteUrl).hostname.replace(/^www\./, "")}
-              </a>
-            ) : null}
-          </div>
+          <div className="job-card__employer-profile">{employerLogo}</div>
         ) : compact ? (
           job.availability && job.availability !== "current" ? (
             <span className="job-card__logo-anchor">{employerLogo}</span>
@@ -151,7 +132,30 @@ export function JobCard({
               )}
             </h2>
           ) : null}
-          <p className="job-card__organisation">{job.organisation}</p>
+          {detailPanel ? (
+            <div className="job-card__employer-meta">
+              <p className="job-card__organisation">{job.organisation}</p>
+              {employerRoleCount ? (
+                <span className="job-card__hiring-pill">
+                  <span className="icon-label">
+                    Hiring for {employerRoleCount} {employerRoleCount === 1 ? "role" : "roles"}
+                  </span>
+                </span>
+              ) : null}
+              {job.employerWebsiteUrl ? (
+                <a
+                  className="job-card__employer-website"
+                  href={job.employerWebsiteUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {new URL(job.employerWebsiteUrl).hostname.replace(/^www\./, "")}
+                </a>
+              ) : null}
+            </div>
+          ) : (
+            <p className="job-card__organisation">{job.organisation}</p>
+          )}
           {!compact ? (
             <div className="job-card__topline">
               <span>{job.category}</span>
