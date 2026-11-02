@@ -1,58 +1,150 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
-import { TemplatePhoto } from "@/components/templates/template-parts";
+import styles from "./page.module.css";
 
 export const metadata: Metadata = {
-  title: "Conservation career guides",
-  description: "Explore conservation careers, routes into the work and skills for your next step.",
+  title: "Conservation sector and career guides",
+  description: "Explore conservation sectors and careers, understand the work and plan your next step.",
 };
+
+const sectors: readonly { title: string; image: string; href?: string }[] = [
+  { title: "Carbon, Climate & Energy", image: "carbon-climate-energy" },
+  {
+    title: "Wildlife Conservation",
+    image: "wildlife-conservation",
+    href: "/conservation-sector/wildlife-conservation",
+  },
+  { title: "Ecology", image: "ecology" },
+  { title: "Environmental Education", image: "environmental-education" },
+  { title: "Environmental Management", image: "environmental-management" },
+  { title: "Food, Farming & Horticulture", image: "food-farming-horticulture" },
+  { title: "Marine Conservation", image: "marine-conservation" },
+  { title: "Policy & Campaigning", image: "policy-campaigning" },
+  { title: "Rivers, Water & Hydrology", image: "rivers-water-hydrology" },
+  { title: "Sustainability", image: "sustainability" },
+  { title: "Sustainable Transport", image: "sustainable-transport" },
+];
+
+const careers: readonly { title: string; description: string; href?: string }[] = [
+  {
+    title: "Ecologist",
+    description: "Survey species and habitats, and use evidence to protect nature.",
+    href: "/conservation-career-guides/ecologist",
+  },
+  {
+    title: "Conservation Officer",
+    description: "Turn plans for wildlife and habitats into practical conservation action.",
+  },
+  { title: "Ranger", description: "Care for wild places and help people connect with nature." },
+  { title: "Marine Biologist", description: "Understand ocean life and help protect our marine ecosystems." },
+  {
+    title: "Project Manager",
+    description: "Bring people, plans and resources together to deliver conservation projects.",
+  },
+  {
+    title: "Environmental Educator",
+    description: "Inspire people to understand, enjoy and care for the natural world.",
+  },
+  {
+    title: "Fundraising Officer",
+    description: "Build support and secure funding to make conservation work possible.",
+  },
+  {
+    title: "Sustainability Consultant",
+    description: "Help organisations reduce their impact and make more sustainable choices.",
+  },
+];
 
 export default function CareerGuidesPage() {
   return (
-    <main>
-      <section className="tpl-hero shell">
-        <div className="tpl-hero__grid">
-          <div>
-            <h1>
-              Find your <span className="tpl-gradient">path in conservation.</span>
-            </h1>
-            <p className="tpl-hero__lead">
-              Understand the work, explore the routes in and discover practical ways to build your skills. Our
-              career guides help you plan your next step with more confidence.
-            </p>
-            <div className="tpl-actions">
-              <Link className="action" href="/conservation-career-guides/ecologist">
-                EXPLORE ECOLOGY
+    <main className={styles.page}>
+      <section className={"shell " + styles.section} aria-labelledby="sector-guides-title">
+        <div className={styles.intro}>
+          <h1 id="sector-guides-title">
+            Explore our <span className="tpl-gradient">conservation sector guides</span>
+          </h1>
+          <p>
+            Start with the bigger picture. Our sector guides bring together the purpose of each area of
+            conservation, the work happening within it and the people and skills it needs. Explore the roles,
+            routes into the sector and useful training, so you can understand where your interests and
+            experience could make a difference before deciding on your next step.
+          </p>
+        </div>
+        <div className={styles.sectorGrid}>
+          {sectors.map((sector, index) => {
+            const content = (
+              <>
+                <div className={styles.imageFrame}>
+                  <Image
+                    className={styles.sectorImage}
+                    src={"/images/sectors/" + sector.image + ".png"}
+                    alt=""
+                    width={500}
+                    height={500}
+                    sizes="(max-width: 1000px) 50vw, 25vw"
+                    preload={index < 4}
+                  />
+                </div>
+                <h2>{sector.title}</h2>
+              </>
+            );
+            return sector.href ? (
+              <Link className={styles.sectorTile} href={sector.href} key={sector.image}>
+                {content}
               </Link>
-            </div>
-          </div>
-          <TemplatePhoto kind="woodland" priority />
+            ) : (
+              <div className={styles.sectorTile} key={sector.image}>
+                {content}
+              </div>
+            );
+          })}
         </div>
       </section>
-      <section className="content-section">
-        <div className="shell">
-          <div className="section-heading section-heading--split">
-            <h2>Explore a career.</h2>
-            <p>
-              Start with the work that interests you, then look at the experience and training that could help
-              you get there.
-            </p>
-          </div>
-          <div className="pathway-grid">
-            <Link className="career-pathway-card" href="/conservation-career-guides/ecologist">
-              <span className="career-pathway-card__number">CAREER GUIDE</span>
-              <div className="career-pathway-card__body">
-                <h3>Ecologist</h3>
-                <p>
-                  Use evidence about species and habitats to help protect nature. Explore qualifications,
-                  field experience, salaries and progression.
-                </p>
-              </div>
-              <strong>
-                READ THE GUIDE <span aria-hidden="true">→</span>
-              </strong>
-            </Link>
-          </div>
+      <section
+        className={"shell " + styles.section + " " + styles.careerSection}
+        aria-labelledby="career-guides-title"
+      >
+        <div className={styles.intro}>
+          <h2 id="career-guides-title">
+            Explore our <span className="tpl-gradient">conservation career guides</span>
+          </h2>
+          <p>
+            Get to know the career behind the job title. Our career guides explain what the work looks like
+            day to day, the skills and experience employers look for, and the different ways to get started.
+            With practical advice on qualifications, gaining experience, salaries and progression, they help
+            you compare your options, spot the gaps you want to work on and build a clearer plan for the
+            career you want.
+          </p>
+        </div>
+        <div className={styles.careerGrid}>
+          {careers.map((career) => {
+            const content = (
+              <>
+                <span className={styles.cardLabel}>CAREER GUIDE</span>
+                <div className={styles.cardBody}>
+                  <h3>{career.title}</h3>
+                  <p>{career.description}</p>
+                </div>
+                <span className={styles.cardFooter}>
+                  {career.href ? "READ THE GUIDE" : "GUIDE COMING SOON"}
+                </span>
+              </>
+            );
+            return career.href ? (
+              <Link
+                className={styles.careerCard + " " + styles.linkedCareer}
+                href={career.href}
+                key={career.title}
+              >
+                {content}
+              </Link>
+            ) : (
+              <article className={styles.careerCard} key={career.title}>
+                {content}
+              </article>
+            );
+          })}
         </div>
       </section>
     </main>
