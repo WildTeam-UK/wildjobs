@@ -59,12 +59,12 @@ export function JobSplitView({
                 <p className="job-preview-card__fact">
                   <JobFactIcon type="salary" />
                   <span className="wt-visually-hidden">Salary: </span>
-                  {formatSalaryLabel(job.salary)}
+                  <span className="icon-label">{formatSalaryLabel(job.salary)}</span>
                 </p>
                 <p className="job-preview-card__fact">
                   <JobFactIcon type="location" />
                   <span className="wt-visually-hidden">Location: </span>
-                  {compactJobLocation(job)}
+                  <span className="icon-label">{compactJobLocation(job)}</span>
                 </p>
               </div>
               <p className="job-preview-card__posted">{postedAgoLabel(job.publishedAt ?? job.postedAt)}</p>

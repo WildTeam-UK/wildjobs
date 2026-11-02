@@ -367,7 +367,7 @@ function FilterDropdown(props: SingleFilterDropdownProps | MultiFilterDropdownPr
         type="button"
       >
         <FilterIcon name={icon} />
-        <span className="job-filter-pill__value">{selectedLabel}</span>
+        <span className="job-filter-pill__value icon-label">{selectedLabel}</span>
         <svg className="job-filter-pill__chevron" aria-hidden="true" viewBox="0 0 12 8">
           <path d="m1 1.5 5 5 5-5" />
         </svg>
@@ -417,9 +417,9 @@ function FilterDropdown(props: SingleFilterDropdownProps | MultiFilterDropdownPr
                     {accessibleLabel === "Sector" && option.value ? (
                       <SectorIcon title={option.label} />
                     ) : null}
-                    <span className="job-filter-menu__label">{option.label}</span>
+                    <span className="job-filter-menu__label icon-label">{option.label}</span>
                     {option.count !== undefined ? (
-                      <span className="job-filter-menu__count" aria-label={`${option.count} jobs`}>
+                      <span className="job-filter-menu__count icon-label" aria-label={`${option.count} jobs`}>
                         {option.count}
                       </span>
                     ) : null}

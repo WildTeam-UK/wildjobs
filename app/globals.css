@@ -71,6 +71,14 @@ a[role="button"],
   text-transform: uppercase;
 }
 
+/* As in WildNews topic pills, centre VAG's visible text against adjacent icons. */
+.icon-label,
+.employer-directory-card__facts > li > span,
+.job-training-promo__benefits strong,
+.job-training-promo__benefits span {
+  text-box: trim-both cap alphabetic;
+}
+
 .action,
 .primary-action {
   text-transform: uppercase;
@@ -1275,8 +1283,7 @@ a[role="button"],
   cursor: pointer;
 }
 .job-filter-pill__value {
-  display: inline-flex;
-  align-items: center;
+  display: block;
   line-height: 1;
 }
 .job-filter-pill__icon {
@@ -1538,15 +1545,16 @@ a[role="button"],
 .job-layout-switch {
   display: inline-flex;
   gap: 3px;
-  padding: 3px;
+  height: 44px;
+  padding: 2px;
   border: 1px solid var(--wt-color-rule);
   border-radius: var(--wt-radius-control);
   background: var(--wt-color-paper);
 }
 .job-layout-switch button {
   display: grid;
-  width: 40px;
-  height: 40px;
+  width: 38px;
+  height: 38px;
   place-items: center;
   border: 0;
   border-radius: 6px;
@@ -1561,8 +1569,8 @@ a[role="button"],
   color: var(--wt-color-paper);
 }
 .job-layout-switch svg {
-  width: 22px;
-  height: 22px;
+  width: 20px;
+  height: 20px;
   fill: none;
   stroke: currentColor;
   stroke-width: 1.6;
@@ -1583,18 +1591,20 @@ a[role="button"],
   --preview-logo-size: 72px;
   --preview-identity-gap: 16px;
   position: relative;
+  isolation: isolate;
   min-width: 0;
   padding: 24px 22px;
   border: 1px solid var(--wt-color-rule);
   border-radius: var(--wt-radius-panel);
   background: var(--wt-color-paper);
+  cursor: pointer;
 }
 .job-preview-card:hover {
   border-color: var(--wt-color-brand-pink);
 }
 .job-preview-card--selected {
   border-color: var(--wt-color-brand-purple);
-  background: color-mix(in srgb, var(--wt-color-brand-purple) 4%, var(--wt-color-paper));
+  background: var(--wt-color-paper);
 }
 .job-preview-card__identity {
   display: grid;
@@ -1641,6 +1651,7 @@ a[role="button"],
 }
 .job-preview-card__select::after {
   position: absolute;
+  z-index: 1;
   inset: 0;
   border-radius: inherit;
   content: "";
@@ -1668,12 +1679,14 @@ a[role="button"],
 }
 .job-preview-card__fact {
   position: relative;
+  display: flex;
+  align-items: center;
   margin: 0;
   color: var(--wt-color-ink);
 }
 .job-preview-card__fact svg {
   position: absolute;
-  top: 1px;
+  top: 50%;
   left: -28px;
   width: 19px;
   height: 19px;
@@ -1682,6 +1695,7 @@ a[role="button"],
   stroke-linecap: round;
   stroke-linejoin: round;
   stroke-width: 1.8;
+  transform: translateY(-50%);
 }
 .job-preview-card__posted {
   margin: 12px 0 0 calc(var(--preview-logo-size) + var(--preview-identity-gap));
@@ -1776,8 +1790,15 @@ a[role="button"],
   overflow: visible;
 }
 .job-detail-panel .job-card__training {
-  display: grid;
+  display: flex;
+  align-items: center;
   gap: 12px;
+}
+.job-detail-panel .job-card__training-courses {
+  flex: 0 1 auto;
+}
+.job-detail-panel .job-card__training-explainer {
+  text-box: trim-both cap alphabetic;
 }
 .job-detail-panel .job-card__posted {
   margin-left: 0;
@@ -1935,7 +1956,6 @@ a[role="button"],
 .job-training-promo__benefits svg {
   width: 20px;
   height: 20px;
-  margin-top: 1px;
   fill: color-mix(in srgb, var(--wt-color-brand-pink) 10%, var(--wt-color-paper));
   stroke: var(--wt-color-brand-purple);
   stroke-linecap: round;

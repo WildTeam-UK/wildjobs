@@ -189,7 +189,7 @@ export function JobCard({
                 <li key={fact.label}>
                   <JobFactIcon type={fact.icon} />
                   <span className="wt-visually-hidden">{fact.label}: </span>
-                  <span>{fact.value}</span>
+                  <span className="icon-label">{fact.value}</span>
                 </li>
               ))}
             </ul>
@@ -229,7 +229,7 @@ export function JobCard({
                     rel="noopener noreferrer"
                     style={{ "--course-colour": course.themeColour } as CSSProperties}
                   >
-                    {course.shortTitle}
+                    <span className="icon-label">{course.shortTitle}</span>
                   </a>
                 </li>
               ))}
@@ -238,7 +238,7 @@ export function JobCard({
               className="job-card__training-why job-card__training-explainer"
               href="/course-recommendations/"
             >
-              Why are we recommending these courses?
+              <span className="icon-label">Why are we recommending these courses?</span>
             </Link>
           </div>
           {compact && !detailPanel ? <p className="job-card__posted">{postedLabel}</p> : null}
