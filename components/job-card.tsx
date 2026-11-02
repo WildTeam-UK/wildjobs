@@ -43,7 +43,6 @@ export function JobFactIcon({ type }: { type: "location" | "salary" | "type" }) 
 export function JobCard({
   compact = false,
   detailPanel = false,
-  dismissed = false,
   onDismiss,
   job,
   saveReturnTo,
@@ -52,7 +51,6 @@ export function JobCard({
 }: {
   compact?: boolean;
   detailPanel?: boolean;
-  dismissed?: boolean;
   onDismiss?: () => void;
   job: Job;
   saveReturnTo?: string;
@@ -158,9 +156,7 @@ export function JobCard({
                 ))}
               </div>
             ) : null}
-            {onDismiss ? (
-              <DismissJobControl dismissed={dismissed} onClick={onDismiss} title={displayTitle} />
-            ) : null}
+            {onDismiss ? <DismissJobControl onClick={onDismiss} title={displayTitle} /> : null}
             {showSaveAction ? (
               <div className="job-card__save">
                 <SaveJobControl
@@ -254,7 +250,6 @@ export function JobCard({
           {compact && !detailPanel ? <p className="job-card__posted">{postedLabel}</p> : null}
         </div>
       ) : null}
-      {detailPanel ? <p className="job-card__posted">{postedLabel}</p> : null}
       {!compact ? (
         <div className="job-card__actions">
           {job.availability && job.availability !== "current" ? (

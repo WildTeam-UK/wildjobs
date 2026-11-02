@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@wildteam-uk/ui";
-import { createPortal } from "react-dom";
+import { createPortal, flushSync } from "react-dom";
 import { SectorIcon } from "./sector-icon";
 import { minimumGbpSalary } from "@/lib/job-salary";
 import { directoryDeadline } from "@/lib/directory-lifecycle";
@@ -578,15 +578,14 @@ export function JobBrowser({
   const [sortOrder, setSortOrder] = useState<JobSortOrder>(initialFilters.sortOrder ?? "relevance");
   const [currentPage, setCurrentPage] = useState(initialPage);
   const { ids: dismissedIds, persistent: dismissalsPersistent } = useBrowserDismissedJobs();
-  const [showDismissed, setShowDismissed] = useState(false);
-  const [lastDismissal, setLastDismissal] = useState<{ job: Job; dismissed: boolean }>();
+  const [lastDismissal, setLastDismissal] = useState<Job>();
   const pendingDismissals = useRef(new Set<number>());
   const resultsRef = useRef<HTMLDivElement>(null);
   const dismissedToggleRef = useRef<HTMLButtonElement>(null);
   const dismissedIdSet = new Set(dismissedIds);
   const dismissedCount = jobs.filter((job) => job.id && dismissedIdSet.has(job.id)).length;
-  const visibleJobs = jobs.filter((job) => Boolean(job.id && dismissedIdSet.has(job.id)) === showDismissed);
-  const [layout, setLayout] = useState<"list" | "grid">("list");
+  const visibleJobs = jobs.filter((job) => !job.id || !dismissedIdSet.has(job.id));
+  const [layout, setLayout] = useState<"list" | "grid">("grid");
   const canUseGridLayout = useSyncExternalStore(
     subscribeToDesktopLayout,
     getDesktopLayoutSnapshot,
@@ -772,11 +771,13 @@ export function JobBrowser({
     const neighbourId = (rows[rowIndex + 1] ?? rows[rowIndex - 1])?.dataset.jobDismissal;
     const focused = document.activeElement;
     const shouldMoveFocus = Boolean(row?.contains(focused) || focused?.closest(".job-detail-panel"));
-    const dismissing = !showDismissed;
     try {
-      await animateJobDismissal(row);
-      setBrowserJobDismissed(job.id, dismissing);
-      setLastDismissal({ job, dismissed: dismissing });
+      await animateJobDismissal(row, () =>
+        flushSync(() => {
+          setBrowserJobDismissed(job.id!, true);
+          setLastDismissal(job);
+        }),
+      );
       requestAnimationFrame(() => {
         if (!shouldMoveFocus) return;
         const neighbour = neighbourId
@@ -791,12 +792,12 @@ export function JobBrowser({
   }
 
   function undoDismissal() {
-    if (!lastDismissal?.job.id) return;
-    setBrowserJobDismissed(lastDismissal.job.id, !lastDismissal.dismissed);
+    if (!lastDismissal?.id) return;
+    setBrowserJobDismissed(lastDismissal.id, false);
     setLastDismissal(undefined);
     requestAnimationFrame(() => {
       const restored = resultsRef.current?.querySelector<HTMLElement>(
-        `[data-job-dismissal="${lastDismissal.job.id}"] h2 button, [data-job-dismissal="${lastDismissal.job.id}"] h2 a`,
+        `[data-job-dismissal="${lastDismissal.id}"] h2 button, [data-job-dismissal="${lastDismissal.id}"] h2 a`,
       );
       (restored ?? dismissedToggleRef.current)?.focus({ preventScroll: true });
     });
@@ -1099,8 +1100,7 @@ export function JobBrowser({
           <div className="job-results" ref={resultsRef}>
             <div className="job-results__heading">
               <p aria-live="polite">
-                {filteredJobs.length} {showDismissed ? "Dismissed" : "Currently available"}{" "}
-                {filteredJobs.length === 1 ? "role" : "roles"}
+                {filteredJobs.length} Currently available {filteredJobs.length === 1 ? "role" : "roles"}
                 <span className="job-results__organisation-count">
                   {" "}
                   across {filteredOrganisationCount}{" "}
@@ -1108,19 +1108,25 @@ export function JobBrowser({
                 </span>
               </p>
               <div className="job-results__controls">
-                {dismissedCount || showDismissed ? (
+                {dismissedCount ? (
                   <button
                     className="job-dismissed-toggle"
                     ref={dismissedToggleRef}
-                    aria-pressed={showDismissed}
-                    onClick={() => {
-                      setShowDismissed(!showDismissed);
-                      syncUrl(currentFilters());
-                      setLastDismissal(undefined);
-                    }}
                     type="button"
+                    onClick={() => {
+                      restoreAllBrowserDismissedJobs();
+                      setLastDismissal(undefined);
+                      syncUrl(currentFilters(), activePage);
+                      requestAnimationFrame(() =>
+                        resultsRef.current
+                          ?.querySelector<HTMLElement>(
+                            "[data-job-dismissal] h2 button, [data-job-dismissal] h2 a",
+                          )
+                          ?.focus({ preventScroll: true }),
+                      );
+                    }}
                   >
-                    {showDismissed ? "Back to jobs" : `Show dismissed jobs (${dismissedCount})`}
+                    Show hidden jobs ({dismissedCount})
                   </button>
                 ) : null}
                 <div className="job-layout-switch" role="group" aria-label="Job card layout">
@@ -1172,31 +1178,6 @@ export function JobBrowser({
                 </div>
               </div>
             </div>
-            {showDismissed ? (
-              <div className="job-dismissed-note">
-                <p>Hidden on this browser only. Restore a job to put it back in your results.</p>
-                {dismissedCount ? (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      restoreAllBrowserDismissedJobs();
-                      setLastDismissal(undefined);
-                      setShowDismissed(false);
-                      syncUrl(currentFilters());
-                      requestAnimationFrame(() =>
-                        resultsRef.current
-                          ?.querySelector<HTMLElement>(
-                            "[data-job-dismissal] h2 button, [data-job-dismissal] h2 a",
-                          )
-                          ?.focus({ preventScroll: true }),
-                      );
-                    }}
-                  >
-                    Restore all
-                  </button>
-                ) : null}
-              </div>
-            ) : null}
             {!dismissalsPersistent ? (
               <p className="job-dismissed-note">
                 Browser storage is unavailable. Dismissed jobs are remembered for this visit only.
@@ -1206,8 +1187,8 @@ export function JobBrowser({
               {lastDismissal ? (
                 <div className="job-dismissal-feedback__content">
                   <p>
-                    <strong>{lastDismissal.dismissed ? "Job dismissed" : "Job restored"}</strong>
-                    <span>{lastDismissal.job.title}</span>
+                    <strong>Job hidden</strong>
+                    <span>{lastDismissal.title}</span>
                   </p>
                   <button type="button" onClick={undoDismissal}>
                     Undo
@@ -1250,7 +1231,6 @@ export function JobBrowser({
             ) : null}
             {filteredJobs.length && layout === "grid" && canUseGridLayout ? (
               <JobSplitView
-                dismissed={showDismissed}
                 onDismiss={toggleJobDismissal}
                 jobs={paginatedJobs}
                 saveStateFor={(job) =>
@@ -1270,7 +1250,6 @@ export function JobBrowser({
                       <div className="job-result-item" data-job-dismissal={job.id}>
                         <JobCard
                           compact
-                          dismissed={showDismissed}
                           onDismiss={
                             job.id
                               ? () => {
@@ -1288,7 +1267,7 @@ export function JobBrowser({
                           }
                         />
                       </div>
-                      {!showDismissed && resultIndex >= 2 && (resultIndex - 2) % 10 === 0 ? (
+                      {resultIndex >= 2 && (resultIndex - 2) % 10 === 0 ? (
                         <JobTrainingPromo position={resultIndex + 1} />
                       ) : null}
                     </Fragment>
@@ -1297,15 +1276,13 @@ export function JobBrowser({
               </div>
             ) : (
               <div className="empty-state">
-                <h3>{showDismissed ? "No dismissed roles to show" : "No roles to show"}</h3>
+                <h3>No roles to show</h3>
                 <p>
                   {hasFilters
                     ? "Try a broader search or clear your filters."
-                    : showDismissed
-                      ? "Restored jobs are back in your main results."
-                      : dismissedCount
-                        ? "Use Show dismissed jobs to restore roles you have hidden."
-                        : "Check back soon for new opportunities."}
+                    : dismissedCount
+                      ? "Use Show hidden jobs to bring back roles you have hidden."
+                      : "Check back soon for new opportunities."}
                 </p>
                 {hasFilters ? (
                   <Button type="button" variant="quiet" onClick={clearFilters}>

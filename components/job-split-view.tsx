@@ -11,12 +11,10 @@ import { formatSalaryLabel } from "@/lib/job-salary";
 
 export function JobSplitView({
   jobs,
-  dismissed = false,
   onDismiss,
   saveStateFor,
 }: {
   jobs: readonly Job[];
-  dismissed?: boolean;
   onDismiss: (job: Job) => Promise<void>;
   saveStateFor: (job: Job) => JobSaveState;
 }) {
@@ -84,7 +82,6 @@ export function JobSplitView({
                   <div className="job-preview-card__save">
                     {job.id ? (
                       <DismissJobControl
-                        dismissed={dismissed}
                         onClick={() => {
                           void dismissPreviewJob(job);
                         }}
@@ -101,7 +98,7 @@ export function JobSplitView({
                   </div>
                 </article>
               </div>
-              {!dismissed && index === 2 ? <JobTrainingPromo compact position={3} /> : null}
+              {index === 2 ? <JobTrainingPromo compact position={3} /> : null}
             </Fragment>
           );
         })}
@@ -114,7 +111,6 @@ export function JobSplitView({
           <JobCard
             compact
             detailPanel
-            dismissed={dismissed}
             onDismiss={
               selectedJob.id
                 ? () => {
@@ -125,13 +121,16 @@ export function JobSplitView({
             job={selectedJob}
             saveState={saveStateFor(selectedJob)}
           />
-          {selectedJob.sourceUrl ? (
-            <div className="job-detail-panel__actions">
+          <div className="job-detail-panel__actions">
+            {selectedJob.sourceUrl ? (
               <a className="action" href={selectedJob.sourceUrl} rel="noopener noreferrer" target="_blank">
-                View original advert
+                Apply via {selectedJob.sourceName}
               </a>
-            </div>
-          ) : null}
+            ) : null}
+            <p className="job-card__posted">
+              {postedAgoLabel(selectedJob.publishedAt ?? selectedJob.postedAt)}
+            </p>
+          </div>
         </div>
       </section>
     </div>

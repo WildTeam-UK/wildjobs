@@ -8,7 +8,7 @@ const trainingBenefits = [
   },
   {
     title: "Stand out from the crowd",
-    description: "Build practical skills and feel better prepared to land the role you really want.",
+    description: "Build practical skills and feel better prepared to land your dream role.",
   },
   {
     title: "Turn your passion into progress",

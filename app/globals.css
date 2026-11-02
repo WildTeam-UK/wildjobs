@@ -1542,11 +1542,15 @@ a[role="button"],
 .job-result-item {
   min-width: 0;
 }
+.job-card__header-actions .save-action--icon,
+.job-preview-card__save .save-action--icon {
+  width: 32px;
+}
 .dismiss-job-action {
   position: relative;
   z-index: 2;
   display: grid;
-  width: 42px;
+  width: 32px;
   min-height: 42px;
   flex: 0 0 auto;
   place-items: start center;
@@ -1723,7 +1727,7 @@ a[role="button"],
   grid-template-columns: var(--preview-logo-size) minmax(0, 1fr);
   align-items: center;
   gap: var(--preview-identity-gap);
-  padding-right: 72px;
+  padding-right: 52px;
 }
 .job-preview-card__identity-copy {
   display: grid;
@@ -1829,7 +1833,7 @@ a[role="button"],
   top: 16px;
   right: 12px;
   display: flex;
-  gap: 2px;
+  gap: 0;
 }
 .job-detail-panel {
   position: sticky;
@@ -1839,7 +1843,7 @@ a[role="button"],
 .job-detail-panel__content {
   max-height: calc(100svh - var(--site-header-height) - 110px);
   overflow-y: auto;
-  overscroll-behavior: contain;
+  overscroll-behavior: auto;
   border: 1px solid var(--wt-color-rule);
   border-radius: var(--wt-radius-panel);
   background: var(--wt-color-paper);
@@ -1933,6 +1937,11 @@ a[role="button"],
   text-align: right;
 }
 .job-detail-panel__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
   padding: 0 30px 30px;
 }
 @media (max-width: 900px) {
@@ -2082,7 +2091,7 @@ a[role="button"],
 .job-training-promo__benefits svg {
   width: 20px;
   height: 20px;
-  margin-top: 3px;
+  margin-top: -2px;
   fill: color-mix(in srgb, var(--wt-color-brand-pink) 10%, var(--wt-color-paper));
   stroke: var(--wt-color-brand-purple);
   stroke-linecap: round;
@@ -2091,7 +2100,11 @@ a[role="button"],
 }
 .job-training-promo__benefits div {
   display: grid;
-  gap: 4px;
+  gap: 7px;
+}
+.job-training-promo__benefits strong,
+.job-training-promo__benefits span {
+  text-box: trim-both cap alphabetic;
 }
 .job-training-promo__benefits strong {
   color: var(--wt-color-surface-charcoal);
@@ -2269,8 +2282,11 @@ a[role="button"],
   flex: 0 0 auto;
   align-items: flex-start;
   align-self: flex-start;
-  gap: 9px;
+  gap: 0;
   margin-left: auto;
+}
+.job-card__status-pills--header {
+  margin-right: 8px;
 }
 .job-card__status-pills {
   display: flex;
@@ -3830,7 +3846,7 @@ a[role="button"],
     line-height: 1.08;
   }
   .job-card__header-actions {
-    gap: 4px;
+    gap: 0;
   }
   .job-card__status-pills--header {
     display: none;
