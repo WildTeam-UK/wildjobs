@@ -8,7 +8,7 @@ import { getSafeNextPath } from "@/lib/auth/redirects";
 import { getSaveJobIntent } from "@/lib/auth/save-intent";
 import { createClient } from "@/lib/supabase/server";
 
-export const metadata: Metadata = { title: "Sign in" };
+export const metadata: Metadata = { title: "Sign in", robots: { index: false, follow: false } };
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 
 const messages: Record<string, string> = {
@@ -90,15 +90,7 @@ export default async function SignInPage({ searchParams }: { searchParams: Searc
             Your password is handled by Supabase Auth and is never stored in the WildJobs database.
           </p>
           <p className="auth-card__switch">
-            New to WildJobs?{" "}
-            <Link
-              href={{
-                pathname: "/create-account",
-                query: saveIntent ? { intent: "save", job: saveIntent.jobSlug, next } : { next },
-              }}
-            >
-              Create an account
-            </Link>
+            Public signup is currently closed. <Link href="/saved-jobs">Save jobs without an account</Link>.
           </p>
         </div>
       </section>

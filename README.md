@@ -2,7 +2,17 @@
 
 WildTeam's conservation jobs directory. Sources are managed in `/admin/sources`; EnvironmentJob is the initial source. The existing jobs page and card styling are retained, with longer summaries and aligned metadata; each card opens the original advert. There are no individual WildJobs job pages.
 
-## Development
+## Soft launch
+
+Public registration is closed until the SSO approach is approved. `PUBLIC_SIGNUPS_ENABLED` blocks the signup page and server action; Supabase's production "Allow new users to sign up" setting is also off. Existing staff sign-in remains available.
+
+Saved jobs use a versioned browser-local list of job IDs at `/saved-jobs`, with `/account/saved` redirecting there. Saving requires no account and does not change existing account data. Lists persist on that browser only; clearing storage removes them. If browser storage is blocked, the list lasts for the current visit. Removed or expired listings have an unavailable state and can be removed from the list.
+
+Production analytics uses `NEXT_PUBLIC_GTM_ID` for the existing WildTeam GTM/GA4 setup. It loads only on `jobs.wildteam.org.uk` after the visitor chooses to allow analytics; advertising consent remains denied. Cookie settings in the footer lets visitors change their choice. Preview/local deployments and private routes do not load the container. Analytics cookies use the WildJobs prefix and hostname. No new marketing or training integration is introduced.
+
+The production domain is `jobs.wildteam.org.uk`; its DNS is managed in Wix. `SITE_INDEXING_ENABLED=true` enables the directory sitemap and indexing. Static design templates and the style guide retain their separate noindex settings. Content, policies and source-permission reviews are deferred by the user's soft-launch decision.
+
+## Development setup
 
 Use Node 22.13+ and pnpm 11.25. Install with `pnpm install --frozen-lockfile`, copy `.env.example` to `.env.local`, then run `pnpm dev`. Private WildTeam packages require the approved GitHub Packages credentials. Never commit real environment values.
 

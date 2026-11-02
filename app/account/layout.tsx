@@ -1,6 +1,9 @@
 import type { ReactNode } from "react";
+import type { Metadata } from "next";
 import { AccountNav } from "@/components/account-nav";
 import { requireCandidate } from "@/lib/auth/candidate";
+
+export const metadata: Metadata = { robots: { index: false, follow: false } };
 
 export default async function AccountLayout({ children }: { children: ReactNode }) {
   const candidate = await requireCandidate("/account");
