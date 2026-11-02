@@ -5,41 +5,8 @@ import { closingDate, directoryFacts } from "./directory-lifecycle";
 export const FEED_URL = "https://environmentjob.co.uk/jobs.rss";
 export { cleanText } from "./directory-text";
 import { cleanText } from "./directory-text";
-export function normaliseSalary(value: string): string {
-  const annualBands = value.split(/\b(?:pa|per annum|per year)\s*\/\s*(?=[£€$])/i);
-  if (annualBands.length > 1) return annualBands.map(normaliseSalary).join(" / ");
-  const amount = value.match(
-    /(?:£|€|\$)\s*\d[\d,]*(?:\.\d+)?(?:\s*[–—-]\s*(?:£|€|\$)?\s*\d[\d,]*(?:\.\d+)?)?/,
-  );
-  if (!amount) return /volunt|unpaid/i.test(value) ? "Voluntary" : "Not stated";
-  const money = amount[0]
-    .replace(/\s*[–—-]\s*/g, " – ")
-    .replace(/([£€$])\s+/g, "$1")
-    .replace(/(?<=[£€$])\d{4,}/g, (n) => Number(n).toLocaleString("en-GB"));
-  const payContext = value.slice((amount.index ?? 0) + amount[0].length).trim();
-  const period = /^(?:per |an? |\/)?(?:hour|hr)\b|^ph\b/i.test(payContext)
-    ? "per hour"
-    : /^(?:per |a |\/)?day\b/i.test(payContext)
-      ? "per day"
-      : /^(?:per |a |\/)?week\b/i.test(payContext)
-        ? "per week"
-        : /^(?:per |a |\/)?month\b/i.test(payContext)
-          ? "per month"
-          : /^for \d+\s*(?:hours?|days?|months?|weeks?)\b|^total\b|\b(?:stipend|bursary)\b/i.test(payContext)
-            ? "total"
-            : /\b(?:\d+|three|six|nine|twelve)[ -]months?\b/i.test(payContext) &&
-                !/\bpa\b|per year|per annum/i.test(payContext)
-              ? ""
-              : "per year";
-  return [
-    money,
-    period,
-    /pro[ -]?rata/i.test(value) ? "pro rata" : "",
-    /\bbenefits\b/i.test(value) ? "+ Benefits" : "",
-  ]
-    .filter(Boolean)
-    .join(" ");
-}
+export { normaliseSalary } from "./job-salary";
+import { normaliseSalary, parseSalary } from "./job-salary";
 export function parseFeed(xml: string, now = new Date(), organisationNames: readonly string[] = []) {
   if (XMLValidator.validate(xml) !== true) throw new Error("EnvironmentJob returned invalid RSS.");
   const parsed = new XMLParser({ ignoreAttributes: true, processEntities: true, parseTagValue: false }).parse(
@@ -119,7 +86,7 @@ export function parseFeed(xml: string, now = new Date(), organisationNames: read
           ? "GB"
           : null,
       salary_text: salary,
-      salary_min: Number(salary.match(/[\d,]+/)?.[0].replaceAll(",", "")) || null,
+      salary_min: parseSalary(salary).minimum,
       ...directoryFacts({
         workplace,
         hours: /part[ -]time/i.test(`${title} ${excerpt}`) ? "Part time" : "Full time",

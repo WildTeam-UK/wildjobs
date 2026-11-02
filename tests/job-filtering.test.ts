@@ -60,6 +60,7 @@ describe("job filtering", () => {
       ...jobs[0],
       contractType: "Permanent",
       engagementType: "Paid" as const,
+      salary: "£31,000 – £35,000 per year",
       salaryMinimum: 31_000,
     };
 
@@ -101,6 +102,18 @@ it("does not include an unknown salary in a minimum salary selection", () => {
   expect(filterJobs([{ ...jobs[0], salaryMinimum: undefined }], filters({ minimumSalary: 30000 }))).toEqual(
     [],
   );
+});
+it("keeps international jobs visible but excludes foreign, hourly and upper-bound pay from GBP thresholds", () => {
+  const items = [
+    { ...jobs[0], salary: "£35,000 per year", salaryMinimum: 35000 },
+    { ...jobs[0], salary: "USD 90,000 per year", salaryMinimum: 90000 },
+    { ...jobs[0], salary: "€80,000 per year", salaryMinimum: 80000 },
+    { ...jobs[0], salary: "$80,000 per year", salaryMinimum: 80000 },
+    { ...jobs[0], salary: "£35 per hour", salaryMinimum: 35000 },
+    { ...jobs[0], salary: "Up to £50,000 per year", salaryMinimum: 50000 },
+  ];
+  expect(filterJobs(items, filters())).toEqual(items);
+  expect(filterJobs(items, filters({ minimumSalary: 30000 }))).toEqual([items[0]]);
 });
 it("finds both full-time and part-time options from the source metadata", () => {
   const flexible = { ...jobs[0], hoursType: "Full time · Part time", hoursTypes: ["Full time", "Part time"] };

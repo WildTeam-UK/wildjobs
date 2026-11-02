@@ -1,4 +1,5 @@
 import "server-only";
+import { normaliseSalary, parseSalary } from "./job-salary";
 import { connection } from "next/server";
 import { cache } from "react";
 import type { Job, LocationType } from "./jobs";
@@ -30,6 +31,7 @@ export async function mapDirectoryJobs(records: readonly DirectoryJob[]): Promis
       hours: row.hours_type,
       contract: row.contract_type,
     });
+    const salary = parseSalary(row.salary_text);
     return {
       id: row.id,
       slug: row.slug,
@@ -48,8 +50,8 @@ export async function mapDirectoryJobs(records: readonly DirectoryJob[]): Promis
       hoursTypes: facts.hours_type.split(" · "),
       contractType: facts.contract_type,
       engagementType: row.engagement_type === "Volunteer" ? "Volunteer" : "Paid",
-      salary: row.salary_text,
-      salaryMinimum: row.salary_text.includes("per year") ? (row.salary_min ?? undefined) : undefined,
+      salary: normaliseSalary(row.salary_text, { defaultAnnual: false }),
+      salaryMinimum: salary.period === "per year" ? (salary.minimum ?? undefined) : undefined,
       category: terms[0]?.title ?? "",
       careerAreas: terms.map((s) => s.title),
       careerAreaTerms: terms,

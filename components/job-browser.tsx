@@ -3,6 +3,7 @@
 import { Button } from "@wildteam-uk/ui";
 import { createPortal } from "react-dom";
 import { SectorIcon } from "./sector-icon";
+import { minimumGbpSalary } from "@/lib/job-salary";
 import { directoryDeadline } from "@/lib/directory-lifecycle";
 import {
   Fragment,
@@ -964,7 +965,7 @@ export function JobBrowser({
               value={employmentType}
             />
             <FilterDropdown
-              accessibleLabel="Minimum advertised salary"
+              accessibleLabel="Minimum annual salary in GBP"
               clearLabel="Any salary"
               icon="salary"
               onChange={(value) => {
@@ -976,27 +977,27 @@ export function JobBrowser({
                 {
                   label: "£20,000+",
                   value: "20000",
-                  count: salaryContext.filter((job) => (job.salaryMinimum ?? 0) >= 20000).length,
+                  count: salaryContext.filter((job) => (minimumGbpSalary(job) ?? 0) >= 20000).length,
                 },
                 {
                   label: "£25,000+",
                   value: "25000",
-                  count: salaryContext.filter((job) => (job.salaryMinimum ?? 0) >= 25000).length,
+                  count: salaryContext.filter((job) => (minimumGbpSalary(job) ?? 0) >= 25000).length,
                 },
                 {
                   label: "£30,000+",
                   value: "30000",
-                  count: salaryContext.filter((job) => (job.salaryMinimum ?? 0) >= 30000).length,
+                  count: salaryContext.filter((job) => (minimumGbpSalary(job) ?? 0) >= 30000).length,
                 },
                 {
                   label: "£40,000+",
                   value: "40000",
-                  count: salaryContext.filter((job) => (job.salaryMinimum ?? 0) >= 40000).length,
+                  count: salaryContext.filter((job) => (minimumGbpSalary(job) ?? 0) >= 40000).length,
                 },
                 {
                   label: "£50,000+",
                   value: "50000",
-                  count: salaryContext.filter((job) => (job.salaryMinimum ?? 0) >= 50000).length,
+                  count: salaryContext.filter((job) => (minimumGbpSalary(job) ?? 0) >= 50000).length,
                 },
               ]}
               placeholder="Minimum salary"

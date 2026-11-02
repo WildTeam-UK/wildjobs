@@ -1,6 +1,7 @@
 import { createHash } from "node:crypto";
 import { XMLParser, XMLValidator } from "fast-xml-parser";
-import { parseFeed, normaliseSalary } from "./directory-feed";
+import { parseFeed } from "./directory-feed";
+import { extractSalary, parseSalary, structuredSalary } from "./job-salary";
 import { plainText } from "./directory-text";
 import { closingDate, directoryFacts } from "./directory-lifecycle";
 import { canonicalUrl, publicUrl } from "./directory-url";
@@ -78,28 +79,16 @@ export function parseSourceFeed(
     ).toString();
     const title = plainText(string(item.title)).slice(0, 300);
     if (!title) throw new Error("A feed item is missing its job title.");
-    const text = plainText(string(item.encoded ?? item.content ?? item.description ?? item.summary)).slice(
-      0,
-      24000,
-    );
+    const fullText = plainText(string(item.encoded ?? item.content ?? item.description ?? item.summary));
+    const text = fullText.slice(0, 24000);
     const organisation =
       plainText(string(item.company ?? item.employer ?? item.hiringOrganization ?? item.companyName)) ||
       "Organisation not stated";
     const location =
       plainText(string(item.location ?? item.jobLocation ?? item.region)) || "Location not stated";
     const salaryField = item.salary ?? item.baseSalary;
-    const currency = string(object(salaryField)["@_currency"] ?? item.salaryCurrency).toUpperCase();
-    const amount = plainText(string(salaryField))
-      .replace(/^GBP\s*/i, "£")
-      .replace(/^EUR\s*/i, "€")
-      .replace(/^USD\s*/i, "$");
-    const symbol = ({ GBP: "£", EUR: "€", USD: "$" } as Record<string, string>)[currency];
-    const salary = normaliseSalary(
-      (symbol && /^\d/.test(amount) ? symbol : "") +
-        amount +
-        " " +
-        string(object(salaryField)["@_unitText"] ?? object(salaryField)["@_unit"]),
-    );
+    const statedSalary = structuredSalary(salaryField, string(item.salaryCurrency));
+    const salary = statedSalary === "Not stated" ? extractSalary(fullText) : statedSalary;
     const date = new Date(string(item.pubDate ?? item.published ?? item.date ?? item.updated));
     const closesAt = closingDate(string(item.closingDate ?? item.validThrough ?? ""));
     const feedId = string(item.guid ?? item.id) || canonicalUrl(source);
@@ -146,7 +135,7 @@ export function parseSourceFeed(
       region: null,
       country_code: /^[A-Z]{2}$/.test(country) ? country : null,
       salary_text: salary,
-      salary_min: Number(salary.match(/[\d,]+/)?.[0].replaceAll(",", "")) || null,
+      salary_min: parseSalary(salary).minimum,
       ...directoryFacts({
         workplace: /hybrid/.test(work)
           ? "Hybrid"

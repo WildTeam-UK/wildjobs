@@ -1,7 +1,7 @@
 import { plainText } from "./directory-text";
 import { fetchPublicText } from "./directory-http";
 import { canonicalUrl, publicUrl } from "./directory-url";
-import { normaliseSalary } from "./directory-feed";
+import { extractSalary, structuredSalary } from "./job-salary";
 import { closingDate } from "./directory-lifecycle";
 
 type JsonRecord = Record<string, unknown>;
@@ -96,18 +96,8 @@ export function parseAdvert(html: string, pageUrl?: string) {
     .map(String)
     .filter((x, i, xs) => xs.indexOf(x) === i)
     .join(", ");
-  const baseSalary = record(job.baseSalary),
-    amount = record(baseSalary.value);
-  const currency = String(baseSalary.currency ?? job.salaryCurrency ?? ""),
-    symbol = ({ GBP: "£", EUR: "€", USD: "$" } as Record<string, string>)[currency];
-  const low =
-      amount.minValue ?? amount.value ?? (typeof baseSalary.value === "number" ? baseSalary.value : null),
-    high = amount.maxValue;
-  const unit = String(amount.unitText ?? "YEAR").toLowerCase();
-  const salary =
-    symbol && low !== null && low !== undefined
-      ? normaliseSalary(`${symbol}${low}${high !== undefined ? ` - ${symbol}${high}` : ""} per ${unit}`)
-      : null;
+  const statedSalary = structuredSalary(job.baseSalary, String(job.salaryCurrency ?? ""));
+  const salary = statedSalary === "Not stated" ? extractSalary(description) : statedSalary;
   let canonical: string | undefined;
   try {
     if (job.url) canonical = canonicalUrl(String(job.url), pageUrl);
@@ -156,7 +146,16 @@ export function advertPage(html: string, pageUrl: string) {
       if (href) canonical = canonicalUrl(href, pageUrl);
     } catch {}
   }
-  return { ...structured, description, logoCandidates, canonicalUrl: canonical };
+  return {
+    ...structured,
+    salary:
+      structured?.salary && structured.salary !== "Not stated"
+        ? structured.salary
+        : extractSalary(description),
+    description,
+    logoCandidates,
+    canonicalUrl: canonical,
+  };
 }
 export async function fetchAdvert(sourceUrl: string) {
   const page = await fetchPublicText(sourceUrl);

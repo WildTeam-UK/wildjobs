@@ -72,3 +72,81 @@ it("preserves a broken feed, imports the healthy source, and skips AI for an alr
     expect.objectContaining({ p_run_id: 7, p_error: "Unavailable board: Source HTTP 503" }),
   );
 });
+
+it("persists international advert pay through the existing single AI pass", async () => {
+  const job = {
+    id: 1,
+    feed_hash: "current",
+    processed_hash: null,
+    source_url: "https://trust.example.org/job/1",
+    salary_text: "Not stated",
+    organisation_name: "Nature Trust",
+    title: "Ranger",
+    feed_text: "Care for wildlife.",
+    location_text: "Toronto, Canada",
+    hours_type: "Full time",
+    contract_type: "Permanent",
+    workplace: "On-site",
+  };
+  const rpc = vi.fn(async (name: string, args?: { p_fields?: Record<string, unknown> }) => ({
+    data:
+      name === "claim_directory_run"
+        ? true
+        : name === "directory_pending_jobs"
+          ? [job]
+          : name === "apply_directory_job"
+            ? { ...job, ...args?.p_fields }
+            : null,
+    error: null,
+  }));
+  function from(table: string) {
+    const query = {
+      select: () => query,
+      eq: () => query,
+      is: () => query,
+      lte: () => query,
+      order: () => query,
+      limit: () => query,
+      insert: () => query,
+      update: () => query,
+      single: async () => ({ data: { id: 8 }, error: null }),
+      // oxlint-disable-next-line unicorn/no-thenable -- Models the Supabase query builder.
+      then: (resolve: (value: unknown) => unknown) =>
+        Promise.resolve({ data: [], error: null }).then(resolve),
+    };
+    void table;
+    return query;
+  }
+  mocks.client.mockReturnValue({ rpc, from });
+  mocks.read.mockResolvedValue({
+    url: job.source_url,
+    text: `<script type="application/ld+json">${JSON.stringify({
+      "@type": "JobPosting",
+      description: "Care for wildlife.",
+      baseSalary: { currency: "CAD", value: { minValue: "31.50", maxValue: "33.75", unitText: "HOUR" } },
+    })}</script>`,
+  });
+  const parse = vi.fn().mockResolvedValue({
+    output_parsed: {
+      jobs: [
+        {
+          id: 1,
+          summary: "Care for wildlife and maintain habitats.",
+          sector_slugs: [],
+          course_slugs: [],
+          salary_text: "£90000 per year",
+        },
+      ],
+    },
+    usage: { input_tokens: 100, output_tokens: 50 },
+  });
+  mocks.ai.mockImplementation(function () {
+    return { responses: { parse } };
+  });
+  expect(await syncDirectory()).toMatchObject({ status: "complete", ai_completed: 1 });
+  const writes = rpc.mock.calls.filter(([name]) => name === "apply_directory_job");
+  expect(writes).toHaveLength(2);
+  for (const [, args] of writes)
+    expect(args?.p_fields).toMatchObject({ salary_text: "CAD 31.50 – CAD 33.75 per hour", salary_min: 31.5 });
+  expect(parse).toHaveBeenCalledTimes(1);
+});

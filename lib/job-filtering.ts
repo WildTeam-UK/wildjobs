@@ -1,3 +1,4 @@
+import { minimumGbpSalary } from "./job-salary";
 import type { EmploymentType, EngagementType, Job, LocationType } from "./jobs";
 import type { Course } from "./courses";
 export type JobFilters = Readonly<{
@@ -43,7 +44,7 @@ export function filterJobs(items: readonly Job[], filters: JobFilters) {
       (!filters.locationType || job.locationType === filters.locationType) &&
       (!filters.engagementType || job.engagementType === filters.engagementType) &&
       (!filters.contractType || job.contractType === filters.contractType) &&
-      (!filters.minimumSalary || (job.salaryMinimum ?? 0) >= filters.minimumSalary) &&
+      (!filters.minimumSalary || (minimumGbpSalary(job) ?? 0) >= filters.minimumSalary) &&
       (!filters.employmentType ||
         [job.employmentType, job.contractType, job.hoursType, ...(job.hoursTypes ?? [])].includes(
           filters.employmentType,
