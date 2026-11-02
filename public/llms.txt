@@ -1,0 +1,20 @@
+# WildJobs
+
+> WildTeam's conservation jobs directory at https://jobs.wildteam.org.uk/.
+
+WildJobs brings together vacancies from public job feeds. Each job card links to the original advert, where candidates can check the full details and apply. WildJobs does not host individual job-detail pages or accept applications.
+
+Job summaries, sectors and course suggestions may be assisted by AI. The original advert is the authoritative source for requirements, salary, eligibility, location, application instructions and closing dates. Listings change as sources update and adverts expire; use the current directory rather than a cached vacancy list.
+
+Saving jobs requires no account. Shortlists are stored on the visitor's browser only and do not sync across devices. Public registration is currently closed.
+
+Some career-guide, sector and sample employer pages are design previews containing illustrative content. They are not authoritative career guidance or evidence about real employers and are omitted from the references below.
+
+## Public references
+
+- [Current conservation jobs](https://jobs.wildteam.org.uk/): Search and filter the current directory, then follow the original advert.
+- [Career areas](https://jobs.wildteam.org.uk/careers): Explore sectors using current vacancies.
+- [Employers](https://jobs.wildteam.org.uk/employers): Organisations represented by current directory listings.
+- [How we use AI](https://jobs.wildteam.org.uk/how-we-use-ai): Explanation of AI-assisted summaries, sectors and training suggestions.
+- [Sitemap](https://jobs.wildteam.org.uk/sitemap.xml): Public directory URLs intended for search indexing.
+
