@@ -1100,7 +1100,8 @@ export function JobBrowser({
           <div className="job-results" ref={resultsRef}>
             <div className="job-results__heading">
               <p aria-live="polite">
-                {filteredJobs.length} Currently available {filteredJobs.length === 1 ? "role" : "roles"}
+                <span aria-hidden="true">🌿</span> {filteredJobs.length} Currently available{" "}
+                {filteredJobs.length === 1 ? "role" : "roles"}
                 <span className="job-results__organisation-count">
                   {" "}
                   across {filteredOrganisationCount}{" "}

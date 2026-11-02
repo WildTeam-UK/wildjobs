@@ -1,6 +1,7 @@
 "use client";
 
 import { Fragment, useId, useState } from "react";
+import { ShareJobControl } from "@/components/share-job-control";
 import { DismissJobControl } from "@/components/dismiss-job-control";
 import { EmployerLogo } from "@/components/employer-logo";
 import { JobCard, JobFactIcon } from "@/components/job-card";
@@ -95,6 +96,9 @@ export function JobSplitView({
                       jobSlug={job.slug}
                       state={saveStateFor(job)}
                     />
+                    {job.sourceUrl ? (
+                      <ShareJobControl title={`${job.title} at ${job.organisation}`} url={job.sourceUrl} />
+                    ) : null}
                   </div>
                 </article>
               </div>

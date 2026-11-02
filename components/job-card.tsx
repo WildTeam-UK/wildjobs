@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ShareJobControl } from "@/components/share-job-control";
 import { DismissJobControl } from "@/components/dismiss-job-control";
 import type { CSSProperties } from "react";
 import { EmployerLogo } from "@/components/employer-logo";
@@ -142,7 +143,7 @@ export function JobCard({
             </div>
           ) : null}
         </div>
-        {compact && (statusPills.length || showSaveAction || onDismiss) ? (
+        {compact && (statusPills.length || showSaveAction || onDismiss || job.sourceUrl) ? (
           <div className="job-card__header-actions">
             {statusPills.length ? (
               <div className="job-card__status-pills job-card__status-pills--header" aria-label="Job notices">
@@ -168,6 +169,9 @@ export function JobCard({
                   state={saveState}
                 />
               </div>
+            ) : null}
+            {job.sourceUrl ? (
+              <ShareJobControl title={`${displayTitle} at ${job.organisation}`} url={job.sourceUrl} />
             ) : null}
           </div>
         ) : null}
