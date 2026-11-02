@@ -17,6 +17,7 @@ import {
   useState,
 } from "react";
 import { JobCard } from "@/components/job-card";
+import { JobSplitView } from "@/components/job-split-view";
 import { JobTrainingPromo } from "@/components/job-training-promo";
 import { courseBySlug, type Course } from "@/lib/courses";
 import type { CandidateSaveState } from "@/lib/candidate-saved-jobs";
@@ -553,6 +554,7 @@ export function JobBrowser({
   const [minimumSalary, setMinimumSalary] = useState(initialFilters.minimumSalary ?? 0);
   const [sortOrder, setSortOrder] = useState<JobSortOrder>(initialFilters.sortOrder ?? "relevance");
   const [currentPage, setCurrentPage] = useState(initialPage);
+  const [layout, setLayout] = useState<"list" | "grid">("list");
   const filterBarRef = useRef<HTMLDivElement>(null);
   const filterPillsRef = useRef<HTMLDivElement>(null);
   const filterValues = {
@@ -1025,24 +1027,54 @@ export function JobBrowser({
                   {filteredOrganisationCount === 1 ? "organisation" : "organisations"}
                 </span>
               </p>
-              <div className="job-sort-control job-sort-control--results">
-                <FilterDropdown
-                  accessibleLabel="Sort jobs"
-                  className="job-sort-dropdown"
-                  clearLabel="Recommended"
-                  icon="sort"
-                  onChange={(value) => {
-                    const nextValue = (value || "relevance") as JobSortOrder;
-                    setSortOrder(nextValue);
-                    syncUrl(currentFilters({ sortOrder: nextValue }));
-                  }}
-                  options={[
-                    { label: "Newest first", value: "newest" },
-                    { label: "Closing soon", value: "closing" },
-                  ]}
-                  placeholder="Recommended"
-                  value={sortOrder === "relevance" ? "" : sortOrder}
-                />
+              <div className="job-results__controls">
+                <div className="job-layout-switch" role="group" aria-label="Job card layout">
+                  <button
+                    aria-label="List layout"
+                    aria-pressed={layout === "list"}
+                    onClick={() => setLayout("list")}
+                    title="List layout"
+                    type="button"
+                  >
+                    <svg aria-hidden="true" viewBox="0 0 24 24">
+                      <rect x="3" y="4" width="18" height="6" rx="1.5" />
+                      <rect x="3" y="14" width="18" height="6" rx="1.5" />
+                      <path d="M8 4v6M8 14v6" />
+                    </svg>
+                  </button>
+                  <button
+                    aria-label="Grid layout"
+                    aria-pressed={layout === "grid"}
+                    onClick={() => setLayout("grid")}
+                    title="Grid layout"
+                    type="button"
+                  >
+                    <svg aria-hidden="true" viewBox="0 0 24 24">
+                      <rect x="3" y="4" width="7" height="6" rx="1.5" />
+                      <rect x="3" y="14" width="7" height="6" rx="1.5" />
+                      <rect x="14" y="4" width="7" height="16" rx="1.5" />
+                    </svg>
+                  </button>
+                </div>
+                <div className="job-sort-control job-sort-control--results">
+                  <FilterDropdown
+                    accessibleLabel="Sort jobs"
+                    className="job-sort-dropdown"
+                    clearLabel="Recommended"
+                    icon="sort"
+                    onChange={(value) => {
+                      const nextValue = (value || "relevance") as JobSortOrder;
+                      setSortOrder(nextValue);
+                      syncUrl(currentFilters({ sortOrder: nextValue }));
+                    }}
+                    options={[
+                      { label: "Newest first", value: "newest" },
+                      { label: "Closing soon", value: "closing" },
+                    ]}
+                    placeholder="Recommended"
+                    value={sortOrder === "relevance" ? "" : sortOrder}
+                  />
+                </div>
               </div>
             </div>
             {selectedCourses.length ? (
@@ -1067,7 +1099,18 @@ export function JobBrowser({
                 </p>
               </div>
             ) : null}
-            {filteredJobs.length ? (
+            {filteredJobs.length && layout === "grid" ? (
+              <JobSplitView
+                jobs={paginatedJobs}
+                saveStateFor={(job) =>
+                  candidateSaveState.isSignedIn && job.id && savedJobIds.has(job.id)
+                    ? "saved"
+                    : candidateSaveState.isSignedIn
+                      ? "available"
+                      : "signed-out"
+                }
+              />
+            ) : filteredJobs.length ? (
               <div className="job-list">
                 {paginatedJobs.map((job, index) => {
                   const resultIndex = pageStart + index;
