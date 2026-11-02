@@ -2,7 +2,7 @@
   --tpl-teal: #246561;
   --tpl-soft-pink: #fff3f9;
   --tpl-soft-purple: #f5eff7;
-  background: #faf9f7;
+  background: var(--wt-color-paper);
   color: var(--wt-color-surface-charcoal);
 }
 .template-design .action {

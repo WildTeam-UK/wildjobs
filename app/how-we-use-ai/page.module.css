@@ -1,5 +1,5 @@
 .page {
-  background: #faf9f7;
+  background: var(--wt-color-paper);
   color: var(--wt-color-surface-charcoal);
   padding-bottom: 80px;
 }
@@ -83,7 +83,7 @@
   width: 26px;
   height: 26px;
   padding: 5px;
-  background: #faf9f7;
+  background: var(--wt-color-paper);
   color: var(--wt-color-brand-pink);
 }
 .card {
