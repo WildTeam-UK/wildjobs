@@ -44,6 +44,11 @@ a[role="button"],
 .wt-button {
   text-transform: uppercase;
 }
+.job-filter-pill__trigger,
+.job-filter-menu__option,
+.job-filter-clear {
+  text-transform: none;
+}
 :focus-visible {
   outline: 3px solid var(--wt-color-brand-pink);
   outline-offset: 3px;

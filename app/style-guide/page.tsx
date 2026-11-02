@@ -100,8 +100,8 @@ export default function StyleGuidePage() {
             <p className="eyebrow">03 — Buttons and links</p>
             <h2 id="guide-actions">Pink first, purple on hover</h2>
             <p>
-              All button labels use uppercase. White actions become pink on hover. Every action keeps a
-              strong, visible keyboard focus state.
+              Action button labels use uppercase. Filters and sort controls keep their natural casing. White
+              actions become pink on hover. Every action keeps a strong, visible keyboard focus state.
             </p>
           </div>
           <div className="guide-demo guide-demo--dark">
