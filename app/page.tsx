@@ -64,6 +64,7 @@ export default async function HomePage({ searchParams }: { searchParams: SearchP
         initialPage={Number.isInteger(page) && page > 0 ? page : 1}
         jobs={jobs}
         initialFilters={{
+          roleSlug: valueOf(params.role),
           query: valueOf(params.q),
           locationQuery: valueOf(params.place),
           locationType: locationTypes.includes(location as LocationType) ? (location as LocationType) : "",

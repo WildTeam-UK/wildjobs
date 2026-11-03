@@ -10,6 +10,7 @@ export type JobFilters = Readonly<{
   contractType: string;
   minimumSalary: number;
   category: string;
+  roleSlug?: string;
   courseSlugs: readonly string[];
 }>;
 function normalise(value: string) {
@@ -39,6 +40,7 @@ export function filterJobs(items: readonly Job[], filters: JobFilters) {
     const matchesCountry =
       ["gb", "great britain", "uk", "united kingdom"].includes(locationQuery) && job.countryCode === "GB";
     return (
+      (!filters.roleSlug || job.roleSlug === filters.roleSlug) &&
       (!query || searchable.includes(query)) &&
       (!locationQuery || location.includes(locationQuery) || matchesCountry) &&
       (!filters.locationType || job.locationType === filters.locationType) &&

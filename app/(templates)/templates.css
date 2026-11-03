@@ -12,6 +12,68 @@
 .tpl-hero {
   padding-block: 48px;
 }
+.guide-review-note {
+  margin-top: 24px;
+  color: var(--wt-color-muted);
+  font-size: 0.88rem;
+}
+.guide-citations {
+  white-space: nowrap;
+  font-size: 0.8em;
+}
+.guide-citations a {
+  margin-inline: 2px;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.guide-methodology {
+  padding: 24px;
+  border: 1px solid var(--wt-color-rule);
+  border-radius: var(--wt-radius-panel);
+  background: var(--wt-color-paper);
+}
+.guide-methodology h3 {
+  margin-top: 0;
+}
+.guide-salary-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-block: 22px;
+  font-size: 0.9rem;
+}
+.guide-salary-table caption {
+  text-align: left;
+  font-weight: var(--wt-font-weight-bold);
+  margin-bottom: 12px;
+}
+.guide-salary-table th,
+.guide-salary-table td {
+  padding: 12px 8px;
+  text-align: left;
+  border-bottom: 1px solid var(--wt-color-rule);
+}
+.guide-practical-list {
+  padding-left: 22px;
+}
+.guide-practical-list strong {
+  font-size: 1.1rem;
+}
+.guide-advert-sources {
+  padding-block: 20px;
+  border-block: 1px solid var(--wt-color-rule);
+  margin-block: 24px;
+}
+.guide-advert-sources summary {
+  cursor: pointer;
+  font-weight: var(--wt-font-weight-bold);
+}
+.guide-advert-sources li {
+  margin-bottom: 12px;
+  overflow-wrap: anywhere;
+}
+.tpl-source-list li {
+  scroll-margin-top: 180px;
+}
 .tpl-hero__grid {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
