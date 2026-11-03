@@ -64,7 +64,7 @@ export function JobActionTooltip({
         hovered.current = true;
         setSuppressed(false);
         clearHoverTimer();
-        hoverTimer.current = setTimeout(() => setOpen(true), 350);
+        hoverTimer.current = setTimeout(() => setOpen(true), 1000);
       }}
       onPointerLeave={() => {
         hovered.current = false;
