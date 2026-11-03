@@ -34,14 +34,9 @@
   display: inline-flex;
   gap: 12px;
 }
-.guide-breadcrumbs a,
-.guide-byline a {
+.guide-breadcrumbs a {
   text-decoration: underline;
   text-underline-offset: 3px;
-}
-.guide-byline {
-  color: var(--wt-color-muted);
-  font-size: 0.9rem;
 }
 .tpl-photo--illustration img {
   background: var(--tpl-soft-purple);
@@ -49,6 +44,137 @@
 .guide-role-examples li p {
   font-size: 0.8rem;
   margin-top: 4px;
+}
+.guide-opportunities {
+  display: grid;
+  gap: 18px;
+}
+.guide-job {
+  padding: 26px;
+  border: 1px solid var(--wt-color-rule);
+  border-radius: var(--wt-radius-panel);
+  background: var(--wt-color-paper);
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease,
+    transform 160ms ease;
+}
+.guide-job:hover {
+  border-color: var(--wt-color-brand-pink);
+  box-shadow: 0 18px 38px rgb(31 21 28 / 8%);
+  transform: translateY(-2px);
+}
+.guide-job__header {
+  display: grid;
+  grid-template-columns: 72px minmax(0, 1fr);
+  align-items: center;
+  gap: 18px;
+}
+.guide-job__logo,
+.guide-job__monogram {
+  display: grid;
+  width: 72px;
+  aspect-ratio: 1;
+  place-items: center;
+}
+.guide-job__logo img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.guide-job__monogram {
+  border: 1px solid var(--wt-color-rule);
+  border-radius: var(--wt-radius-control);
+  color: var(--wt-color-brand-purple);
+  font-size: 0.85rem;
+}
+.guide-job .guide-job__header h3 {
+  margin: 0;
+  color: var(--wt-color-surface-charcoal);
+  font-size: 1.25rem;
+  line-height: 1.15;
+  overflow-wrap: anywhere;
+}
+.guide-job p.guide-job__organisation {
+  margin: 5px 0 0;
+  color: var(--wt-color-muted);
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+.guide-job__facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px 30px;
+  margin: 24px 0;
+}
+.guide-job__facts > div {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+.guide-job__facts dt {
+  display: flex;
+  flex: 0 0 20px;
+}
+.guide-job__facts svg {
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: var(--wt-color-brand-purple);
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.guide-job__facts dd {
+  margin: 0;
+  font-size: 0.86rem;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+.guide-job__footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px 20px;
+}
+.guide-job__footer .action {
+  padding: 13px 18px;
+  font-size: 0.75rem;
+}
+.guide-job .guide-job__footer p {
+  margin: 0 0 0 auto;
+  color: var(--wt-color-muted);
+  font-size: 0.76rem;
+  line-height: 1.4;
+}
+@media (max-width: 560px) {
+  .guide-job {
+    padding: 21px;
+  }
+  .guide-job__header {
+    grid-template-columns: 56px minmax(0, 1fr);
+    gap: 14px;
+  }
+  .guide-job__logo,
+  .guide-job__monogram {
+    width: 56px;
+  }
+  .guide-job .guide-job__header h3 {
+    font-size: 1.15rem;
+  }
+  .guide-job__facts {
+    display: grid;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .guide-job {
+    transition: none;
+  }
+  .guide-job:hover {
+    transform: none;
+  }
 }
 .guide-citations {
   white-space: nowrap;
@@ -161,16 +287,6 @@
   object-fit: cover;
   border-radius: var(--wt-radius-panel);
 }
-.tpl-photo figcaption {
-  margin-top: 10px;
-  color: var(--wt-color-muted);
-  font-size: 0.66rem;
-  text-align: right;
-}
-.tpl-photo figcaption a {
-  text-decoration: underline;
-  text-underline-offset: 3px;
-}
 .tpl-stats {
   padding: 28px 32px;
   border: 1px solid var(--wt-color-rule);
@@ -261,27 +377,6 @@
 }
 .tpl-contents nav a:hover {
   color: var(--wt-color-brand-pink);
-}
-.tpl-contents__course {
-  margin-top: 25px;
-  padding: 23px 21px;
-  border-radius: var(--wt-radius-panel);
-  background: var(--tpl-soft-purple);
-}
-.tpl-contents__course h3 {
-  margin: 12px 0;
-  color: var(--wt-color-brand-purple);
-  font-size: 1.35rem;
-  line-height: 1.1;
-}
-.tpl-contents__course p {
-  font-size: 0.86rem;
-}
-.tpl-contents__course a {
-  font-size: 0.79rem;
-  color: var(--wt-color-brand-purple);
-  text-decoration: underline;
-  text-underline-offset: 4px;
 }
 .tpl-sparkle {
   width: 20px;
@@ -1151,7 +1246,7 @@
     padding: 0;
     white-space: nowrap;
   }
-  .tpl-contents__course {
+  .tpl-contents > .tpl-training-banner--compact {
     display: none;
   }
   .tpl-role-grid,

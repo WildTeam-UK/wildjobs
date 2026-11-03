@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { EditorialImageCredit } from "@/components/editorial-image-credit";
 import "./training-banner.css";
 import type { ReactNode } from "react";
 import { formatSalaryLabel } from "@/lib/job-salary";
@@ -69,17 +70,12 @@ export function TemplatePhoto({
         sizes="(max-width: 800px) 100vw, 60vw"
         preload={priority}
       />
-      <figcaption>
-        <a
-          href={
-            woodland ? "https://unsplash.com/photos/pN3Z2usSIQw" : "https://unsplash.com/photos/2lPR-5MUliw"
-          }
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          {woodland ? "Darren Bockman" : "Pascal Debrunner"} / Unsplash
-        </a>
-      </figcaption>
+      <EditorialImageCredit
+        creatorName={woodland ? "Darren Bockman" : "Pascal Debrunner"}
+        sourceUrl={
+          woodland ? "https://unsplash.com/photos/pN3Z2usSIQw" : "https://unsplash.com/photos/2lPR-5MUliw"
+        }
+      />
     </figure>
   );
 }
@@ -178,14 +174,7 @@ export function GuideContents({ items }: { items: readonly { id: string; label: 
           </a>
         ))}
       </nav>
-      <div className="tpl-contents__course">
-        <Sparkle />
-        <h3>A good place to start</h3>
-        <p>Make a plan for your next move with our free career course.</p>
-        <a href={careerCourseUrl} target="_blank" rel="noopener noreferrer">
-          Start learning, free
-        </a>
-      </div>
+      <TrainingBanner compact courseTheme="green" />
     </aside>
   );
 }
@@ -193,37 +182,50 @@ export function GuideContents({ items }: { items: readonly { id: string; label: 
 export function TrainingBanner({
   membership = false,
   courseTheme = "brand",
+  compact = false,
 }: {
   membership?: boolean;
   courseTheme?: "brand" | "green";
+  compact?: boolean;
 }) {
   const greenCourse = !membership && courseTheme === "green";
+  const Heading = compact ? "h3" : "h2";
   return (
     <aside
-      className={`tpl-training-banner${membership ? " tpl-training-banner--membership" : greenCourse ? " tpl-training-banner--green" : ""}`}
+      className={`tpl-training-banner${membership ? " tpl-training-banner--membership" : greenCourse ? " tpl-training-banner--green" : ""}${compact ? " tpl-training-banner--compact" : ""}`}
     >
       <div>
         <p className="eyebrow">{membership ? "WildTeam memberships" : "Free WildTeam course"}</p>
-        <h2>
-          {membership ? "Keep growing and keep making a difference" : "Your next chapter starts with a plan"}
-        </h2>
-        <p>
-          {membership ? (
-            "Build practical skills across conservation. Explore membership for access to WildTeam’s course collection."
-          ) : (
-            <>
-              Find your direction, prepare your application and approach your next move with purpose. Start{" "}
-              <strong>Launching Your Career in Wildlife Conservation.</strong>
-            </>
-          )}
-        </p>
+        <Heading>
+          {membership
+            ? "Keep growing and keep making a difference"
+            : compact
+              ? "Launching your career in conservation"
+              : "Your next chapter starts with a plan"}
+        </Heading>
+        {!compact ? (
+          <p>
+            {membership ? (
+              "Build practical skills across conservation. Explore membership for access to WildTeam’s course collection."
+            ) : (
+              <>
+                Find your direction, prepare your application and approach your next move with purpose. Start{" "}
+                <strong>Launching Your Career in Wildlife Conservation.</strong>
+              </>
+            )}
+          </p>
+        ) : null}
         <a
           className="action"
           href={membership ? membershipUrl : careerCourseUrl}
           target="_blank"
           rel="noopener noreferrer"
         >
-          {membership ? "Explore memberships" : "Start the free career course"}{" "}
+          {membership
+            ? "Explore memberships"
+            : compact
+              ? "Start learning, free"
+              : "Start the free career course"}
         </a>
       </div>
       <div className="tpl-training-banner__art" aria-hidden="true">
@@ -242,7 +244,7 @@ export function TrainingBanner({
             }
             alt=""
             fill
-            sizes="(max-width: 1000px) 100vw, 400px"
+            sizes={compact ? "(max-width: 1000px) 180px, 230px" : "(max-width: 1000px) 100vw, 400px"}
           />
         )}
       </div>

@@ -49,7 +49,6 @@ const careers: readonly { title: string; description: string; href?: string }[] 
 
 export default async function CareerGuidesPage() {
   const reviewed = await getReviewedGuideIndex();
-  const reviewedSlugs = new Set(reviewed.map(({ guide }) => guide.slug));
   return (
     <main className={styles.page}>
       <script
@@ -89,9 +88,6 @@ export default async function CareerGuidesPage() {
                   />
                 </div>
                 <h2>{sector.title}</h2>
-                <span className={styles.sectorStatus}>
-                  {reviewedSlugs.has(sector.image) ? "Read the guide" : "Guide preview"}
-                </span>
               </>
             );
             return sector.href ? (

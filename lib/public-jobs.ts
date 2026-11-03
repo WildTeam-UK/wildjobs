@@ -91,3 +91,19 @@ export const getPublicJobs = cache(async (): Promise<readonly Job[]> => {
   }
   return mapDirectoryJobs(records);
 });
+
+export async function getPublicJobsByIds(ids: readonly number[]): Promise<readonly Job[]> {
+  if (!ids.length) return [];
+  await connection();
+  const { data, error } = await createPublicClient()
+    .from("directory_jobs")
+    .select("*")
+    .in("id", ids)
+    .eq("is_active", true)
+    .is("merged_into", null)
+    .or(liveDirectoryDateFilter())
+    .order("posted_at", { ascending: false })
+    .order("id");
+  if (error) throw new Error("Current guide opportunities could not be loaded.");
+  return mapDirectoryJobs(data);
+}

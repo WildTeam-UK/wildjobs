@@ -1,5 +1,8 @@
 .page {
-  padding-block: 56px 80px;
+  padding-bottom: 80px;
+}
+.section:first-of-type {
+  padding-top: 48px;
 }
 .section + .section {
   margin-top: 76px;
@@ -150,9 +153,14 @@ a.sectorTile:hover h2 {
     font-size: 16px;
   }
 }
+@media (max-width: 800px) {
+  .section:first-of-type {
+    padding-top: 35px;
+  }
+}
 @media (max-width: 600px) {
   .page {
-    padding-block: 36px 48px;
+    padding-bottom: 48px;
   }
   .section + .section {
     margin-top: 48px;
@@ -220,10 +228,4 @@ a.sectorTile:hover h2 {
   .sectorTile:focus-visible .sectorImage {
     transform: scale(1.025);
   }
-}
-.sectorStatus {
-  display: block;
-  margin-top: 8px;
-  color: var(--wt-color-brand-purple);
-  font-size: 0.8rem;
 }
