@@ -9,6 +9,7 @@ import { normalizeRoleTitle, roleMatchingVersion, type RoleAlias } from "./caree
 import { fetchAdvert } from "./directory-advert";
 import { sanitizeGuideEvidenceText } from "./guide-evidence-privacy";
 import type { Json } from "./supabase/database.types";
+import { isCareerRoleSlug, type CareerRoleSlug } from "./career-role-catalog";
 
 export const guideReviewDays = 90;
 export function guideSourcesCurrent(guide: GuideContent, now = new Date()) {
@@ -32,7 +33,39 @@ export async function guideWorkspace() {
   if (guideSchemaUnavailable(aliases.error) || guideSchemaUnavailable(revisions.error))
     return { jobs, aliases: [], revisions: [], schemaReady: false };
   if (aliases.error || revisions.error) throw new Error("Guide review information could not be loaded.");
-  return { jobs, aliases: aliases.data, revisions: revisions.data, schemaReady: true };
+  const retained = new Set<string>();
+  // Retained history grows indefinitely; only fetch metadata for this window's
+  // canonical jobs. Bounded ID batches also keep Data API URLs a safe size.
+  for (let offset = 0; offset < jobs.length; offset += 200) {
+    const jobIds = jobs.slice(offset, offset + 200).map((job) => job.id);
+    for (let from = 0; ; from += 1000) {
+      const evidence = await db
+        .from("directory_guide_evidence")
+        .select("job_id,feed_hash,is_detailed")
+        .in("job_id", jobIds)
+        .eq("is_detailed", true)
+        .order("job_id")
+        .order("feed_hash")
+        .range(from, from + 999);
+      if (
+        guideSchemaUnavailable(evidence.error) ||
+        ["42703", "PGRST204"].includes(evidence.error?.code ?? "")
+      )
+        return { jobs, aliases: aliases.data, revisions: revisions.data, schemaReady: false };
+      if (evidence.error) throw new Error("Retained advert evidence could not be checked.");
+      for (const row of evidence.data) retained.add(`${row.job_id}:${row.feed_hash}`);
+      if (evidence.data.length < 1000) break;
+    }
+  }
+  return {
+    jobs: jobs.map((job) => ({
+      ...job,
+      retained_evidence_hash: retained.has(`${job.id}:${job.feed_hash}`) ? job.feed_hash : null,
+    })),
+    aliases: aliases.data,
+    revisions: revisions.data,
+    schemaReady: true,
+  };
 }
 
 export function guideEvidence(
@@ -58,6 +91,7 @@ export function guideEvidence(
       fullTimeEvidence: job.salary_full_time_evidence,
       salaryEvidenceHash: job.salary_evidence_hash,
       feedHash: job.feed_hash,
+      retainedEvidenceHash: job.retained_evidence_hash ?? null,
     }));
   const inputHash = hash({
     // Source files and JSONB can present the same fields in a different order.
@@ -100,7 +134,9 @@ export async function refreshPilotDrafts(forceSlug?: string) {
     const guide = validateGuideContent(definition);
     const { market, inputHash, snapshot } = guideEvidence(guide, workspace.jobs, workspace.aliases);
     if (guide.kind === "sector" && !market.history.length) continue;
-    if ((guide.kind === "career" && !market.draftEligible) || !guideSourcesCurrent(guide)) continue;
+    // Crossing the threshold should still enter research review when baseline
+    // sources have aged. Publication independently rejects overdue research.
+    if (guide.kind === "career" && !market.draftEligible) continue;
     const existing = workspace.revisions.filter((r) => r.guide_slug === guide.slug);
     if (existing.some((r) => r.status === "published" && r.input_hash === inputHash)) continue;
     // No advert can replace a pending editorial draft. Explicit refresh archives it
@@ -255,16 +291,15 @@ export async function collectPilotAdverts() {
   return pending.length;
 }
 
-export async function setRoleAlias(title: string, include: boolean) {
+export async function setRoleAlias(title: string, roleSlug: CareerRoleSlug | null) {
   const normalized = normalizeRoleTitle(title);
   if (!normalized || normalized.length > 300) throw new Error("Choose a valid job title.");
-  const result = await createTrustedClient()
-    .from("directory_role_aliases")
-    .upsert({
-      normalized_title: normalized,
-      role_slug: include ? "ecologist" : null,
-      updated_at: new Date().toISOString(),
-    });
+  if (roleSlug !== null && !isCareerRoleSlug(roleSlug)) throw new Error("Choose a supported occupation.");
+  const result = await createTrustedClient().from("directory_role_aliases").upsert({
+    normalized_title: normalized,
+    role_slug: roleSlug,
+    updated_at: new Date().toISOString(),
+  });
   if (result.error) throw new Error("The reviewed role mapping could not be saved.");
 }
 

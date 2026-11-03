@@ -16,11 +16,13 @@ import { pilotGuides, sectorGuides } from "../lib/guide-content";
 const now = new Date("2026-11-03T12:00:00Z");
 let revisions: GuideRevision[], jobs: GuideJob[];
 let nextId: number;
+let retained: { job_id: number; feed_hash: string; is_detailed: boolean }[];
 beforeEach(() => {
   vi.useFakeTimers();
   vi.setSystemTime(now);
   revisions = [];
   nextId = 1;
+  retained = [];
   jobs = Array.from({ length: 10 }, (_, id) => ({
     id,
     title: "Ecologist",
@@ -47,6 +49,8 @@ beforeEach(() => {
     const query = {
       select: () => query,
       order: () => query,
+      range: () => query,
+      in: () => query,
       eq: (key: string, value: unknown) => {
         filters.push([key, value]);
         return query;
@@ -61,6 +65,8 @@ beforeEach(() => {
       },
       // oxlint-disable-next-line unicorn/no-thenable -- Models the Supabase builder at the database boundary.
       then: (resolve: (result: unknown) => unknown) => {
+        if (table === "directory_guide_evidence")
+          return Promise.resolve({ data: retained.filter((r) => r.is_detailed), error: null }).then(resolve);
         if (table !== "career_guide_revisions")
           return Promise.resolve({ data: [], error: null }).then(resolve);
         if (update)
@@ -168,6 +174,30 @@ it("does not queue sector evidence drafts without matching adverts", async () =>
   await refreshPilotDrafts();
   expect(revisions).toEqual([]);
 });
+it("queues a new role only when its tenth usable retained advert arrives and never overwrites the pending draft", async () => {
+  jobs = jobs.map((job, id) => ({
+    ...job,
+    title: "Project Officer",
+    feed_text: "Brief feed excerpt",
+    feed_hash: `hash-${id}`,
+  }));
+  retained = jobs
+    .slice(0, 9)
+    .map((job) => ({ job_id: job.id, feed_hash: job.feed_hash!, is_detailed: true }));
+  await refreshPilotDrafts("project-officer");
+  expect(revisions).toEqual([]);
+  retained.push({ job_id: jobs[9].id, feed_hash: jobs[9].feed_hash!, is_detailed: true });
+  await refreshPilotDrafts();
+  const draft = revisions.find((r) => r.guide_slug === "project-officer")!;
+  expect(draft).toMatchObject({ status: "draft", reviewed_at: null });
+  expect(draft.evidence).toMatchObject({ qualifiedAdverts: 10 });
+  const fingerprint = draft.input_hash;
+  jobs[0] = { ...jobs[0], title: "Senior Project Officer" };
+  await refreshPilotDrafts();
+  expect(revisions.filter((r) => r.guide_slug === "project-officer")).toHaveLength(1);
+  expect(draft.input_hash).toBe(fingerprint);
+  expect(draft.status).toBe("draft");
+});
 it("does not mistake equivalent content field order for changed evidence", () => {
   const guide = sectorGuides.find((g) => g.slug === "ecology")!;
   const reordered = {
@@ -183,4 +213,14 @@ it("does not mistake equivalent content field order for changed evidence", () =>
   expect(guideEvidence(reordered, jobs, [], now).inputHash).toBe(
     guideEvidence(guide, jobs, [], now).inputHash,
   );
+});
+it("queues overdue research for private review but blocks its publication", async () => {
+  vi.setSystemTime(new Date("2027-03-01T12:00:00Z"));
+  await refreshPilotDrafts("ecologist");
+  expect(revisions).toHaveLength(1);
+  expect(revisions[0].status).toBe("draft");
+  await expect(publishPilotDraft(revisions[0].id, revisions[0].input_hash)).rejects.toThrow(
+    "source review needs attention",
+  );
+  expect(revisions[0].status).toBe("draft");
 });

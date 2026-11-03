@@ -4,6 +4,7 @@ import { Button } from "@wildteam-uk/ui";
 import { createPortal, flushSync } from "react-dom";
 import { SectorIcon } from "./sector-icon";
 import { minimumGbpSalary } from "@/lib/job-salary";
+import { careerRoleLabels, isCareerRoleSlug } from "@/lib/career-role-catalog";
 import { directoryDeadline } from "@/lib/directory-lifecycle";
 import {
   Fragment,
@@ -1110,7 +1111,7 @@ export function JobBrowser({
           <div className="job-results" ref={resultsRef}>
             {roleSlug ? (
               <p className="course-match-note">
-                Career role: {roleSlug === "ecologist" ? "Ecologist" : roleSlug}{" "}
+                Career role: {isCareerRoleSlug(roleSlug) ? careerRoleLabels[roleSlug] : roleSlug}{" "}
                 <button
                   className="job-filter-clear"
                   type="button"

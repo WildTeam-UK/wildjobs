@@ -1,3 +1,4 @@
+import type { CareerRoleSlug } from "./career-role-catalog";
 // Public guide URLs and directory taxonomy are deliberately separate.
 export const sectorGuideSlugs = [
   "carbon-climate-energy",
@@ -30,8 +31,8 @@ export function guideSectorMatchSlug(slug: SectorGuideSlug) {
   return slug === "wildlife-conservation" ? "conservation-wildlife" : slug;
 }
 export const relatedGuideSlugs: Record<
-  SectorGuideSlug | "ecologist",
-  readonly (SectorGuideSlug | "ecologist")[]
+  SectorGuideSlug | CareerRoleSlug,
+  readonly (SectorGuideSlug | CareerRoleSlug)[]
 > = {
   "wildlife-conservation": ["ecologist", "ecology"],
   "carbon-climate-energy": ["sustainability", "sustainable-transport"],
@@ -45,4 +46,9 @@ export const relatedGuideSlugs: Record<
   sustainability: ["environmental-management", "carbon-climate-energy"],
   "sustainable-transport": ["carbon-climate-energy", "policy-campaigning"],
   ecologist: ["ecology", "wildlife-conservation"],
+  "project-manager": ["project-officer", "wildlife-conservation"],
+  "project-officer": ["project-manager", "environmental-management"],
+  "environmental-educator": ["environmental-education", "wildlife-conservation"],
+  biologist: ["ecologist", "marine-conservation"],
+  "chief-executive": ["policy-campaigning", "project-manager"],
 };

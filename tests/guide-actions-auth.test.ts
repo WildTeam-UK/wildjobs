@@ -25,3 +25,12 @@ it("rejects direct unauthenticated mutations before any guide or role write", as
   for (const write of [mocks.refresh, mocks.collect, mocks.publish, mocks.alias])
     expect(write).not.toHaveBeenCalled();
 });
+it("requires a supported family before a staff role-confirmation can reach the database", async () => {
+  mocks.staff.mockResolvedValue(undefined);
+  const form = new FormData();
+  form.set("job_id", "1");
+  form.set("decision", "include");
+  form.set("role_slug", "arbitrary-unresearched-role");
+  await expect(reviewRole(form)).rejects.toThrow("Choose an occupation family");
+  expect(mocks.alias).not.toHaveBeenCalled();
+});

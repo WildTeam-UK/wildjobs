@@ -26,10 +26,10 @@ vi.mock("../lib/public-guides", () => ({
 import { generateMetadata } from "../app/(templates)/conservation-sector/[slug]/page";
 afterEach(() => vi.unstubAllEnvs());
 
-it("has one guide for every sector, with distinct URLs and no extra career families", () => {
+it("preserves every sector and the pilot while expanding the career catalogue", () => {
   expect(sectorGuides.map((g) => g.slug).toSorted()).toEqual([...sectorGuideSlugs].toSorted());
-  expect(new Set(guideCatalog.map(guidePath)).size).toBe(12);
-  expect(guideCatalog.filter((g) => g.kind === "career")).toEqual([pilotGuides[1]]);
+  expect(new Set(guideCatalog.map(guidePath)).size).toBe(17);
+  expect(guideCatalog.filter((g) => g.kind === "career")).toContain(pilotGuides[1]);
   expect(
     generateStaticParams()
       .map((g) => g.slug)
@@ -38,7 +38,6 @@ it("has one guide for every sector, with distinct URLs and no extra career famil
 });
 it.each(sectorGuides)("connects $slug to the right jobs, sources, image and review gate", async (guide) => {
   expect(validateGuideContent(guide)).toEqual(guide);
-  if (guide.slug === "ecologist") throw new Error("Unexpected career");
   expect(guide.matchSlug).toBe(guideSectorMatchSlug(guide.slug));
   const query = new URL(guideJobsPath(guide), "https://example.test").searchParams;
   expect(query.get("sector")).toBe(guideSectorLabels[guide.slug]);
@@ -56,7 +55,10 @@ it.each(sectorGuides)("connects $slug to the right jobs, sources, image and revi
   expect(metadata.alternates?.canonical).toBe(`/conservation-sector/${guide.slug}`);
 });
 it("allows exactly the application catalogue in the revision constraint", () => {
-  const migration = readFileSync("supabase/migrations/20261103154540_remaining_sector_guides.sql", "utf8");
-  const allowed = [...migration.matchAll(/'([a-z][a-z-]+)'/g)].map((m) => m[1]);
+  const migration = readFileSync("supabase/migrations/20261103172307_career_guide_expansion.sql", "utf8");
+  const constraint = migration.match(
+    /career_guide_revisions_guide_slug_check check \(guide_slug in \(([\s\S]*?)\)\)/,
+  )![1];
+  const allowed = [...constraint.matchAll(/'([a-z][a-z-]+)'/g)].map((m) => m[1]);
   expect(allowed.toSorted()).toEqual(guideCatalog.map((g) => g.slug).toSorted());
 });
