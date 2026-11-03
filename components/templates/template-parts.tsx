@@ -1,4 +1,5 @@
 import Image from "next/image";
+import "./training-banner.css";
 import type { ReactNode } from "react";
 import { formatSalaryLabel } from "@/lib/job-salary";
 

@@ -402,103 +402,6 @@
 .tpl-article .tpl-small {
   font-size: 0.78rem;
 }
-.tpl-training-banner {
-  display: grid;
-  grid-template-columns: minmax(0, 1.35fr) minmax(220px, 0.8fr);
-  overflow: hidden;
-  margin-block: 36px;
-  border: 1px solid #ead2e3;
-  border-radius: var(--wt-radius-panel);
-  background: var(--tpl-soft-pink);
-}
-.tpl-training-banner > div:first-child {
-  padding: 35px;
-}
-.tpl-training-banner h2 {
-  margin: 0 0 16px;
-  color: var(--wt-color-brand-purple);
-  font-size: clamp(1.8rem, 2.6vw, 2.55rem);
-  line-height: 1.02;
-  letter-spacing: -0.02em;
-}
-.tpl-training-banner p {
-  color: #62505f;
-  font-size: 0.94rem;
-  line-height: 1.55;
-}
-.tpl-training-banner .action {
-  margin-top: 6px;
-  font-size: 0.85rem;
-}
-.tpl-training-banner__art {
-  position: relative;
-  min-height: 270px;
-  overflow: hidden;
-}
-.tpl-training-banner__art img {
-  object-fit: cover;
-}
-.tpl-training-banner--green {
-  --wt-career-course-primary: #9aca3c;
-  --wt-career-course-secondary: #62a73b;
-  --wt-career-course-ink: color-mix(in srgb, var(--wt-career-course-secondary) 65%, var(--wt-color-ink));
-  border-color: color-mix(in srgb, var(--wt-career-course-secondary) 30%, white);
-  background: color-mix(in srgb, var(--wt-career-course-primary) 12%, white);
-}
-.tpl-training-banner--green h2,
-.tpl-training-banner--green .eyebrow {
-  color: var(--wt-career-course-ink);
-}
-.tpl-training-banner--green p {
-  color: #38472e;
-}
-.tpl-training-banner--green .action {
-  background: var(--wt-career-course-primary);
-  color: var(--wt-color-ink);
-}
-.tpl-training-banner--green .action:hover {
-  background: var(--wt-career-course-secondary);
-  color: var(--wt-color-ink);
-}
-.tpl-training-banner--green .tpl-training-banner__art img {
-  object-position: 35% center;
-}
-.tpl-training-banner--membership {
-  background: var(--wt-color-brand-purple);
-  border-color: var(--wt-color-brand-purple);
-}
-.tpl-training-banner--membership h2 {
-  color: white;
-}
-.tpl-training-banner--membership p {
-  color: #f5d7ed;
-}
-.tpl-training-banner--membership .eyebrow {
-  color: #f3abd8;
-}
-.tpl-training-banner--membership .tpl-training-banner__art {
-  display: flex;
-  align-items: center;
-  padding: 35px;
-  background: url("/images/jobs-hero-right.svg") right center / auto 120% no-repeat;
-}
-.tpl-training-banner__art > span {
-  position: relative;
-  z-index: 1;
-  color: white;
-  font-size: 2.8rem;
-  line-height: 1;
-  font-weight: var(--wt-font-weight-black);
-  letter-spacing: -0.03em;
-}
-.tpl-training-banner__art > .tpl-sparkle {
-  position: absolute;
-  top: 25px;
-  right: 25px;
-  width: 45px;
-  height: 45px;
-  fill: #f7c0e1;
-}
 .tpl-course-tiles {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -1107,15 +1010,6 @@
   .tpl-course-tiles {
     grid-template-columns: 1fr;
   }
-  .tpl-training-banner {
-    grid-template-columns: 1fr;
-  }
-  .tpl-training-banner__art {
-    min-height: 210px;
-  }
-  .tpl-training-banner--membership .tpl-training-banner__art {
-    display: none;
-  }
   .tpl-employer-grid {
     grid-template-columns: minmax(0, 1fr) 260px;
     gap: 35px;
@@ -1232,9 +1126,6 @@
   }
   .tpl-intro-note {
     padding: 23px;
-  }
-  .tpl-training-banner > div:first-child {
-    padding: 27px;
   }
   .tpl-actions {
     align-items: stretch;

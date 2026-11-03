@@ -547,6 +547,7 @@ function LocationAutocomplete({
 }
 
 export function JobBrowser({
+  afterListings,
   candidateSaveState,
   courses,
   initialPage = 1,
@@ -555,6 +556,7 @@ export function JobBrowser({
 }: {
   candidateSaveState: CandidateSaveState;
   courses: readonly Course[];
+  afterListings?: ReactNode;
   initialPage?: number;
   jobs: readonly Job[];
   initialFilters?: Partial<BrowserFilters>;
@@ -1311,6 +1313,7 @@ export function JobBrowser({
           </div>
         </div>
       </div>
+      {afterListings}
     </section>
   );
 }

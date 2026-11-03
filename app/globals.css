@@ -4284,3 +4284,10 @@ a[role="button"],
     flex-wrap: wrap;
   }
 }
+
+.job-listings-career-cta .tpl-training-banner p {
+  margin: 0 0 20px;
+}
+.job-listings-career-cta .tpl-training-banner strong {
+  color: var(--wt-color-surface-charcoal);
+}
