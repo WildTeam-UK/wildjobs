@@ -157,6 +157,9 @@ export function JobCard({
                 ))}
               </div>
             ) : null}
+            {job.sourceUrl ? (
+              <ShareJobControl title={`${displayTitle} at ${job.organisation}`} url={job.sourceUrl} />
+            ) : null}
             {onDismiss ? <DismissJobControl onClick={onDismiss} title={displayTitle} /> : null}
             {showSaveAction ? (
               <div className="job-card__save">
@@ -169,9 +172,6 @@ export function JobCard({
                   state={saveState}
                 />
               </div>
-            ) : null}
-            {job.sourceUrl ? (
-              <ShareJobControl title={`${displayTitle} at ${job.organisation}`} url={job.sourceUrl} />
             ) : null}
           </div>
         ) : null}

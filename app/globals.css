@@ -1562,7 +1562,7 @@ a[role="button"],
   background: var(--wt-color-surface-charcoal);
   color: var(--wt-color-paper);
   font-size: 0.78rem;
-  font-weight: var(--wt-font-weight-bold);
+  font-weight: var(--wt-font-weight-regular);
   line-height: 1.35;
   text-transform: none;
 }
@@ -2015,6 +2015,10 @@ a[role="button"],
 }
 .job-detail-panel .job-card__training-courses {
   flex: 0 1 auto;
+  scrollbar-width: none;
+}
+.job-detail-panel .job-card__training-courses::-webkit-scrollbar {
+  display: none;
 }
 .job-detail-panel .job-card__training-explainer {
   text-box: trim-both cap alphabetic;
