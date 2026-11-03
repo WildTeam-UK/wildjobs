@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { TrainingBanner } from "@/components/templates/template-parts";
 import { JobBrowser, type JobSortOrder } from "@/components/job-browser";
 import { getCandidateSaveState } from "@/lib/candidate-saved-jobs";
 import type { EmploymentType, EngagementType, LocationType } from "@/lib/jobs";
@@ -53,6 +54,11 @@ export default async function HomePage({ searchParams }: { searchParams: SearchP
   return (
     <main>
       <JobBrowser
+        afterListings={
+          <div className="shell job-listings-career-cta">
+            <TrainingBanner courseTheme="green" />
+          </div>
+        }
         candidateSaveState={candidateSaveState}
         courses={courses}
         initialPage={Number.isInteger(page) && page > 0 ? page : 1}
