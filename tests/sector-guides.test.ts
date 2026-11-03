@@ -55,7 +55,7 @@ it.each(sectorGuides)("connects $slug to the right jobs, sources, image and revi
   expect(metadata.alternates?.canonical).toBe(`/conservation-sector/${guide.slug}`);
 });
 it("allows exactly the application catalogue in the revision constraint", () => {
-  const migration = readFileSync("supabase/migrations/20261103164547_career_guide_expansion.sql", "utf8");
+  const migration = readFileSync("supabase/migrations/20261103172307_career_guide_expansion.sql", "utf8");
   const constraint = migration.match(
     /career_guide_revisions_guide_slug_check check \(guide_slug in \(([\s\S]*?)\)\)/,
   )![1];
