@@ -9,6 +9,8 @@ import {
 import { getGuideData } from "@/lib/public-guides";
 import { guideJobsPath, guidePath, pilotGuides } from "@/lib/guide-content";
 import { formatSalaryLabel } from "@/lib/job-salary";
+import { GuideBreadcrumbs } from "./guide-breadcrumbs";
+import { guidePublisher, guideStructuredData, serializeStructuredData } from "@/lib/guide-seo";
 
 type GuideData = Awaited<ReturnType<typeof getGuideData>>;
 const date = (value: string) =>
@@ -53,6 +55,13 @@ function MarketSnapshot({ data, detailed = false }: { data: GuideData; detailed?
           available. A full-time default on a job card is insufficient: we also require explicit full-time
           evidence in the feed or retained original advert. Check the source for the exact hours.
         </p>
+        {guide.kind === "career" ? (
+          <p>
+            The headline median combines all qualifying adverts across career levels. The breakdown below
+            separates those levels, with a median shown only when a band has at least five comparable
+            salaries.
+          </p>
+        ) : null}
         {guide.kind === "career" ? (
           <table className="guide-salary-table">
             <caption>Advertised starting salaries by career level</caption>
@@ -100,8 +109,8 @@ function MarketSnapshot({ data, detailed = false }: { data: GuideData; detailed?
     );
   const items = [
     {
-      label: guide.kind === "career" ? "Salary by career level" : "Median advertised starting salary",
-      value: guide.kind === "career" ? "See below" : money(market.salaryMedian),
+      label: "Median advertised starting salary",
+      value: money(market.salaryMedian),
       detail: `${market.salaryCount} comparable UK annual salaries`,
     },
     {
@@ -144,6 +153,13 @@ export function GuidePage({ data }: { data: GuideData }) {
   const other = pilotGuides.find((g) => g.slug !== guide.slug)!;
   return (
     <main>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: serializeStructuredData(guideStructuredData(data)) }}
+      />
+      <div className="shell">
+        <GuideBreadcrumbs guide={guide} />
+      </div>
       <section className="tpl-hero shell">
         <div className="tpl-hero__grid">
           <div>
@@ -154,6 +170,12 @@ export function GuidePage({ data }: { data: GuideData }) {
               {guide.title} <span className="tpl-gradient">{guide.accent}</span>
             </h1>
             <p className="tpl-hero__lead">{guide.description}</p>
+            <p className="guide-byline">
+              By{" "}
+              <a href={guidePublisher.url} rel="author">
+                {guidePublisher.name}
+              </a>
+            </p>
             <div className="tpl-actions">
               <a className="action" href={`#${guide.sections[0].id}`}>
                 Find your route in
@@ -166,7 +188,7 @@ export function GuidePage({ data }: { data: GuideData }) {
               <p className="guide-review-note">Guide preview · Awaiting editorial review</p>
             ) : (
               <p className="guide-review-note">
-                Editorial review: {date(data.reviewedAt!)} ·{" "}
+                Editorial review: <time dateTime={data.reviewedAt!}>{date(data.reviewedAt!)}</time> ·{" "}
                 <a href="#guide-sources">Sources and methodology</a>
               </p>
             )}
@@ -177,7 +199,8 @@ export function GuidePage({ data }: { data: GuideData }) {
               alt={guide.imageAlt}
               width={1800}
               height={1200}
-              sizes="(max-width: 800px) 100vw, 50vw"
+              sizes="(max-width: 800px) calc(100vw - 30px), (max-width: 1000px) 50vw, (max-width: 1288px) calc((100vw - 108px) * 0.5122), 605px"
+              fetchPriority="high"
               preload
             />
             <figcaption>
@@ -285,6 +308,7 @@ export function GuidePage({ data }: { data: GuideData }) {
                           <a
                             className="action"
                             href={job.source_url}
+                            aria-label={`Apply via ${job.source_name}: ${job.title}`}
                             target="_blank"
                             rel="noopener noreferrer"
                           >
@@ -357,6 +381,12 @@ export function GuidePage({ data }: { data: GuideData }) {
                 : "This pilot is awaiting editorial approval."}{" "}
               Sources are due for review within 90 days of their checked date, or sooner if relevant
               information changes.
+            </p>
+            <p>
+              AI assists draft preparation and the organisation of advert evidence. WildTeam reviews sources
+              and approves written guidance before publication. Preview guides have not yet completed that
+              editorial approval. Live job counts and salary samples update independently of the written
+              advice.
             </p>
             <p>
               <a href="https://training.wildteam.org.uk/contact-us" target="_blank" rel="noopener noreferrer">

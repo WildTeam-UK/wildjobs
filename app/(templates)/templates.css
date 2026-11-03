@@ -17,6 +17,32 @@
   color: var(--wt-color-muted);
   font-size: 0.88rem;
 }
+.guide-breadcrumbs {
+  padding-top: 24px;
+  font-size: 0.9rem;
+  color: var(--wt-color-muted);
+}
+.guide-breadcrumbs ol {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.guide-breadcrumbs li {
+  display: inline-flex;
+  gap: 12px;
+}
+.guide-breadcrumbs a,
+.guide-byline a {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.guide-byline {
+  color: var(--wt-color-muted);
+  font-size: 0.9rem;
+}
 .guide-citations {
   white-space: nowrap;
   font-size: 0.8em;

@@ -22,6 +22,8 @@ This first pilot deliberately uses reviewed editorial baseline text. Automatic d
 
 ## Live data
 
+Both guide types show the overall median advertised starting salary in the top snapshot. Career-level samples and medians remain in the career guide's pay section, with the same five-salary minimum applied separately to each band. The headline combines qualifying levels; it is not an entry-level salary prediction.
+
 The pilot education and professional guidance is UK-focused. Vacancy and employer counts include matching jobs across all countries in the directory; salary medians are explicitly UK-only.
 
 Data refreshes on server requests independently of prose. Canonical job IDs count once across feeds; expired vacancies remain in the twelve-month history and are absent from current listings. The collection began in November 2026, so the lookback must not imply complete twelve-month coverage. Current jobs and the history sample can have different sizes.
@@ -33,6 +35,22 @@ Data refreshes on server requests independently of prose. Canonical job IDs coun
 Apply `20261103124240_career_guide_pilots.sql` before using the review actions, then deploy the application. The migration adds three tables, two source-evidence fields and a history index on jobs, and a service-only atomic publication function. It does not change existing job content or permissions. `lib/guide-database.types.ts` extends the existing generated schema types for these additions.
 
 Run `pnpm check` and the SQL tests in `supabase/tests/career_guides_test.sql`. Inspect both guide routes and the filtered jobs destination at desktop and phone widths, and the staff review flow using a staff account. Verify that anonymous and candidate sessions cannot read draft revisions or original text, and cannot call the publication function. Only approved guides belong in the sitemap; pending previews stay noindex.
+
+Guide routes and the guide hub explicitly set their robots metadata, overriding the template layout's default noindex. A reviewed guide can be indexed only when site indexing is enabled in production. The hub becomes eligible when at least one guide is reviewed. Preview deployments and unpublished guides remain noindex.
+
+### SEO audit · 3 November 2026
+
+The shared template now supplies search-focused titles and descriptions, self-referencing canonical URLs, Open Graph article and Twitter large-image metadata, and branded 1200 × 630 sharing images. Images are generated once at build time with local assets and the brand font. There are no added client dependencies. Hero images have explicit dimensions, responsive sizes and high fetch priority. Discovery endpoints use a small publication-index query rather than loading historical advert bodies; guide evidence queries select only the fields they use.
+
+Article and BreadcrumbList JSON-LD match the visible headline, sources, breadcrumbs and WildTeam organizational byline. The guide hub has CollectionPage/BreadcrumbList markup and lists only reviewed guides in its ItemList. JSON-LD escapes script delimiters. Publication dates and named expert credentials are not fabricated: a genuine editorial review supplies dateModified only after approval. Changing live statistics does not falsely change the editorial review date. Guides never emit JobPosting markup.
+
+Google Rich Results Test accepted the rendered code for both pilot guides, detecting one valid Article and one valid BreadcrumbList per page. This was a code test, not a crawl of the unpublished branch. Application checks cover metadata, schema/content consistency, safe serialization, review dates, sitemap eligibility and production/preview indexing gates. Browser checks cover one H1, working section anchors, source links, the hub/guide/jobs discovery paths, sharing images, and desktop/phone layout.
+
+Mobile PageSpeed lab baselines on the deployed previews were [95 for Ecologist](https://pagespeed.web.dev/analysis/https-jobs-wildteam-org-uk-conservation-career-guides-ecologist/0pyab9bnms?form_factor=mobile) and [97 for Wildlife Conservation](https://pagespeed.web.dev/analysis/https-jobs-wildteam-org-uk-conservation-sector-wildlife-conservation/am7cctrf92?form_factor=mobile). Both measured LCP around 2.6 seconds and CLS 0; no real-user Core Web Vitals data was available. Both SEO scores were 69, with the intentional noindex as the only failing SEO audit. These are pre-change production measurements, not scores for this local branch. Accessibility baselines were 97/96, including existing shared button contrast and certification-image dimension findings; those scores are not evidence of a complete accessibility audit.
+
+The main navigation links to the hub; breadcrumbs, related-guide links and current-job links connect both pilots. The hub links only to implemented guide routes, with remaining careers marked coming soon. Each guide identifies cited UK careers sources, advert-sample limitations, corrections contact and editorial status. `llms.txt` distinguishes reviewed guidance from pending previews and illustrative employer pages. It is advisory and does not control indexing.
+
+After the change is deployed, review each pilot in `/admin/guides` and publish the approved revision. Confirm index/follow on approved production URLs, noindex on pending/preview URLs, and inclusion of only reviewed guides in `/sitemap.xml`. Then run Search Console URL Inspection and request indexing for the two guides and hub; repeat the URL-based rich-results and PageSpeed checks against the deployed revision. Monitor actual indexation and Core Web Vitals as sufficient traffic accumulates. Sharing metadata and valid structured data do not guarantee rankings, rich results or indexation.
 
 No production schema, content publication or additional career-family automation should be activated by a local test run.
 

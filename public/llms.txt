@@ -8,7 +8,7 @@ Job summaries, sectors and course suggestions may be assisted by AI. The origina
 
 Saving jobs requires no account. Shortlists are stored on the visitor's browser only and do not sync across devices. Public registration is currently closed.
 
-Some career-guide, sector and sample employer pages are design previews containing illustrative content. They are not authoritative career guidance or evidence about real employers and are omitted from the references below.
+Sector and career guides combine cited careers sources with a clearly described sample of directory adverts. Written guidance requires editorial approval; job counts and qualifying salary samples update separately. Pages labelled “Guide preview” await that approval and are excluded from the sitemap. Salary figures describe advertised starting pay in the stated sample, not the whole market. Sample employer pages remain illustrative design previews and are not evidence about real employers. Use the sitemap to identify reviewed guides intended for search indexing.
 
 ## Public references
 

@@ -2,11 +2,13 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import styles from "./page.module.css";
+import { getReviewedGuideIndex } from "@/lib/public-guides";
+import { guideHubMetadata, guideHubStructuredData, serializeStructuredData } from "@/lib/guide-seo";
+import { GuideBreadcrumbs } from "@/components/guides/guide-breadcrumbs";
 
-export const metadata: Metadata = {
-  title: "Conservation sector and career guides",
-  description: "Explore conservation sectors and careers, understand the work and plan your next step.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  return guideHubMetadata(!(await getReviewedGuideIndex()).length);
+}
 
 const sectors: readonly { title: string; image: string; href?: string }[] = [
   { title: "Carbon, Climate & Energy", image: "carbon-climate-energy" },
@@ -56,9 +58,19 @@ const careers: readonly { title: string; description: string; href?: string }[] 
   },
 ];
 
-export default function CareerGuidesPage() {
+export default async function CareerGuidesPage() {
+  const reviewed = await getReviewedGuideIndex();
   return (
     <main className={styles.page}>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: serializeStructuredData(guideHubStructuredData(reviewed.map(({ guide }) => guide))),
+        }}
+      />
+      <div className="shell">
+        <GuideBreadcrumbs />
+      </div>
       <section className={"shell " + styles.section} aria-labelledby="sector-guides-title">
         <div className={styles.intro}>
           <h1 id="sector-guides-title">
