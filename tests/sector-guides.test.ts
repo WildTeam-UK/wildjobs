@@ -56,7 +56,7 @@ it.each(sectorGuides)("connects $slug to the right jobs, sources, image and revi
   expect(metadata.alternates?.canonical).toBe(`/conservation-sector/${guide.slug}`);
 });
 it("allows exactly the application catalogue in the revision constraint", () => {
-  const migration = readFileSync("supabase/migrations/20261103145359_remaining_sector_guides.sql", "utf8");
+  const migration = readFileSync("supabase/migrations/20261103154540_remaining_sector_guides.sql", "utf8");
   const allowed = [...migration.matchAll(/'([a-z][a-z-]+)'/g)].map((m) => m[1]);
   expect(allowed.toSorted()).toEqual(guideCatalog.map((g) => g.slug).toSorted());
 });
