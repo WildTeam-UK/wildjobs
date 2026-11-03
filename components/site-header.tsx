@@ -67,6 +67,9 @@ export function SiteHeader() {
         </button>
         <div className={`site-navigation${open ? " is-open" : ""}`} id="site-navigation">
           <nav className="site-nav" aria-label="Main navigation">
+            <Link href="/" onClick={closeMenu}>
+              Jobs
+            </Link>
             <a
               href="https://news.wildteam.org.uk/"
               target="_blank"
