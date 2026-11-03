@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@wildteam-uk/ui";
-import { createPortal } from "react-dom";
+import { createPortal, flushSync } from "react-dom";
 import { SectorIcon } from "./sector-icon";
 import { minimumGbpSalary } from "@/lib/job-salary";
 import { directoryDeadline } from "@/lib/directory-lifecycle";
@@ -17,6 +17,12 @@ import {
   useState,
   useSyncExternalStore,
 } from "react";
+import { animateJobDismissal } from "@/lib/animate-job-dismissal";
+import {
+  restoreAllBrowserDismissedJobs,
+  setBrowserJobDismissed,
+  useBrowserDismissedJobs,
+} from "@/lib/browser-dismissed-jobs";
 import { JobCard } from "@/components/job-card";
 import { JobSplitView } from "@/components/job-split-view";
 import { JobTrainingPromo } from "@/components/job-training-promo";
@@ -414,7 +420,7 @@ function FilterDropdown(props: SingleFilterDropdownProps | MultiFilterDropdownPr
                     role={props.multiple ? (option.value ? "menuitemcheckbox" : "menuitem") : "menuitemradio"}
                     type="button"
                   >
-                    {accessibleLabel === "Sector" && option.value ? (
+                    {accessibleLabel === "Role category" && option.value ? (
                       <SectorIcon title={option.label} />
                     ) : null}
                     <span className="job-filter-menu__label icon-label">{option.label}</span>
@@ -571,7 +577,15 @@ export function JobBrowser({
   const [minimumSalary, setMinimumSalary] = useState(initialFilters.minimumSalary ?? 0);
   const [sortOrder, setSortOrder] = useState<JobSortOrder>(initialFilters.sortOrder ?? "relevance");
   const [currentPage, setCurrentPage] = useState(initialPage);
-  const [layout, setLayout] = useState<"list" | "grid">("list");
+  const { ids: dismissedIds, persistent: dismissalsPersistent } = useBrowserDismissedJobs();
+  const [lastDismissal, setLastDismissal] = useState<Job>();
+  const pendingDismissals = useRef(new Set<number>());
+  const resultsRef = useRef<HTMLDivElement>(null);
+  const dismissedToggleRef = useRef<HTMLButtonElement>(null);
+  const dismissedIdSet = new Set(dismissedIds);
+  const dismissedCount = jobs.filter((job) => job.id && dismissedIdSet.has(job.id)).length;
+  const visibleJobs = jobs.filter((job) => !job.id || !dismissedIdSet.has(job.id));
+  const [layout, setLayout] = useState<"list" | "grid">("grid");
   const canUseGridLayout = useSyncExternalStore(
     subscribeToDesktopLayout,
     getDesktopLayoutSnapshot,
@@ -590,7 +604,7 @@ export function JobBrowser({
     minimumSalary,
     query,
   };
-  const filteredJobs = filterJobs(jobs, filterValues).toSorted((left, right) => {
+  const filteredJobs = filterJobs(visibleJobs, filterValues).toSorted((left, right) => {
     if (sortOrder === "newest") return right.postedAt.localeCompare(left.postedAt);
     if (sortOrder === "closing") {
       return (
@@ -602,13 +616,16 @@ export function JobBrowser({
   });
   const filteredOrganisationCount = new Set(filteredJobs.map((job) => job.organisation)).size;
   const categories = jobCategories(jobs);
-  const workplaceContext = filterJobs(jobs, { ...filterValues, locationType: "" });
-  const hoursContext = filterJobs(jobs, { ...filterValues, employmentType: "" });
-  const contractContext = filterJobs(jobs, { ...filterValues, contractType: "" });
-  const salaryContext = filterJobs(jobs, { ...filterValues, minimumSalary: 0 });
-  const sectorContext = filterJobs(jobs, { ...filterValues, category: "" });
-  const opportunityContext = filterJobs(jobs, { ...filterValues, engagementType: "" });
-  const orderedCourses = rankCourseFilters(courses, filterJobs(jobs, { ...filterValues, courseSlugs: [] }));
+  const workplaceContext = filterJobs(visibleJobs, { ...filterValues, locationType: "" });
+  const hoursContext = filterJobs(visibleJobs, { ...filterValues, employmentType: "" });
+  const contractContext = filterJobs(visibleJobs, { ...filterValues, contractType: "" });
+  const salaryContext = filterJobs(visibleJobs, { ...filterValues, minimumSalary: 0 });
+  const sectorContext = filterJobs(visibleJobs, { ...filterValues, category: "" });
+  const opportunityContext = filterJobs(visibleJobs, { ...filterValues, engagementType: "" });
+  const orderedCourses = rankCourseFilters(
+    courses,
+    filterJobs(visibleJobs, { ...filterValues, courseSlugs: [] }),
+  );
   const contractTypes = [
     ...new Set(jobs.flatMap((job) => (job.contractType ? [job.contractType] : []))),
   ].toSorted();
@@ -745,6 +762,47 @@ export function JobBrowser({
     };
   }
 
+  async function toggleJobDismissal(job: Job) {
+    if (!job.id || pendingDismissals.current.has(job.id)) return;
+    pendingDismissals.current.add(job.id);
+    const row = resultsRef.current?.querySelector<HTMLElement>(`[data-job-dismissal="${job.id}"]`) ?? null;
+    const rows = Array.from(resultsRef.current?.querySelectorAll<HTMLElement>("[data-job-dismissal]") ?? []);
+    const rowIndex = row ? rows.indexOf(row) : -1;
+    const neighbourId = (rows[rowIndex + 1] ?? rows[rowIndex - 1])?.dataset.jobDismissal;
+    const focused = document.activeElement;
+    const shouldMoveFocus = Boolean(row?.contains(focused) || focused?.closest(".job-detail-panel"));
+    try {
+      await animateJobDismissal(row, () =>
+        flushSync(() => {
+          setBrowserJobDismissed(job.id!, true);
+          setLastDismissal(job);
+        }),
+      );
+      requestAnimationFrame(() => {
+        if (!shouldMoveFocus) return;
+        const neighbour = neighbourId
+          ? resultsRef.current?.querySelector<HTMLElement>(`[data-job-dismissal="${neighbourId}"]`)
+          : null;
+        const target = neighbour?.querySelector<HTMLElement>("h2 button, h2 a") ?? dismissedToggleRef.current;
+        target?.focus({ preventScroll: true });
+      });
+    } finally {
+      pendingDismissals.current.delete(job.id);
+    }
+  }
+
+  function undoDismissal() {
+    if (!lastDismissal?.id) return;
+    setBrowserJobDismissed(lastDismissal.id, false);
+    setLastDismissal(undefined);
+    requestAnimationFrame(() => {
+      const restored = resultsRef.current?.querySelector<HTMLElement>(
+        `[data-job-dismissal="${lastDismissal.id}"] h2 button, [data-job-dismissal="${lastDismissal.id}"] h2 a`,
+      );
+      (restored ?? dismissedToggleRef.current)?.focus({ preventScroll: true });
+    });
+  }
+
   function clearFilters() {
     setQuery("");
     setLocationQuery("");
@@ -869,8 +927,8 @@ export function JobBrowser({
               />
             ) : null}
             <FilterDropdown
-              accessibleLabel="Sector"
-              clearLabel="Any sector"
+              accessibleLabel="Role category"
+              clearLabel="Any role category"
               icon="leaf"
               onChange={(value) => {
                 setCategory(value);
@@ -883,7 +941,7 @@ export function JobBrowser({
                   (job) => job.category === value || job.careerAreas?.includes(value),
                 ).length,
               }))}
-              placeholder="Sector"
+              placeholder="Role category"
               value={category}
             />
             <FilterDropdown
@@ -1039,7 +1097,7 @@ export function JobBrowser({
 
       <div className="shell">
         <div className="job-browser__layout">
-          <div className="job-results">
+          <div className="job-results" ref={resultsRef}>
             <div className="job-results__heading">
               <p aria-live="polite">
                 {filteredJobs.length} Currently available {filteredJobs.length === 1 ? "role" : "roles"}
@@ -1050,6 +1108,27 @@ export function JobBrowser({
                 </span>
               </p>
               <div className="job-results__controls">
+                {dismissedCount ? (
+                  <button
+                    className="job-dismissed-toggle"
+                    ref={dismissedToggleRef}
+                    type="button"
+                    onClick={() => {
+                      restoreAllBrowserDismissedJobs();
+                      setLastDismissal(undefined);
+                      syncUrl(currentFilters(), activePage);
+                      requestAnimationFrame(() =>
+                        resultsRef.current
+                          ?.querySelector<HTMLElement>(
+                            "[data-job-dismissal] h2 button, [data-job-dismissal] h2 a",
+                          )
+                          ?.focus({ preventScroll: true }),
+                      );
+                    }}
+                  >
+                    Show hidden jobs ({dismissedCount})
+                  </button>
+                ) : null}
                 <div className="job-layout-switch" role="group" aria-label="Job card layout">
                   <button
                     aria-label="List layout"
@@ -1099,6 +1178,35 @@ export function JobBrowser({
                 </div>
               </div>
             </div>
+            {!dismissalsPersistent ? (
+              <p className="job-dismissed-note">
+                Browser storage is unavailable. Dismissed jobs are remembered for this visit only.
+              </p>
+            ) : null}
+            <div className="job-dismissal-feedback" role="status" aria-live="polite" aria-atomic="true">
+              {lastDismissal ? (
+                <div className="job-dismissal-feedback__content">
+                  <p>
+                    <strong>Job hidden</strong>
+                    <span>{lastDismissal.title}</span>
+                  </p>
+                  <button type="button" onClick={undoDismissal}>
+                    Undo
+                  </button>
+                  <button
+                    className="job-dismissal-feedback__close"
+                    aria-label="Close job notification"
+                    type="button"
+                    onClick={() => {
+                      setLastDismissal(undefined);
+                      dismissedToggleRef.current?.focus({ preventScroll: true });
+                    }}
+                  >
+                    ×
+                  </button>
+                </div>
+              ) : null}
+            </div>
             {selectedCourses.length ? (
               <div className="course-match-note">
                 <p className="eyebrow">Course-aware discovery</p>
@@ -1123,7 +1231,7 @@ export function JobBrowser({
             ) : null}
             {filteredJobs.length && layout === "grid" && canUseGridLayout ? (
               <JobSplitView
-                allJobs={jobs}
+                onDismiss={toggleJobDismissal}
                 jobs={paginatedJobs}
                 saveStateFor={(job) =>
                   candidateSaveState.isSignedIn && job.id && savedJobIds.has(job.id)
@@ -1139,17 +1247,26 @@ export function JobBrowser({
                   const resultIndex = pageStart + index;
                   return (
                     <Fragment key={job.slug}>
-                      <JobCard
-                        compact
-                        job={job}
-                        saveState={
-                          candidateSaveState.isSignedIn && job.id && savedJobIds.has(job.id)
-                            ? "saved"
-                            : candidateSaveState.isSignedIn
-                              ? "available"
-                              : "signed-out"
-                        }
-                      />
+                      <div className="job-result-item" data-job-dismissal={job.id}>
+                        <JobCard
+                          compact
+                          onDismiss={
+                            job.id
+                              ? () => {
+                                  void toggleJobDismissal(job);
+                                }
+                              : undefined
+                          }
+                          job={job}
+                          saveState={
+                            candidateSaveState.isSignedIn && job.id && savedJobIds.has(job.id)
+                              ? "saved"
+                              : candidateSaveState.isSignedIn
+                                ? "available"
+                                : "signed-out"
+                          }
+                        />
+                      </div>
                       {resultIndex >= 2 && (resultIndex - 2) % 10 === 0 ? (
                         <JobTrainingPromo position={resultIndex + 1} />
                       ) : null}
@@ -1159,11 +1276,19 @@ export function JobBrowser({
               </div>
             ) : (
               <div className="empty-state">
-                <h3>No roles match those filters</h3>
-                <p>Try a broader search or clear the filters to see every current listing.</p>
-                <Button type="button" variant="quiet" onClick={clearFilters}>
-                  Show all jobs
-                </Button>
+                <h3>No roles to show</h3>
+                <p>
+                  {hasFilters
+                    ? "Try a broader search or clear your filters."
+                    : dismissedCount
+                      ? "Use Show hidden jobs to bring back roles you have hidden."
+                      : "Check back soon for new opportunities."}
+                </p>
+                {hasFilters ? (
+                  <Button type="button" variant="quiet" onClick={clearFilters}>
+                    Clear filters
+                  </Button>
+                ) : null}
               </div>
             )}
             {filteredJobs.length ? (

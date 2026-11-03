@@ -1,5 +1,6 @@
 "use client";
 
+import { JobActionTooltip } from "@/components/job-action-tooltip";
 import { toggleBrowserSavedJob, useBrowserSavedJobs } from "@/lib/browser-saved-jobs";
 
 export type JobSaveState = "available" | "saved" | "signed-out";
@@ -39,13 +40,13 @@ export function SaveJobControl({
   if (!jobId) return null;
   const saved = ids.includes(jobId);
 
-  return (
+  const button = (
     <button
       aria-label={iconOnly ? (saved ? "Remove saved job" : "Save job") : undefined}
       aria-pressed={saved}
       className={`${className}${saved ? " save-action--saved" : ""}`}
       onClick={() => toggleBrowserSavedJob(jobId)}
-      title={
+      aria-description={
         persistent
           ? "Saved on this browser only"
           : "Browser storage is unavailable; saved for this visit only"
@@ -55,4 +56,5 @@ export function SaveJobControl({
       {iconOnly ? <HeartIcon filled={saved} /> : saved ? "♥ Saved · remove" : "♡ Save job"}
     </button>
   );
+  return iconOnly ? <JobActionTooltip label="Save this job for later">{button}</JobActionTooltip> : button;
 }

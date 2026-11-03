@@ -8,7 +8,7 @@ const trainingBenefits = [
   },
   {
     title: "Stand out from the crowd",
-    description: "Build practical skills and feel better prepared to land the role you really want.",
+    description: "Build practical skills and feel better prepared to land your dream role.",
   },
   {
     title: "Turn your passion into progress",
@@ -25,11 +25,14 @@ function TickIcon() {
   );
 }
 
-export function JobTrainingPromo({ position }: { position: number }) {
+export function JobTrainingPromo({ compact = false, position }: { compact?: boolean; position: number }) {
   const headingId = `job-training-promo-title-${position}`;
 
   return (
-    <aside className="job-training-promo" aria-labelledby={headingId}>
+    <aside
+      className={`job-training-promo${compact ? " job-training-promo--compact" : ""}`}
+      aria-labelledby={headingId}
+    >
       <div className="job-training-promo__media">
         <Image
           alt="Conservation explorers overlooking wildlife in a pastel mountain landscape"
@@ -64,10 +67,10 @@ export function JobTrainingPromo({ position }: { position: number }) {
             rel="noopener noreferrer"
             target="_blank"
           >
-            Explore WildTeam Training
+            Explore training
           </a>
           <Link className="action action--outline" href="/conservation-career-guides/">
-            Explore career paths
+            Career guides
           </Link>
         </div>
       </div>
