@@ -81,6 +81,9 @@ export function JobSplitView({
                     {postedAgoLabel(job.publishedAt ?? job.postedAt)}
                   </p>
                   <div className="job-preview-card__save">
+                    {job.sourceUrl ? (
+                      <ShareJobControl title={`${job.title} at ${job.organisation}`} url={job.sourceUrl} />
+                    ) : null}
                     {job.id ? (
                       <DismissJobControl
                         onClick={() => {
@@ -96,9 +99,6 @@ export function JobSplitView({
                       jobSlug={job.slug}
                       state={saveStateFor(job)}
                     />
-                    {job.sourceUrl ? (
-                      <ShareJobControl title={`${job.title} at ${job.organisation}`} url={job.sourceUrl} />
-                    ) : null}
                   </div>
                 </article>
               </div>

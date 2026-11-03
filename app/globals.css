@@ -1780,10 +1780,11 @@ a[role="button"],
 .job-preview-card {
   --preview-logo-size: 72px;
   --preview-identity-gap: 16px;
+  --preview-edge-inset: 16px;
   position: relative;
   isolation: isolate;
   min-width: 0;
-  padding: 24px 22px;
+  padding: 24px 22px var(--preview-edge-inset);
   border: 1px solid var(--wt-color-rule);
   border-radius: var(--wt-radius-panel);
   background: var(--wt-color-paper);
@@ -1873,7 +1874,7 @@ a[role="button"],
 }
 .job-preview-card__facts {
   display: grid;
-  gap: 10px;
+  gap: 14px;
   margin: 18px 0 0 calc(var(--preview-logo-size) + var(--preview-identity-gap));
 }
 .job-preview-card__fact {
@@ -1897,14 +1898,15 @@ a[role="button"],
   transform: translateY(-50%);
 }
 .job-preview-card__posted {
-  margin: 12px 0 0;
+  margin: 16px 0 0;
+  text-box: trim-both cap alphabetic;
   text-align: right;
   font-size: 0.74rem;
 }
 .job-preview-card__save {
   position: absolute;
   z-index: 2;
-  top: 16px;
+  top: var(--preview-edge-inset);
   right: 12px;
   display: flex;
   gap: 0;
