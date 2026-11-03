@@ -1,6 +1,8 @@
-# Maintaining the pilot guides
+# Maintaining the guides
 
 The pilot consists of Wildlife Conservation (`conservation-wildlife` sector data) and the Ecologist occupation. The sector slug differs from its public URL, `/conservation-sector/wildlife-conservation`; do not rename the directory taxonomy.
+
+The catalogue now also contains the other ten sector guides. `lib/guide-sectors.ts` owns their public slugs, exact directory filter labels and related-guide links. `lib/sector-guide-content.ts` contains separately authored sector advice and citations, with a shared section builder. `guideCatalog` is the complete workflow and routing catalogue; `pilotGuides` remains the original two-guide reference for compatibility and regression checks. The Ecologist is still the only occupation guide; this expansion does not enable other career families.
 
 ## Content and templates
 
@@ -20,6 +22,12 @@ Private original-advert snapshots are retained per canonical job and feed hash, 
 
 This first pilot deliberately uses reviewed editorial baseline text. Automatic draft preparation assembles its evidence snapshot; it does not automatically invent new narrative or research the web. Other career families and automatic writing require extending the catalogue and reviewing their evidence rules first.
 
+All catalogue guides use this workflow. A sector needs at least one matching historical advert before an evidence draft can be queued; the ten-detailed-advert threshold still applies only to occupation guides. Research remains versioned and approval remains explicit. Equivalent object-field order in source files or JSONB does not change the evidence fingerprint: content is normalized through the schema before hashing. Retained advert bodies stay private, including explicitly labelled feed fallbacks when an original cannot be fetched.
+
+Evidence collection redacts application URLs containing session/access credentials and copied credential parameters before storage. The public source-advert URL is still the reference for readers; a credential-bearing application link is not needed to substantiate job facts. Privacy redaction is separate from editorial rewriting and does not remove stated pay or working hours.
+
+New sector previews show named-employer examples drawn from the sector-tagged advert history, with source links and a warning that examples may have closed. These are neither the most common occupations nor a claim that every role shares the same entry requirements. Counts, salaries, current openings and the complete source-advert list use all matching canonical records. All eleven sector filters use the directory's exact labels; Wildlife Conservation retains its distinct taxonomy slug.
+
 ## Live data
 
 Both guide types show the overall median advertised starting salary in the top snapshot. Career-level samples and medians remain in the career guide's pay section, with the same five-salary minimum applied separately to each band. The headline combines qualifying levels; it is not an entry-level salary prediction.
@@ -33,6 +41,31 @@ Data refreshes on server requests independently of prose. Canonical job IDs coun
 ## Deployment and checks
 
 Apply `20261103124240_career_guide_pilots.sql` before using the review actions, then deploy the application. The migration adds three tables, two source-evidence fields and a history index on jobs, and a service-only atomic publication function. It does not change existing job content or permissions. `lib/guide-database.types.ts` extends the existing generated schema types for these additions.
+
+Before deploying the remaining sectors, apply `20261103154540_remaining_sector_guides.sql`. It extends only the existing revision table's guide-slug check constraint to the full twelve-guide catalogue. Existing revisions, RLS, source privacy and the atomic approval function are preserved. Local previews can render before this migration; storing new evidence drafts requires it. Create and review the ten new evidence drafts after migration/deployment, then publish only approved guides. The hub labels unreviewed pages as previews, their robots metadata stays noindex and they remain outside the sitemap and the hub's structured-data ItemList. Existing published pilots stay published.
+
+### Remaining sectors · research checked 3 November 2026
+
+Each new sector combines professional/careers sources with its own directory sample. The primary sources and their supported claims are recorded on the guide, not in a generic shared source list. The entry routes are scoped to the occupations described by a source; broad sector labels never create a universal qualification requirement.
+
+| Sector                       | Primary research                                                                                                                                                                                                                                                      |
+| ---------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Carbon, Climate & Energy     | [Energy Institute careers](https://energyinst.org/membership-and-careers/careers), [NCS renewable energy engineer](https://nationalcareers.service.gov.uk/job-profiles/energy-engineer)                                                                               |
+| Ecology                      | [CIEEM careers](https://cieem.net/i-want-to-be/how-to-become-an-eem/careers/), [NCS ecologist](https://nationalcareers.service.gov.uk/job-profiles/ecologist)                                                                                                         |
+| Environmental Education      | [Green Jobs for Nature educator](https://greenjobsfornature.org/careers/environment-educator/), [CIEEM careers](https://cieem.net/i-want-to-be/how-to-become-an-eem/careers/)                                                                                         |
+| Environmental Management     | [Green Jobs for Nature adviser](https://greenjobsfornature.org/careers/adviser/), [NCS environmental consultant](https://nationalcareers.service.gov.uk/job-profiles/environmental-consultant)                                                                        |
+| Food, Farming & Horticulture | [NCS farmer](https://nationalcareers.service.gov.uk/job-profiles/farmer), [NCS horticultural manager](https://nationalcareers.service.gov.uk/job-profiles/horticultural-manager)                                                                                      |
+| Marine Conservation          | [Marine Biological Association](https://www.mba.ac.uk/about-us/working-with-us/), [Green Jobs for Nature conservation worker](https://greenjobsfornature.org/careers/conservation-worker/)                                                                            |
+| Policy & Campaigning         | [Green Jobs for Nature policy](https://greenjobsfornature.org/careers/policy/), [Green Jobs for Nature communications](https://greenjobsfornature.org/careers/media-and-communications/)                                                                              |
+| Rivers, Water & Hydrology    | [NCS hydrologist](https://nationalcareers.service.gov.uk/job-profiles/hydrologist), [Green Jobs for Nature adviser](https://greenjobsfornature.org/careers/adviser/)                                                                                                  |
+| Sustainability               | [Green Careers Hub manager](https://www.greencareershub.com/find-your-green-role/job-profiles/sustainability-manager-head-of-sustainability/), [Green Careers Hub analyst](https://www.greencareershub.com/find-your-green-role/job-profiles/sustainability-analyst/) |
+| Sustainable Transport        | [Transport Planning Society careers](https://tps.org.uk/profession/careers), [NCS transport planner](https://nationalcareers.service.gov.uk/job-profiles/transport-planner)                                                                                           |
+
+The advert audit read representative source excerpts across every sector and checked all matching records through the market calculator. The initial sample ranged from six Sustainable Transport adverts to 150 Ecology adverts. Counts change and are not embedded in editorial claims. Small pay samples, mixed working patterns, overseas roles and missing explicit hours can reduce the comparable salary sample. Do not substitute occupational salary estimates from a careers website for a measured directory median.
+
+The rollout collected and privately retained 151 previously missing original adverts, with 111 explicitly stated working patterns and 121 country facts checked from source metadata. No AI summary rerun was used. A session-bearing application URL was redacted before its batch could be stored. A completion query found no missing current snapshots among sector-tagged canonical adverts at the time of the check, and no occurrence of that SSO parameter in the newly retained evidence. Feed imports continue to add or update evidence as adverts change.
+
+Local verification passed `pnpm check` with 267 tests. Browser checks covered all ten new routes at desktop and phone widths: one H1, self-referencing canonical, Article/Breadcrumb markup, draft noindex, source citations, resolved section anchors, current-job filters and no horizontal overflow. The Sustainable Transport filter displayed the same four live roles as its guide at the time checked. An isolated PostgreSQL run exercised the new catalogue constraint, preserved the existing publication, rejected unsupported slugs and kept anonymous/candidate access restricted to approved revisions. The rollback-only `sector_guides_test.sql` also exercises this through the existing CI database job; the full Supabase reset is not available locally without Docker. Production migration and publication of the new guides remain pending.
 
 Run `pnpm check` and the SQL tests in `supabase/tests/career_guides_test.sql`. Inspect both guide routes and the filtered jobs destination at desktop and phone widths, and the staff review flow using a staff account. Verify that anonymous and candidate sessions cannot read draft revisions or original text, and cannot call the publication function. Only approved guides belong in the sitemap; pending previews stay noindex.
 

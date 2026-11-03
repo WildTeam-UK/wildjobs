@@ -4,7 +4,7 @@ import { connection } from "next/server";
 import { createPublicClient } from "./supabase/public";
 import { getPublicRoleAliases, guideSchemaUnavailable } from "./public-career-roles";
 import { guideWindowStart, buildGuideMarket, type GuideJob } from "./guide-market";
-import { pilotGuides, validateGuideContent } from "./guide-content";
+import { guideCatalog, validateGuideContent } from "./guide-content";
 
 // Discovery pages only need publication status, not the full historical job sample.
 export const getReviewedGuideIndex = cache(async () => {
@@ -15,12 +15,12 @@ export const getReviewedGuideIndex = cache(async () => {
     .eq("status", "published")
     .in(
       "guide_slug",
-      pilotGuides.map((guide) => guide.slug),
+      guideCatalog.map((guide) => guide.slug),
     );
   if (result.error && !guideSchemaUnavailable(result.error))
     throw new Error("The reviewed guide index could not be loaded.");
   return (result.data ?? []).flatMap((revision) => {
-    const guide = pilotGuides.find((guide) => guide.slug === revision.guide_slug);
+    const guide = guideCatalog.find((guide) => guide.slug === revision.guide_slug);
     return guide ? [{ guide, reviewedAt: revision.reviewed_at }] : [];
   });
 });
@@ -51,7 +51,7 @@ export const getGuideJobs = cache(async () => {
 });
 
 export const getGuideData = cache(async (slug: string) => {
-  const definition = pilotGuides.find((g) => g.slug === slug);
+  const definition = guideCatalog.find((g) => g.slug === slug);
   if (!definition) throw new Error("Unknown guide.");
   const [jobs, roles, published] = await Promise.all([
     getGuideJobs(),

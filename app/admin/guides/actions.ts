@@ -8,7 +8,7 @@ import {
   refreshPilotDrafts,
   setRoleAlias,
 } from "@/lib/guide-workflow";
-import { pilotGuides, guidePath } from "@/lib/guide-content";
+import { guideCatalog, guidePath } from "@/lib/guide-content";
 import { createTrustedClient } from "@/lib/supabase/trusted";
 
 function revalidateGuides() {
@@ -16,12 +16,12 @@ function revalidateGuides() {
   revalidatePath("/sitemap.xml");
   revalidatePath("/admin/guides");
   revalidatePath("/admin/guides/[slug]", "page");
-  for (const guide of pilotGuides) revalidatePath(guidePath(guide));
+  for (const guide of guideCatalog) revalidatePath(guidePath(guide));
 }
 export async function refreshGuide(form: FormData) {
   await requireStaff();
   const slug = String(form.get("slug") ?? "");
-  if (!pilotGuides.some((g) => g.slug === slug)) throw new Error("Choose a pilot guide.");
+  if (!guideCatalog.some((g) => g.slug === slug)) throw new Error("Choose a guide from the catalogue.");
   await refreshPilotDrafts(slug);
   revalidateGuides();
   redirect(`/admin/guides/${slug}`);

@@ -3,7 +3,8 @@ import { requireStaff } from "@/lib/auth/staff";
 import { guideWorkspace, guideSourcesCurrent } from "@/lib/guide-workflow";
 import { buildGuideMarket } from "@/lib/guide-market";
 import { matchCareerRole, normalizeRoleTitle } from "@/lib/career-role-matching";
-import { pilotGuides, guidePath } from "@/lib/guide-content";
+import { guideCatalog, ecologistGuide, guidePath } from "@/lib/guide-content";
+import { guideName } from "@/lib/guide-seo";
 import { collectGuideEvidence, refreshGuide, reviewRole } from "./actions";
 import { SubmitButton } from "@/components/submit-button";
 export const maxDuration = 150;
@@ -14,7 +15,7 @@ export default async function GuideAdmin({
 }) {
   await requireStaff();
   const [workspace, params] = await Promise.all([guideWorkspace(), searchParams]);
-  const ecology = buildGuideMarket(workspace.jobs, pilotGuides[1], workspace.aliases);
+  const ecology = buildGuideMarket(workspace.jobs, ecologistGuide, workspace.aliases);
   const candidates = workspace.jobs
     .map((job) => ({ job, match: matchCareerRole(job.title, job.feed_text, workspace.aliases) }))
     .filter(
@@ -30,8 +31,8 @@ export default async function GuideAdmin({
           <h1>Career guides</h1>
         </div>
         <p>
-          Two pilot guides share the directory’s canonical vacancies. Figures update independently of reviewed
-          prose. No draft is published automatically.
+          Sector and career guides share the directory’s canonical vacancies. Figures update independently of
+          reviewed prose. No draft is published automatically.
         </p>
       </header>
       <section className="staff-section shell">
@@ -45,15 +46,13 @@ export default async function GuideAdmin({
             previews, with live directory figures. Apply the pilot migration before reviewing or publishing.
           </p>
         ) : null}
-        {pilotGuides.map((guide) => {
+        {guideCatalog.map((guide) => {
           const market = buildGuideMarket(workspace.jobs, guide, workspace.aliases),
             versions = workspace.revisions.filter((r) => r.guide_slug === guide.slug),
             published = versions.find((r) => r.status === "published");
           return (
             <article className="guide-admin-card" key={guide.slug}>
-              <h2>
-                {guide.title} {guide.accent}
-              </h2>
+              <h2>{guideName(guide)}</h2>
               <p>
                 {market.history.length} distinct adverts · {market.evidence.length} detailed feed records ·{" "}
                 {market.employers} employers · {market.current.length} open now

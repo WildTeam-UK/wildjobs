@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import type { GuideContent } from "./guide-content";
 import { guidePath } from "./guide-content";
+import { guideSectorLabels } from "./guide-sectors";
 import { guideRobots } from "./guide-indexing";
 import { SITE_URL } from "./site-indexing";
 
@@ -25,7 +26,14 @@ const copy = {
 } as const;
 
 export function guideSeoCopy(guide: Pick<GuideContent, "slug">) {
-  return copy[guide.slug];
+  if (guide.slug === "ecologist" || guide.slug === "wildlife-conservation") return copy[guide.slug];
+  const name = guideSectorLabels[guide.slug];
+  return {
+    title: `${name} careers: jobs & skills`,
+    description: `Explore ${name.toLowerCase()} careers, entry routes and skills. Compare advertised UK salaries and browse current jobs.`,
+    imageTitle: `${name} careers`,
+    imageSubtitle: "Jobs, skills, routes in and salary insights",
+  };
 }
 export function guideImagePath(slug: GuideContent["slug"] | "guides") {
   return `/guide-images/${slug}`;
@@ -33,7 +41,9 @@ export function guideImagePath(slug: GuideContent["slug"] | "guides") {
 export function guideName(guide: GuideContent) {
   return guide.kind === "career"
     ? guide.accent.charAt(0).toUpperCase() + guide.accent.slice(1)
-    : `${guide.title} ${guide.accent}`;
+    : guide.slug === "ecologist"
+      ? `${guide.title} ${guide.accent}`
+      : guideSectorLabels[guide.slug];
 }
 export function guideBreadcrumbs(guide?: GuideContent) {
   return [

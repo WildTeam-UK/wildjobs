@@ -1,9 +1,11 @@
 import { z } from "zod";
+import { guideSectorLabels, sectorGuideSlugs } from "./guide-sectors";
+import { additionalSectorGuides } from "./sector-guide-content";
 
 const paragraph = z.object({ text: z.string().max(4000), sources: z.array(z.string()) });
 const item = z.object({ title: z.string(), text: z.string() });
 export const guideContentSchema = z.object({
-  slug: z.enum(["wildlife-conservation", "ecologist"]),
+  slug: z.enum([...sectorGuideSlugs, "ecologist"]),
   kind: z.enum(["sector", "career"]),
   matchSlug: z.string(),
   version: z.number().int().positive(),
@@ -12,7 +14,7 @@ export const guideContentSchema = z.object({
   description: z.string(),
   image: z.string().startsWith("/images/"),
   imageAlt: z.string(),
-  photoCredit: z.object({ label: z.string(), url: z.url().startsWith("https://") }),
+  photoCredit: z.object({ label: z.string(), url: z.url().startsWith("https://") }).optional(),
   sources: z.array(
     z.object({
       id: z.string(),
@@ -31,7 +33,7 @@ export const guideContentSchema = z.object({
       cards: z.array(item).optional(),
       bullets: z.array(item).optional(),
       faqs: z.array(item).optional(),
-      module: z.enum(["market", "jobs", "courses", "career-course"]).optional(),
+      module: z.enum(["market", "jobs", "courses", "career-course", "roles"]).optional(),
     }),
   ),
 });
@@ -432,11 +434,15 @@ export const ecologistGuide: GuideContent = {
 };
 
 export const pilotGuides = [sectorGuide, ecologistGuide] as const;
+export const guideCatalog: readonly GuideContent[] = [...pilotGuides, ...additionalSectorGuides];
+export const sectorGuides = guideCatalog.filter((guide) => guide.kind === "sector");
 export function guidePath(guide: Pick<GuideContent, "slug" | "kind">) {
   return `/${guide.kind === "sector" ? "conservation-sector" : "conservation-career-guides"}/${guide.slug}`;
 }
-export function guideJobsPath(guide: Pick<GuideContent, "kind" | "accent">) {
-  return guide.kind === "career" ? "/?role=ecologist" : "/?sector=Wildlife%20Conservation";
+export function guideJobsPath(guide: Pick<GuideContent, "kind" | "slug" | "matchSlug">) {
+  if (guide.kind === "career") return `/?role=${encodeURIComponent(guide.matchSlug)}`;
+  if (guide.slug === "ecologist") throw new Error("A career slug cannot identify a sector guide.");
+  return `/?sector=${encodeURIComponent(guideSectorLabels[guide.slug])}`;
 }
 export function validateGuideContent(value: unknown) {
   const guide = guideContentSchema.parse(value);
