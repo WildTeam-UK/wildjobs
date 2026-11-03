@@ -22,6 +22,8 @@ This first pilot deliberately uses reviewed editorial baseline text. Automatic d
 
 ## Live data
 
+Both guide types show the overall median advertised starting salary in the top snapshot. Career-level samples and medians remain in the career guide's pay section, with the same five-salary minimum applied separately to each band. The headline combines qualifying levels; it is not an entry-level salary prediction.
+
 The pilot education and professional guidance is UK-focused. Vacancy and employer counts include matching jobs across all countries in the directory; salary medians are explicitly UK-only.
 
 Data refreshes on server requests independently of prose. Canonical job IDs count once across feeds; expired vacancies remain in the twelve-month history and are absent from current listings. The collection began in November 2026, so the lookback must not imply complete twelve-month coverage. Current jobs and the history sample can have different sizes.
@@ -33,6 +35,14 @@ Data refreshes on server requests independently of prose. Canonical job IDs coun
 Apply `20261103124240_career_guide_pilots.sql` before using the review actions, then deploy the application. The migration adds three tables, two source-evidence fields and a history index on jobs, and a service-only atomic publication function. It does not change existing job content or permissions. `lib/guide-database.types.ts` extends the existing generated schema types for these additions.
 
 Run `pnpm check` and the SQL tests in `supabase/tests/career_guides_test.sql`. Inspect both guide routes and the filtered jobs destination at desktop and phone widths, and the staff review flow using a staff account. Verify that anonymous and candidate sessions cannot read draft revisions or original text, and cannot call the publication function. Only approved guides belong in the sitemap; pending previews stay noindex.
+
+Guide routes and the guide hub explicitly set their robots metadata, overriding the template layout's default noindex. A reviewed guide can be indexed only when site indexing is enabled in production. The hub becomes eligible when at least one guide is reviewed. Preview deployments and unpublished guides remain noindex.
+
+### SEO audit · 3 November 2026
+
+The live Ecologist guide has a unique title and description, a self-referencing canonical URL, one H1, image alt attributes and server-rendered content. Guide links and per-page table-of-contents links are present. Unreviewed guides are intentionally noindex and excluded from the sitemap. The inherited noindex defect for reviewed guides and the hub is corrected in the salary-summary change and covered by metadata regression tests.
+
+This is not yet a complete SEO launch pass. Article/Breadcrumb structured data and Open Graph/Twitter sharing metadata are absent. Search-intent/content refinement, internal discovery-link review, measured mobile/Core Web Vitals checks, structured-data validation if added, and Search Console URL Inspection after editorial approval remain outstanding. Sharing metadata improves link previews; it is separate from search indexing. Structured data does not replace useful content or crawlability. Do not claim search rankings or indexation from passing application tests.
 
 No production schema, content publication or additional career-family automation should be activated by a local test run.
 

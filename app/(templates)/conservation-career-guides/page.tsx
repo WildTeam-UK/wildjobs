@@ -2,11 +2,19 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import styles from "./page.module.css";
+import { getGuideData } from "@/lib/public-guides";
+import { pilotGuides } from "@/lib/guide-content";
+import { guideRobots } from "@/lib/guide-indexing";
 
-export const metadata: Metadata = {
-  title: "Conservation sector and career guides",
-  description: "Explore conservation sectors and careers, understand the work and plan your next step.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const guides = await Promise.all(pilotGuides.map((guide) => getGuideData(guide.slug)));
+  return {
+    title: "Conservation sector and career guides",
+    description: "Explore conservation sectors and careers, understand the work and plan your next step.",
+    alternates: { canonical: "/conservation-career-guides" },
+    robots: guideRobots(guides.every((guide) => guide.isDraft)),
+  };
+}
 
 const sectors: readonly { title: string; image: string; href?: string }[] = [
   { title: "Carbon, Climate & Energy", image: "carbon-climate-energy" },

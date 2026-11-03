@@ -54,6 +54,13 @@ function MarketSnapshot({ data, detailed = false }: { data: GuideData; detailed?
           evidence in the feed or retained original advert. Check the source for the exact hours.
         </p>
         {guide.kind === "career" ? (
+          <p>
+            The headline median combines all qualifying adverts across career levels. The breakdown below
+            separates those levels, with a median shown only when a band has at least five comparable
+            salaries.
+          </p>
+        ) : null}
+        {guide.kind === "career" ? (
           <table className="guide-salary-table">
             <caption>Advertised starting salaries by career level</caption>
             <thead>
@@ -100,8 +107,8 @@ function MarketSnapshot({ data, detailed = false }: { data: GuideData; detailed?
     );
   const items = [
     {
-      label: guide.kind === "career" ? "Salary by career level" : "Median advertised starting salary",
-      value: guide.kind === "career" ? "See below" : money(market.salaryMedian),
+      label: "Median advertised starting salary",
+      value: money(market.salaryMedian),
       detail: `${market.salaryCount} comparable UK annual salaries`,
     },
     {
