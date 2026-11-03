@@ -30,7 +30,7 @@ Data refreshes on server requests independently of prose. Canonical job IDs coun
 
 ## Deployment and checks
 
-Apply `20261103115210_career_guide_pilots.sql` before using the review actions, then deploy the application. The migration adds three tables, two source-evidence fields and a history index on jobs, and a service-only atomic publication function. It does not change existing job content or permissions. `lib/guide-database.types.ts` extends the existing generated schema types for these additions.
+Apply `20261103124240_career_guide_pilots.sql` before using the review actions, then deploy the application. The migration adds three tables, two source-evidence fields and a history index on jobs, and a service-only atomic publication function. It does not change existing job content or permissions. `lib/guide-database.types.ts` extends the existing generated schema types for these additions.
 
 Run `pnpm check` and the SQL tests in `supabase/tests/career_guides_test.sql`. Inspect both guide routes and the filtered jobs destination at desktop and phone widths, and the staff review flow using a staff account. Verify that anonymous and candidate sessions cannot read draft revisions or original text, and cannot call the publication function. Only approved guides belong in the sitemap; pending previews stay noindex.
 
