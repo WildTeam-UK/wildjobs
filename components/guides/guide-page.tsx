@@ -7,10 +7,11 @@ import {
   TrainingBanner,
 } from "@/components/templates/template-parts";
 import { getGuideData } from "@/lib/public-guides";
-import { guideJobsPath, guidePath, pilotGuides } from "@/lib/guide-content";
+import { guideJobsPath, guidePath, guideCatalog } from "@/lib/guide-content";
+import { relatedGuideSlugs } from "@/lib/guide-sectors";
 import { formatSalaryLabel } from "@/lib/job-salary";
 import { GuideBreadcrumbs } from "./guide-breadcrumbs";
-import { guidePublisher, guideStructuredData, serializeStructuredData } from "@/lib/guide-seo";
+import { guideName, guidePublisher, guideStructuredData, serializeStructuredData } from "@/lib/guide-seo";
 
 type GuideData = Awaited<ReturnType<typeof getGuideData>>;
 const date = (value: string) =>
@@ -150,7 +151,17 @@ function MarketSnapshot({ data, detailed = false }: { data: GuideData; detailed?
 
 export function GuidePage({ data }: { data: GuideData }) {
   const { guide, market } = data;
-  const other = pilotGuides.find((g) => g.slug !== guide.slug)!;
+  const related = relatedGuideSlugs[guide.slug].map((slug) => guideCatalog.find((g) => g.slug === slug)!);
+  const seen = new Set<string>();
+  const roleExamples = market.history
+    .toSorted((a, b) => b.posted_at.localeCompare(a.posted_at))
+    .filter((job) => {
+      const title = job.title.trim().toLocaleLowerCase("en-GB");
+      if (seen.has(title) || job.organisation_name === "Organisation not stated") return false;
+      seen.add(title);
+      return true;
+    })
+    .slice(0, 6);
   return (
     <main>
       <script
@@ -193,7 +204,7 @@ export function GuidePage({ data }: { data: GuideData }) {
               </p>
             )}
           </div>
-          <figure className="tpl-photo">
+          <figure className={`tpl-photo${guide.photoCredit ? "" : " tpl-photo--illustration"}`}>
             <Image
               src={guide.image}
               alt={guide.imageAlt}
@@ -203,11 +214,13 @@ export function GuidePage({ data }: { data: GuideData }) {
               fetchPriority="high"
               preload
             />
-            <figcaption>
-              <a href={guide.photoCredit.url} target="_blank" rel="noopener noreferrer">
-                {guide.photoCredit.label}
-              </a>
-            </figcaption>
+            {guide.photoCredit ? (
+              <figcaption>
+                <a href={guide.photoCredit.url} target="_blank" rel="noopener noreferrer">
+                  {guide.photoCredit.label}
+                </a>
+              </figcaption>
+            ) : null}
           </figure>
         </div>
       </section>
@@ -279,6 +292,22 @@ export function GuidePage({ data }: { data: GuideData }) {
                 </div>
               ) : null}
               {section.module === "market" ? <MarketSnapshot data={data} detailed /> : null}
+              {section.module === "roles" ? (
+                roleExamples.length ? (
+                  <ul className="guide-role-examples">
+                    {roleExamples.map((job) => (
+                      <li key={job.id}>
+                        <a href={job.source_url} target="_blank" rel="noopener noreferrer">
+                          {job.title} · {job.organisation_name}
+                        </a>
+                        <p>Advert posted {date(job.posted_at)} · May now be closed</p>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p>No named-employer advert examples are available in this sample yet.</p>
+                )
+              ) : null}
               {section.module === "courses" ? (
                 <>
                   <CourseTiles />
@@ -342,7 +371,7 @@ export function GuidePage({ data }: { data: GuideData }) {
               employers’ requirements, not universal rules for a career.
             </p>
             <p>
-              The education and professional guidance in these pilots is UK-focused. Routes and requirements
+              The education and professional guidance in these guides is UK-focused. Routes and requirements
               can differ elsewhere; check local professional bodies, training providers and employers.
             </p>
             <ol className="tpl-source-list">
@@ -378,7 +407,7 @@ export function GuidePage({ data }: { data: GuideData }) {
               Written guidance is versioned and reviewed separately from live figures.{" "}
               {data.reviewedAt
                 ? `Last editorial review: ${date(data.reviewedAt)}.`
-                : "This pilot is awaiting editorial approval."}{" "}
+                : "This guide is awaiting editorial approval."}{" "}
               Sources are due for review within 90 days of their checked date, or sooner if relevant
               information changes.
             </p>
@@ -399,9 +428,11 @@ export function GuidePage({ data }: { data: GuideData }) {
       <div className="shell">
         <TrainingBanner membership />
         <div className="tpl-footer-links">
-          <Link href={guidePath(other)}>
-            Explore the {other.kind === "sector" ? "Wildlife Conservation sector" : "ecologist career"} guide
-          </Link>
+          {related.map((other) => (
+            <Link key={other.slug} href={guidePath(other)}>
+              Explore the {guideName(other)} {other.kind} guide
+            </Link>
+          ))}
           <Link href="/conservation-career-guides">All conservation guides</Link>
         </div>
       </div>

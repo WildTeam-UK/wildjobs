@@ -11,7 +11,7 @@ import {
   publishPilotDraft,
   refreshPilotDrafts,
 } from "../lib/guide-workflow";
-import { pilotGuides } from "../lib/guide-content";
+import { pilotGuides, sectorGuides } from "../lib/guide-content";
 
 const now = new Date("2026-11-03T12:00:00Z");
 let revisions: GuideRevision[], jobs: GuideJob[];
@@ -150,4 +150,37 @@ it("keeps evidence fingerprints stable across requests and rejects stale researc
       now,
     ),
   ).toBe(false);
+});
+it.each(sectorGuides)(
+  "queues $slug against its own advert sample and keeps it private until approval",
+  async (guide) => {
+    jobs = jobs.map((job) => ({ ...job, sector_slugs: [guide.matchSlug] }));
+    await refreshPilotDrafts(guide.slug);
+    expect(revisions).toHaveLength(1);
+    expect(revisions[0]).toMatchObject({ guide_slug: guide.slug, status: "draft", reviewed_at: null });
+    expect(revisions[0].evidence).toMatchObject({ jobIds: jobs.map((job) => job.id) });
+    await publishPilotDraft(revisions[0].id, revisions[0].input_hash);
+    expect(revisions[0].status).toBe("published");
+  },
+);
+it("does not queue sector evidence drafts without matching adverts", async () => {
+  jobs = [];
+  await refreshPilotDrafts();
+  expect(revisions).toEqual([]);
+});
+it("does not mistake equivalent content field order for changed evidence", () => {
+  const guide = sectorGuides.find((g) => g.slug === "ecology")!;
+  const reordered = {
+    ...guide,
+    sources: guide.sources.map((s) => ({
+      supports: s.supports,
+      checkedAt: s.checkedAt,
+      url: s.url,
+      title: s.title,
+      id: s.id,
+    })),
+  };
+  expect(guideEvidence(reordered, jobs, [], now).inputHash).toBe(
+    guideEvidence(guide, jobs, [], now).inputHash,
+  );
 });

@@ -4,29 +4,18 @@ import Link from "next/link";
 import styles from "./page.module.css";
 import { getReviewedGuideIndex } from "@/lib/public-guides";
 import { guideHubMetadata, guideHubStructuredData, serializeStructuredData } from "@/lib/guide-seo";
+import { guideSectorLabels, sectorGuideSlugs } from "@/lib/guide-sectors";
 import { GuideBreadcrumbs } from "@/components/guides/guide-breadcrumbs";
 
 export async function generateMetadata(): Promise<Metadata> {
   return guideHubMetadata(!(await getReviewedGuideIndex()).length);
 }
 
-const sectors: readonly { title: string; image: string; href?: string }[] = [
-  { title: "Carbon, Climate & Energy", image: "carbon-climate-energy" },
-  {
-    title: "Wildlife Conservation",
-    image: "wildlife-conservation",
-    href: "/conservation-sector/wildlife-conservation",
-  },
-  { title: "Ecology", image: "ecology" },
-  { title: "Environmental Education", image: "environmental-education" },
-  { title: "Environmental Management", image: "environmental-management" },
-  { title: "Food, Farming & Horticulture", image: "food-farming-horticulture" },
-  { title: "Marine Conservation", image: "marine-conservation" },
-  { title: "Policy & Campaigning", image: "policy-campaigning" },
-  { title: "Rivers, Water & Hydrology", image: "rivers-water-hydrology" },
-  { title: "Sustainability", image: "sustainability" },
-  { title: "Sustainable Transport", image: "sustainable-transport" },
-];
+const sectors = sectorGuideSlugs.map((slug) => ({
+  title: guideSectorLabels[slug],
+  image: slug,
+  href: `/conservation-sector/${slug}`,
+}));
 
 const careers: readonly { title: string; description: string; href?: string }[] = [
   {
@@ -60,6 +49,7 @@ const careers: readonly { title: string; description: string; href?: string }[] 
 
 export default async function CareerGuidesPage() {
   const reviewed = await getReviewedGuideIndex();
+  const reviewedSlugs = new Set(reviewed.map(({ guide }) => guide.slug));
   return (
     <main className={styles.page}>
       <script
@@ -99,6 +89,9 @@ export default async function CareerGuidesPage() {
                   />
                 </div>
                 <h2>{sector.title}</h2>
+                <span className={styles.sectorStatus}>
+                  {reviewedSlugs.has(sector.image) ? "Read the guide" : "Guide preview"}
+                </span>
               </>
             );
             return sector.href ? (

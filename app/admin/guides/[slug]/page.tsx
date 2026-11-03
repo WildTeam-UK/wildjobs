@@ -3,7 +3,8 @@ import Link from "next/link";
 import { requireStaff } from "@/lib/auth/staff";
 import { guideWorkspace, guideSourcesCurrent } from "@/lib/guide-workflow";
 import { buildGuideMarket } from "@/lib/guide-market";
-import { pilotGuides, validateGuideContent } from "@/lib/guide-content";
+import { guideCatalog, validateGuideContent } from "@/lib/guide-content";
+import { guideName } from "@/lib/guide-seo";
 import { GuidePage } from "@/components/guides/guide-page";
 import { approveGuide, refreshGuide } from "../actions";
 import { SubmitButton } from "@/components/submit-button";
@@ -12,7 +13,7 @@ import "@/app/(templates)/templates.css";
 export default async function GuideReview({ params }: { params: Promise<{ slug: string }> }) {
   await requireStaff();
   const { slug } = await params,
-    definition = pilotGuides.find((g) => g.slug === slug);
+    definition = guideCatalog.find((g) => g.slug === slug);
   if (!definition) notFound();
   const workspace = await guideWorkspace(),
     versions = workspace.revisions.filter((r) => r.guide_slug === slug),
@@ -38,7 +39,7 @@ export default async function GuideReview({ params }: { params: Promise<{ slug: 
         <p>
           <Link href="/admin/guides">Back to guide management</Link>
         </p>
-        <h1>Review {guide.accent}</h1>
+        <h1>Review {guideName(guide)}</h1>
         <p>
           Check the factual claims and cited sources, role matches, original adverts and salary methodology.
           The draft uses a versioned editorial baseline; evidence refreshes do not invent or rewrite career

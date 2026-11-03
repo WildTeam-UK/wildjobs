@@ -1,18 +1,18 @@
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { ImageResponse } from "next/og";
-import { pilotGuides } from "@/lib/guide-content";
+import { guideCatalog } from "@/lib/guide-content";
 import { guideImageSize, guideSeoCopy } from "@/lib/guide-seo";
 
 export const dynamic = "force-static";
 export const dynamicParams = false;
 export function generateStaticParams() {
-  return [...pilotGuides.map(({ slug }) => ({ slug })), { slug: "guides" }];
+  return [...guideCatalog.map(({ slug }) => ({ slug })), { slug: "guides" }];
 }
 
 export async function GET(_request: Request, { params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const guide = pilotGuides.find((guide) => guide.slug === slug);
+  const guide = guideCatalog.find((guide) => guide.slug === slug);
   if (!guide && slug !== "guides") return new Response("Not found", { status: 404 });
   const copy = guide
     ? guideSeoCopy(guide)
@@ -71,10 +71,14 @@ export async function GET(_request: Request, { params }: { params: Promise<{ slu
       {/* oxlint-disable-next-line nextjs/no-img-element */}
       <img
         alt=""
-        src={`data:image/jpeg;base64,${photo.toString("base64")}`}
+        src={`data:image/${guide?.image.endsWith(".png") ? "png" : "jpeg"};base64,${photo.toString("base64")}`}
         width={444}
         height={542}
-        style={{ objectFit: "cover", borderRadius: 28 }}
+        style={{
+          objectFit: guide && !guide.photoCredit ? "contain" : "cover",
+          borderRadius: 28,
+          background: "#f5eff7",
+        }}
       />
     </div>,
     {

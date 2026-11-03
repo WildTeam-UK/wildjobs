@@ -221,3 +221,9 @@ a.sectorTile:hover h2 {
     transform: scale(1.025);
   }
 }
+.sectorStatus {
+  display: block;
+  margin-top: 8px;
+  color: var(--wt-color-brand-purple);
+  font-size: 0.8rem;
+}

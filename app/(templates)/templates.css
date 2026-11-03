@@ -43,6 +43,13 @@
   color: var(--wt-color-muted);
   font-size: 0.9rem;
 }
+.tpl-photo--illustration img {
+  background: var(--tpl-soft-purple);
+}
+.guide-role-examples li p {
+  font-size: 0.8rem;
+  margin-top: 4px;
+}
 .guide-citations {
   white-space: nowrap;
   font-size: 0.8em;

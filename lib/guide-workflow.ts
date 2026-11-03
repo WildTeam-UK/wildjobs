@@ -3,10 +3,11 @@ import { createHash } from "node:crypto";
 import { createTrustedClient } from "./supabase/trusted";
 import { getGuideJobs } from "./public-guides";
 import { guideSchemaUnavailable } from "./public-career-roles";
-import { pilotGuides, validateGuideContent, type GuideContent } from "./guide-content";
+import { guideCatalog, validateGuideContent, type GuideContent } from "./guide-content";
 import { buildGuideMarket, guideMatches, hasFullTimeEvidence, type GuideJob } from "./guide-market";
 import { normalizeRoleTitle, roleMatchingVersion, type RoleAlias } from "./career-role-matching";
 import { fetchAdvert } from "./directory-advert";
+import { sanitizeGuideEvidenceText } from "./guide-evidence-privacy";
 import type { Json } from "./supabase/database.types";
 
 export const guideReviewDays = 90;
@@ -59,7 +60,9 @@ export function guideEvidence(
       feedHash: job.feed_hash,
     }));
   const inputHash = hash({
-    guide,
+    // Source files and JSONB can present the same fields in a different order.
+    // Hash the validated shape consistently with draft preparation and review.
+    guide: validateGuideContent(guide),
     matchingVersion: roleMatchingVersion,
     aliases: [...aliases].toSorted((a, b) => a.normalized_title.localeCompare(b.normalized_title)),
     inputs,
@@ -92,10 +95,11 @@ export async function refreshPilotDrafts(forceSlug?: string) {
   if (!workspace.schemaReady) return { created: 0, schemaReady: false };
   const db = createTrustedClient();
   let created = 0;
-  for (const definition of pilotGuides) {
+  for (const definition of guideCatalog) {
     if (forceSlug && forceSlug !== definition.slug) continue;
     const guide = validateGuideContent(definition);
     const { market, inputHash, snapshot } = guideEvidence(guide, workspace.jobs, workspace.aliases);
+    if (guide.kind === "sector" && !market.history.length) continue;
     if ((guide.kind === "career" && !market.draftEligible) || !guideSourcesCurrent(guide)) continue;
     const existing = workspace.revisions.filter((r) => r.guide_slug === guide.slug);
     if (existing.some((r) => r.status === "published" && r.input_hash === inputHash)) continue;
@@ -162,11 +166,9 @@ export async function recordGuideAdvert(
         feed_hash: job.feed_hash,
         source_url: job.source_url,
         source_kind: kind,
-        source_text:
-          `${kind === "advert" && statedHours ? `Advert structured employment type: ${statedHours}\n\n` : ""}${text}`.slice(
-            0,
-            40000,
-          ),
+        source_text: sanitizeGuideEvidenceText(
+          `${kind === "advert" && statedHours ? `Advert structured employment type: ${statedHours}\n\n` : ""}${text}`,
+        ).slice(0, 40000),
         captured_at: new Date().toISOString(),
       },
       { onConflict: "job_id,feed_hash", ignoreDuplicates: true },
@@ -216,7 +218,7 @@ export async function collectPilotAdverts() {
   const candidates = workspace.jobs
     .filter(
       (j) =>
-        pilotGuides.some((g) => guideMatches(j, g, workspace.aliases)) &&
+        guideCatalog.some((g) => guideMatches(j, g, workspace.aliases)) &&
         !hashes.has(`${j.id}:${j.feed_hash}`),
     )
     .slice(0, 10);
@@ -273,7 +275,7 @@ export async function publishPilotDraft(id: number, expectedHash: string) {
   );
   if (!draft) throw new Error("This draft has changed. Reload before reviewing it.");
   const guide = validateGuideContent(draft.content),
-    current = pilotGuides.find((g) => g.slug === draft.guide_slug);
+    current = guideCatalog.find((g) => g.slug === draft.guide_slug);
   if (
     !current ||
     guide.slug !== current.slug ||
@@ -287,6 +289,8 @@ export async function publishPilotDraft(id: number, expectedHash: string) {
     throw new Error("The evidence changed. Refresh the draft and review it again.");
   if (guide.kind === "career" && !evidence.market.draftEligible)
     throw new Error("Ten distinct detailed adverts from at least two employers are required.");
+  if (guide.kind === "sector" && !evidence.market.history.length)
+    throw new Error("At least one matching advert is required for a sector evidence draft.");
   const result = await createTrustedClient().rpc("publish_career_guide", {
     p_id: id,
     p_input_hash: expectedHash,

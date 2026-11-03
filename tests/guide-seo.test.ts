@@ -1,5 +1,5 @@
 import { expect, it } from "vitest";
-import { pilotGuides, guidePath } from "../lib/guide-content";
+import { pilotGuides, guideCatalog, guidePath } from "../lib/guide-content";
 import { SITE_URL } from "../lib/site-indexing";
 import {
   guideBreadcrumbs,
@@ -15,7 +15,7 @@ const mocks = vi.hoisted(() => ({ index: vi.fn() }));
 vi.mock("../lib/public-guides", () => ({ getReviewedGuideIndex: mocks.index }));
 afterEach(() => vi.unstubAllEnvs());
 
-it.each(pilotGuides)("gives $slug complete canonical sharing metadata", (guide) => {
+it.each(guideCatalog)("gives $slug complete canonical sharing metadata", (guide) => {
   const metadata = guideMetadata({ guide, isDraft: true });
   expect(metadata.alternates?.canonical).toBe(guidePath(guide));
   expect(metadata.openGraph).toMatchObject({
@@ -30,7 +30,7 @@ it.each(pilotGuides)("gives $slug complete canonical sharing metadata", (guide) 
   expect(metadata.description!.length).toBeLessThanOrEqual(160);
 });
 
-it.each(pilotGuides)(
+it.each(guideCatalog)(
   "keeps $slug structured data consistent with visible content and breadcrumbs",
   (guide) => {
     const graph = guideStructuredData({ guide, isDraft: true })["@graph"];
