@@ -12,6 +12,7 @@ import { completeSalary, extractSalary, normaliseSalary, parseSalary } from "./j
 import { findOrganisationLogo } from "./organisation-logo";
 import { plainText } from "./directory-text";
 import { findEmployerWebsite } from "./employer-websites";
+import { recordGuideAdvert, refreshPilotDrafts } from "./guide-workflow";
 
 type DirectoryJob = Database["public"]["Tables"]["directory_jobs"]["Row"];
 function check<T>(result: { data: T; error: unknown }): { data: NonNullable<T> } {
@@ -112,6 +113,7 @@ export async function syncDirectory(force = false, sourceId?: number) {
     const enrichedJobs: {
       job: DirectoryJob;
       description: string;
+      sourceHours?: string | null;
       logos: { url: string; alt: string }[];
       websites: string[];
     }[] = [];
@@ -198,6 +200,7 @@ export async function syncDirectory(force = false, sourceId?: number) {
           enrichedJobs.push({
             job: updated,
             description: advert.description || job.feed_text,
+            sourceHours: advert.hours,
             logos: advert.logoCandidates,
             websites: advert.websiteCandidates,
           });
@@ -344,6 +347,21 @@ export async function syncDirectory(force = false, sourceId?: number) {
         ).data;
         if (applied) stats.ai_completed++;
       }
+    }
+    // Keep a private original-text snapshot, separate from the AI card summary.
+    // Guide failures must not discard a healthy job import.
+    try {
+      for (const { job, description, sourceHours } of enrichedJobs) {
+        await recordGuideAdvert(
+          job,
+          description,
+          description === job.feed_text ? "feed" : "advert",
+          sourceHours,
+        );
+      }
+      await refreshPilotDrafts();
+    } catch {
+      sourceErrors.push("Guide evidence refresh needs attention in the staff workspace");
     }
     const error = sourceErrors.join("; ").slice(0, 1000) || null;
     const status = error ? "partial" : "complete";

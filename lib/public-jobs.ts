@@ -7,6 +7,8 @@ import type { Database } from "./supabase/database.types";
 import { createPublicClient } from "./supabase/public";
 import { getPublicCourses } from "./public-courses";
 import { getPublicCareerAreas } from "./public-career-areas";
+import { getPublicRoleAliases } from "./public-career-roles";
+import { matchCareerRole } from "./career-role-matching";
 import {
   directoryDeadline,
   directoryFacts,
@@ -16,10 +18,11 @@ import {
 
 type DirectoryJob = Database["public"]["Tables"]["directory_jobs"]["Row"];
 export async function mapDirectoryJobs(records: readonly DirectoryJob[]): Promise<readonly Job[]> {
-  const [courses, sectors, organisations] = await Promise.all([
+  const [courses, sectors, organisations, roles] = await Promise.all([
     getPublicCourses(),
     getPublicCareerAreas(),
     createPublicClient().from("directory_organisations").select("name,logo_url,website_url"),
+    getPublicRoleAliases(),
   ]);
   if (organisations.error) throw new Error("Organisation logos could not be loaded.");
   const employers = new Map(organisations.data.map((o) => [o.name, o]));
@@ -34,6 +37,7 @@ export async function mapDirectoryJobs(records: readonly DirectoryJob[]): Promis
     const salary = parseSalary(row.salary_text);
     return {
       id: row.id,
+      roleSlug: matchCareerRole(row.title, row.feed_text, roles.aliases).roleSlug ?? undefined,
       slug: row.slug,
       title: row.title,
       organisation: row.organisation_name,

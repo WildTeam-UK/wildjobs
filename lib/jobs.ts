@@ -30,6 +30,7 @@ export type Job = Readonly<{
   slug: string;
   title: string;
   organisation: string;
+  roleSlug?: string;
   location: string;
   locationLocality?: string;
   locationRegion?: string;

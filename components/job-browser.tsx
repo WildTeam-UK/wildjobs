@@ -63,6 +63,7 @@ type FilterIconName =
 type FilterOption = Readonly<{ label: string; value: string; count?: number }>;
 type LocationSuggestion = Readonly<{ detail?: string; label: string; value: string }>;
 type BrowserFilters = Readonly<{
+  roleSlug: string;
   query: string;
   locationQuery: string;
   locationType: LocationType | "";
@@ -571,6 +572,7 @@ export function JobBrowser({
     initialFilters.employmentType ?? "",
   );
   const [category, setCategory] = useState(initialFilters.category ?? "");
+  const [roleSlug, setRoleSlug] = useState(initialFilters.roleSlug ?? "");
   const [contractType, setContractType] = useState(initialFilters.contractType ?? "");
   const [courseSlugs, setCourseSlugs] = useState<readonly string[]>(() => {
     const availableCourseSlugs = new Set(courses.map((course) => course.slug));
@@ -596,6 +598,7 @@ export function JobBrowser({
   const filterBarRef = useRef<HTMLDivElement>(null);
   const filterPillsRef = useRef<HTMLDivElement>(null);
   const filterValues = {
+    roleSlug,
     category,
     contractType,
     courseSlugs,
@@ -637,6 +640,7 @@ export function JobBrowser({
   const pageStart = (activePage - 1) * jobsPerPage;
   const paginatedJobs = filteredJobs.slice(pageStart, pageStart + jobsPerPage);
   const hasFilters = Boolean(
+    roleSlug ||
     query ||
     locationQuery ||
     locationType ||
@@ -732,6 +736,7 @@ export function JobBrowser({
     if (filters.employmentType) params.set("type", filters.employmentType);
     if (filters.contractType) params.set("contract", filters.contractType);
     if (filters.category) params.set("sector", filters.category);
+    if (filters.roleSlug) params.set("role", filters.roleSlug);
     filters.courseSlugs.forEach((slug) => params.append("course", slug));
     if (filters.minimumSalary) params.set("salary", String(filters.minimumSalary));
     if (filters.sortOrder !== "relevance") params.set("sort", filters.sortOrder);
@@ -750,6 +755,7 @@ export function JobBrowser({
 
   function currentFilters(overrides: Partial<BrowserFilters> = {}): BrowserFilters {
     return {
+      roleSlug,
       category,
       contractType,
       courseSlugs,
@@ -806,6 +812,7 @@ export function JobBrowser({
   }
 
   function clearFilters() {
+    setRoleSlug("");
     setQuery("");
     setLocationQuery("");
     setLocationType("");
@@ -816,6 +823,7 @@ export function JobBrowser({
     setCourseSlugs([]);
     setMinimumSalary(0);
     syncUrl({
+      roleSlug: "",
       category: "",
       contractType: "",
       courseSlugs: [],
@@ -1100,6 +1108,21 @@ export function JobBrowser({
       <div className="shell">
         <div className="job-browser__layout">
           <div className="job-results" ref={resultsRef}>
+            {roleSlug ? (
+              <p className="course-match-note">
+                Career role: {roleSlug === "ecologist" ? "Ecologist" : roleSlug}{" "}
+                <button
+                  className="job-filter-clear"
+                  type="button"
+                  onClick={() => {
+                    setRoleSlug("");
+                    syncUrl(currentFilters({ roleSlug: "" }));
+                  }}
+                >
+                  Clear career role
+                </button>
+              </p>
+            ) : null}
             <div className="job-results__heading">
               <p aria-live="polite">
                 {filteredJobs.length} Currently available {filteredJobs.length === 1 ? "role" : "roles"}
