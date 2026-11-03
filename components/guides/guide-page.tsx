@@ -5,13 +5,15 @@ import {
   GuideContents,
   GuideSection,
   TrainingBanner,
+  careerCourseUrl,
 } from "@/components/templates/template-parts";
 import { getGuideData } from "@/lib/public-guides";
 import { guideJobsPath, guidePath, guideCatalog } from "@/lib/guide-content";
 import { relatedGuideSlugs } from "@/lib/guide-sectors";
-import { formatSalaryLabel } from "@/lib/job-salary";
+import { EditorialImageCredit } from "@/components/editorial-image-credit";
+import { GuideOpportunities } from "./guide-opportunities";
 import { GuideBreadcrumbs } from "./guide-breadcrumbs";
-import { guideName, guidePublisher, guideStructuredData, serializeStructuredData } from "@/lib/guide-seo";
+import { guideName, guideStructuredData, serializeStructuredData } from "@/lib/guide-seo";
 
 type GuideData = Awaited<ReturnType<typeof getGuideData>>;
 const date = (value: string) =>
@@ -181,12 +183,6 @@ export function GuidePage({ data }: { data: GuideData }) {
               {guide.title} <span className="tpl-gradient">{guide.accent}</span>
             </h1>
             <p className="tpl-hero__lead">{guide.description}</p>
-            <p className="guide-byline">
-              By{" "}
-              <a href={guidePublisher.url} rel="author">
-                {guidePublisher.name}
-              </a>
-            </p>
             <div className="tpl-actions">
               <a className="action" href={`#${guide.sections[0].id}`}>
                 Find your route in
@@ -215,11 +211,10 @@ export function GuidePage({ data }: { data: GuideData }) {
               preload
             />
             {guide.photoCredit ? (
-              <figcaption>
-                <a href={guide.photoCredit.url} target="_blank" rel="noopener noreferrer">
-                  {guide.photoCredit.label}
-                </a>
-              </figcaption>
+              <EditorialImageCredit
+                creatorName={guide.photoCredit.label.replace(/ \/ Unsplash$/, "")}
+                sourceUrl={guide.photoCredit.url}
+              />
             ) : null}
           </figure>
         </div>
@@ -242,7 +237,7 @@ export function GuidePage({ data }: { data: GuideData }) {
               number={`${String(index + 1).padStart(2, "0")} · ${section.label}`}
               title={section.title}
             >
-              {section.paragraphs.map((p) => (
+              {section.paragraphs.map((p, paragraphIndex) => (
                 <p key={p.text}>
                   {p.text}
                   {p.sources.length ? (
@@ -258,6 +253,12 @@ export function GuidePage({ data }: { data: GuideData }) {
                         </a>
                       ))}
                     </span>
+                  ) : null}
+                  {section.module === "jobs" && paragraphIndex === section.paragraphs.length - 1 ? (
+                    <>
+                      {" "}
+                      <Link href={guideJobsPath(guide)}>Browse all matching jobs</Link>.
+                    </>
                   ) : null}
                 </p>
               ))}
@@ -287,6 +288,15 @@ export function GuidePage({ data }: { data: GuideData }) {
                     <details key={item.title}>
                       <summary>{item.title}</summary>
                       <p>{item.text}</p>
+                      {item.title === "Where should I start?" ? (
+                        <p>
+                          We believe our free{" "}
+                          <a href={careerCourseUrl} target="_blank" rel="noopener noreferrer">
+                            Launching Your Career in Conservation course
+                          </a>{" "}
+                          is a great place to start learning how to land your dream job in conservation.
+                        </p>
+                      ) : null}
                     </details>
                   ))}
                 </div>
@@ -319,45 +329,7 @@ export function GuidePage({ data }: { data: GuideData }) {
               {section.module === "career-course" ? (
                 <TrainingBanner courseTheme={guide.kind === "sector" ? "green" : "brand"} />
               ) : null}
-              {section.module === "jobs" ? (
-                <>
-                  <div className="tpl-example-jobs">
-                    {market.current
-                      .toSorted((a, b) => b.posted_at.localeCompare(a.posted_at))
-                      .slice(0, 3)
-                      .map((job) => (
-                        <article className="tpl-example-job" key={job.id}>
-                          <h3>
-                            <a href={job.source_url} target="_blank" rel="noopener noreferrer">
-                              {job.title}
-                            </a>
-                          </h3>
-                          <p>{job.organisation_name}</p>
-                          <p>{formatSalaryLabel(job.salary_text)}</p>
-                          <a
-                            className="action"
-                            href={job.source_url}
-                            aria-label={`Apply via ${job.source_name}: ${job.title}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                          >
-                            Apply via {job.source_name}
-                          </a>
-                        </article>
-                      ))}
-                  </div>
-                  {!market.current.length ? (
-                    <p>
-                      No matching roles are open in the directory right now. Check back for new opportunities.
-                    </p>
-                  ) : null}
-                  <p>
-                    <Link className="action" href={guideJobsPath(guide)}>
-                      Browse all matching jobs
-                    </Link>
-                  </p>
-                </>
-              ) : null}
+              {section.module === "jobs" ? <GuideOpportunities jobs={market.current} /> : null}
             </GuideSection>
           ))}
           <GuideSection
