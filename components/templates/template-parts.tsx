@@ -203,7 +203,11 @@ export function TrainingBanner({
               ? "Launching your career in conservation"
               : "Your next chapter starts with a plan"}
         </Heading>
-        {!compact ? (
+        {compact ? (
+          <p className="tpl-training-banner__description">
+            Find your direction and plan your next steps towards a career in conservation.
+          </p>
+        ) : (
           <p>
             {membership ? (
               "Build practical skills across conservation. Explore membership for access to WildTeam’s course collection."
@@ -214,7 +218,7 @@ export function TrainingBanner({
               </>
             )}
           </p>
-        ) : null}
+        )}
         <a
           className="action"
           href={membership ? membershipUrl : careerCourseUrl}
