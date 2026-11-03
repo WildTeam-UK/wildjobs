@@ -3,7 +3,8 @@ import { requireStaff } from "@/lib/auth/staff";
 import { guideWorkspace, guideSourcesCurrent } from "@/lib/guide-workflow";
 import { buildGuideMarket } from "@/lib/guide-market";
 import { matchCareerRole, normalizeRoleTitle } from "@/lib/career-role-matching";
-import { guideCatalog, ecologistGuide, guidePath } from "@/lib/guide-content";
+import { guideCatalog, guidePath } from "@/lib/guide-content";
+import { careerRoleLabels, careerRoleSlugs } from "@/lib/career-role-catalog";
 import { guideName } from "@/lib/guide-seo";
 import { collectGuideEvidence, refreshGuide, reviewRole } from "./actions";
 import { SubmitButton } from "@/components/submit-button";
@@ -15,7 +16,6 @@ export default async function GuideAdmin({
 }) {
   await requireStaff();
   const [workspace, params] = await Promise.all([guideWorkspace(), searchParams]);
-  const ecology = buildGuideMarket(workspace.jobs, ecologistGuide, workspace.aliases);
   const candidates = workspace.jobs
     .map((job) => ({ job, match: matchCareerRole(job.title, job.feed_text, workspace.aliases) }))
     .filter(
@@ -42,8 +42,8 @@ export default async function GuideAdmin({
         ) : null}
         {!workspace.schemaReady ? (
           <p role="status">
-            Guide storage is not installed in this environment yet. The public pages remain clearly labelled
-            previews, with live directory figures. Apply the pilot migration before reviewing or publishing.
+            The guide storage migrations need attention. Existing published guides remain available. Apply the
+            guide expansion migration before preparing or publishing new evidence drafts.
           </p>
         ) : null}
         {guideCatalog.map((guide) => {
@@ -54,7 +54,7 @@ export default async function GuideAdmin({
             <article className="guide-admin-card" key={guide.slug}>
               <h2>{guideName(guide)}</h2>
               <p>
-                {market.history.length} distinct adverts · {market.evidence.length} detailed feed records ·{" "}
+                {market.history.length} distinct adverts · {market.evidence.length} detailed source records ·{" "}
                 {market.employers} employers · {market.current.length} open now
               </p>
               <p>
@@ -103,10 +103,11 @@ export default async function GuideAdmin({
         ) : null}
       </section>
       <section className="staff-section shell">
-        <h2>Ecologist role matching</h2>
+        <h2>Career role matching</h2>
         <p>
-          {ecology.review.length} titles need review. A confirmed mapping applies to future adverts with the
-          same normalised title. It does not change the source title or merge different seniority levels.
+          {candidates.filter(({ match }) => match.status === "review").length} titles need review. A confirmed
+          mapping applies to future adverts with the same normalised title. It does not change the source
+          title or merge different seniority levels.
         </p>
         <div className="guide-role-review">
           {candidates.map(({ job, match }) => (
@@ -121,6 +122,7 @@ export default async function GuideAdmin({
               </summary>
               <p>
                 {match.reason} · Level: {match.seniority}
+                {match.roleSlug ? ` · Family: ${careerRoleLabels[match.roleSlug]}` : ""}
               </p>
               <p>{job.feed_text.slice(0, 1800)}</p>
               <p>
@@ -131,10 +133,29 @@ export default async function GuideAdmin({
               {workspace.schemaReady ? (
                 <form action={reviewRole}>
                   <input type="hidden" name="job_id" value={job.id} />
+                  <label>
+                    Occupation family{" "}
+                    <select name="role_slug" defaultValue={match.roleSlug ?? ""} required>
+                      <option value="" disabled>
+                        Choose a career family
+                      </option>
+                      {careerRoleSlugs.map((slug) => (
+                        <option key={slug} value={slug}>
+                          {careerRoleLabels[slug]}
+                        </option>
+                      ))}
+                    </select>
+                  </label>{" "}
                   <button className="action" type="submit" name="decision" value="include">
-                    Include in ecologist family
+                    Confirm role family
                   </button>{" "}
-                  <button className="action action--outline" type="submit" name="decision" value="exclude">
+                  <button
+                    className="action action--outline"
+                    type="submit"
+                    name="decision"
+                    value="exclude"
+                    formNoValidate
+                  >
                     Exclude this title
                   </button>
                 </form>

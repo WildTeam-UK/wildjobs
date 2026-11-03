@@ -132,6 +132,26 @@ describe("guide evidence and salary samples", () => {
     expect(market.salaryGroups).toEqual([{ level: "early-career", count: 5, median: 32000 }]);
     expect(buildGuideMarket(valid.slice(1), scope, [], now).salaryMedian).toBeNull();
   });
+  it("accepts detailed retained evidence only for the current feed hash, without relaxing salary rules", () => {
+    const records = Array.from({ length: 10 }, (_, i) =>
+      job(i, {
+        feed_text: "Brief excerpt",
+        feed_hash: `current-${i}`,
+        retained_evidence_hash: `current-${i}`,
+      }),
+    );
+    const market = buildGuideMarket(records, scope, [], now);
+    expect(market.draftEligible).toBe(true);
+    expect(market.salaryCount).toBe(0);
+    expect(
+      buildGuideMarket(
+        records.map((j) => ({ ...j, retained_evidence_hash: "stale" })),
+        scope,
+        [],
+        now,
+      ).draftEligible,
+    ).toBe(false);
+  });
   it("uses exact sector membership, not a matching word in the title", () => {
     expect(
       buildGuideMarket(

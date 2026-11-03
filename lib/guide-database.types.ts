@@ -40,6 +40,7 @@ export type DatabaseWithGuides = Omit<Database, "public"> & {
           source_url: string;
           source_kind: string;
           source_text: string;
+          is_detailed: boolean;
           captured_at: string;
         },
         {

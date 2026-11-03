@@ -3,6 +3,8 @@ import { parseSalary } from "./job-salary";
 import { matchCareerRole, type RoleAlias, type RoleMatch } from "./career-role-matching";
 
 export type GuideJob = Readonly<{
+  // Private workflow enrichment; never includes the retained advert body.
+  retained_evidence_hash?: string | null;
   feed_hash?: string;
   salary_full_time_evidence?: boolean;
   salary_evidence_hash?: string | null;
@@ -68,7 +70,10 @@ export function buildGuideMarket(
     (j) => new Date(j.posted_at) >= new Date(start) && new Date(j.posted_at) <= now,
   );
   const current = matched.filter((j) => new Date(j.posted_at) <= now && isDirectoryJobLive(j, now));
-  const evidence = history.filter((j) => j.feed_text.trim().length >= 200);
+  const evidence = history.filter(
+    (j) =>
+      j.feed_text.trim().length >= 200 || Boolean(j.feed_hash && j.retained_evidence_hash === j.feed_hash),
+  );
   const groups = new Map<RoleMatch["seniority"], number[]>();
   const salaries: number[] = [];
   for (const job of history) {

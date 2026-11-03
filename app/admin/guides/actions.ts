@@ -10,6 +10,7 @@ import {
 } from "@/lib/guide-workflow";
 import { guideCatalog, guidePath } from "@/lib/guide-content";
 import { createTrustedClient } from "@/lib/supabase/trusted";
+import { isCareerRoleSlug } from "@/lib/career-role-catalog";
 
 function revalidateGuides() {
   revalidatePath("/");
@@ -35,9 +36,11 @@ export async function collectGuideEvidence() {
 export async function reviewRole(form: FormData) {
   await requireStaff();
   const id = Number(form.get("job_id")),
-    decision = String(form.get("decision"));
+    decision = String(form.get("decision")),
+    role = String(form.get("role_slug") ?? "");
   if (!Number.isSafeInteger(id) || id <= 0 || !["include", "exclude"].includes(decision))
     throw new Error("Choose a valid role decision.");
+  if (decision === "include" && !isCareerRoleSlug(role)) throw new Error("Choose an occupation family.");
   const job = await createTrustedClient()
     .from("directory_jobs")
     .select("title")
@@ -45,7 +48,7 @@ export async function reviewRole(form: FormData) {
     .is("merged_into", null)
     .single();
   if (job.error) throw new Error("This advert could not be found.");
-  await setRoleAlias(job.data.title, decision === "include");
+  await setRoleAlias(job.data.title, decision === "include" && isCareerRoleSlug(role) ? role : null);
   revalidateGuides();
   redirect("/admin/guides?mapping=updated");
 }

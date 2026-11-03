@@ -4,6 +4,7 @@ import { guidePath } from "./guide-content";
 import { guideSectorLabels } from "./guide-sectors";
 import { guideRobots } from "./guide-indexing";
 import { SITE_URL } from "./site-indexing";
+import { careerRoleLabels, isCareerRoleSlug } from "./career-role-catalog";
 
 export const guideHubPath = "/conservation-career-guides";
 export const guideImageSize = { width: 1200, height: 630 };
@@ -27,6 +28,16 @@ const copy = {
 
 export function guideSeoCopy(guide: Pick<GuideContent, "slug">) {
   if (guide.slug === "ecologist" || guide.slug === "wildlife-conservation") return copy[guide.slug];
+  if (isCareerRoleSlug(guide.slug)) {
+    const name = careerRoleLabels[guide.slug].toLowerCase();
+    const article = /^[aeiou]/.test(name) ? "an" : "a";
+    return {
+      title: `How to become ${article} ${name}: skills & salary`,
+      description: `Explore ${name} careers in conservation: duties, skills, entry routes and advertised UK salaries. Compare the evidence and find current jobs.`,
+      imageTitle: `Become ${article} ${name}`,
+      imageSubtitle: "Salary, skills, experience and routes in",
+    };
+  }
   const name = guideSectorLabels[guide.slug];
   return {
     title: `${name} careers: jobs & skills`,
@@ -41,7 +52,7 @@ export function guideImagePath(slug: GuideContent["slug"] | "guides") {
 export function guideName(guide: GuideContent) {
   return guide.kind === "career"
     ? guide.accent.charAt(0).toUpperCase() + guide.accent.slice(1)
-    : guide.slug === "ecologist"
+    : isCareerRoleSlug(guide.slug)
       ? `${guide.title} ${guide.accent}`
       : guideSectorLabels[guide.slug];
 }

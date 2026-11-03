@@ -1,11 +1,13 @@
 import { z } from "zod";
-import { guideSectorLabels, sectorGuideSlugs } from "./guide-sectors";
+import { guideSectorLabels, sectorGuideSlugs, type SectorGuideSlug } from "./guide-sectors";
 import { additionalSectorGuides } from "./sector-guide-content";
+import { additionalCareerGuides } from "./career-guide-content";
+import { careerRoleSlugs, isCareerRoleSlug } from "./career-role-catalog";
 
 const paragraph = z.object({ text: z.string().max(4000), sources: z.array(z.string()) });
 const item = z.object({ title: z.string(), text: z.string() });
 export const guideContentSchema = z.object({
-  slug: z.enum([...sectorGuideSlugs, "ecologist"]),
+  slug: z.enum([...sectorGuideSlugs, ...careerRoleSlugs]),
   kind: z.enum(["sector", "career"]),
   matchSlug: z.string(),
   version: z.number().int().positive(),
@@ -434,18 +436,28 @@ export const ecologistGuide: GuideContent = {
 };
 
 export const pilotGuides = [sectorGuide, ecologistGuide] as const;
-export const guideCatalog: readonly GuideContent[] = [...pilotGuides, ...additionalSectorGuides];
-export const sectorGuides = guideCatalog.filter((guide) => guide.kind === "sector");
+export const guideCatalog: readonly GuideContent[] = [
+  ...pilotGuides,
+  ...additionalSectorGuides,
+  ...additionalCareerGuides,
+];
+export const careerGuides = guideCatalog.filter((guide) => guide.kind === "career");
+export const sectorGuides = guideCatalog.filter(
+  (guide): guide is GuideContent & { slug: SectorGuideSlug; kind: "sector" } =>
+    guide.kind === "sector" && !isCareerRoleSlug(guide.slug),
+);
 export function guidePath(guide: Pick<GuideContent, "slug" | "kind">) {
   return `/${guide.kind === "sector" ? "conservation-sector" : "conservation-career-guides"}/${guide.slug}`;
 }
 export function guideJobsPath(guide: Pick<GuideContent, "kind" | "slug" | "matchSlug">) {
   if (guide.kind === "career") return `/?role=${encodeURIComponent(guide.matchSlug)}`;
-  if (guide.slug === "ecologist") throw new Error("A career slug cannot identify a sector guide.");
+  if (isCareerRoleSlug(guide.slug)) throw new Error("A career slug cannot identify a sector guide.");
   return `/?sector=${encodeURIComponent(guideSectorLabels[guide.slug])}`;
 }
 export function validateGuideContent(value: unknown) {
   const guide = guideContentSchema.parse(value);
+  if ((guide.kind === "career") !== isCareerRoleSlug(guide.slug))
+    throw new Error("Guide kind and occupation identity do not match.");
   const ids = new Set(guide.sources.map((s) => s.id));
   if (
     ids.size !== guide.sources.length ||
