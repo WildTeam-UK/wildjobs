@@ -384,7 +384,7 @@
 }
 .journeyIntro .eyebrow {
   grid-column: 1/-1;
-  color: #ed9fcf;
+  color: var(--course-pink);
   margin-bottom: 16px;
 }
 .journeyIntro h2 {
@@ -412,7 +412,7 @@
 }
 .phaseNumber {
   display: block;
-  color: #ed9fcf;
+  color: var(--course-pink);
   font-size: 15px;
   font-weight: 800;
   margin-bottom: 18px;

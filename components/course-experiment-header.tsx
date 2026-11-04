@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useEffect, useId, useRef, useState } from "react";
 import { BrandLockup } from "./brand-lockup";
+import { CourseMenuIcon } from "./course-menu-icon";
 import styles from "./course-experiment-header.module.css";
 
 const navigation = [
@@ -10,41 +11,49 @@ const navigation = [
     label: "Jobs",
     href: "https://jobs.wildteam.org.uk/",
     links: [
-      ["Find conservation jobs", "https://jobs.wildteam.org.uk/"],
-      ["Career guides", "https://jobs.wildteam.org.uk/conservation-career-guides#career-guides-title"],
-      ["Sector guides", "https://jobs.wildteam.org.uk/conservation-career-guides#sector-guides-title"],
-      ["Saved jobs", "https://jobs.wildteam.org.uk/saved-jobs"],
+      ["Find conservation jobs", "https://jobs.wildteam.org.uk/", "search"],
+      [
+        "Career guides",
+        "https://jobs.wildteam.org.uk/conservation-career-guides#career-guides-title",
+        "compass",
+      ],
+      [
+        "Sector guides",
+        "https://jobs.wildteam.org.uk/conservation-career-guides#sector-guides-title",
+        "leaf",
+      ],
+      ["Saved jobs", "https://jobs.wildteam.org.uk/saved-jobs", "heart"],
     ],
   },
   {
     label: "News",
     href: "https://news.wildteam.org.uk/",
     links: [
-      ["Latest conservation news", "https://news.wildteam.org.uk/"],
-      ["Good News", "https://news.wildteam.org.uk/good-news-in-conservation"],
-      ["Daily and weekly digests", "https://news.wildteam.org.uk/digests"],
+      ["Latest conservation news", "https://news.wildteam.org.uk/", "news"],
+      ["Good News", "https://news.wildteam.org.uk/good-news-in-conservation", "sparkles"],
+      ["Daily and weekly digests", "https://news.wildteam.org.uk/digests", "mail"],
     ],
   },
   {
     label: "Training",
     href: "https://training.wildteam.org.uk/",
     links: [
-      ["Explore all courses", "https://training.wildteam.org.uk/courses"],
-      ["Memberships", "https://training.wildteam.org.uk/memberships"],
-      ["Bursaries", "https://training.wildteam.org.uk/bursaries"],
-      ["Training for teams", "https://training.wildteam.org.uk/pricing-teams"],
+      ["Explore all courses", "https://training.wildteam.org.uk/courses", "book"],
+      ["Memberships", "https://training.wildteam.org.uk/memberships", "badge"],
+      ["Bursaries", "https://training.wildteam.org.uk/bursaries", "gift"],
+      ["Training for teams", "https://training.wildteam.org.uk/pricing-teams", "users"],
     ],
   },
   {
     label: "About",
     href: "https://www.wildteam.org.uk/",
     links: [
-      ["Our cause", "https://www.wildteam.org.uk/our-cause"],
-      ["Our team", "https://www.wildteam.org.uk/team"],
-      ["Our impact", "https://www.wildteam.org.uk/conservation-impact"],
-      ["Our partners", "https://www.wildteam.org.uk/conservation-partners"],
-      ["Support us", "https://www.wildteam.org.uk/donate"],
-      ["Get in touch", "https://training.wildteam.org.uk/contact-us"],
+      ["Our cause", "https://www.wildteam.org.uk/our-cause", "leaf"],
+      ["Our team", "https://www.wildteam.org.uk/team", "users"],
+      ["Our impact", "https://www.wildteam.org.uk/conservation-impact", "chart"],
+      ["Our partners", "https://www.wildteam.org.uk/conservation-partners", "handshake"],
+      ["Support us", "https://www.wildteam.org.uk/donate", "heart"],
+      ["Get in touch", "https://training.wildteam.org.uk/contact-us", "message"],
     ],
   },
 ] as const;
@@ -153,7 +162,7 @@ export function CourseExperimentHeader() {
           aria-hidden={!scrolled}
           inert={!scrolled}
         >
-          Sign up
+          Enrol now
         </a>
         <button
           className={styles.mobileToggle}
@@ -210,9 +219,12 @@ export function CourseExperimentHeader() {
                     hidden={expanded !== item.label}
                     inert={expanded !== item.label}
                   >
-                    {item.links.map(([label, href]) => (
+                    {item.links.map(([label, href, icon]) => (
                       <a href={href} key={label} onClick={close}>
-                        {label === "Good News" ? <span className={styles.fancy}>Good News</span> : label}
+                        <CourseMenuIcon name={icon} />
+                        <span className="icon-label">
+                          {label === "Good News" ? <span className={styles.fancy}>Good News</span> : label}
+                        </span>
                       </a>
                     ))}
                   </div>
@@ -263,12 +275,20 @@ export function CourseExperimentHeader() {
                 inert={!signedIn || expanded !== "Account"}
               >
                 <a href="https://training.wildteam.org.uk/home" onClick={close}>
-                  My learning
+                  <CourseMenuIcon name="book" />
+                  <span className="icon-label">My learning</span>
                 </a>
                 <a href="https://jobs.wildteam.org.uk/saved-jobs" onClick={close}>
-                  Saved jobs
+                  <CourseMenuIcon name="heart" />
+                  <span className="icon-label">Saved jobs</span>
                 </a>
-                {["Job alerts", "Email preferences", "Account settings"].map((label) => (
+                {(
+                  [
+                    ["Job alerts", "bell"],
+                    ["Email preferences", "mail"],
+                    ["Account settings", "settings"],
+                  ] as const
+                ).map(([label, icon]) => (
                   <button
                     key={label}
                     type="button"
@@ -278,7 +298,8 @@ export function CourseExperimentHeader() {
                       close();
                     }}
                   >
-                    {label}
+                    <CourseMenuIcon name={icon} />
+                    <span className="icon-label">{label}</span>
                   </button>
                 ))}
                 <button
@@ -290,13 +311,14 @@ export function CourseExperimentHeader() {
                     toggleRefs.current.Account?.focus();
                   }}
                 >
-                  Sign out
+                  <CourseMenuIcon name="logout" />
+                  <span className="icon-label">Sign out</span>
                 </button>
                 <span className={styles.previewNote}>Account preview</span>
               </div>
             </div>
             <a className={styles.primary} ref={conversionButton} href="#course-options" onClick={close}>
-              {scrolled ? "Sign up" : "Start learning"}
+              {scrolled ? "Enrol now" : "Start learning"}
             </a>
           </div>
         </div>
