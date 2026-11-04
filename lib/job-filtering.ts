@@ -4,6 +4,7 @@ import type { Course } from "./courses";
 export type JobFilters = Readonly<{
   query: string;
   locationQuery: string;
+  countryCode?: string;
   locationType: LocationType | "";
   engagementType: EngagementType | "";
   employmentType: EmploymentType | "";
@@ -16,9 +17,24 @@ export type JobFilters = Readonly<{
 function normalise(value: string) {
   return value.trim().toLocaleLowerCase("en-GB");
 }
+export function normaliseCountryCode(value: string) {
+  return value.trim().toUpperCase();
+}
+const countryNames = new Intl.DisplayNames(["en-GB"], { type: "region" });
+export function countryName(code: string) {
+  const countryCode = normaliseCountryCode(code);
+  return /^[A-Z]{2}$/.test(countryCode) ? (countryNames.of(countryCode) ?? countryCode) : countryCode;
+}
+export function jobCountries(items: readonly Job[]) {
+  return [...new Set(items.map((job) => normaliseCountryCode(job.countryCode ?? "")))]
+    .filter((code) => /^[A-Z]{2}$/.test(code))
+    .map((value) => ({ label: countryName(value), value }))
+    .toSorted((a, b) => a.label.localeCompare(b.label));
+}
 export function filterJobs(items: readonly Job[], filters: JobFilters) {
   const query = normalise(filters.query),
-    locationQuery = normalise(filters.locationQuery);
+    locationQuery = normalise(filters.locationQuery),
+    countryCode = normaliseCountryCode(filters.countryCode ?? "");
   return items.filter((job) => {
     const searchable = normalise(
       [
@@ -43,6 +59,7 @@ export function filterJobs(items: readonly Job[], filters: JobFilters) {
       (!filters.roleSlug || job.roleSlug === filters.roleSlug) &&
       (!query || searchable.includes(query)) &&
       (!locationQuery || location.includes(locationQuery) || matchesCountry) &&
+      (!countryCode || normaliseCountryCode(job.countryCode ?? "") === countryCode) &&
       (!filters.locationType || job.locationType === filters.locationType) &&
       (!filters.engagementType || job.engagementType === filters.engagementType) &&
       (!filters.contractType || job.contractType === filters.contractType) &&

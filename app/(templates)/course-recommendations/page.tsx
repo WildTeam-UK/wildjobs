@@ -46,7 +46,6 @@ export default function CourseRecommendationsTemplate() {
               sizes="(max-width: 800px) 100vw, 50vw"
               preload
             />
-            <figcaption>WildTeam’s conservation careers illustration</figcaption>
           </figure>
         </div>
       </section>

@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { filterJobs, jobCategories, rankCourseFilters, type JobFilters } from "../lib/job-filtering";
+import {
+  filterJobs,
+  jobCategories,
+  jobCountries,
+  rankCourseFilters,
+  type JobFilters,
+} from "../lib/job-filtering";
 import { jobs } from "./job-fixtures";
 
 function filters(overrides: Partial<JobFilters> = {}): JobFilters {
@@ -95,6 +101,39 @@ describe("job filtering", () => {
     expect(jobCategories(jobs)).toEqual(
       [...jobCategories(jobs)].sort((left, right) => left.localeCompare(right)),
     );
+  });
+
+  it("filters by advertised country rather than country names in job text", () => {
+    const uk = { ...jobs[0], countryCode: "GB" };
+    const canada = { ...jobs[1], countryCode: "CA", summary: "Work with United Kingdom partners" };
+    const unknown = { ...jobs[2], countryCode: undefined };
+    const items = [uk, canada, unknown];
+    expect(filterJobs(items, filters({ countryCode: " gb " }))).toEqual([uk]);
+    expect(filterJobs(items, filters({ countryCode: "CA" }))).toEqual([canada]);
+    expect(filterJobs(items, filters({ countryCode: "" }))).toEqual(items);
+  });
+
+  it("combines country with workplace filters without treating remote jobs as worldwide", () => {
+    const ukRemote = { ...jobs[0], countryCode: "GB", locationType: "Remote" as const };
+    const usRemote = { ...jobs[1], countryCode: "US", locationType: "Remote" as const };
+    const ukOnSite = { ...jobs[2], countryCode: "GB", locationType: "On-site" as const };
+    expect(
+      filterJobs([ukRemote, usRemote, ukOnSite], filters({ countryCode: "GB", locationType: "Remote" })),
+    ).toEqual([ukRemote]);
+  });
+
+  it("offers each advertised country once, with readable names", () => {
+    expect(
+      jobCountries([
+        { ...jobs[0], countryCode: " gb " },
+        { ...jobs[1], countryCode: "GB" },
+        { ...jobs[2], countryCode: "KE" },
+        { ...jobs[0], countryCode: undefined },
+      ]),
+    ).toEqual([
+      { label: "Kenya", value: "KE" },
+      { label: "United Kingdom", value: "GB" },
+    ]);
   });
 });
 
