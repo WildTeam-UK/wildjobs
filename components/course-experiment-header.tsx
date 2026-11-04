@@ -155,14 +155,22 @@ export function CourseExperimentHeader() {
         <a href="https://www.wildteam.org.uk/" className={`brand ${styles.brand}`} aria-label="WildTeam home">
           <BrandLockup />
         </a>
+        <Image
+          className={styles.mobileCourseImage}
+          src="/images/course-experiment/lion.jpg"
+          alt=""
+          width={40}
+          height={40}
+          sizes="40px"
+        />
         <a
-          className={`${styles.primary} ${styles.mobileCta}`}
+          className={`${styles.primary} ${styles.enrolAction} ${styles.mobileCta}`}
           href="#course-options"
           onClick={close}
           aria-hidden={!scrolled}
           inert={!scrolled}
         >
-          Enrol now
+          <span>Enrol now</span>
         </a>
         <button
           className={styles.mobileToggle}
@@ -183,8 +191,18 @@ export function CourseExperimentHeader() {
         <div id={`${id}-nav`} className={`${styles.navigation} ${mobileOpen ? styles.open : ""}`}>
           <div className={styles.navSlot}>
             <div className={styles.courseContext} aria-hidden={!scrolled} inert={!scrolled}>
-              <strong>Project Management for Wildlife Conservation</strong>
-              <span>Build your skills from £29/month</span>
+              <Image
+                className={styles.courseImage}
+                src="/images/course-experiment/lion.jpg"
+                alt=""
+                width={56}
+                height={56}
+                sizes="56px"
+              />
+              <div className={styles.courseCopy}>
+                <strong>Project Management for Wildlife Conservation</strong>
+                <span>Build your skills from £29/month</span>
+              </div>
             </div>
             <nav aria-label="Main navigation" className={styles.links}>
               {navigation.map((item) => (
@@ -222,9 +240,7 @@ export function CourseExperimentHeader() {
                     {item.links.map(([label, href, icon]) => (
                       <a href={href} key={label} onClick={close}>
                         <CourseMenuIcon name={icon} />
-                        <span className="icon-label">
-                          {label === "Good News" ? <span className={styles.fancy}>Good News</span> : label}
-                        </span>
+                        <span className="icon-label">{label}</span>
                       </a>
                     ))}
                   </div>
@@ -317,8 +333,13 @@ export function CourseExperimentHeader() {
                 <span className={styles.previewNote}>Account preview</span>
               </div>
             </div>
-            <a className={styles.primary} ref={conversionButton} href="#course-options" onClick={close}>
-              {scrolled ? "Enrol now" : "Start learning"}
+            <a
+              className={`${styles.primary} ${styles.enrolAction}`}
+              ref={conversionButton}
+              href="#course-options"
+              onClick={close}
+            >
+              <span>{scrolled ? "Enrol now" : "Start learning"}</span>
             </a>
           </div>
         </div>
