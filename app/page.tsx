@@ -5,6 +5,7 @@ import { getCandidateSaveState } from "@/lib/candidate-saved-jobs";
 import type { EmploymentType, EngagementType, LocationType } from "@/lib/jobs";
 import { getPublicCourses } from "@/lib/public-courses";
 import { getPublicJobs } from "@/lib/public-jobs";
+import { normaliseCountryCode } from "@/lib/job-filtering";
 
 export const metadata: Metadata = {
   title: "Find conservation jobs",
@@ -67,6 +68,7 @@ export default async function HomePage({ searchParams }: { searchParams: SearchP
           roleSlug: valueOf(params.role),
           query: valueOf(params.q),
           locationQuery: valueOf(params.place),
+          countryCode: normaliseCountryCode(valueOf(params.country)),
           locationType: locationTypes.includes(location as LocationType) ? (location as LocationType) : "",
           engagementType: engagementTypes.includes(engagement as EngagementType)
             ? (engagement as EngagementType)

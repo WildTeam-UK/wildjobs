@@ -29,7 +29,14 @@ import { JobSplitView } from "@/components/job-split-view";
 import { JobTrainingPromo } from "@/components/job-training-promo";
 import { courseBySlug, type Course } from "@/lib/courses";
 import type { CandidateSaveState } from "@/lib/candidate-saved-jobs";
-import { filterJobs, jobCategories, rankCourseFilters } from "@/lib/job-filtering";
+import {
+  countryName,
+  filterJobs,
+  jobCategories,
+  jobCountries,
+  normaliseCountryCode,
+  rankCourseFilters,
+} from "@/lib/job-filtering";
 import type { EmploymentType, EngagementType, Job, LocationType } from "@/lib/jobs";
 
 const locationTypes: readonly LocationType[] = ["Remote", "Hybrid", "On-site"];
@@ -55,6 +62,7 @@ type FilterIconName =
   | "briefcase"
   | "brand"
   | "clock"
+  | "country"
   | "course"
   | "leaf"
   | "location"
@@ -67,6 +75,7 @@ type BrowserFilters = Readonly<{
   roleSlug: string;
   query: string;
   locationQuery: string;
+  countryCode: string;
   locationType: LocationType | "";
   engagementType: EngagementType | "";
   employmentType: EmploymentType | "";
@@ -99,18 +108,6 @@ function courseMatchHeading(courses: readonly Course[]) {
 
   const remainingCourseCount = courses.length - 2;
   return `Roles related to ${firstCourse}, ${secondCourse} and ${remainingCourseCount} other WildTeam ${remainingCourseCount === 1 ? "course" : "courses"}`;
-}
-
-function countryName(countryCode: string) {
-  const countryNames: Record<string, string> = {
-    AU: "Australia",
-    CA: "Canada",
-    GB: "United Kingdom",
-    IE: "Ireland",
-    NZ: "New Zealand",
-    US: "United States",
-  };
-  return countryNames[countryCode] ?? countryCode;
 }
 
 function buildLocationSuggestions(jobs: readonly Job[]) {
@@ -183,6 +180,12 @@ function FilterIcon({ name }: { name: FilterIconName }) {
       <>
         <circle cx="12" cy="12" r="9" />
         <path d="M12 7v5l3 2" />
+      </>
+    ),
+    country: (
+      <>
+        <circle cx="12" cy="12" r="9" />
+        <path d="M3 12h18M12 3a18 18 0 0 1 0 18 18 18 0 0 1 0-18Z" />
       </>
     ),
     course: (
@@ -565,6 +568,7 @@ export function JobBrowser({
 }) {
   const [query, setQuery] = useState(initialFilters.query ?? "");
   const [locationQuery, setLocationQuery] = useState(initialFilters.locationQuery ?? "");
+  const [countryCode, setCountryCode] = useState(normaliseCountryCode(initialFilters.countryCode ?? ""));
   const [locationType, setLocationType] = useState<LocationType | "">(initialFilters.locationType ?? "");
   const [engagementType, setEngagementType] = useState<EngagementType | "">(
     initialFilters.engagementType ?? "",
@@ -599,6 +603,7 @@ export function JobBrowser({
   const filterBarRef = useRef<HTMLDivElement>(null);
   const filterPillsRef = useRef<HTMLDivElement>(null);
   const filterValues = {
+    countryCode,
     roleSlug,
     category,
     contractType,
@@ -622,6 +627,8 @@ export function JobBrowser({
   });
   const filteredOrganisationCount = new Set(filteredJobs.map((job) => job.organisation)).size;
   const categories = jobCategories(jobs);
+  const countries = jobCountries(jobs);
+  const countryContext = filterJobs(visibleJobs, { ...filterValues, countryCode: "" });
   const workplaceContext = filterJobs(visibleJobs, { ...filterValues, locationType: "" });
   const hoursContext = filterJobs(visibleJobs, { ...filterValues, employmentType: "" });
   const contractContext = filterJobs(visibleJobs, { ...filterValues, contractType: "" });
@@ -644,6 +651,7 @@ export function JobBrowser({
     roleSlug ||
     query ||
     locationQuery ||
+    countryCode ||
     locationType ||
     engagementType ||
     employmentType ||
@@ -693,8 +701,10 @@ export function JobBrowser({
 
   useEffect(() => {
     function restorePageFromHistory() {
-      const page = Number(new URLSearchParams(window.location.search).get("page"));
+      const params = new URLSearchParams(window.location.search);
+      const page = Number(params.get("page"));
       setCurrentPage(Number.isInteger(page) && page > 0 ? page : 1);
+      setCountryCode(normaliseCountryCode(params.get("country") ?? ""));
     }
 
     window.addEventListener("popstate", restorePageFromHistory);
@@ -732,6 +742,7 @@ export function JobBrowser({
     const params = new URLSearchParams();
     if (filters.query) params.set("q", filters.query);
     if (filters.locationQuery) params.set("place", filters.locationQuery);
+    if (filters.countryCode) params.set("country", filters.countryCode);
     if (filters.locationType) params.set("location", filters.locationType);
     if (filters.engagementType) params.set("opportunity", filters.engagementType);
     if (filters.employmentType) params.set("type", filters.employmentType);
@@ -756,6 +767,7 @@ export function JobBrowser({
 
   function currentFilters(overrides: Partial<BrowserFilters> = {}): BrowserFilters {
     return {
+      countryCode,
       roleSlug,
       category,
       contractType,
@@ -816,6 +828,7 @@ export function JobBrowser({
     setRoleSlug("");
     setQuery("");
     setLocationQuery("");
+    setCountryCode("");
     setLocationType("");
     setEngagementType("");
     setEmploymentType("");
@@ -824,6 +837,7 @@ export function JobBrowser({
     setCourseSlugs([]);
     setMinimumSalary(0);
     syncUrl({
+      countryCode: "",
       roleSlug: "",
       category: "",
       contractType: "",
@@ -995,6 +1009,23 @@ export function JobBrowser({
               ]}
               placeholder="Opportunity"
               value={engagementType}
+            />
+            <FilterDropdown
+              accessibleLabel="Country"
+              clearLabel="All countries"
+              icon="country"
+              onChange={(value) => {
+                setCountryCode(value);
+                syncUrl(currentFilters({ countryCode: value }));
+              }}
+              options={countries.map((country) => ({
+                ...country,
+                count: countryContext.filter(
+                  (job) => normaliseCountryCode(job.countryCode ?? "") === country.value,
+                ).length,
+              }))}
+              placeholder="Country"
+              value={countryCode}
             />
             <FilterDropdown
               accessibleLabel="Work location"
