@@ -23,6 +23,7 @@
 }
 .navigation {
   flex: 1;
+  min-width: 0;
   justify-content: space-between;
   gap: 42px;
 }
@@ -30,6 +31,7 @@
   gap: 24px;
 }
 .actions {
+  flex-shrink: 0;
   gap: 22px;
   margin-left: auto;
 }
@@ -386,10 +388,11 @@
   color: var(--wt-color-brand-purple);
   font-size: 16px;
   line-height: 1.25;
-  max-width: 340px;
+  white-space: nowrap;
 }
 .courseCopy {
   display: flex;
+  flex: 1;
   min-width: 0;
   flex-direction: column;
   gap: 5px;
@@ -537,5 +540,33 @@
 @media (prefers-reduced-motion: reduce) {
   .scrolled .enrolAction::after {
     display: none;
+  }
+}
+
+/* Let the course use the space between the brand and account actions. */
+.scrolled .navSlot {
+  flex: 1;
+}
+@media (min-width: 901px) and (max-width: 1100px) {
+  .scrolled .inner,
+  .scrolled .navigation {
+    gap: 16px;
+  }
+  .scrolled .brand {
+    margin-right: 0;
+  }
+  .scrolled .actions {
+    gap: 14px;
+  }
+  .courseContext {
+    gap: 12px;
+  }
+  .courseContext strong {
+    font-size: 14px;
+  }
+  .courseImage {
+    flex-basis: 48px;
+    width: 48px;
+    height: 48px;
   }
 }
