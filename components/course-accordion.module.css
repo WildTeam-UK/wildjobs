@@ -1,0 +1,138 @@
+.item {
+  border-bottom: 1px solid #dfd3e1;
+}
+.item:first-child {
+  border-top: 1px solid #dfd3e1;
+}
+.heading {
+  margin: 0;
+  font-size: inherit;
+}
+.trigger {
+  display: flex;
+  align-items: start;
+  gap: 20px;
+  width: 100%;
+  padding: 23px 0;
+  border: 0;
+  background: transparent;
+  color: var(--wt-color-ink);
+  font: inherit;
+  font-size: 18px;
+  font-weight: 800;
+  line-height: 1.35;
+  text-align: left;
+  text-transform: none;
+  cursor: pointer;
+  transition: color 220ms ease;
+}
+.trigger:hover,
+.trigger[aria-expanded="true"] {
+  color: var(--wt-color-brand-purple);
+}
+.trigger:focus-visible {
+  outline-offset: 5px;
+}
+.label {
+  flex: 1;
+  min-width: 0;
+}
+.numbered .trigger {
+  gap: 17px;
+  align-items: center;
+  font-size: 19px;
+}
+.number {
+  align-self: start;
+  padding-top: 4px;
+  color: var(--wt-color-brand-pink);
+  font-size: 12px;
+}
+.label small {
+  display: block;
+  color: #716673;
+  font-size: 13px;
+  font-weight: 400;
+  margin-top: 4px;
+}
+.plus {
+  flex: 0 0 22px;
+  width: 22px;
+  height: 22px;
+  position: relative;
+  margin-top: 1px;
+  color: var(--wt-color-brand-purple);
+}
+.plus::before,
+.plus::after {
+  content: "";
+  position: absolute;
+  background: currentColor;
+  top: 10px;
+  left: 4px;
+  width: 14px;
+  height: 2px;
+}
+.plus::after {
+  transform: rotate(90deg);
+  transition: transform 320ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+.trigger[aria-expanded="true"] .plus::after {
+  transform: rotate(0);
+}
+.panel {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    grid-template-rows 360ms cubic-bezier(0.4, 0, 0.2, 1),
+    opacity 240ms ease,
+    visibility 360ms;
+}
+.panel[data-open="true"] {
+  grid-template-rows: 1fr;
+  opacity: 1;
+  visibility: visible;
+}
+.clip {
+  min-height: 0;
+  overflow: hidden;
+}
+.body {
+  padding: 0 30px 24px 0;
+  color: #625b63;
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 1.6;
+}
+.numbered .body {
+  padding: 0 28px 25px 34px;
+}
+@media (max-width: 760px) {
+  .trigger {
+    font-size: 17px;
+    padding-block: 20px;
+    gap: 12px;
+  }
+  .numbered .trigger {
+    gap: 12px;
+    font-size: 18px;
+  }
+  .label small {
+    font-size: 12px;
+  }
+  .body {
+    padding-right: 10px;
+  }
+  .numbered .body {
+    padding: 0 12px 22px 28px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .trigger,
+  .plus::after,
+  .panel {
+    transition: none;
+  }
+}

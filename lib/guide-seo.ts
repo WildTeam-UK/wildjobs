@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { guidePhotography } from "./guide-photography";
 import type { GuideContent } from "./guide-content";
 import { guidePath } from "./guide-content";
 import { guideSectorLabels } from "./guide-sectors";
@@ -177,7 +178,7 @@ export function guideStructuredData({
         description: guide.description,
         inLanguage: "en-GB",
         articleSection: guide.kind === "career" ? "Conservation careers" : "Conservation sectors",
-        image: [`${SITE_URL}${guide.image}`],
+        image: [`${SITE_URL}${guidePhotography[guide.slug].image}`],
         author: organization,
         publisher: { ...organization, logo: { "@type": "ImageObject", url: `${SITE_URL}/icon.png` } },
         creativeWorkStatus: isDraft ? "Draft" : "Published",

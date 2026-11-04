@@ -1213,7 +1213,7 @@ a[role="button"],
   flex-wrap: nowrap;
   align-items: center;
   justify-content: safe center;
-  gap: 10px;
+  gap: 8px;
   margin-top: 0;
   overflow-x: auto;
   overscroll-behavior-inline: contain;
@@ -1266,8 +1266,8 @@ a[role="button"],
   width: auto;
   min-height: 44px;
   align-items: center;
-  gap: 8px;
-  padding: 0 15px;
+  gap: 6px;
+  padding: 0 12px;
   border: 0;
   border-radius: inherit;
   outline: 0;
@@ -1409,8 +1409,8 @@ a[role="button"],
 }
 .job-filter-bar .job-filter-pill__trigger {
   min-height: 38px;
-  padding-right: 13px;
-  padding-left: 13px;
+  padding-right: 11px;
+  padding-left: 11px;
 }
 .job-search-hero__tail {
   z-index: 1;

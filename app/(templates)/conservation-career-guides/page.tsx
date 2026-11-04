@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
+import { guidePhotography } from "@/lib/guide-photography";
+import { EditorialImageCredit } from "@/components/editorial-image-credit";
 import Link from "next/link";
 import styles from "./page.module.css";
 import { getReviewedGuideIndex } from "@/lib/public-guides";
@@ -15,7 +17,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
 const sectors = sectorGuideSlugs.map((slug) => ({
   title: guideSectorLabels[slug],
-  image: slug,
+  slug,
   href: `/conservation-sector/${slug}`,
 }));
 
@@ -69,30 +71,27 @@ export default async function CareerGuidesPage() {
         </div>
         <div className={styles.sectorGrid}>
           {sectors.map((sector, index) => {
-            const content = (
-              <>
-                <div className={styles.imageFrame}>
-                  <Image
-                    className={styles.sectorImage}
-                    src={"/images/sectors/" + sector.image + ".png"}
-                    alt=""
-                    width={500}
-                    height={500}
-                    sizes="(max-width: 1000px) 50vw, 25vw"
-                    preload={index < 4}
-                  />
-                </div>
-                <h2>{sector.title}</h2>
-              </>
-            );
-            return sector.href ? (
-              <Link className={styles.sectorTile} href={sector.href} key={sector.image}>
-                {content}
-              </Link>
-            ) : (
-              <div className={styles.sectorTile} key={sector.image}>
-                {content}
-              </div>
+            const photo = guidePhotography[sector.slug];
+            return (
+              <article className={styles.sectorTile} key={sector.slug}>
+                <figure className={styles.imageFrame}>
+                  <Link href={sector.href} aria-label={`${sector.title} sector guide`}>
+                    <Image
+                      className={styles.sectorImage}
+                      src={photo.image}
+                      alt={photo.imageAlt}
+                      width={500}
+                      height={500}
+                      sizes="(max-width: 1000px) 50vw, 25vw"
+                      preload={index < 4}
+                    />
+                  </Link>
+                  <EditorialImageCredit creatorName={photo.creatorName} sourceUrl={photo.sourceUrl} />
+                </figure>
+                <h2>
+                  <Link href={sector.href}>{sector.title}</Link>
+                </h2>
+              </article>
             );
           })}
         </div>
