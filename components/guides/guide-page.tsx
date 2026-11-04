@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { guidePhotography } from "@/lib/guide-photography";
 import Link from "next/link";
 import {
   CourseTiles,
@@ -153,6 +154,7 @@ function MarketSnapshot({ data, detailed = false }: { data: GuideData; detailed?
 
 export function GuidePage({ data }: { data: GuideData }) {
   const { guide, market } = data;
+  const photo = guidePhotography[guide.slug];
   const related = relatedGuideSlugs[guide.slug].map((slug) => guideCatalog.find((g) => g.slug === slug)!);
   const seen = new Set<string>();
   const roleExamples = market.history
@@ -200,22 +202,17 @@ export function GuidePage({ data }: { data: GuideData }) {
               </p>
             )}
           </div>
-          <figure className={`tpl-photo${guide.photoCredit ? "" : " tpl-photo--illustration"}`}>
+          <figure className="tpl-photo">
             <Image
-              src={guide.image}
-              alt={guide.imageAlt}
+              src={photo.image}
+              alt={photo.imageAlt}
               width={1800}
               height={1200}
               sizes="(max-width: 800px) calc(100vw - 30px), (max-width: 1000px) 50vw, (max-width: 1288px) calc((100vw - 108px) * 0.5122), 605px"
               fetchPriority="high"
               preload
             />
-            {guide.photoCredit ? (
-              <EditorialImageCredit
-                creatorName={guide.photoCredit.label.replace(/ \/ Unsplash$/, "")}
-                sourceUrl={guide.photoCredit.url}
-              />
-            ) : null}
+            <EditorialImageCredit creatorName={photo.creatorName} sourceUrl={photo.sourceUrl} />
           </figure>
         </div>
       </section>

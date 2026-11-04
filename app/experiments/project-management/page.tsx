@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Image from "next/image";
+import { CourseAccordion } from "@/components/course-accordion";
 import { EditorialImageCredit } from "@/components/editorial-image-credit";
 import {
   COURSE_EXPERIMENT_PATH,
@@ -49,8 +50,14 @@ function Check() {
   );
 }
 
-function Icon({ kind }: { kind: "compass" | "people" | "clock" | "award" | "book" | "leaf" }) {
+function Icon({ kind }: { kind: "compass" | "people" | "clock" | "award" | "book" | "leaf" | "video" }) {
   const paths = {
+    video: (
+      <>
+        <rect x="3" y="5" width="18" height="14" rx="3" />
+        <path d="m10 9 5 3-5 3Z" />
+      </>
+    ),
     compass: (
       <>
         <circle cx="12" cy="12" r="9" />
@@ -179,7 +186,7 @@ const faqs = [
 export default function ProjectManagementExperiment() {
   return (
     <main className={styles.page} id="course-main">
-      <section className={styles.hero} aria-labelledby="course-title">
+      <section className={styles.hero} id="course-hero" aria-labelledby="course-title">
         <div className={`shell ${styles.heroGrid}`}>
           <div className={styles.heroCopy}>
             <p className={styles.eyebrow}>Project Management for Wildlife Conservation</p>
@@ -244,29 +251,29 @@ export default function ProjectManagementExperiment() {
           <div>
             <Icon kind="clock" />
             <p>
-              <strong>Learn at your pace</strong>
-              <span>Online, around your life</span>
+              <strong>10 hours</strong>
+              <span>Learn online, at your pace</span>
             </p>
           </div>
           <div>
-            <Icon kind="award" />
+            <Icon kind="video" />
             <p>
-              <strong>CPD certified</strong>
-              <span>10 hours on completion</span>
-            </p>
-          </div>
-          <div>
-            <Icon kind="people" />
-            <p>
-              <strong>Trainer support</strong>
-              <span>You don’t have to learn alone</span>
+              <strong>38 videos</strong>
+              <span>Step-by-step learning</span>
             </p>
           </div>
           <div>
             <Icon kind="book" />
             <p>
-              <strong>Practical resources</strong>
-              <span>A manual and reusable templates</span>
+              <strong>37 exercises &amp; quizzes</strong>
+              <span>Put your learning into practice</span>
+            </p>
+          </div>
+          <div>
+            <Icon kind="award" />
+            <p>
+              <strong>10 CPD hours</strong>
+              <span>On successful completion</span>
             </p>
           </div>
         </div>
@@ -320,7 +327,20 @@ export default function ProjectManagementExperiment() {
       </section>
 
       <section className={`${styles.section} ${styles.journey}`} aria-labelledby="journey-title">
-        <div className="shell">
+        <figure className={styles.journeyBackdrop}>
+          <Image
+            className={styles.journeyPhoto}
+            src="/images/design/woodland.jpg"
+            alt=""
+            fill
+            sizes="100vw"
+          />
+          <EditorialImageCredit
+            creatorName="Darren Bockman"
+            sourceUrl="https://unsplash.com/photos/pN3Z2usSIQw"
+          />
+        </figure>
+        <div className={`shell ${styles.journeyContent}`}>
           <div className={styles.journeyIntro}>
             <p className={styles.eyebrow}>A framework for the whole journey</p>
             <h2 id="journey-title">
@@ -371,28 +391,37 @@ export default function ProjectManagementExperiment() {
             <a className={styles.textLink} href={PMWC_COURSE_URL}>
               Visit the current course on WildTeam Training
             </a>
+            <figure className={styles.fieldPhoto}>
+              <Image
+                src="/images/guides/restoration-team.jpg"
+                alt="Volunteers working together to restore habitat beside a wetland"
+                width={1600}
+                height={1067}
+                sizes="(max-width: 760px) 100vw, 45vw"
+              />
+              <EditorialImageCredit
+                creatorName="Joe Whalen / Tampa Bay Estuary Program"
+                sourceUrl="https://unsplash.com/photos/a-group-of-people-standing-next-to-a-river-CxL29J-aM5E"
+              />
+            </figure>
           </div>
-          <div className={styles.accordion}>
-            {coverage.map((item, index) => (
-              <details key={item.title} name="course-coverage" open={index === 0}>
-                <summary>
-                  <span className={styles.accordionNumber}>0{index + 1}</span>
-                  <span>
-                    <strong>{item.title}</strong>
-                    <small>{item.subtitle}</small>
-                  </span>
-                  <span className={styles.plus} aria-hidden="true" />
-                </summary>
-                <div className={styles.accordionBody}>
+          <CourseAccordion
+            numbered
+            initialOpen={0}
+            items={coverage.map((item) => ({
+              title: item.title,
+              subtitle: item.subtitle,
+              content: (
+                <>
                   <p>{item.text}</p>
                   <p className={styles.takeaway}>
                     <Check />
                     {item.takeaway}
                   </p>
-                </div>
-              </details>
-            ))}
-          </div>
+                </>
+              ),
+            }))}
+          />
         </div>
       </section>
 
@@ -522,8 +551,14 @@ export default function ProjectManagementExperiment() {
                 conservation projects.
               </blockquote>
               <figcaption>
-                <span className={styles.initials} aria-hidden="true">
-                  JA
+                <span className={styles.learnerAvatar}>
+                  <Image
+                    src="/images/course-experiment/junior-jaime-alberto.png"
+                    alt=""
+                    width={112}
+                    height={112}
+                    sizes="112px"
+                  />
                 </span>
                 <span>
                   <strong>Junior Jaime Alberto</strong>
@@ -536,16 +571,22 @@ export default function ProjectManagementExperiment() {
                 “
               </span>
               <blockquote>
-                The Project Management for Wildlife Conservation training has ignited a spark in me to lead
-                impactful projects that protect South Africa’s precious wildlife.
+                As a Projects Manager, the skills I’ve learned have improved the way I organise and manage
+                conservation work.
               </blockquote>
               <figcaption>
-                <span className={styles.initials} aria-hidden="true">
-                  MS
+                <span className={styles.learnerAvatar}>
+                  <Image
+                    src="/images/course-experiment/reetika-m.png"
+                    alt=""
+                    width={112}
+                    height={112}
+                    sizes="112px"
+                  />
                 </span>
                 <span>
-                  <strong>Mbali Sishange</strong>
-                  <small>South Africa · PMWC learner</small>
+                  <strong>Reetika M</strong>
+                  <small>India · PMWC learner</small>
                 </span>
               </figcaption>
             </figure>
@@ -756,15 +797,7 @@ export default function ProjectManagementExperiment() {
             </a>
           </div>
           <div className={styles.faqList}>
-            {faqs.map(([question, answer]) => (
-              <details key={question} name="course-faq">
-                <summary>
-                  {question}
-                  <span className={styles.plus} aria-hidden="true" />
-                </summary>
-                <p>{answer}</p>
-              </details>
-            ))}
+            <CourseAccordion items={faqs.map(([title, answer]) => ({ title, content: <p>{answer}</p> }))} />
             <p className={styles.faqLinks}>
               <a href="https://training.wildteam.org.uk/course/gestion-de-projet-pour-la-conservation-de-la-nature">
                 View the French course

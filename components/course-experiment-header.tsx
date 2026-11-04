@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useId, useRef, useState } from "react";
 import { BrandLockup } from "./brand-lockup";
 import styles from "./course-experiment-header.module.css";
@@ -50,7 +51,7 @@ const navigation = [
 
 function Chevron() {
   return (
-    <svg aria-hidden="true" viewBox="0 0 16 16">
+    <svg className={styles.chevron} aria-hidden="true" viewBox="0 0 16 16">
       <path d="m4 6 4 4 4-4" />
     </svg>
   );
@@ -58,12 +59,14 @@ function Chevron() {
 
 export function CourseExperimentHeader() {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const [expanded, setExpanded] = useState<string | null>(null);
   const [signedIn, setSignedIn] = useState(false);
   const [previewTitle, setPreviewTitle] = useState("");
   const accountDialog = useRef<HTMLDialogElement>(null);
   const root = useRef<HTMLElement>(null);
   const mobileButton = useRef<HTMLButtonElement>(null);
+  const conversionButton = useRef<HTMLAnchorElement>(null);
   const toggleRefs = useRef<Record<string, HTMLButtonElement | null>>({});
   const id = useId();
 
@@ -81,6 +84,28 @@ export function CourseExperimentHeader() {
     const observer = new ResizeObserver(updateHeight);
     observer.observe(header);
     updateHeight();
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    const hero = document.getElementById("course-hero");
+    if (!hero) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        const pastHero = entry.boundingClientRect.bottom <= (root.current?.offsetHeight ?? 0);
+        if (
+          pastHero &&
+          !window.matchMedia("(max-width: 900px)").matches &&
+          root.current?.querySelector("nav")?.contains(document.activeElement)
+        ) {
+          conversionButton.current?.focus({ preventScroll: true });
+        }
+        setScrolled(pastHero);
+        setExpanded(null);
+      },
+      { rootMargin: `-${root.current?.offsetHeight ?? 0}px 0px 0px 0px`, threshold: 0 },
+    );
+    observer.observe(hero);
     return () => observer.disconnect();
   }, []);
 
@@ -108,7 +133,7 @@ export function CourseExperimentHeader() {
 
   return (
     <header
-      className={styles.header}
+      className={`${styles.header} ${scrolled ? styles.scrolled : ""}`}
       ref={root}
       onBlur={(event) => {
         if (!event.currentTarget.contains(event.relatedTarget)) close();
@@ -120,6 +145,15 @@ export function CourseExperimentHeader() {
       <div className={`shell ${styles.inner}`}>
         <a href="https://www.wildteam.org.uk/" className={`brand ${styles.brand}`} aria-label="WildTeam home">
           <BrandLockup />
+        </a>
+        <a
+          className={`${styles.primary} ${styles.mobileCta}`}
+          href="#course-options"
+          onClick={close}
+          aria-hidden={!scrolled}
+          inert={!scrolled}
+        >
+          Sign up
         </a>
         <button
           className={styles.mobileToggle}
@@ -138,43 +172,54 @@ export function CourseExperimentHeader() {
           </svg>
         </button>
         <div id={`${id}-nav`} className={`${styles.navigation} ${mobileOpen ? styles.open : ""}`}>
-          <nav aria-label="Main navigation" className={styles.links}>
-            {navigation.map((item) => (
-              <div
-                className={`${styles.item} ${item.label === "Training" ? styles.active : ""}`}
-                key={item.label}
-              >
-                <div className={styles.label}>
-                  <a
-                    href={item.href}
-                    aria-current={item.label === "Training" ? "true" : undefined}
-                    onClick={close}
-                  >
-                    {item.label}
-                  </a>
-                  <button
-                    type="button"
-                    aria-label={`${item.label} menu`}
-                    aria-expanded={expanded === item.label}
-                    aria-controls={`${id}-${item.label}`}
-                    ref={(element) => {
-                      toggleRefs.current[item.label] = element;
-                    }}
-                    onClick={() => setExpanded(expanded === item.label ? null : item.label)}
-                  >
-                    <Chevron />
-                  </button>
-                </div>
-                <div className={styles.dropdown} id={`${id}-${item.label}`} hidden={expanded !== item.label}>
-                  {item.links.map(([label, href]) => (
-                    <a href={href} key={label} onClick={close}>
-                      {label === "Good News" ? <span className={styles.fancy}>Good News</span> : label}
+          <div className={styles.navSlot}>
+            <div className={styles.courseContext} aria-hidden={!scrolled} inert={!scrolled}>
+              <strong>Project Management for Wildlife Conservation</strong>
+              <span>Build your skills from £29/month</span>
+            </div>
+            <nav aria-label="Main navigation" className={styles.links}>
+              {navigation.map((item) => (
+                <div
+                  className={`${styles.item} ${item.label === "Training" ? styles.active : ""}`}
+                  key={item.label}
+                >
+                  <div className={styles.label}>
+                    <a
+                      href={item.href}
+                      aria-current={item.label === "Training" ? "true" : undefined}
+                      onClick={close}
+                    >
+                      {item.label}
                     </a>
-                  ))}
+                    <button
+                      type="button"
+                      aria-label={`${item.label} menu`}
+                      aria-expanded={expanded === item.label}
+                      aria-controls={`${id}-${item.label}`}
+                      ref={(element) => {
+                        toggleRefs.current[item.label] = element;
+                      }}
+                      onClick={() => setExpanded(expanded === item.label ? null : item.label)}
+                    >
+                      <Chevron />
+                    </button>
+                  </div>
+                  <div
+                    className={styles.dropdown}
+                    id={`${id}-${item.label}`}
+                    hidden={expanded !== item.label}
+                    inert={expanded !== item.label}
+                  >
+                    {item.links.map(([label, href]) => (
+                      <a href={href} key={label} onClick={close}>
+                        {label === "Good News" ? <span className={styles.fancy}>Good News</span> : label}
+                      </a>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            ))}
-          </nav>
+              ))}
+            </nav>
+          </div>
           <div className={styles.actions}>
             <div className={styles.item}>
               <button
@@ -194,13 +239,18 @@ export function CourseExperimentHeader() {
                 }}
               >
                 {signedIn ? (
-                  <span className={styles.avatar} aria-hidden="true">
-                    M
-                  </span>
+                  <Image
+                    className={styles.avatar}
+                    src="/images/course-experiment/demo-avatar.jpg"
+                    alt=""
+                    width={32}
+                    height={32}
+                    sizes="32px"
+                  />
                 ) : (
                   <svg aria-hidden="true" viewBox="0 0 24 24">
-                    <circle cx="12" cy="8" r="3.5" />
-                    <path d="M5 21v-2a7 7 0 0 1 14 0v2" />
+                    <circle cx="12" cy="7.5" r="3.5" />
+                    <path d="M5 20v-1a7 7 0 0 1 14 0v1" />
                   </svg>
                 )}
                 <span className="icon-label">{signedIn ? "Hey, Matt!" : "Sign in"}</span>
@@ -210,6 +260,7 @@ export function CourseExperimentHeader() {
                 className={`${styles.dropdown} ${styles.accountDropdown}`}
                 id={`${id}-account`}
                 hidden={!signedIn || expanded !== "Account"}
+                inert={!signedIn || expanded !== "Account"}
               >
                 <a href="https://training.wildteam.org.uk/home" onClick={close}>
                   My learning
@@ -244,8 +295,8 @@ export function CourseExperimentHeader() {
                 <span className={styles.previewNote}>Account preview</span>
               </div>
             </div>
-            <a className={styles.primary} href="#course-options" onClick={close}>
-              Start learning
+            <a className={styles.primary} ref={conversionButton} href="#course-options" onClick={close}>
+              {scrolled ? "Sign up" : "Start learning"}
             </a>
           </div>
         </div>
