@@ -12,7 +12,7 @@
   gap: 32px;
 }
 .brand {
-  margin-right: auto;
+  margin-right: 10px;
 }
 .navigation,
 .links,
@@ -22,13 +22,16 @@
   align-items: center;
 }
 .navigation {
+  flex: 1;
+  justify-content: space-between;
   gap: 42px;
 }
 .links {
   gap: 24px;
 }
 .actions {
-  gap: 12px;
+  gap: 22px;
+  margin-left: auto;
 }
 .item {
   position: relative;
@@ -70,7 +73,6 @@
 .label > button[aria-expanded="true"] svg {
   transform: rotate(180deg);
 }
-.signIn,
 .primary {
   display: inline-flex;
   min-height: 46px;
@@ -86,12 +88,40 @@
   text-transform: uppercase;
 }
 .signIn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  min-height: 46px;
+  padding: 6px 0;
+  border: 0;
   background: transparent;
-  color: var(--wt-color-brand-pink);
+  color: var(--wt-color-brand-purple);
+  font-size: 14px;
+  font-weight: 800;
+  line-height: 1.2;
+  text-transform: none;
+  white-space: nowrap;
 }
 .signIn:hover {
-  color: var(--wt-color-brand-purple);
-  border-color: var(--wt-color-brand-purple);
+  color: var(--wt-color-brand-pink);
+}
+.avatar {
+  display: grid;
+  place-items: center;
+  flex: 0 0 32px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  color: white;
+  background: linear-gradient(
+    120deg,
+    var(--wt-color-brand-purple),
+    var(--wt-color-brand-gradient-middle),
+    var(--wt-color-brand-pink)
+  );
+  font-size: 14px;
+  font-weight: 800;
 }
 .primary {
   color: white;
@@ -106,7 +136,7 @@
   top: calc(100% + 3px);
   left: -20px;
   width: 275px;
-  padding: 18px 12px 12px;
+  padding: 10px 12px;
   border: 1px solid var(--wt-color-rule);
   border-radius: var(--wt-radius-panel, 18px);
   background: white;
@@ -115,22 +145,23 @@
 .dropdown[hidden] {
   display: none;
 }
-.dropdown > p {
-  margin: 0 12px 10px;
-  color: var(--wt-color-brand-purple);
-  font-size: 11px;
-  font-weight: 800;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-}
-.dropdown > a {
+.dropdown > a,
+.dropdown > button {
   display: block;
+  width: 100%;
+  border: 0;
   border-radius: 9px;
   padding: 11px 12px;
+  background: transparent;
+  color: inherit;
+  font-family: inherit;
   font-size: 16px;
+  text-align: left;
+  text-transform: none;
   line-height: 1.3;
 }
-.dropdown > a:hover {
+.dropdown > a:hover,
+.dropdown > button:hover {
   color: white;
   background: var(--wt-color-brand-pink);
 }
@@ -146,6 +177,54 @@
   right: 0;
   width: 290px;
   top: calc(100% + 12px);
+}
+.fancy {
+  background: linear-gradient(
+    90deg,
+    var(--wt-color-brand-purple),
+    var(--wt-color-brand-gradient-middle),
+    var(--wt-color-brand-pink)
+  );
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  font-weight: 800;
+}
+.dropdown > a:hover .fancy {
+  color: white;
+  background: none;
+}
+.dropdown .signOut {
+  border-top: 1px solid var(--wt-color-rule);
+  border-radius: 0 0 9px 9px;
+  margin-top: 5px;
+  padding-top: 15px;
+}
+.dropdown .previewNote {
+  font-size: 11px;
+  padding: 7px 12px 3px;
+  color: #837583;
+}
+.accountDialog {
+  max-width: min(460px, calc(100vw - 30px));
+  padding: 30px;
+  border: 1px solid var(--wt-color-rule);
+  border-radius: 18px;
+  color: var(--wt-color-ink);
+}
+.accountDialog::backdrop {
+  background: rgba(25, 14, 27, 0.45);
+}
+.accountDialog h2 {
+  margin: 0 0 15px;
+  font-size: 28px;
+  line-height: 1.15;
+  color: var(--wt-color-brand-purple);
+}
+.accountDialog p {
+  margin: 0 0 25px;
+  font-size: 16px;
+  line-height: 1.55;
 }
 .mobileToggle {
   display: none;
@@ -189,6 +268,7 @@
   }
   .brand {
     font-size: 27px;
+    margin-right: auto;
   }
   .mobileToggle {
     display: grid;
@@ -245,6 +325,7 @@
     display: block;
     position: relative;
     padding-top: 20px;
+    margin-left: 0;
   }
   .actions > .item {
     position: static;
@@ -253,6 +334,14 @@
   .primary {
     width: calc(50% - 5px);
     font-size: 12px;
+  }
+  .signIn {
+    padding-inline: 0;
+    gap: 7px;
+  }
+  .accountDialog .primary {
+    position: static;
+    width: auto;
   }
   .primary {
     position: absolute;
