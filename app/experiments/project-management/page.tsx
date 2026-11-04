@@ -182,11 +182,6 @@ export default function ProjectManagementExperiment() {
       <section className={styles.hero} aria-labelledby="course-title">
         <div className={`shell ${styles.heroGrid}`}>
           <div className={styles.heroCopy}>
-            <nav className={styles.breadcrumb} aria-label="Breadcrumb">
-              <a href="https://training.wildteam.org.uk/">Training</a>
-              <span aria-hidden="true">/</span>
-              <span>Project management</span>
-            </nav>
             <p className={styles.eyebrow}>Project Management for Wildlife Conservation</p>
             <h1 id="course-title">
               Lead conservation projects <span>with confidence</span>
@@ -209,8 +204,8 @@ export default function ProjectManagementExperiment() {
               </a>
             </div>
             <p className={styles.priceNote}>
-              <strong>£190 for one year of course access</strong>
-              <span>Also included in WildTeam memberships from £29/month</span>
+              <strong>From £29/month with WildTeam membership</strong>
+              <span>Or £190 for one year of access to this course</span>
             </p>
           </div>
           <div className={styles.heroVisual}>
@@ -426,7 +421,7 @@ export default function ProjectManagementExperiment() {
             <h2>
               Your field guide
               <br />
-              for the work ahead
+              <span>for the work ahead</span>
             </h2>
             <p>
               Good learning should leave you with something you can use. The course is built around WildTeam’s
@@ -557,26 +552,30 @@ export default function ProjectManagementExperiment() {
           </div>
           <p className={styles.proofSource}>
             Learner experiences published on{" "}
-            <a href="https://training.wildteam.org.uk/memberships">WildTeam Training</a>. Individual
-            experiences will vary.
+            <a href="https://training.wildteam.org.uk/memberships">WildTeam Training</a>.
           </p>
         </div>
       </section>
 
       <section className={`${styles.section} ${styles.certificate}`} aria-labelledby="certificate-title">
         <div className={`shell ${styles.certificateGrid}`}>
-          <div className={styles.certificateArt}>
-            <div className={styles.certificateSeal}>
-              <Icon kind="award" />
-              <strong>10</strong>
-              <span>CPD hours</span>
-            </div>
-            <p>
-              A skill you can use.
-              <br />
-              <strong>An achievement you can share.</strong>
-            </p>
-          </div>
+          <figure className={styles.certificateArt}>
+            <a
+              href="/images/course-experiment/pmwc-certificate-example.png"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="View the example PMWC certificate, opens in a new tab"
+            >
+              <Image
+                src="/images/course-experiment/pmwc-certificate-example.png"
+                alt="Example WildTeam Project Management for Wildlife Conservation certificate, showing 10 CPD learning hours"
+                width={1414}
+                height={2000}
+                sizes="(max-width: 760px) 260px, 320px"
+              />
+            </a>
+            <figcaption>Example PMWC certificate</figcaption>
+          </figure>
           <div>
             <p className={styles.eyebrow}>Make your learning visible</p>
             <h2 id="certificate-title">
@@ -608,51 +607,18 @@ export default function ProjectManagementExperiment() {
           <div className={styles.centredIntro}>
             <p className={styles.eyebrow}>Your learning, your choice</p>
             <h2>
-              One course
+              Build your conservation toolkit
               <br />
-              <span>Or room to keep growing</span>
+              <span>with WildTeam membership</span>
             </h2>
-            <p>Choose this skill on its own, or build a broader toolkit with WildTeam membership.</p>
+            <p>
+              Get this course and the rest of the WildTeam collection with membership, or choose this course
+              on its own.
+            </p>
           </div>
           <div className={styles.priceGrid}>
             <article className={`${styles.priceCard} ${styles.featuredPrice}`}>
-              <p className={styles.planLabel}>Focus on this course</p>
-              <h3>Project Management</h3>
-              <p className={styles.price}>
-                £190<span>one-off payment</span>
-              </p>
-              <p className={styles.planDescription}>
-                One year to learn, revisit and put this course into practice.
-              </p>
-              <ul className={styles.checkList}>
-                <li>
-                  <Check />
-                  This complete course
-                </li>
-                <li>
-                  <Check />
-                  One year of course access
-                </li>
-                <li>
-                  <Check />
-                  Video learning, exercises and quizzes
-                </li>
-                <li>
-                  <Check />
-                  Trainer support and course resources
-                </li>
-                <li>
-                  <Check />
-                  Exam and certificate on successful completion
-                </li>
-              </ul>
-              <a className={styles.button} href={PMWC_CHECKOUT_URL}>
-                Enrol on this course
-              </a>
-              <p className={styles.checkoutNote}>Continue to WildTeam Training</p>
-            </article>
-            <article className={styles.priceCard}>
-              <p className={styles.planLabel}>Explore at your own pace</p>
+              <p className={styles.planLabel}>Start with membership</p>
               <h3>Monthly membership</h3>
               <p className={styles.price}>
                 £29<span>per month, billed monthly</span>
@@ -682,7 +648,7 @@ export default function ProjectManagementExperiment() {
                   Cancel anytime; access to the end of your paid period
                 </li>
               </ul>
-              <a className={styles.secondaryButton} href="https://training.wildteam.org.uk/memberships">
+              <a className={styles.button} href="https://training.wildteam.org.uk/memberships">
                 Explore monthly membership
               </a>
               <p className={styles.checkoutNote}>Access while your membership is active</p>
@@ -719,6 +685,42 @@ export default function ProjectManagementExperiment() {
                 Explore annual membership
               </a>
               <p className={styles.checkoutNote}>Access while your membership is active</p>
+            </article>
+            <article className={styles.priceCard}>
+              <p className={styles.planLabel}>Focus on this course</p>
+              <h3>Project Management</h3>
+              <p className={styles.price}>
+                £190<span>one-off payment</span>
+              </p>
+              <p className={styles.planDescription}>
+                One year to learn, revisit and put this course into practice.
+              </p>
+              <ul className={styles.checkList}>
+                <li>
+                  <Check />
+                  This complete course
+                </li>
+                <li>
+                  <Check />
+                  One year of course access
+                </li>
+                <li>
+                  <Check />
+                  Video learning, exercises and quizzes
+                </li>
+                <li>
+                  <Check />
+                  Trainer support and course resources
+                </li>
+                <li>
+                  <Check />
+                  Exam and certificate on successful completion
+                </li>
+              </ul>
+              <a className={styles.button} href={PMWC_CHECKOUT_URL}>
+                Enrol on this course
+              </a>
+              <p className={styles.checkoutNote}>Continue to WildTeam Training</p>
             </article>
           </div>
           <div className={styles.pricingHelp}>
@@ -775,7 +777,7 @@ export default function ProjectManagementExperiment() {
 
       <section className={styles.finalCta}>
         <div className="shell">
-          <Icon kind="leaf" />
+          <span className={styles.finalMark} aria-hidden="true" />
           <p className={styles.eyebrow}>For your next project, and the one after that</p>
           <h2>
             The work matters

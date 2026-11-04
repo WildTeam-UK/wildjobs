@@ -59,6 +59,9 @@ function Chevron() {
 export function CourseExperimentHeader() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [expanded, setExpanded] = useState<string | null>(null);
+  const [signedIn, setSignedIn] = useState(false);
+  const [previewTitle, setPreviewTitle] = useState("");
+  const accountDialog = useRef<HTMLDialogElement>(null);
   const root = useRef<HTMLElement>(null);
   const mobileButton = useRef<HTMLButtonElement>(null);
   const toggleRefs = useRef<Record<string, HTMLButtonElement | null>>({});
@@ -163,14 +166,9 @@ export function CourseExperimentHeader() {
                   </button>
                 </div>
                 <div className={styles.dropdown} id={`${id}-${item.label}`} hidden={expanded !== item.label}>
-                  <p>
-                    {item.label === "Training"
-                      ? "Skills for a wilder future"
-                      : `Explore ${item.label.toLowerCase()}`}
-                  </p>
                   {item.links.map(([label, href]) => (
                     <a href={href} key={label} onClick={close}>
-                      {label}
+                      {label === "Good News" ? <span className={styles.fancy}>Good News</span> : label}
                     </a>
                   ))}
                 </div>
@@ -182,33 +180,68 @@ export function CourseExperimentHeader() {
               <button
                 type="button"
                 className={styles.signIn}
-                aria-expanded={expanded === "Sign in"}
-                aria-controls={`${id}-sign-in`}
+                aria-label={signedIn ? "Hey, Matt! Account menu" : "Sign in"}
+                aria-expanded={signedIn ? expanded === "Account" : undefined}
+                aria-controls={signedIn ? `${id}-account` : undefined}
                 ref={(element) => {
-                  toggleRefs.current["Sign in"] = element;
+                  toggleRefs.current.Account = element;
                 }}
-                onClick={() => setExpanded(expanded === "Sign in" ? null : "Sign in")}
+                onClick={() => {
+                  if (!signedIn) {
+                    setSignedIn(true);
+                    setExpanded("Account");
+                  } else setExpanded(expanded === "Account" ? null : "Account");
+                }}
               >
-                <svg aria-hidden="true" viewBox="0 0 24 24">
-                  <circle cx="12" cy="8" r="3.5" />
-                  <path d="M5 21v-2a7 7 0 0 1 14 0v2" />
-                </svg>
-                <span>Sign in</span>
-                <Chevron />
+                {signedIn ? (
+                  <span className={styles.avatar} aria-hidden="true">
+                    M
+                  </span>
+                ) : (
+                  <svg aria-hidden="true" viewBox="0 0 24 24">
+                    <circle cx="12" cy="8" r="3.5" />
+                    <path d="M5 21v-2a7 7 0 0 1 14 0v2" />
+                  </svg>
+                )}
+                <span className="icon-label">{signedIn ? "Hey, Matt!" : "Sign in"}</span>
+                {signedIn ? <Chevron /> : null}
               </button>
               <div
                 className={`${styles.dropdown} ${styles.accountDropdown}`}
-                id={`${id}-sign-in`}
-                hidden={expanded !== "Sign in"}
+                id={`${id}-account`}
+                hidden={!signedIn || expanded !== "Account"}
               >
-                <p>Your WildTeam learning</p>
-                <a href="https://training.wildteam.org.uk/?msg=not-logged-in" onClick={close}>
-                  Sign in to Training
+                <a href="https://training.wildteam.org.uk/home" onClick={close}>
+                  My learning
                 </a>
-                <span>Use your existing training account. Saved jobs are available without signing in.</span>
                 <a href="https://jobs.wildteam.org.uk/saved-jobs" onClick={close}>
-                  View saved jobs
+                  Saved jobs
                 </a>
+                {["Job alerts", "Email preferences", "Account settings"].map((label) => (
+                  <button
+                    key={label}
+                    type="button"
+                    onClick={() => {
+                      setPreviewTitle(label);
+                      accountDialog.current?.showModal();
+                      close();
+                    }}
+                  >
+                    {label}
+                  </button>
+                ))}
+                <button
+                  className={styles.signOut}
+                  type="button"
+                  onClick={() => {
+                    setSignedIn(false);
+                    setExpanded(null);
+                    toggleRefs.current.Account?.focus();
+                  }}
+                >
+                  Sign out
+                </button>
+                <span className={styles.previewNote}>Account preview</span>
               </div>
             </div>
             <a className={styles.primary} href="#course-options" onClick={close}>
@@ -217,6 +250,24 @@ export function CourseExperimentHeader() {
           </div>
         </div>
       </div>
+      <dialog
+        className={styles.accountDialog}
+        ref={accountDialog}
+        aria-labelledby={`${id}-account-preview-title`}
+        onClose={() => {
+          if (window.matchMedia("(max-width: 900px)").matches) mobileButton.current?.focus();
+          else toggleRefs.current.Account?.focus();
+        }}
+      >
+        <h2 id={`${id}-account-preview-title`}>{previewTitle}</h2>
+        <p>
+          This is a preview of the shared WildTeam account. {previewTitle} will be available here when shared
+          sign-in is connected.
+        </p>
+        <button type="button" className={styles.primary} onClick={() => accountDialog.current?.close()}>
+          Back to the course
+        </button>
+      </dialog>
     </header>
   );
 }

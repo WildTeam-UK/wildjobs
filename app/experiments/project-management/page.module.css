@@ -3,7 +3,6 @@
   --course-pink: var(--wt-color-brand-pink);
   --course-ink: var(--wt-color-ink);
   --course-lilac: #f6f0f7;
-  --course-green: #eaf2e7;
   background: white;
 }
 .page h1,
@@ -108,16 +107,6 @@
 .heroCopy {
   padding-block: 8px;
 }
-.breadcrumb {
-  display: flex;
-  gap: 10px;
-  font-size: 12px;
-  color: #686168;
-  margin-bottom: 34px;
-}
-.breadcrumb a:hover {
-  color: var(--course-pink);
-}
 .hero .eyebrow {
   margin-bottom: 18px;
   max-width: 350px;
@@ -126,8 +115,21 @@
   font-size: clamp(44px, 4.5vw, 65px);
   color: var(--course-purple);
 }
-.hero h1 span {
-  color: var(--course-pink);
+.hero h1 span,
+.sectionIntro h2 span,
+.centredIntro h2 span,
+.proofIntro h2 span,
+.certificate h2 span,
+.toolkit h2 span {
+  background: linear-gradient(
+    100deg,
+    var(--course-purple),
+    var(--wt-color-brand-gradient-middle),
+    var(--course-pink)
+  );
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
 }
 .heroIntro {
   font-size: 23px;
@@ -312,12 +314,6 @@
 .sectionIntro h2 {
   margin-bottom: 24px;
 }
-.sectionIntro h2 span,
-.centredIntro h2 span,
-.proofIntro h2 span,
-.certificate h2 span {
-  color: var(--course-purple);
-}
 .sectionIntro > p:not(.eyebrow) {
   color: #625b63;
   max-width: 460px;
@@ -358,8 +354,8 @@
   flex: 0 0 35px;
   height: 35px;
   border-radius: 50%;
-  background: var(--course-green);
-  color: #355e43;
+  background: var(--course-lilac);
+  color: var(--course-purple);
 }
 .checkCircle svg {
   width: 20px;
@@ -531,7 +527,7 @@
   margin-top: 3px;
 }
 .toolkit {
-  background: var(--course-green);
+  background: var(--course-lilac);
 }
 .toolkitGrid {
   display: grid;
@@ -558,21 +554,21 @@
 }
 .manualEdition {
   font-size: 12px;
-  color: #426247;
+  color: var(--course-purple);
   text-transform: uppercase;
   letter-spacing: 0.07em;
   font-weight: 800;
 }
 .manualTag {
   display: inline-block;
-  border: 1px solid #a8bd9f;
+  border: 1px solid #d7c3dc;
   border-radius: 18px;
   padding: 5px 14px;
   font-size: 12px;
-  color: #426247;
+  color: var(--course-purple);
 }
 .toolkit .eyebrow {
-  color: #426247;
+  color: var(--course-purple);
   margin-bottom: 16px;
 }
 .toolkit h2 {
@@ -596,23 +592,23 @@
 .checkList svg {
   width: 18px;
   height: 18px;
-  color: #426247;
+  color: var(--course-purple);
   margin-top: 2px;
 }
 .checkList strong {
   font-weight: 800;
 }
 .linkNote {
-  color: #556a55;
+  color: #766879;
   font-size: 12px;
   margin-top: 10px !important;
 }
 .manualDifference {
-  border-top: 1px solid #bdcdb7;
+  border-top: 1px solid #ded1e1;
   padding-top: 20px;
   margin-top: 25px !important;
   font-size: 14px;
-  color: #435242;
+  color: #625368;
 }
 .manualDifference strong {
   display: block;
@@ -740,43 +736,26 @@
 .certificateArt {
   text-align: center;
   border-radius: 18px;
-  background: #fcf9fc;
-  padding: 50px 25px;
+  background: var(--course-lilac);
+  padding: 35px 25px 25px;
 }
-.certificateSeal {
-  width: 190px;
-  height: 190px;
-  margin: 0 auto 25px;
-  border: 1px solid #d9c5df;
-  border-radius: 50%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  color: var(--course-purple);
+.certificateArt > a {
+  display: block;
+  width: 300px;
+  max-width: 100%;
+  margin: 0 auto;
 }
-.certificateSeal svg {
-  width: 32px;
-  height: 32px;
+.certificateArt img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid #eadfea;
+  border-radius: 4px;
 }
-.certificateSeal strong {
-  font-size: 64px;
-  font-weight: 900;
-  line-height: 1;
-  margin-top: 10px;
-}
-.certificateSeal span {
+.certificateArt figcaption {
+  margin-top: 16px;
+  color: #766879;
   font-size: 12px;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  margin-top: 8px;
-}
-.certificateArt > p {
-  font-size: 20px;
-}
-.certificateArt strong {
-  font-weight: 800;
 }
 .certificate .eyebrow {
   margin-bottom: 16px;
@@ -797,7 +776,7 @@
 .examNote svg {
   width: 20px;
   height: 20px;
-  color: #426247;
+  color: var(--course-purple);
   margin-top: 2px;
 }
 .certificate .textLink {
@@ -943,11 +922,13 @@
   color: white;
   padding-block: 72px 80px;
 }
-.finalCta > div > svg {
-  width: 34px;
-  height: 34px;
-  color: #f0aed5;
-  margin-bottom: 17px;
+.finalMark {
+  display: block;
+  width: 46px;
+  height: 46px;
+  margin: 0 auto 20px;
+  background: white;
+  mask: url("/wildteam-mark.png") center / contain no-repeat;
 }
 .finalCta .eyebrow {
   color: #f0c2df;
@@ -1027,10 +1008,6 @@
   }
   .heroCopy {
     padding-top: 0;
-  }
-  .breadcrumb {
-    margin-bottom: 27px;
-    font-size: 11px;
   }
   .hero .eyebrow {
     font-size: 10px;
@@ -1255,19 +1232,11 @@
     font-size: 11px;
   }
   .certificateArt {
-    padding: 30px 20px;
+    padding: 26px 20px 20px;
     order: 2;
   }
-  .certificateSeal {
-    width: 160px;
-    height: 160px;
-    margin-bottom: 20px;
-  }
-  .certificateSeal strong {
-    font-size: 50px;
-  }
-  .certificateArt > p {
-    font-size: 18px;
+  .certificateArt > a {
+    width: 260px;
   }
   .priceGrid {
     grid-template-columns: 1fr;
