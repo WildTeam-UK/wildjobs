@@ -487,6 +487,45 @@ export default function ProjectManagementExperiment() {
             </p>
           </div>
         </div>
+        <div className={`shell ${styles.provenanceGrid}`}>
+          <section aria-labelledby="course-basis-title">
+            <h2 id="course-basis-title">What this course is based on</h2>
+            <p>
+              This course teaches the WildTeam Project Management for Wildlife Conservation best practice, now
+              in its fifth version. The best practice draws on 18 sources, including nine peer-reviewed
+              journal articles on conservation science, project management and organisational research. It
+              adapts the PRINCE2 and Project Management Institute frameworks for conservation teams, and it
+              responds to WildTeam’s own published research on project management skills in the conservation
+              sector.
+            </p>
+            <a
+              className={styles.textLink}
+              href={`${PMWC_MANUAL_URL}#page=69`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              See the sources in the best-practice manual
+            </a>
+          </section>
+          <section aria-labelledby="course-reviewers-title">
+            <h2 id="course-reviewers-title">Who helped to create this course</h2>
+            <p>
+              Nineteen practitioners reviewed this version of the best practice before publication. They work
+              in 13 organisations, including the Wildlife Conservation Society, Chester Zoo, the Orangutan
+              Information Centre, WildTeam Bangladesh, NQ Dry Tropics, the United Nations Office for Project
+              Services and Accenture. Their experience spans conservation, development and business, and their
+              comments were used to improve the text.
+            </p>
+            <a
+              className={styles.textLink}
+              href={`${PMWC_MANUAL_URL}#page=2`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Read the acknowledgements in the manual
+            </a>
+          </section>
+        </div>
       </section>
 
       <section className={`${styles.section} ${styles.people}`} aria-labelledby="people-title">
