@@ -3,8 +3,12 @@
 import { BrandLockup } from "@/components/brand-lockup";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
+import { usePathname } from "next/navigation";
+import { COURSE_EXPERIMENT_PATH } from "@/lib/course-experiment";
+import { CourseExperimentHeader } from "./course-experiment-header";
 
 export function SiteHeader() {
+  const pathname = usePathname();
   const headerRef = useRef<HTMLElement>(null);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
   const [open, setOpen] = useState(false);
@@ -44,7 +48,9 @@ export function SiteHeader() {
     updateHeaderHeight();
     observer.observe(header);
     return () => observer.disconnect();
-  }, []);
+  }, [pathname]);
+
+  if (pathname === COURSE_EXPERIMENT_PATH) return <CourseExperimentHeader />;
 
   return (
     <header className="site-header" ref={headerRef}>
