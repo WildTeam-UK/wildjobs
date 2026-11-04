@@ -206,6 +206,7 @@ export function GuidePage({ data }: { data: GuideData }) {
             <Image
               src={photo.image}
               alt={photo.imageAlt}
+              style={{ objectPosition: photo.objectPosition }}
               width={1800}
               height={1200}
               sizes="(max-width: 800px) calc(100vw - 30px), (max-width: 1000px) 50vw, (max-width: 1288px) calc((100vw - 108px) * 0.5122), 605px"

@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Image from "next/image";
-import { guidePhotography } from "@/lib/guide-photography";
-import { EditorialImageCredit } from "@/components/editorial-image-credit";
+import { FittedCareerGrid } from "@/components/fitted-career-grid";
 import Link from "next/link";
 import styles from "./page.module.css";
 import { getReviewedGuideIndex } from "@/lib/public-guides";
@@ -71,22 +70,20 @@ export default async function CareerGuidesPage() {
         </div>
         <div className={styles.sectorGrid}>
           {sectors.map((sector, index) => {
-            const photo = guidePhotography[sector.slug];
             return (
               <article className={styles.sectorTile} key={sector.slug}>
                 <figure className={styles.imageFrame}>
                   <Link href={sector.href} aria-label={`${sector.title} sector guide`}>
                     <Image
                       className={styles.sectorImage}
-                      src={photo.image}
-                      alt={photo.imageAlt}
+                      src={`/images/sectors/${sector.slug}.png`}
+                      alt=""
                       width={500}
                       height={500}
                       sizes="(max-width: 1000px) 50vw, 25vw"
                       preload={index < 4}
                     />
                   </Link>
-                  <EditorialImageCredit creatorName={photo.creatorName} sourceUrl={photo.sourceUrl} />
                 </figure>
                 <h2>
                   <Link href={sector.href}>{sector.title}</Link>
@@ -112,14 +109,16 @@ export default async function CareerGuidesPage() {
             career you want.
           </p>
         </div>
-        <div className={styles.careerGrid}>
+        <FittedCareerGrid className={styles.careerGrid}>
           {careers.map((career) => {
             const content = (
               <>
-                <span className={styles.cardLabel}>CAREER GUIDE</span>
                 <div className={styles.cardBody}>
+                  <span className={styles.cardLabel}>CAREER GUIDE</span>
                   <h3>{career.title}</h3>
-                  <p>{career.description}</p>
+                  <div className={styles.descriptionFrame} data-career-description-frame>
+                    <p data-career-description>{career.description}</p>
+                  </div>
                 </div>
                 <span className={styles.cardFooter}>
                   {career.href
@@ -144,7 +143,7 @@ export default async function CareerGuidesPage() {
               </article>
             );
           })}
-        </div>
+        </FittedCareerGrid>
       </section>
     </main>
   );

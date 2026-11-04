@@ -247,6 +247,11 @@
   letter-spacing: -0.04em;
 }
 .tpl-gradient {
+  padding-inline: 0.12em;
+  margin-inline: -0.12em;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+  -webkit-background-clip: text;
   background: linear-gradient(100deg, var(--wt-color-brand-purple), var(--wt-color-brand-pink));
   background-clip: text;
   color: transparent;
