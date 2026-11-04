@@ -1,7 +1,13 @@
 import type { SectorGuideSlug } from "./guide-sectors";
 import type { CareerRoleSlug } from "./career-role-catalog";
 
-export type GuidePhotography = { image: string; imageAlt: string; creatorName: string; sourceUrl: string };
+export type GuidePhotography = {
+  image: string;
+  imageAlt: string;
+  creatorName: string;
+  sourceUrl: string;
+  objectPosition?: string;
+};
 
 const photos = {
   "wind-energy": {
@@ -11,12 +17,11 @@ const photos = {
     sourceUrl:
       "https://unsplash.com/photos/wind-turbines-on-a-hill-overlooking-a-lake-with-reeds-KccrgchP9xI",
   },
-  "environmental-education": {
-    image: "/images/guides/environmental-education.jpg",
-    imageAlt: "Volunteers sharing environmental information at an outdoor booth",
-    creatorName: "Alba Calbetó",
-    sourceUrl:
-      "https://unsplash.com/photos/greenpeace-volunteers-engaging-with-public-at-outdoor-booth-74XTt1RQ1IQ",
+  birdwatching: {
+    image: "/images/guides/birdwatching.jpg",
+    imageAlt: "A person observing wildlife through binoculars in a forest",
+    creatorName: "Ryan Magsino",
+    sourceUrl: "https://unsplash.com/photos/woman-using-binoculars-in-forest-ugCMOgP4J7I",
   },
   soil: {
     image: "/images/guides/soil.jpg",
@@ -30,23 +35,19 @@ const photos = {
     creatorName: "Kristin Hoel",
     sourceUrl: "https://unsplash.com/photos/a-sea-turtle-swimming-over-a-coral-reef-pyw39Zn6wWo",
   },
-  campaigning: {
-    image: "/images/guides/campaigning.jpg",
-    imageAlt: "A climate campaigner holding a There Is No Planet B sign",
-    creatorName: "Li-An Lim",
-    sourceUrl: "https://unsplash.com/photos/person-holding-there-is-no-planet-b-poster-ycW4YxhrWHM",
-  },
   solar: {
     image: "/images/guides/solar.jpg",
     imageAlt: "Rows of solar panels in the countryside",
     creatorName: "Mariana Proença",
     sourceUrl: "https://unsplash.com/photos/solar-panels-during-daytime-mG8sgwkMhCY",
   },
-  cycling: {
-    image: "/images/guides/cycling.jpg",
-    imageAlt: "A person cycling along a city street",
-    creatorName: "Danny Greenberg",
-    sourceUrl: "https://unsplash.com/photos/person-riding-a-bicycle-on-a-city-street-EYhKSHNIUIE",
+  greenway: {
+    image: "/images/guides/greenway.jpg",
+    imageAlt: "A cyclist following a path through woodland",
+    creatorName: "Klara Kulikova",
+    sourceUrl:
+      "https://unsplash.com/photos/a-person-riding-a-bicycle-on-a-path-surrounded-by-trees-cmmEixAFkuo",
+    objectPosition: "50% 90%",
   },
   biology: {
     image: "/images/guides/biology.jpg",
@@ -92,18 +93,18 @@ export const guidePhotography: Record<SectorGuideSlug | CareerRoleSlug, GuidePho
   "carbon-climate-energy": photos["wind-energy"],
   "wildlife-conservation": photos["wildlife"],
   ecology: photos["woodland"],
-  "environmental-education": photos["environmental-education"],
+  "environmental-education": photos["birdwatching"],
   "environmental-management": photos["restoration"],
   "food-farming-horticulture": photos["soil"],
   "marine-conservation": photos["marine"],
-  "policy-campaigning": photos["campaigning"],
+  "policy-campaigning": photos["wetland"],
   "rivers-water-hydrology": photos["wetland"],
   sustainability: photos["solar"],
-  "sustainable-transport": photos["cycling"],
+  "sustainable-transport": photos["greenway"],
   ecologist: photos["woodland"],
   "project-manager": photos["teamwork"],
   "project-officer": photos["restoration"],
-  "environmental-educator": photos["environmental-education"],
+  "environmental-educator": photos["birdwatching"],
   biologist: photos["biology"],
   "chief-executive": photos["teamwork"],
 };
