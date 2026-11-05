@@ -928,13 +928,14 @@
   letter-spacing: normal;
 }
 .tpl-employer-pill--category {
+  --tpl-role-pill-pink: color-mix(in srgb, var(--wt-color-brand-pink) 96%, black);
   border-color: var(--wt-color-brand-pink);
   background: var(--wt-color-paper);
-  color: var(--wt-color-brand-purple);
+  color: var(--tpl-role-pill-pink);
 }
 .tpl-employer-pill--category:hover {
-  border-color: var(--wt-color-brand-pink);
-  background: var(--wt-color-brand-pink);
+  border-color: var(--tpl-role-pill-pink);
+  background: var(--tpl-role-pill-pink);
   color: white;
 }
 
