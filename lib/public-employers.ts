@@ -1,4 +1,5 @@
 import "server-only";
+import { connection } from "next/server";
 import { cache } from "react";
 import { getPublicJobs } from "./public-jobs";
 import { getPublishedEmployerIndex } from "./public-employer-profiles";
@@ -7,6 +8,7 @@ import type { PublicEmployer } from "./public-employer-mapper";
 import type { Job } from "./jobs";
 
 export const getPublicEmployers = cache(async (): Promise<readonly PublicEmployer[]> => {
+  await connection();
   const [jobs, profiles, branding] = await Promise.all([
     getPublicJobs(),
     getPublishedEmployerIndex(),
