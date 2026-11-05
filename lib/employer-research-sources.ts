@@ -97,7 +97,7 @@ function classifyLink(path: string, label: string): Pick<ResearchLink, "kind" | 
   ) {
     return { kind: "work", priority: 100, hub: false };
   }
-  if (segments.some((segment) => work.test(segment)) || /^conservation-in-/.test(leaf)) {
+  if (segments.some((segment) => work.test(segment)) || leaf.startsWith("conservation-in-")) {
     return { kind: "work", priority: 55, hub: false };
   }
   if (segments.some((segment) => /^(?:about|about-us|the-trust|the-charity)$/.test(segment))) {
