@@ -14,6 +14,10 @@ export type GuideRevision = {
 export type DatabaseWithGuides = Omit<Database, "public"> & {
   public: Omit<Database["public"], "Tables" | "Functions"> & {
     Tables: Database["public"]["Tables"] & {
+      employer_profiles: Table<
+        { organisation_name: string; slug: string; content: Json; researched_at: string },
+        never
+      >;
       directory_jobs: {
         Row: Database["public"]["Tables"]["directory_jobs"]["Row"] & {
           salary_full_time_evidence: boolean;
@@ -63,6 +67,22 @@ export type DatabaseWithGuides = Omit<Database, "public"> & {
       >;
     };
     Functions: Database["public"]["Functions"] & {
+      claim_employer_research: {
+        Args: { p_pilot_name?: string };
+        Returns: { name: string; website: string; lease: string }[];
+      };
+      finish_employer_research: {
+        Args: {
+          p_name: string;
+          p_lease: string;
+          p_result: string;
+          p_content: Json;
+          p_host: string | null;
+          p_input_tokens: number;
+          p_output_tokens: number;
+        };
+        Returns: string;
+      };
       publish_career_guide: { Args: { p_id: number; p_input_hash: string }; Returns: boolean };
     };
   };

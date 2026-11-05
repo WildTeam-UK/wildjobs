@@ -44,16 +44,20 @@ export function JobFactIcon({ type }: { type: "location" | "salary" | "type" }) 
 export function JobCard({
   compact = false,
   detailPanel = false,
+  headingLevel,
   onDismiss,
   job,
+  sample = false,
   saveReturnTo,
   saveState = "signed-out",
-  showSaveAction = true,
+  showSaveAction = !sample,
 }: {
   compact?: boolean;
   detailPanel?: boolean;
+  headingLevel?: 2 | 3;
   onDismiss?: () => void;
   job: Job;
+  sample?: boolean;
   saveReturnTo?: string;
   saveState?: JobSaveState;
   showSaveAction?: boolean;
@@ -66,18 +70,37 @@ export function JobCard({
     compact && job.title.toLocaleLowerCase("en-GB").endsWith(employerSuffix.toLocaleLowerCase("en-GB"))
       ? job.title.slice(0, -employerSuffix.length)
       : job.title;
+  const canView = !sample && (!job.availability || job.availability === "current");
+  const JobTitle = (headingLevel ?? (sample ? 3 : 2)) === 3 ? "h3" : "h2";
   const compactFacts = [
     { icon: "location", label: "Location", value: compactJobLocation(job) },
     { icon: "salary", label: "Salary", value: formatSalaryLabel(job.salary) },
     { icon: "type", label: "Workplace", value: job.locationType },
   ] as const;
-  const statusPills = [
-    isNewJob(job.publishedAt ?? job.postedAt) ? { className: "new", label: "New job" } : null,
-    job.closesAt && isClosingSoon(job.closesAt) ? { className: "closing", label: "Closing soon" } : null,
-  ].filter((pill): pill is { className: string; label: string } => Boolean(pill));
-  const postedLabel = postedAgoLabel(job.publishedAt ?? job.postedAt);
+  const statusPills = (
+    sample
+      ? []
+      : [
+          isNewJob(job.publishedAt ?? job.postedAt) ? { className: "new", label: "New job" } : null,
+          job.closesAt && isClosingSoon(job.closesAt)
+            ? { className: "closing", label: "Closing soon" }
+            : null,
+        ]
+  ).filter((pill): pill is { className: string; label: string } => Boolean(pill));
+  const postedLabel = sample ? null : postedAgoLabel(job.publishedAt ?? job.postedAt);
   const hasRelatedCourses = Boolean(job.relatedCourses?.length);
   const sourceLinkAttributes = job.sourceUrl ? { target: "_blank", rel: "noopener noreferrer" } : {};
+  const title = (
+    <JobTitle className="job-card__title">
+      {canView ? (
+        <Link href={job.sourceUrl ?? "/"} {...sourceLinkAttributes}>
+          {displayTitle}
+        </Link>
+      ) : (
+        displayTitle
+      )}
+    </JobTitle>
+  );
   const employerLogo = (
     <EmployerLogo
       imageClassName="job-card__logo"
@@ -86,28 +109,27 @@ export function JobCard({
       name={job.organisation}
     />
   );
-  const summaryLabel =
-    job.summarySource === "ai" ? (
-      <h3 className="job-card__ai-summary-label">
-        <span>Role summary</span>
-      </h3>
-    ) : null;
+  const hasSummaryLabel = sample || job.summarySource === "ai";
+  const SummaryLabel = JobTitle === "h3" ? "p" : "h3";
+  const summaryLabel = hasSummaryLabel ? (
+    <SummaryLabel className="job-card__ai-summary-label">
+      <span>Role summary</span>
+    </SummaryLabel>
+  ) : null;
   const summaryBlock = (
-    <div
-      className={`job-card__summary-block${job.summarySource === "ai" ? " job-card__summary-block--ai" : ""}`}
-    >
+    <div className={`job-card__summary-block${hasSummaryLabel ? " job-card__summary-block--ai" : ""}`}>
       {summaryLabel}
       <p className="job-card__summary">{job.summary}</p>
     </div>
   );
 
   return (
-    <article className={`job-card${compact ? " job-card--compact" : ""}`}>
+    <article className={`job-card${compact ? " job-card--compact" : ""}${sample ? " job-card--sample" : ""}`}>
       <header className="job-card__header">
         {detailPanel ? (
           <div className="job-card__employer-profile">{employerLogo}</div>
         ) : compact ? (
-          job.availability && job.availability !== "current" ? (
+          !canView ? (
             <span className="job-card__logo-anchor">{employerLogo}</span>
           ) : (
             <Link
@@ -123,18 +145,14 @@ export function JobCard({
           employerLogo
         )}
         <div className="job-card__identity">
-          {compact ? (
-            <h2>
-              {job.availability && job.availability !== "current" ? (
-                displayTitle
-              ) : (
-                <Link href={job.sourceUrl ?? "/"} {...sourceLinkAttributes}>
-                  {displayTitle}
-                </Link>
-              )}
-            </h2>
-          ) : null}
-          <p className="job-card__organisation">{job.organisation}</p>
+          {compact ? title : null}
+          <p className="job-card__organisation">
+            {job.employerProfileSlug ? (
+              <Link href={`/employers/${job.employerProfileSlug}`}>{job.organisation}</Link>
+            ) : (
+              job.organisation
+            )}
+          </p>
           {!compact ? (
             <div className="job-card__topline">
               <span>{job.category}</span>
@@ -178,15 +196,7 @@ export function JobCard({
       </header>
       {!compact ? (
         <div className="job-card__body">
-          <h2>
-            {job.availability && job.availability !== "current" ? (
-              displayTitle
-            ) : (
-              <Link href={job.sourceUrl ?? "/"} {...sourceLinkAttributes}>
-                {displayTitle}
-              </Link>
-            )}
-          </h2>
+          {title}
           {summaryBlock}
         </div>
       ) : null}
@@ -203,7 +213,9 @@ export function JobCard({
                 </li>
               ))}
             </ul>
-            {!hasRelatedCourses && !detailPanel ? <p className="job-card__posted">{postedLabel}</p> : null}
+            {postedLabel && !hasRelatedCourses && !detailPanel ? (
+              <p className="job-card__posted">{postedLabel}</p>
+            ) : null}
           </div>
         </>
       ) : (
@@ -251,7 +263,7 @@ export function JobCard({
               <span className="icon-label">Why are we recommending these courses?</span>
             </Link>
           </div>
-          {compact && !detailPanel ? <p className="job-card__posted">{postedLabel}</p> : null}
+          {postedLabel && compact && !detailPanel ? <p className="job-card__posted">{postedLabel}</p> : null}
         </div>
       ) : null}
       {!compact ? (
@@ -260,11 +272,11 @@ export function JobCard({
             <span className="job-card__unavailable">
               {job.availability === "expired" ? "Applications closed" : "No longer available"}
             </span>
-          ) : (
+          ) : canView ? (
             <Link className="action" href={job.sourceUrl ?? "/"} {...sourceLinkAttributes}>
               View job
             </Link>
-          )}
+          ) : null}
           {showSaveAction && !compact ? (
             <SaveJobControl jobId={job.id} jobSlug={job.slug} returnTo={saveReturnTo} state={saveState} />
           ) : null}

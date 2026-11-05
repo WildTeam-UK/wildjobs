@@ -10,8 +10,10 @@ async function fetchPublicResource(
   timeout = 8000,
   redirects = 4,
   deadline = Date.now() + timeout,
+  allow?: (url: URL) => boolean,
 ): Promise<{ body: Buffer; contentType: string; url: string }> {
   const url = publicUrl(value);
+  if (allow && !allow(url)) throw new Error("Source URL is outside the permitted research scope.");
   const remaining = deadline - Date.now();
   if (remaining <= 0) throw new Error("Source request timed out.");
   let timer: ReturnType<typeof setTimeout> | undefined;
@@ -90,6 +92,7 @@ async function fetchPublicResource(
       timeout,
       redirects - 1,
       deadline,
+      allow,
     );
   }
   return { body: result.body, contentType: result.contentType, url: url.toString() };
@@ -98,6 +101,11 @@ async function fetchPublicResource(
 export async function fetchPublicText(value: string, timeout = 8000) {
   const page = await fetchPublicResource(value, timeout);
   return { text: page.body.toString("utf8"), url: page.url };
+}
+
+export async function fetchPublicResearchPage(value: string, timeout: number, allow: (url: URL) => boolean) {
+  const page = await fetchPublicResource(value, timeout, 4, undefined, allow);
+  return { text: page.body.toString("utf8"), url: page.url, contentType: page.contentType };
 }
 export async function verifyPublicImage(value: string, timeout = 4500): Promise<string | null> {
   try {

@@ -1,0 +1,52 @@
+.section {
+  padding-block: clamp(32px, 5vw, 56px);
+}
+.section h2 {
+  margin: 0 0 20px;
+  font-size: clamp(1.6rem, 3vw, 2.25rem);
+}
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
+  gap: 16px;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  height: 100%;
+  padding: 24px;
+  border: 1px solid var(--wt-color-rule);
+  border-radius: var(--wt-radius-panel);
+  background: var(--wt-color-paper);
+  color: var(--wt-color-surface-charcoal);
+}
+.card:hover,
+.card:focus-visible {
+  border-color: var(--wt-color-brand-pink);
+}
+.card h3,
+.card p {
+  margin: 0;
+}
+.card h3 {
+  font-size: 1.25rem;
+}
+.description {
+  color: var(--wt-color-muted);
+}
+.action {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-top: auto;
+  padding-top: 6px;
+  color: var(--wt-color-brand-purple);
+  font-size: 0.85rem;
+  font-weight: var(--wt-font-weight-bold);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}

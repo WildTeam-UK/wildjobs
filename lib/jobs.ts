@@ -53,6 +53,7 @@ export type Job = Readonly<{
   sourceName: string;
   sourceUrl?: string;
   employerLogoUrl?: string;
+  employerProfileSlug?: string;
   employerWebsiteUrl?: string;
   countryCode?: string;
   postalCode?: string;

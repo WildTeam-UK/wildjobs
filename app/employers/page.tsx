@@ -18,7 +18,10 @@ export default async function EmployersPage() {
             <p className="eyebrow">Employers</p>
             <h1>Meet organisations working for nature</h1>
           </div>
-          <p>Find organisations with current opportunities in the EnvironmentJob feed.</p>
+          <p>
+            Explore conservation employers, learn about their work and find their current opportunities on
+            WildJobs.
+          </p>
         </div>
       </section>
       <section className="content-section">
@@ -39,7 +42,7 @@ export default async function EmployersPage() {
           {employers.length ? (
             <div className="employer-grid">
               {employers.map((employer) => (
-                <EmployerCard employer={employer} key={employer.slug} />
+                <EmployerCard employer={employer} key={employer.name} />
               ))}
             </div>
           ) : (

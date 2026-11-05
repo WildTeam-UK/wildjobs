@@ -38,3 +38,9 @@ The fictional organisation has no invented real charity number, named staff, rev
 Removed hero breadcrumbs, title eyebrows, decorative photo frames and the preview navigation strip. Primary buttons use uppercase labels. Responsive comparison panels replace the career, course and working-pattern tables. Employer hiring status uses a brand-gradient pill, with one website link in the profile header.
 
 Deferred product note from the user: add skills to jobs during processing, then use those skills as links to filtered job lists. This is recorded only; no skills extraction, schema, processing or filtering changes are implemented.
+
+## Employer template follow-up · 5 November 2026
+
+Wildmere uses an illustrative Unsplash photo from a UK wetland reserve, with a compact credit at the bottom right. Its hiring status and role categories sit together below the employer name; category links open the corresponding Role category filter. The footer uses a reusable Related guides section with three examples selected for Wildmere’s conservation focus and sample vacancies.
+
+WildJobs still selects and stores these preview photos as static assets. WildNews searches Unsplash on the server, hotlinks the selected image and records photographer attribution and selection tracking. Before adopting an automated version in WildJobs, confirm that use case with Unsplash and give WildJobs its own integration. Future employer pages can pass guides matched to available occupations or, where relevant, the employer’s role categories.

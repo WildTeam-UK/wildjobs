@@ -1,13 +1,61 @@
 import type { Metadata } from "next";
-import Link from "next/link";
-import {
-  ExampleJobs,
-  ExampleStats,
-  LeafMark,
-  Sparkle,
-  TemplatePhoto,
-  TrainingBanner,
-} from "@/components/templates/template-parts";
+import { RelatedGuides } from "@/components/guides/related-guides";
+import { EmployerProfileHero } from "@/components/templates/employer-profile-hero";
+import { JobCard } from "@/components/job-card";
+import { ExampleStats, TrainingBanner } from "@/components/templates/template-parts";
+import { guideCatalog } from "@/lib/guide-content";
+import type { Job } from "@/lib/jobs";
+import wetlandPhoto from "@/public/images/design/wildmere-wetland.jpg";
+
+const roleCategories = ["wildlife-conservation", "ecology"] as const;
+const relatedGuides = ["ecologist", "project-manager", "wildlife-conservation"].flatMap((slug) => {
+  const guide = guideCatalog.find((item) => item.slug === slug);
+  return guide ? [guide] : [];
+});
+const employerName = "Wildmere Nature Trust";
+const sampleJobDefaults = {
+  organisation: employerName,
+  employmentType: "Full time",
+  countryCode: "GB",
+  postedAt: "2026-11-05",
+  sourceName: "WildJobs",
+  relatedCourseSlugs: [],
+} as const;
+const sampleJobs: readonly Job[] = [
+  {
+    ...sampleJobDefaults,
+    slug: "wildmere-ecologist",
+    title: "Ecologist",
+    location: "Somerset",
+    locationType: "On-site",
+    category: "Ecology",
+    salary: "£31,000 – £36,000 per year",
+    summary:
+      "Connect fieldwork, analysis and practical habitat management. Work with the reserves team to understand species and habitats, shape restoration plans and communicate findings.",
+  },
+  {
+    ...sampleJobDefaults,
+    slug: "wildmere-community-conservation-officer",
+    title: "Community Conservation Officer",
+    location: "Taunton",
+    locationType: "Hybrid",
+    category: "Wildlife Conservation",
+    salary: "£28,000 – £32,000 per year",
+    summary:
+      "Help more people take part in nature recovery. Build relationships with local groups, support accessible events and turn community ideas into practical conservation activities.",
+  },
+  {
+    ...sampleJobDefaults,
+    slug: "wildmere-conservation-project-manager",
+    title: "Conservation Project Manager",
+    location: "South West",
+    locationType: "Hybrid",
+    category: "Wildlife Conservation",
+    salary: "£37,000 – £42,000 per year",
+    summary:
+      "Bring partners together around a landscape restoration programme. Coordinate delivery, budgets and reporting, keeping the project focused on its agreed conservation outcomes.",
+  },
+];
 
 export const metadata: Metadata = {
   title: "Wildmere Nature Trust — employer profile",
@@ -18,31 +66,20 @@ export const metadata: Metadata = {
 export default function EmployerTemplate() {
   return (
     <main>
-      <div className="shell tpl-employer-cover">
-        <TemplatePhoto priority />
-        <header className="tpl-employer-heading">
-          <LeafMark />
-          <div className="tpl-employer-heading__copy">
-            <span className="tpl-hiring-pill tpl-hiring-pill--fancy">
-              <Sparkle />
-              <span>Hiring now · 3 roles</span>
-            </span>
-            <h1>Wildmere Nature Trust</h1>
-            <p>
-              <Link href="/conservation-sector/wildlife-conservation">Wildlife Conservation</Link> · Local
-              nature charity · South West England
-            </p>
-          </div>
-          <a
-            className="tpl-text-link tpl-employer-website"
-            href="https://example.org"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Visit website
-          </a>
-        </header>
-      </div>
+      <EmployerProfileHero
+        name={employerName}
+        website="https://example.org"
+        roles={sampleJobs.length}
+        categories={roleCategories}
+        sample
+        photo={{
+          image: wetlandPhoto,
+          imageAlt: "A pond surrounded by golden reedbeds at a UK nature reserve",
+          creatorName: "Richard James",
+          creatorUrl: "https://unsplash.com/@r1chjames",
+          sourceUrl: "https://unsplash.com/photos/a-small-pond-surrounded-by-tall-grass-KTAKQdVSTcc",
+        }}
+      />
       <div className="shell">
         <nav className="tpl-profile-nav" aria-label="Employer profile sections">
           <a href="#about">About the organisation</a>
@@ -186,17 +223,16 @@ export default function EmployerTemplate() {
             </div>
             <span className="tpl-hiring-pill">3 opportunities</span>
           </div>
-          <ExampleJobs employer />
+          <div className="job-list">
+            {sampleJobs.map((job) => (
+              <JobCard compact job={job} key={job.slug} sample />
+            ))}
+          </div>
         </div>
       </section>
       <div className="shell">
         <TrainingBanner />
-        <div className="tpl-footer-links">
-          <Link href="/conservation-sector/wildlife-conservation">
-            Explore the Wildlife Conservation sector
-          </Link>
-          <Link href="/conservation-career-guides/ecologist">See the ecologist career guide </Link>
-        </div>
+        <RelatedGuides guides={relatedGuides} />
       </div>
     </main>
   );

@@ -1,6 +1,7 @@
 "use client";
 
 import { Fragment, useId, useState } from "react";
+import Link from "next/link";
 import { ShareJobControl } from "@/components/share-job-control";
 import { DismissJobControl } from "@/components/dismiss-job-control";
 import { EmployerLogo } from "@/components/employer-logo";
@@ -62,7 +63,13 @@ export function JobSplitView({
                           {job.title}
                         </button>
                       </h2>
-                      <p className="job-preview-card__organisation">{job.organisation}</p>
+                      <p className="job-preview-card__organisation">
+                        {job.employerProfileSlug ? (
+                          <Link href={`/employers/${job.employerProfileSlug}`}>{job.organisation}</Link>
+                        ) : (
+                          job.organisation
+                        )}
+                      </p>
                     </div>
                   </div>
                   <div className="job-preview-card__facts">
