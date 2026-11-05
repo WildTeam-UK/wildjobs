@@ -3,15 +3,11 @@ import Image from "next/image";
 import Link from "next/link";
 import { EditorialImageCredit } from "@/components/editorial-image-credit";
 import { RelatedGuides } from "@/components/guides/related-guides";
-import {
-  ExampleJobs,
-  ExampleStats,
-  LeafMark,
-  Sparkle,
-  TrainingBanner,
-} from "@/components/templates/template-parts";
+import { JobCard } from "@/components/job-card";
+import { ExampleStats, LeafMark, Sparkle, TrainingBanner } from "@/components/templates/template-parts";
 import { guideCatalog } from "@/lib/guide-content";
 import { guideSectorLabels } from "@/lib/guide-sectors";
+import type { Job } from "@/lib/jobs";
 import wetlandPhoto from "@/public/images/design/wildmere-wetland.jpg";
 
 const roleCategories = ["wildlife-conservation", "ecology"] as const;
@@ -19,6 +15,50 @@ const relatedGuides = ["ecologist", "project-manager", "wildlife-conservation"].
   const guide = guideCatalog.find((item) => item.slug === slug);
   return guide ? [guide] : [];
 });
+const employerName = "Wildmere Nature Trust";
+const sampleJobDefaults = {
+  organisation: employerName,
+  employmentType: "Full time",
+  countryCode: "GB",
+  postedAt: "2026-11-05",
+  sourceName: "WildJobs",
+  relatedCourseSlugs: [],
+} as const;
+const sampleJobs: readonly Job[] = [
+  {
+    ...sampleJobDefaults,
+    slug: "wildmere-ecologist",
+    title: "Ecologist",
+    location: "Somerset",
+    locationType: "On-site",
+    category: "Ecology",
+    salary: "£31,000 – £36,000 per year",
+    summary:
+      "Connect fieldwork, analysis and practical habitat management. Work with the reserves team to understand species and habitats, shape restoration plans and communicate findings.",
+  },
+  {
+    ...sampleJobDefaults,
+    slug: "wildmere-community-conservation-officer",
+    title: "Community Conservation Officer",
+    location: "Taunton",
+    locationType: "Hybrid",
+    category: "Wildlife Conservation",
+    salary: "£28,000 – £32,000 per year",
+    summary:
+      "Help more people take part in nature recovery. Build relationships with local groups, support accessible events and turn community ideas into practical conservation activities.",
+  },
+  {
+    ...sampleJobDefaults,
+    slug: "wildmere-conservation-project-manager",
+    title: "Conservation Project Manager",
+    location: "South West",
+    locationType: "Hybrid",
+    category: "Wildlife Conservation",
+    salary: "£37,000 – £42,000 per year",
+    summary:
+      "Bring partners together around a landscape restoration programme. Coordinate delivery, budgets and reporting, keeping the project focused on its agreed conservation outcomes.",
+  },
+];
 
 export const metadata: Metadata = {
   title: "Wildmere Nature Trust — employer profile",
@@ -47,7 +87,7 @@ export default function EmployerTemplate() {
           <LeafMark />
           <div className="tpl-employer-heading__copy">
             <div className="tpl-employer-heading__title">
-              <h1>Wildmere Nature Trust</h1>
+              <h1>{employerName}</h1>
               <a
                 className="tpl-text-link tpl-employer-website"
                 href="https://example.org"
@@ -75,7 +115,6 @@ export default function EmployerTemplate() {
                 </li>
               ))}
             </ul>
-            <p>Local nature charity · South West England</p>
           </div>
         </header>
       </div>
@@ -222,7 +261,11 @@ export default function EmployerTemplate() {
             </div>
             <span className="tpl-hiring-pill">3 opportunities</span>
           </div>
-          <ExampleJobs employer />
+          <div className="job-list">
+            {sampleJobs.map((job) => (
+              <JobCard compact job={job} key={job.slug} sample />
+            ))}
+          </div>
         </div>
       </section>
       <div className="shell">

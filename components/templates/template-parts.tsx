@@ -1,7 +1,6 @@
 import Image from "next/image";
 import "./training-banner.css";
 import type { ReactNode } from "react";
-import { formatSalaryLabel } from "@/lib/job-salary";
 
 export const careerCourseUrl =
   "https://training.wildteam.org.uk/course/launching-your-career-in-wildlife-conservation";
@@ -28,9 +27,9 @@ export const trainingCourses = [
   },
 ] as const;
 
-export function LeafMark({ small = false }: { small?: boolean }) {
+export function LeafMark() {
   return (
-    <span className={`tpl-leaf-mark${small ? " tpl-leaf-mark--small" : ""}`}>
+    <span className="tpl-leaf-mark">
       <svg aria-hidden="true" viewBox="0 0 48 48">
         <path d="M37 9C19 9 10 18 12 29c2 9 12 12 19 5 6-6 7-15 6-25Z" />
         <path d="M10 39c6-12 12-18 21-24M18 27l-1-8M24 22l8 1" />
@@ -241,87 +240,6 @@ export function CourseTiles() {
           <p>{course.description}</p>
           <span className="tpl-course-tile__link">Explore this WildTeam course</span>
         </a>
-      ))}
-    </div>
-  );
-}
-
-const exampleJobs = {
-  career: [
-    {
-      title: "Assistant Ecologist",
-      organisation: "River & Root Ecology",
-      location: "Bristol · Hybrid",
-      salary: "£26,000 – £30,000 per year",
-      text: "Help turn field observations into practical advice. Support habitat surveys, map findings and contribute to clear ecological reports, with guidance from an experienced team.",
-    },
-    {
-      title: "Ecologist",
-      organisation: "Wildmere Nature Trust",
-      location: "Somerset · On-site",
-      salary: "£31,000 – £36,000 per year",
-      text: "Bring ecological evidence into habitat restoration. Plan surveys, work with land managers and help monitor the difference made for wildlife across a network of reserves.",
-    },
-  ],
-  employer: [
-    {
-      title: "Ecologist",
-      organisation: "Wildmere Nature Trust",
-      location: "Somerset · On-site",
-      salary: "£31,000 – £36,000 per year",
-      text: "Connect fieldwork, analysis and practical habitat management. Work with the reserves team to understand species and habitats, shape restoration plans and communicate findings.",
-    },
-    {
-      title: "Community Conservation Officer",
-      organisation: "Wildmere Nature Trust",
-      location: "Taunton · Hybrid",
-      salary: "£28,000 – £32,000 per year",
-      text: "Help more people take part in nature recovery. Build relationships with local groups, support accessible events and turn community ideas into practical conservation activities.",
-    },
-    {
-      title: "Conservation Project Manager",
-      organisation: "Wildmere Nature Trust",
-      location: "South West · Hybrid",
-      salary: "£37,000 – £42,000 per year",
-      text: "Bring partners together around a landscape restoration programme. Coordinate delivery, budgets and reporting, keeping the project focused on its agreed conservation outcomes.",
-    },
-  ],
-} as const;
-
-export function ExampleJobs({ employer = false }: { employer?: boolean }) {
-  return (
-    <div className="tpl-example-jobs">
-      {exampleJobs[employer ? "employer" : "career"].map((job) => (
-        <article className="tpl-example-job" key={job.title}>
-          <header>
-            <LeafMark small />
-            <div>
-              <h3>{job.title}</h3>
-              <p>{job.organisation}</p>
-            </div>
-            <span className="tpl-example-badge">Open role</span>
-          </header>
-          <div className="tpl-example-job__summary">
-            <span>Role summary</span>
-            <p>{job.text}</p>
-          </div>
-          <ul>
-            <li>{job.location}</li>
-            <li>{formatSalaryLabel(job.salary)}</li>
-            <li>Full time</li>
-          </ul>
-          <details>
-            <summary>
-              Read the role brief <span aria-hidden="true">↗</span>
-            </summary>
-            <p>
-              This role combines practical experience with clear communication and thoughtful teamwork. You
-              will help plan and deliver activities, keep reliable records and share what you learn with
-              colleagues and partners. We are looking for an organised, collaborative person who can connect
-              their skills with the work of nature recovery.
-            </p>
-          </details>
-        </article>
       ))}
     </div>
   );

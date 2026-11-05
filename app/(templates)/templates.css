@@ -736,95 +736,6 @@
 .tpl-section-heading h2 {
   margin-bottom: 0;
 }
-.tpl-example-jobs {
-  display: grid;
-  gap: 19px;
-}
-.tpl-example-job {
-  padding: 29px;
-  border: 1px solid var(--wt-color-rule);
-  border-radius: var(--wt-radius-panel);
-  background: white;
-}
-.tpl-example-job header {
-  display: flex;
-  align-items: center;
-  gap: 15px;
-}
-.tpl-example-job header h3 {
-  margin: 0 0 6px;
-  font-size: 1.5rem;
-  line-height: 1.1;
-}
-.tpl-example-job header p {
-  margin: 0;
-  color: var(--wt-color-muted);
-  font-size: 0.84rem;
-}
-.tpl-example-badge {
-  margin-left: auto;
-  flex: 0 0 auto;
-  border: 1px solid #d9c5d5;
-  border-radius: 999px;
-  padding: 6px 9px;
-  color: var(--wt-color-brand-purple);
-  font-size: 0.59rem;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
-.tpl-example-job__summary {
-  margin-block: 24px 18px;
-  padding: 17px 20px;
-  border: 1px solid transparent;
-  border-radius: var(--wt-radius-panel);
-  background:
-    linear-gradient(110deg, #fff6fb, white) padding-box,
-    linear-gradient(100deg, var(--wt-color-brand-purple), var(--wt-color-brand-pink)) border-box;
-}
-.tpl-example-job__summary > span {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  color: var(--wt-color-brand-purple);
-  font-size: 0.65rem;
-  font-weight: var(--wt-font-weight-bold);
-  text-transform: uppercase;
-}
-.tpl-example-job__summary .tpl-sparkle {
-  width: 14px;
-  height: 14px;
-}
-.tpl-example-job__summary p {
-  margin: 10px 0 0;
-  font-size: 0.88rem;
-  line-height: 1.55;
-}
-.tpl-example-job ul {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px 25px;
-  margin: 0 0 17px;
-  padding: 0;
-  list-style: none;
-  color: var(--wt-color-muted);
-  font-size: 0.8rem;
-}
-.tpl-example-job li {
-  margin: 0;
-  padding: 0;
-}
-.tpl-example-job details {
-  font-size: 0.85rem;
-}
-.tpl-example-job details p {
-  margin-top: 15px;
-}
-.tpl-example-job summary {
-  cursor: pointer;
-  color: var(--wt-color-brand-purple);
-  text-decoration: underline;
-  text-underline-offset: 4px;
-}
 .tpl-leaf-mark {
   display: grid;
   flex: 0 0 auto;
@@ -842,15 +753,6 @@
   stroke-width: 2;
   stroke-linecap: round;
   stroke-linejoin: round;
-}
-.tpl-leaf-mark--small {
-  width: 53px;
-  height: 53px;
-  border-radius: 12px;
-}
-.tpl-leaf-mark--small svg {
-  width: 35px;
-  height: 35px;
 }
 .tpl-wide-section {
   padding-block: 70px;
@@ -928,8 +830,8 @@
   object-position: center 61%;
 }
 .tpl-employer-heading {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
   align-items: center;
   gap: 28px;
   padding: 32px;
@@ -941,15 +843,6 @@
 .tpl-employer-heading h1 {
   font-size: clamp(2rem, 4vw, 3.8rem);
   margin: 0;
-}
-.tpl-employer-heading__copy {
-  flex: 1 1 350px;
-  min-width: 0;
-}
-.tpl-employer-heading__copy > p {
-  margin: 12px 0 0;
-  color: var(--wt-color-muted);
-  font-size: 0.84rem;
 }
 .tpl-employer-heading__title {
   display: flex;
@@ -1035,8 +928,8 @@
   letter-spacing: normal;
 }
 .tpl-employer-pill--category {
-  border-color: var(--wt-color-rule);
-  background: var(--tpl-soft-purple);
+  border-color: var(--wt-color-brand-pink);
+  background: var(--wt-color-paper);
   color: var(--wt-color-brand-purple);
 }
 .tpl-employer-pill--category:hover {
@@ -1359,25 +1252,6 @@
   .tpl-actions .action {
     justify-content: center;
   }
-  .tpl-example-job {
-    padding: 21px;
-  }
-  .tpl-example-job header {
-    flex-wrap: wrap;
-    gap: 12px;
-  }
-  .tpl-example-job header > div {
-    flex: 1;
-  }
-  .tpl-example-job header h3 {
-    font-size: 1.3rem;
-  }
-  .tpl-example-badge {
-    margin-left: 65px;
-  }
-  .tpl-example-job__summary {
-    padding: 16px;
-  }
   .tpl-section-heading {
     align-items: start;
     flex-direction: column;
@@ -1393,24 +1267,17 @@
     margin-block: 12px 30px;
     padding: 20px;
   }
-  .tpl-employer-heading__copy {
-    flex-basis: 100%;
+  .tpl-employer-heading h1 {
+    font-size: clamp(1.65rem, 7vw, 2rem);
   }
   .tpl-leaf-mark {
-    width: 80px;
-    height: 80px;
+    width: 60px;
+    height: 60px;
+    border-radius: var(--wt-radius-panel);
   }
   .tpl-leaf-mark svg {
-    width: 50px;
-    height: 50px;
-  }
-  .tpl-leaf-mark--small {
-    width: 47px;
-    height: 47px;
-  }
-  .tpl-leaf-mark--small svg {
-    width: 32px;
-    height: 32px;
+    width: 38px;
+    height: 38px;
   }
   .tpl-employer-grid {
     padding-top: 40px;

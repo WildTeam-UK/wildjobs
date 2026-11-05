@@ -1942,7 +1942,7 @@ a[role="button"],
   border-radius: 0;
   cursor: auto;
 }
-.job-detail-panel .job-card:hover {
+.job-detail-panel .job-card:where(:not(.job-card--sample)):hover {
   box-shadow: none;
   transform: none;
 }
@@ -1978,13 +1978,13 @@ a[role="button"],
   border-radius: 0;
   background: transparent;
 }
-.job-detail-panel .job-card h2 {
+.job-detail-panel .job-card .job-card__title {
   font-size: 1.75rem;
 }
-.job-detail-panel .job-card h2 a::after {
+.job-detail-panel .job-card .job-card__title a::after {
   content: none;
 }
-.job-detail-panel .job-card h2 a:focus-visible {
+.job-detail-panel .job-card .job-card__title a:focus-visible {
   outline: 3px solid var(--wt-color-brand-pink);
 }
 .job-detail-panel .job-card .job-card__summary-block,
@@ -2272,6 +2272,9 @@ a[role="button"],
   padding: 36px 20px;
   cursor: pointer;
 }
+.job-card--sample {
+  cursor: default;
+}
 .job-card--compact .job-card__header {
   align-items: flex-start;
 }
@@ -2303,19 +2306,19 @@ a[role="button"],
 .job-card__logo-anchor:hover .job-card__logo {
   transform: scale(1.06);
 }
-.job-card--compact h2 {
+.job-card--compact .job-card__title {
   font-size: clamp(1.45rem, 2.5vw, 1.9rem);
 }
-.job-card--compact h2 a::after {
+.job-card--compact .job-card__title a::after {
   position: absolute;
   z-index: 1;
   inset: 0;
   content: "";
 }
-.job-card--compact h2 a:focus-visible {
+.job-card--compact .job-card__title a:focus-visible {
   outline: 0;
 }
-.job-card--compact:has(h2 a:focus-visible) {
+.job-card--compact:has(.job-card__title a:focus-visible) {
   outline: 3px solid var(--wt-color-brand-pink);
   outline-offset: 3px;
 }
@@ -2448,18 +2451,18 @@ a[role="button"],
 .job-card__organisation a:hover {
   color: var(--wt-color-brand-pink);
 }
-.job-card h2 {
+.job-card .job-card__title {
   margin: 0;
   color: var(--wt-color-surface-charcoal);
   font-size: clamp(1.65rem, 3vw, 2.15rem);
   line-height: 1.04;
   letter-spacing: -0.02em;
 }
-.job-card--compact h2 {
+.job-card--compact .job-card__title {
   margin-left: -2px;
 }
-.job-card h2 a,
-.job-card h2 a:hover {
+.job-card .job-card__title a,
+.job-card .job-card__title a:hover {
   color: var(--wt-color-surface-charcoal);
 }
 .job-card__summary {
@@ -3929,7 +3932,7 @@ a[role="button"],
   .job-card--compact .job-card__identity {
     align-self: flex-end;
   }
-  .job-card--compact h2 {
+  .job-card--compact .job-card__title {
     margin-left: 0;
     font-size: 1.16rem;
     line-height: 1.08;
