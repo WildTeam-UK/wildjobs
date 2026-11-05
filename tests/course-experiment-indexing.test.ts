@@ -1,6 +1,7 @@
 import { afterEach, expect, it, vi } from "vitest";
 vi.mock("server-only", () => ({}));
 vi.mock("../lib/public-guides", () => ({ getReviewedGuideIndex: async () => [] }));
+vi.mock("../lib/public-employer-profiles", () => ({ getPublishedEmployerIndex: async () => [] }));
 import { metadata } from "../app/experiments/project-management/page";
 import config from "../next.config";
 import sitemap from "../app/sitemap";

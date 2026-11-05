@@ -9,6 +9,7 @@ import { getPublicCourses } from "./public-courses";
 import { getPublicCareerAreas } from "./public-career-areas";
 import { getPublicRoleAliases } from "./public-career-roles";
 import { matchCareerRole } from "./career-role-matching";
+import { getPublishedEmployerIndex } from "./public-employer-profiles";
 import {
   directoryDeadline,
   directoryFacts,
@@ -18,14 +19,16 @@ import {
 
 type DirectoryJob = Database["public"]["Tables"]["directory_jobs"]["Row"];
 export async function mapDirectoryJobs(records: readonly DirectoryJob[]): Promise<readonly Job[]> {
-  const [courses, sectors, organisations, roles] = await Promise.all([
+  const [courses, sectors, organisations, roles, profiles] = await Promise.all([
     getPublicCourses(),
     getPublicCareerAreas(),
     createPublicClient().from("directory_organisations").select("name,logo_url,website_url"),
     getPublicRoleAliases(),
+    getPublishedEmployerIndex(),
   ]);
   if (organisations.error) throw new Error("Organisation logos could not be loaded.");
   const employers = new Map(organisations.data.map((o) => [o.name, o]));
+  const employerSlugs = new Map(profiles.map((profile) => [profile.organisation_name, profile.slug]));
   return records.map((row) => {
     const terms = sectors.filter((s) => row.sector_slugs.includes(s.slug));
     const relatedCourses = courses.filter((c) => row.course_slugs.includes(c.slug));
@@ -41,6 +44,7 @@ export async function mapDirectoryJobs(records: readonly DirectoryJob[]): Promis
       slug: row.slug,
       title: row.title,
       organisation: row.organisation_name,
+      employerProfileSlug: employerSlugs.get(row.organisation_name),
       employerLogoUrl: employers.get(row.organisation_name)?.logo_url ?? undefined,
       employerWebsiteUrl: employers.get(row.organisation_name)?.website_url ?? undefined,
       summary: row.summary,
@@ -72,19 +76,22 @@ export async function mapDirectoryJobs(records: readonly DirectoryJob[]): Promis
     };
   });
 }
-export const getPublicJobs = cache(async (): Promise<readonly Job[]> => {
+export const getPublicJobs = cache(async (organisation?: string): Promise<readonly Job[]> => {
   await connection();
   const db = createPublicClient();
   const records: DirectoryJob[] = [];
   for (let from = 0; ; from += 1000) {
-    const { data, error } = await db
+    let query = db
       .from("directory_jobs")
       .select("*")
       .eq("is_active", true)
+      .is("merged_into", null)
       .or(liveDirectoryDateFilter())
       .order("posted_at", { ascending: false })
       .order("id")
       .range(from, from + 999);
+    if (organisation) query = query.eq("organisation_name", organisation);
+    const { data, error } = await query;
     if (error) throw new Error("Jobs could not be loaded.");
     records.push(...data);
     if (data.length < 1000) break;

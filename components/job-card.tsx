@@ -44,6 +44,7 @@ export function JobFactIcon({ type }: { type: "location" | "salary" | "type" }) 
 export function JobCard({
   compact = false,
   detailPanel = false,
+  headingLevel,
   onDismiss,
   job,
   sample = false,
@@ -53,6 +54,7 @@ export function JobCard({
 }: {
   compact?: boolean;
   detailPanel?: boolean;
+  headingLevel?: 2 | 3;
   onDismiss?: () => void;
   job: Job;
   sample?: boolean;
@@ -69,7 +71,7 @@ export function JobCard({
       ? job.title.slice(0, -employerSuffix.length)
       : job.title;
   const canView = !sample && (!job.availability || job.availability === "current");
-  const JobTitle = sample ? "h3" : "h2";
+  const JobTitle = (headingLevel ?? (sample ? 3 : 2)) === 3 ? "h3" : "h2";
   const compactFacts = [
     { icon: "location", label: "Location", value: compactJobLocation(job) },
     { icon: "salary", label: "Salary", value: formatSalaryLabel(job.salary) },
@@ -108,7 +110,7 @@ export function JobCard({
     />
   );
   const hasSummaryLabel = sample || job.summarySource === "ai";
-  const SummaryLabel = sample ? "p" : "h3";
+  const SummaryLabel = JobTitle === "h3" ? "p" : "h3";
   const summaryLabel = hasSummaryLabel ? (
     <SummaryLabel className="job-card__ai-summary-label">
       <span>Role summary</span>
@@ -144,7 +146,13 @@ export function JobCard({
         )}
         <div className="job-card__identity">
           {compact ? title : null}
-          <p className="job-card__organisation">{job.organisation}</p>
+          <p className="job-card__organisation">
+            {job.employerProfileSlug ? (
+              <Link href={`/employers/${job.employerProfileSlug}`}>{job.organisation}</Link>
+            ) : (
+              job.organisation
+            )}
+          </p>
           {!compact ? (
             <div className="job-card__topline">
               <span>{job.category}</span>

@@ -2284,6 +2284,13 @@ a[role="button"],
   display: grid;
   flex: 0 0 auto;
 }
+.job-card__organisation a,
+.job-preview-card__organisation a {
+  position: relative;
+  z-index: 2;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
 .job-card--compact .job-card__logo,
 .job-card--compact .job-card__monogram {
   width: 75px;

@@ -284,6 +284,31 @@
   position: relative;
   min-width: 0;
   margin: 0;
+  overflow-wrap: anywhere;
+}
+.tpl-employer-logo {
+  display: grid;
+  place-items: center;
+  width: clamp(60px, 11vw, 112px);
+  aspect-ratio: 1;
+}
+.tpl-employer-logo img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+.tpl-employer-logo--monogram {
+  border: 1px solid var(--wt-color-rule);
+  border-radius: var(--wt-radius-panel);
+  color: var(--wt-color-brand-purple);
+  font-weight: var(--wt-font-weight-bold);
+}
+.tpl-employer-source {
+  display: inline;
+  font-size: 0.85em;
+}
+.tpl-employer-claims {
+  max-width: 760px;
 }
 .tpl-photo img {
   display: block;
@@ -937,6 +962,10 @@
   border-color: var(--tpl-role-pill-pink);
   background: var(--tpl-role-pill-pink);
   color: white;
+}
+.tpl-employer-pill--idle {
+  border-color: var(--wt-color-rule);
+  color: var(--wt-color-muted);
 }
 
 .tpl-employer-grid {

@@ -11,8 +11,9 @@ import {
 } from "../lib/guide-seo";
 import sitemap from "../app/sitemap";
 import { vi, afterEach } from "vitest";
-const mocks = vi.hoisted(() => ({ index: vi.fn() }));
+const mocks = vi.hoisted(() => ({ index: vi.fn(), employers: vi.fn() }));
 vi.mock("../lib/public-guides", () => ({ getReviewedGuideIndex: mocks.index }));
+vi.mock("../lib/public-employer-profiles", () => ({ getPublishedEmployerIndex: mocks.employers }));
 afterEach(() => vi.unstubAllEnvs());
 
 it.each(guideCatalog)("gives $slug complete canonical sharing metadata", (guide) => {
@@ -89,6 +90,7 @@ it("exposes only reviewed guide routes in the production sitemap", async () => {
   vi.stubEnv("VERCEL_ENV", "production");
   vi.stubEnv("SITE_INDEXING_ENABLED", "true");
   mocks.index.mockResolvedValue([{ guide: pilotGuides[0], reviewedAt: "2026-11-03T12:00:00Z" }]);
+  mocks.employers.mockResolvedValue([{ slug: "example-employer", researched_at: "2026-11-05T12:00:00Z" }]);
   const entries = await sitemap();
   expect(entries).toContainEqual({
     url: SITE_URL + guidePath(pilotGuides[0]),
@@ -96,6 +98,11 @@ it("exposes only reviewed guide routes in the production sitemap", async () => {
   });
   expect(entries.some(({ url }) => url.endsWith("/ecologist"))).toBe(false);
   expect(entries.some(({ url }) => url.endsWith("/conservation-career-guides"))).toBe(true);
+  expect(entries).toContainEqual({
+    url: SITE_URL + "/employers/example-employer",
+    lastModified: "2026-11-05T12:00:00Z",
+  });
+  expect(entries.some(({ url }) => url.endsWith("/wildmere-nature-trust"))).toBe(false);
   mocks.index.mockResolvedValue([]);
   expect((await sitemap()).some(({ url }) => url.includes("/conservation-"))).toBe(false);
 });

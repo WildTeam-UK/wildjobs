@@ -31,13 +31,19 @@ export function EmployerCard({ employer }: { employer: PublicEmployer }) {
   const topics = employer.openRoles
     .flatMap((job) => [job.category, ...(job.careerAreas ?? [])])
     .filter((topic, index, values) => topic && values.indexOf(topic) === index);
-  const description = `Explore current opportunities with ${employer.name}.`;
+  const description = employer.profileSlug
+    ? "Explore this employer profile"
+    : `Explore current opportunities with ${employer.name}.`;
 
   return (
     <Link
       aria-label={`View ${employer.name}`}
       className="employer-directory-card"
-      href={`/?q=${encodeURIComponent(employer.name)}`}
+      href={
+        employer.profileSlug
+          ? `/employers/${employer.profileSlug}`
+          : `/?q=${encodeURIComponent(employer.name)}`
+      }
     >
       <article>
         <header className="employer-directory-card__header">
@@ -58,10 +64,12 @@ export function EmployerCard({ employer }: { employer: PublicEmployer }) {
           <p className="employer-directory-card__summary">{description}</p>
         </div>
         <ul className="employer-directory-card__facts">
-          <li>
-            <EmployerFactIcon type="location" />
-            <span>{employerLocation(employer.locations)}</span>
-          </li>
+          {openRoles ? (
+            <li>
+              <EmployerFactIcon type="location" />
+              <span>{employerLocation(employer.locations)}</span>
+            </li>
+          ) : null}
           <li>
             <EmployerFactIcon type="roles" />
             <span>

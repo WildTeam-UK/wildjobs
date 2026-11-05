@@ -1,12 +1,9 @@
 import type { Metadata } from "next";
-import Image from "next/image";
-import Link from "next/link";
-import { EditorialImageCredit } from "@/components/editorial-image-credit";
 import { RelatedGuides } from "@/components/guides/related-guides";
+import { EmployerProfileHero } from "@/components/templates/employer-profile-hero";
 import { JobCard } from "@/components/job-card";
-import { ExampleStats, LeafMark, Sparkle, TrainingBanner } from "@/components/templates/template-parts";
+import { ExampleStats, TrainingBanner } from "@/components/templates/template-parts";
 import { guideCatalog } from "@/lib/guide-content";
-import { guideSectorLabels } from "@/lib/guide-sectors";
 import type { Job } from "@/lib/jobs";
 import wetlandPhoto from "@/public/images/design/wildmere-wetland.jpg";
 
@@ -69,55 +66,20 @@ export const metadata: Metadata = {
 export default function EmployerTemplate() {
   return (
     <main>
-      <div className="shell tpl-employer-cover">
-        <figure className="tpl-photo">
-          <Image
-            src={wetlandPhoto}
-            alt="A pond surrounded by golden reedbeds at a UK nature reserve"
-            sizes="(max-width: 1240px) 100vw, 1240px"
-            preload
-          />
-          <EditorialImageCredit
-            creatorName="Richard James"
-            creatorUrl="https://unsplash.com/@r1chjames"
-            sourceUrl="https://unsplash.com/photos/a-small-pond-surrounded-by-tall-grass-KTAKQdVSTcc"
-          />
-        </figure>
-        <header className="tpl-employer-heading">
-          <LeafMark />
-          <div className="tpl-employer-heading__copy">
-            <div className="tpl-employer-heading__title">
-              <h1>{employerName}</h1>
-              <a
-                className="tpl-text-link tpl-employer-website"
-                href="https://example.org"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                Visit website
-              </a>
-            </div>
-            <ul className="tpl-employer-pills" aria-label="Hiring status and role categories">
-              <li>
-                <span className="tpl-employer-pill tpl-hiring-pill tpl-hiring-pill--fancy">
-                  <Sparkle />
-                  <span>Hiring now · 3 roles</span>
-                </span>
-              </li>
-              {roleCategories.map((category) => (
-                <li key={category}>
-                  <Link
-                    className="tpl-employer-pill tpl-employer-pill--category"
-                    href={{ pathname: "/", query: { sector: guideSectorLabels[category] } }}
-                  >
-                    {guideSectorLabels[category]}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </header>
-      </div>
+      <EmployerProfileHero
+        name={employerName}
+        website="https://example.org"
+        roles={sampleJobs.length}
+        categories={roleCategories}
+        sample
+        photo={{
+          image: wetlandPhoto,
+          imageAlt: "A pond surrounded by golden reedbeds at a UK nature reserve",
+          creatorName: "Richard James",
+          creatorUrl: "https://unsplash.com/@r1chjames",
+          sourceUrl: "https://unsplash.com/photos/a-small-pond-surrounded-by-tall-grass-KTAKQdVSTcc",
+        }}
+      />
       <div className="shell">
         <nav className="tpl-profile-nav" aria-label="Employer profile sections">
           <a href="#about">About the organisation</a>
