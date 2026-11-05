@@ -85,7 +85,7 @@ export async function researchEmployer(pilotName?: string) {
             pages: sources.map(({ title, kind }, index) => ({ id: index + 1, title, kind })),
             passages: passages.map(({ page, excerpt }, index) => ({
               id: index + 1,
-              page: sources.indexOf(page) + 1,
+              page: sources.findIndex((source) => source === page) + 1,
               text: excerpt,
             })),
           }),
