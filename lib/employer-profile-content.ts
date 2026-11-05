@@ -36,9 +36,8 @@ export function extractEmployerPassages(sources: readonly EmployerSource[]) {
     for (const { segment } of sentences.segment(squash(page.text))) {
       const sentence = segment.trim();
       // Keep long unpunctuated text intact up to a word boundary.
-      const parts = sentence.length <= maxLength
-        ? [sentence]
-        : sentence.match(/\S.{0,539}(?= |$)|\S+/g) ?? [];
+      const parts =
+        sentence.length <= maxLength ? [sentence] : (sentence.match(/\S.{0,539}(?= |$)|\S+/g) ?? []);
       for (const part of parts) {
         if (excerpt && excerpt.length + part.length + 1 > maxLength) {
           if (excerpt.length >= 25) passages.push({ page, excerpt });

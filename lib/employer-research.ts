@@ -58,7 +58,11 @@ export async function researchEmployer(pilotName?: string) {
         result = "identity_mismatch";
       } else if (sources.length < 2) {
         result = "insufficient";
-        console.info("Employer research needs more official pages", { organisation: task.name, identity, sourceCount: sources.length });
+        console.info("Employer research needs more official pages", {
+          organisation: task.name,
+          identity,
+          sourceCount: sources.length,
+        });
       } else {
         const passages = extractEmployerPassages(sources);
         const client = new OpenAI({ maxRetries: 0, timeout: 25000 });

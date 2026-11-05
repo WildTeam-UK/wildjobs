@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { eligibleEmployerContent, extractEmployerPassages, groundEmployerClaims } from "../lib/employer-profile-content";
+import {
+  eligibleEmployerContent,
+  extractEmployerPassages,
+  groundEmployerClaims,
+} from "../lib/employer-profile-content";
 import { robotsAllows, type EmployerSource } from "../lib/employer-research-sources";
 
 const sources: EmployerSource[] = [
@@ -56,11 +60,7 @@ describe("employer evidence gate", () => {
     const [overview, work, careers] = draft.claims;
     const grounded = groundEmployerClaims(
       {
-        claims: [
-          overview,
-          { ...work, passage: 4 },
-          { ...careers, passage: 1 },
-        ],
+        claims: [overview, { ...work, passage: 4 }, { ...careers, passage: 1 }],
       },
       extractEmployerPassages(sources),
     );
