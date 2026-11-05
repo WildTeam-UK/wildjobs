@@ -83,7 +83,7 @@ function acceptsResearch(html: string) {
   );
 }
 
-export async function collectEmployerSources(name: string, website: string) {
+export async function loadEmployerResearchHome(name: string, website: string) {
   const origin = publicUrl(website).origin;
   const sameSite = (url: URL) => url.protocol === "https:" && url.origin === origin;
   let robots = "";
@@ -93,10 +93,18 @@ export async function collectEmployerSources(name: string, website: string) {
     if (!(error instanceof Error) || !/^Source HTTP (404|410)$/.test(error.message)) throw error;
   }
   const allow = (url: URL) => sameSite(url) && robotsAllows(robots, url);
-  if (!allow(new URL(origin))) return { identity: "unknown", sources: [] } as const;
+  if (!allow(new URL(origin))) return { identity: "unknown" } as const;
   const home = await fetchPublicResearchPage(origin, 6000, allow);
-  if (!employerWebsiteMatches(name, home.text)) return { identity: "mismatch", sources: [] } as const;
-  if (!acceptsResearch(home.text)) return { identity: "unknown", sources: [] } as const;
+  if (!employerWebsiteMatches(name, home.text)) return { identity: "mismatch" } as const;
+  if (!acceptsResearch(home.text) || !/(?:html|xhtml)/i.test(home.contentType))
+    return { identity: "unknown" } as const;
+  return { identity: "verified", home, allow } as const;
+}
+
+export async function collectEmployerSources(name: string, website: string) {
+  const seed = await loadEmployerResearchHome(name, website);
+  if (seed.identity !== "verified") return { identity: seed.identity, sources: [] };
+  const { home, allow } = seed;
 
   const toSource = (page: typeof home, kind: EmployerSource["kind"]): EmployerSource => ({
     kind,

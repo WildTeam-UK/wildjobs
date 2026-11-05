@@ -83,6 +83,16 @@ export type DatabaseWithGuides = Omit<Database, "public"> & {
         };
         Returns: string;
       };
+      record_employer_research_website: {
+        Args: {
+          p_name: string;
+          p_lease: string;
+          p_website: string;
+          p_input_tokens: number;
+          p_output_tokens: number;
+        };
+        Returns: boolean;
+      };
       publish_career_guide: { Args: { p_id: number; p_input_hash: string }; Returns: boolean };
     };
   };
