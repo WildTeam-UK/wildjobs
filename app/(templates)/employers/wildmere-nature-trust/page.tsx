@@ -1,13 +1,24 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
+import { EditorialImageCredit } from "@/components/editorial-image-credit";
+import { RelatedGuides } from "@/components/guides/related-guides";
 import {
   ExampleJobs,
   ExampleStats,
   LeafMark,
   Sparkle,
-  TemplatePhoto,
   TrainingBanner,
 } from "@/components/templates/template-parts";
+import { guideCatalog } from "@/lib/guide-content";
+import { guideSectorLabels } from "@/lib/guide-sectors";
+import wetlandPhoto from "@/public/images/design/wildmere-wetland.jpg";
+
+const roleCategories = ["wildlife-conservation", "ecology"] as const;
+const relatedGuides = ["ecologist", "project-manager", "wildlife-conservation"].flatMap((slug) => {
+  const guide = guideCatalog.find((item) => item.slug === slug);
+  return guide ? [guide] : [];
+});
 
 export const metadata: Metadata = {
   title: "Wildmere Nature Trust — employer profile",
@@ -19,28 +30,53 @@ export default function EmployerTemplate() {
   return (
     <main>
       <div className="shell tpl-employer-cover">
-        <TemplatePhoto priority />
+        <figure className="tpl-photo">
+          <Image
+            src={wetlandPhoto}
+            alt="A pond surrounded by golden reedbeds at a UK nature reserve"
+            sizes="(max-width: 1240px) 100vw, 1240px"
+            preload
+          />
+          <EditorialImageCredit
+            creatorName="Richard James"
+            creatorUrl="https://unsplash.com/@r1chjames"
+            sourceUrl="https://unsplash.com/photos/a-small-pond-surrounded-by-tall-grass-KTAKQdVSTcc"
+          />
+        </figure>
         <header className="tpl-employer-heading">
           <LeafMark />
           <div className="tpl-employer-heading__copy">
-            <span className="tpl-hiring-pill tpl-hiring-pill--fancy">
-              <Sparkle />
-              <span>Hiring now · 3 roles</span>
-            </span>
-            <h1>Wildmere Nature Trust</h1>
-            <p>
-              <Link href="/conservation-sector/wildlife-conservation">Wildlife Conservation</Link> · Local
-              nature charity · South West England
-            </p>
+            <div className="tpl-employer-heading__title">
+              <h1>Wildmere Nature Trust</h1>
+              <a
+                className="tpl-text-link tpl-employer-website"
+                href="https://example.org"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Visit website
+              </a>
+            </div>
+            <ul className="tpl-employer-pills" aria-label="Hiring status and role categories">
+              <li>
+                <span className="tpl-employer-pill tpl-hiring-pill tpl-hiring-pill--fancy">
+                  <Sparkle />
+                  <span>Hiring now · 3 roles</span>
+                </span>
+              </li>
+              {roleCategories.map((category) => (
+                <li key={category}>
+                  <Link
+                    className="tpl-employer-pill tpl-employer-pill--category"
+                    href={{ pathname: "/", query: { sector: guideSectorLabels[category] } }}
+                  >
+                    {guideSectorLabels[category]}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+            <p>Local nature charity · South West England</p>
           </div>
-          <a
-            className="tpl-text-link tpl-employer-website"
-            href="https://example.org"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Visit website
-          </a>
         </header>
       </div>
       <div className="shell">
@@ -191,12 +227,7 @@ export default function EmployerTemplate() {
       </section>
       <div className="shell">
         <TrainingBanner />
-        <div className="tpl-footer-links">
-          <Link href="/conservation-sector/wildlife-conservation">
-            Explore the Wildlife Conservation sector
-          </Link>
-          <Link href="/conservation-career-guides/ecologist">See the ecologist career guide </Link>
-        </div>
+        <RelatedGuides guides={relatedGuides} />
       </div>
     </main>
   );

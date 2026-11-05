@@ -1,5 +1,4 @@
 import Image from "next/image";
-import { EditorialImageCredit } from "@/components/editorial-image-credit";
 import "./training-banner.css";
 import type { ReactNode } from "react";
 import { formatSalaryLabel } from "@/lib/job-salary";
@@ -45,38 +44,6 @@ export function Sparkle() {
     <svg className="tpl-sparkle" aria-hidden="true" viewBox="0 0 24 24">
       <path d="M11 2c.6 5.5 3 8 9 9-6 .7-8.4 3.3-9 9-.8-5.7-3.3-8.3-9-9 5.7-1 8.2-3.5 9-9Zm8 13c.2 2.1 1.1 3 3 3.5-1.9.3-2.8 1.2-3 3.5-.3-2.3-1.2-3.2-3-3.5 1.8-.5 2.7-1.4 3-3.5Z" />
     </svg>
-  );
-}
-
-export function TemplatePhoto({
-  kind = "woodland",
-  priority = false,
-}: {
-  kind?: "woodland" | "wetland";
-  priority?: boolean;
-}) {
-  const woodland = kind === "woodland";
-  return (
-    <figure className="tpl-photo">
-      <Image
-        src={`/images/design/${kind}.jpg`}
-        alt={
-          woodland
-            ? "Morning sunlight falling through woodland trees"
-            : "Trees and reeds reflected in a quiet wetland at sunrise"
-        }
-        width={1800}
-        height={1200}
-        sizes="(max-width: 800px) 100vw, 60vw"
-        preload={priority}
-      />
-      <EditorialImageCredit
-        creatorName={woodland ? "Darren Bockman" : "Pascal Debrunner"}
-        sourceUrl={
-          woodland ? "https://unsplash.com/photos/pN3Z2usSIQw" : "https://unsplash.com/photos/2lPR-5MUliw"
-        }
-      />
-    </figure>
   );
 }
 

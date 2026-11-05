@@ -925,39 +925,54 @@
 }
 .tpl-employer-cover .tpl-photo img {
   height: 350px;
-}
-.tpl-employer-cover figcaption {
-  position: absolute;
-  top: 17px;
-  right: 18px;
-  margin: 0;
-  padding: 7px 10px;
-  border-radius: 9px;
-  background: rgb(255 255 255 / 90%);
+  object-position: center 61%;
 }
 .tpl-employer-heading {
-  position: relative;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: 28px;
   padding: 32px;
-  margin: -75px 30px 42px;
+  margin: 16px 0 42px;
   border: 1px solid var(--wt-color-rule);
   border-radius: var(--wt-radius-panel);
   background: white;
 }
 .tpl-employer-heading h1 {
   font-size: clamp(2rem, 4vw, 3.8rem);
-  margin: 9px 0 14px;
+  margin: 0;
 }
 .tpl-employer-heading__copy {
   flex: 1 1 350px;
+  min-width: 0;
 }
 .tpl-employer-heading__copy > p {
-  margin: 0;
+  margin: 12px 0 0;
   color: var(--wt-color-muted);
   font-size: 0.84rem;
+}
+.tpl-employer-heading__title {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px 16px;
+}
+.tpl-employer-website {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  font-size: 0.85rem;
+}
+.tpl-employer-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 0;
+  margin: 14px 0 0;
+  list-style: none;
+}
+.tpl-employer-pills > li {
+  display: flex;
 }
 .tpl-hiring-pill {
   display: inline-flex;
@@ -1005,13 +1020,29 @@
   width: 14px;
   height: 14px;
 }
-.tpl-employer-heading__copy a {
-  color: var(--wt-color-brand-purple);
-  text-decoration: underline;
-  text-underline-offset: 3px;
+.tpl-employer-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 32px;
+  padding: 6px 12px;
+  border: 1px solid transparent;
+  border-radius: var(--wt-radius-pill);
+  font-size: 0.82rem;
+  font-weight: var(--wt-font-weight-bold);
+  line-height: 1.25;
+  text-transform: none;
+  letter-spacing: normal;
 }
-.tpl-employer-website {
-  flex: 0 0 auto;
+.tpl-employer-pill--category {
+  border-color: var(--wt-color-rule);
+  background: var(--tpl-soft-purple);
+  color: var(--wt-color-brand-purple);
+}
+.tpl-employer-pill--category:hover {
+  border-color: var(--wt-color-brand-pink);
+  background: var(--wt-color-brand-pink);
+  color: white;
 }
 
 .tpl-employer-grid {
@@ -1259,7 +1290,6 @@
     grid-template-columns: 1fr;
   }
   .tpl-employer-heading {
-    margin-inline: 18px;
     gap: 20px;
   }
   .tpl-employer-grid {
@@ -1358,16 +1388,10 @@
   .tpl-employer-cover .tpl-photo img {
     height: 250px;
   }
-  .tpl-employer-cover figcaption {
-    top: 12px;
-    right: 12px;
-    left: 12px;
-    font-size: 0.6rem;
-    text-align: center;
-  }
   .tpl-employer-heading {
-    margin: -45px 10px 30px;
-    padding: 24px;
+    gap: 12px;
+    margin-block: 12px 30px;
+    padding: 20px;
   }
   .tpl-employer-heading__copy {
     flex-basis: 100%;
