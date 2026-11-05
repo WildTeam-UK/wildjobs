@@ -6,8 +6,7 @@ export const employerResearchOutput = z.object({
     z.object({
       kind: z.enum(["overview", "work", "careers"]),
       text: z.string(),
-      source: z.number().int(),
-      excerpt: z.string(),
+      passage: z.number().int(),
     }),
   ),
 });
@@ -24,22 +23,47 @@ export const employerProfileContent = z.object({
   claims: z.array(claim).min(2).max(7),
 });
 
+const squash = (value: string) => value.replace(/\s+/g, " ").trim();
+const sentences = new Intl.Segmenter("en-GB", { granularity: "sentence" });
+
+type EmployerPassage = { page: EmployerSource; excerpt: string };
+
+export function extractEmployerPassages(sources: readonly EmployerSource[]) {
+  const maxLength = 540;
+  return sources.flatMap((page) => {
+    const passages: EmployerPassage[] = [];
+    let excerpt = "";
+    for (const { segment } of sentences.segment(squash(page.text))) {
+      const sentence = segment.trim();
+      // Keep long unpunctuated text intact up to a word boundary.
+      const parts =
+        sentence.length <= maxLength ? [sentence] : (sentence.match(/\S.{0,539}(?= |$)|\S+/g) ?? []);
+      for (const part of parts) {
+        if (excerpt && excerpt.length + part.length + 1 > maxLength) {
+          if (excerpt.length >= 25) passages.push({ page, excerpt });
+          excerpt = "";
+        }
+        if (part.length <= maxLength) excerpt = excerpt ? `${excerpt} ${part}` : part;
+      }
+    }
+    if (excerpt.length >= 25) passages.push({ page, excerpt });
+    return passages;
+  });
+}
+
 export function groundEmployerClaims(
   output: z.infer<typeof employerResearchOutput>,
-  sources: readonly EmployerSource[],
+  passages: readonly EmployerPassage[],
 ) {
-  const squash = (value: string) => value.replace(/\s+/g, " ").trim();
   const seen = new Set<string>();
   return output.claims.slice(0, 7).flatMap((item) => {
-    const page = sources[item.source - 1];
-    const excerpt = squash(item.excerpt);
+    const passage = passages[item.passage - 1];
+    if (!passage) return [];
+    const { page, excerpt } = passage;
     const text = squash(item.text);
     const key = text.toLowerCase();
     if (
-      !page ||
       (item.kind === "careers" && page.kind !== "careers") ||
-      excerpt.length < 25 ||
-      excerpt.length > 600 ||
       !squash(page.text).includes(excerpt) ||
       excerpt.toLowerCase().includes(key) ||
       seen.has(key) ||
