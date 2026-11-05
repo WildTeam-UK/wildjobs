@@ -3,12 +3,9 @@ import { plainText } from "./directory-text";
 import { publicUrl } from "./directory-url";
 import { employerWebsiteMatches } from "./employer-websites";
 
-const pageTypes = {
-  about: /(?:about|who-we-are|our-mission|our-purpose)/i,
-  work: /(?:what-we-do|our-work|our-projects|projects|programmes|our-reserves|helping-nature|conservation-in)/i,
-  careers: /(?:careers|working-for|working-with-us|work-with-us|work-for-us|what-we-offer|jobs|vacancies)/i,
-};
-type PageType = keyof typeof pageTypes;
+const pageTypes = ["about", "work", "careers"] as const;
+type PageType = (typeof pageTypes)[number];
+type ResearchLink = { kind: PageType; url: string; priority: number; hub: boolean };
 
 export type EmployerSource = { url: string; title: string; text: string; kind: PageType | "home" };
 
@@ -60,21 +57,73 @@ function pageText(html: string) {
     .slice(0, 6500);
 }
 
+function classifyLink(path: string, label: string): Pick<ResearchLink, "kind" | "priority" | "hub"> | null {
+  const segments = path.toLowerCase().split("/").filter(Boolean);
+  const leaf = segments.at(-1) ?? "";
+  if (!leaf || /^(?:contact|donate|privacy|terms|accessibility|news)(?:-|$)/.test(leaf)) return null;
+
+  const careers =
+    /^(?:jobs|careers|jobs-careers|jobs-and-careers|jobs-contracts|vacancies|work-with-us|work-for-us|working-for-us|working-with-us|what-we-offer)$/;
+  if (careers.test(leaf) || /^(?:careers|jobs|vacancies|work (?:for|with) us)$/.test(label)) {
+    return { kind: "careers", priority: leaf === "what-we-offer" ? 100 : 90, hub: true };
+  }
+  if (segments.some((segment) => careers.test(segment))) return { kind: "careers", priority: 45, hub: false };
+
+  if (
+    /^(?:about|about-us|who-we-are|the-trust|the-charity|our-mission|our-purpose|our-vision|our-strategy)$/.test(
+      leaf,
+    ) ||
+    /^(?:about(?: us| the (?:trust|charity|organisation))?|who we are|our (?:mission|purpose|vision|strategy)|the (?:trust|charity))$/.test(
+      label,
+    )
+  )
+    return { kind: "about", priority: 100, hub: true };
+  if (/\b(?:mission|purpose|vision)\b/.test(label) || /(?:^|-)(?:mission|purpose|vision)(?:-|$)/.test(leaf)) {
+    return { kind: "about", priority: 85, hub: false };
+  }
+
+  const work =
+    /^(?:what-we-do|our-work|our-projects|projects|programmes|programs|our-reserves|helping-nature)$/;
+  if (
+    work.test(leaf) ||
+    /^(?:our work|what we do|(?:our )?(?:projects|programmes|programs|reserves))$/.test(label)
+  ) {
+    return { kind: "work", priority: 90, hub: true };
+  }
+  if (
+    /\b(?:monitoring|restoration|recovery|project|programme|program|initiative|research|reserve)\b/.test(
+      leaf.replaceAll("-", " ") + " " + label,
+    )
+  ) {
+    return { kind: "work", priority: 100, hub: false };
+  }
+  if (segments.some((segment) => work.test(segment)) || /^conservation-in-/.test(leaf)) {
+    return { kind: "work", priority: 55, hub: false };
+  }
+  if (segments.some((segment) => /^(?:about|about-us|the-trust|the-charity)$/.test(segment))) {
+    return { kind: "about", priority: 45, hub: false };
+  }
+  return null;
+}
+
 function links(html: string, from: string, allow: (url: URL) => boolean) {
-  const found: { kind: PageType; url: string }[] = [];
+  const found = new Map<string, ResearchLink>();
   for (const match of html.matchAll(
     /<a\b[^>]*?\shref\s*=\s*(?:"([^"]+)"|'([^']+)')[^>]*>([\s\S]*?)<\/a>/gi,
   )) {
     try {
       const url = publicUrl((match[1] ?? match[2]).replace(/&amp;/g, "&"), from);
       if (!allow(url) || url.search || /\.[a-z0-9]{2,5}$/i.test(url.pathname)) continue;
-      const kind = (Object.keys(pageTypes) as PageType[]).find((type) => pageTypes[type].test(url.pathname));
-      if (kind) found.push({ kind, url: url.toString() });
+      const candidate = classifyLink(url.pathname, plainText(match[3]).toLowerCase());
+      const key = url.toString();
+      if (candidate && candidate.priority > (found.get(key)?.priority ?? 0)) {
+        found.set(key, { ...candidate, url: key });
+      }
     } catch {
       // Ignore non-web links and malformed URLs.
     }
   }
-  return found;
+  return [...found.values()];
 }
 
 function acceptsResearch(html: string) {
@@ -114,26 +163,38 @@ export async function collectEmployerSources(name: string, website: string) {
   });
   const visited = new Set([home.url]);
   const sources = [toSource(home, "home")];
-  const collect = async (candidates: ReturnType<typeof links>, perType: number) => {
-    const selected = (Object.keys(pageTypes) as PageType[]).flatMap((kind) =>
-      [...new Set(candidates.filter((candidate) => candidate.kind === kind).map(({ url }) => url))]
-        .filter((url) => !visited.has(url))
-        .slice(0, perType)
-        .map((url) => ({ kind, url })),
-    );
+  const collect = async (candidates: ResearchLink[], firstPass: boolean) => {
+    const unique = new Map<string, ResearchLink>();
+    for (const link of candidates.toSorted((a, b) => b.priority - a.priority)) {
+      if (!visited.has(link.url) && !unique.has(link.url)) unique.set(link.url, link);
+    }
+    const ranked = [...unique.values()];
+    const selected = pageTypes.flatMap((kind) => {
+      const best = ranked.filter((link) => link.kind === kind);
+      if (kind !== "work" || !firstPass) return best.slice(0, kind === "work" || firstPass ? 2 : 1);
+      // Read a work hub for its links and reserve a slot for a named project.
+      const hub = best.find((link) => link.hub);
+      return hub ? [hub, ...best.filter((link) => !link.hub).slice(0, 1)] : best.slice(0, 2);
+    });
     selected.forEach(({ url }) => visited.add(url));
     const pages = await Promise.allSettled(
       selected.map(async ({ kind, url }) => {
         const page = await fetchPublicResearchPage(url, 5000, allow);
-        if (!/(?:html|xhtml)/i.test(page.contentType) || !acceptsResearch(page.text)) return [];
-        if (!sources.some((source) => source.url === page.url)) sources.push(toSource(page, kind));
-        return links(page.text, page.url, allow);
+        if (!/(?:html|xhtml)/i.test(page.contentType) || !acceptsResearch(page.text)) return null;
+        return { page, kind };
       }),
     );
-    return pages.flatMap((page) => (page.status === "fulfilled" ? page.value : []));
+    return pages.flatMap((result) => {
+      if (result.status !== "fulfilled" || !result.value) return [];
+      const { page, kind } = result.value;
+      visited.add(page.url);
+      if (!sources.some((source) => source.url === page.url)) sources.push(toSource(page, kind));
+      const main = page.text.match(/<main\b[^>]*>([\s\S]*?)<\/main>/i)?.[1];
+      return [...(main ? links(main, page.url, allow) : []), ...links(page.text, page.url, allow)];
+    });
   };
 
-  const secondary = await collect(links(home.text, home.url, allow), 2);
-  await collect(secondary, 1);
-  return { identity: "verified", sources: sources.filter((source) => source.text.length >= 150) } as const;
+  const secondary = await collect(links(home.text, home.url, allow), true);
+  await collect(secondary, false);
+  return { identity: "verified", sources: sources.filter((source) => source.text.length >= 100) } as const;
 }
