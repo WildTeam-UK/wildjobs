@@ -12,6 +12,8 @@ The requested rollout uses the approved Wildmere layout, AI research from offici
 
 For a concrete example, WildJobs already associates RSPB with its official site. Its [organisation overview](https://www.rspb.org.uk/about-us/who-we-are) supports a factual mission summary, and its [UK conservation work](https://www.rspb.org.uk/helping-nature/what-we-do/protecting-species-and-habitats/conservation-in-the-uk) gives a concrete example in the Welsh Rainforest restoration project. Its [careers information](https://www.rspb.org.uk/careers/what-we-offer) supports saying that flexible arrangements may be available depending on the role. Live vacancies would come from WildJobs.
 
+The full rollout covers every named directory employer, including organisations between hiring rounds. When a verified website is missing, the worker checks up to two original adverts, then runs a bounded web search if needed. A cited candidate must identify the exact employer on its own website before WildJobs records it. Discovery and profile research use separate scheduled attempts. Each profile still has to meet the official evidence threshold before publication.
+
 ## Approved career-guide pilot · 3 November 2026
 
 The user approved implementing the Wildlife Conservation sector guide and Ecologist career guide first, with reusable templates, researched citations, real linked vacancy data, rolling twelve-month statistics and editorial review. Keep WildJobs independent; use the existing database and importer. Do not enable additional occupations or unattended editorial publication as part of this pilot.
