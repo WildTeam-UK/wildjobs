@@ -1,8 +1,9 @@
-import type { Job } from "./jobs";
 export type PublicEmployer = Readonly<{
   name: string;
   profileSlug?: string;
   logoUrl?: string;
-  openRoles: readonly Job[];
+  openRoleCount: number;
   locations: readonly string[];
+  topics: readonly string[];
+  sectorSlugs: readonly string[];
 }>;
