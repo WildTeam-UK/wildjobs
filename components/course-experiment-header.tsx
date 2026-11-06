@@ -12,6 +12,7 @@ const navigation = [
     href: "https://jobs.wildteam.org.uk/",
     links: [
       ["Find conservation jobs", "https://jobs.wildteam.org.uk/", "search"],
+      ["Employers", "https://jobs.wildteam.org.uk/employers", "users"],
       [
         "Career guides",
         "https://jobs.wildteam.org.uk/conservation-career-guides#career-guides-title",
