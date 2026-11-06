@@ -27,10 +27,7 @@ function employerLocation(locations: readonly string[]) {
 }
 
 export function EmployerCard({ employer }: { employer: PublicEmployer }) {
-  const openRoles = employer.openRoles.length;
-  const topics = employer.openRoles
-    .flatMap((job) => [job.category, ...(job.careerAreas ?? [])])
-    .filter((topic, index, values) => topic && values.indexOf(topic) === index);
+  const { openRoleCount, topics } = employer;
   const description = employer.profileSlug
     ? "Explore this employer profile"
     : `Explore current opportunities with ${employer.name}.`;
@@ -53,18 +50,18 @@ export function EmployerCard({ employer }: { employer: PublicEmployer }) {
             monogramClassName="employer-monogram"
             name={employer.name}
           />
-          {openRoles ? (
+          {openRoleCount ? (
             <span className="employer-directory-card__status">
               <span>Hiring now!</span>
             </span>
           ) : null}
         </header>
         <div className="employer-directory-card__body">
-          <h3>{employer.name}</h3>
+          <h2>{employer.name}</h2>
           <p className="employer-directory-card__summary">{description}</p>
         </div>
         <ul className="employer-directory-card__facts">
-          {openRoles ? (
+          {openRoleCount ? (
             <li>
               <EmployerFactIcon type="location" />
               <span>{employerLocation(employer.locations)}</span>
@@ -73,7 +70,7 @@ export function EmployerCard({ employer }: { employer: PublicEmployer }) {
           <li>
             <EmployerFactIcon type="roles" />
             <span>
-              {openRoles} live {openRoles === 1 ? "role" : "roles"}
+              {openRoleCount} live {openRoleCount === 1 ? "role" : "roles"}
             </span>
           </li>
         </ul>

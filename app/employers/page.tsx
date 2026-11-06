@@ -1,62 +1,36 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { EmployerCard } from "@/components/employer-card";
-import { getPublicEmployers } from "@/lib/public-employers";
+import { getPublicEmployerDirectory } from "@/lib/public-employers";
+import { EmployerDirectory } from "./employer-directory";
+import styles from "./employer-directory.module.css";
 
 export const metadata: Metadata = { title: "Conservation employers" };
 
 export default async function EmployersPage() {
-  const employers = await getPublicEmployers();
-  const recruitingEmployers = employers.filter((employer) => employer.openRoles.length > 0).length;
-  const openRoleCount = employers.reduce((total, employer) => total + employer.openRoles.length, 0);
+  const { employers, sectors } = await getPublicEmployerDirectory();
 
   return (
-    <main>
-      <section className="interior-hero">
-        <div className="shell interior-hero__layout">
-          <div>
-            <p className="eyebrow">Employers</p>
-            <h1>Meet organisations working for nature</h1>
-          </div>
-          <p>
-            Explore conservation employers, learn about their work and find their current opportunities on
-            WildJobs.
+    <main className={`${styles.page} shell`}>
+      <header className={styles.heading}>
+        <div>
+          <p className="eyebrow">Employer directory</p>
+          <h1>Explore conservation organisations</h1>
+          <p className={styles.description}>
+            Browse conservation employers, learn about their work and see who’s hiring on WildJobs.
           </p>
         </div>
-      </section>
-      <section className="content-section">
-        <div className="shell">
-          <div className="section-heading section-heading--with-link">
-            <div>
-              <p className="eyebrow">Employer directory</p>
-              <h2>Explore conservation organisations</h2>
-              <p className="employer-directory-summary">
-                {employers.length} organisations · {recruitingEmployers} currently hiring · {openRoleCount}{" "}
-                live {openRoleCount === 1 ? "role" : "roles"}
-              </p>
-            </div>
-            <Link className="text-link" href="/">
-              See all jobs
-            </Link>
-          </div>
-          {employers.length ? (
-            <div className="employer-grid">
-              {employers.map((employer) => (
-                <EmployerCard employer={employer} key={employer.name} />
-              ))}
-            </div>
-          ) : (
-            <div className="staff-empty-state">
-              <p className="eyebrow">No current organisations</p>
-              <h2>Organisations with live vacancies will appear here</h2>
-              <p>The directory updates automatically from EnvironmentJob.</p>
-              <Link className="action action--outline" href="/">
-                Browse current jobs
-              </Link>
-            </div>
-          )}
+        <Link className="site-navigation-button site-navigation-button--outline" href="/">
+          See all jobs
+        </Link>
+      </header>
+      {employers.length ? (
+        <EmployerDirectory employers={employers} sectors={sectors} />
+      ) : (
+        <div className="staff-empty-state">
+          <h2>No organisations to show yet</h2>
+          <p>The directory updates as employer profiles and vacancies are published.</p>
         </div>
-      </section>
+      )}
     </main>
   );
 }
