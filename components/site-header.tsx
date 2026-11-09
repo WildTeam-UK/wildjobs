@@ -50,7 +50,9 @@ export function SiteHeader() {
     return () => observer.disconnect();
   }, [pathname]);
 
-  if (pathname === COURSE_EXPERIMENT_PATH) return <CourseExperimentHeader />;
+  if (pathname === COURSE_EXPERIMENT_PATH) return <CourseExperimentHeader key="training" />;
+  if (pathname === "/experiments/navigation/jobs") return <CourseExperimentHeader key="jobs" site="jobs" />;
+  if (pathname === "/experiments/navigation/news") return <CourseExperimentHeader key="news" site="news" />;
 
   return (
     <header className="site-header" ref={headerRef}>
