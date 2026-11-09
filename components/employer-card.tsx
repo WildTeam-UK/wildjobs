@@ -33,53 +33,57 @@ export function EmployerCard({ employer }: { employer: PublicEmployer }) {
     : `Explore current opportunities with ${employer.name}.`;
 
   return (
-    <Link
-      aria-label={`View ${employer.name}`}
-      className="employer-directory-card"
-      href={
-        employer.profileSlug
-          ? `/employers/${employer.profileSlug}`
-          : `/?q=${encodeURIComponent(employer.name)}`
-      }
-    >
-      <article>
-        <header className="employer-directory-card__header">
-          <EmployerLogo
-            imageClassName="employer-logo"
-            logoUrl={employer.logoUrl}
-            monogramClassName="employer-monogram"
-            name={employer.name}
-          />
-          {openRoleCount ? (
-            <span className="employer-directory-card__status">
-              <span>Hiring now!</span>
-            </span>
-          ) : null}
-        </header>
-        <div className="employer-directory-card__body">
-          <h2>{employer.name}</h2>
-          <p className="employer-directory-card__summary">{description}</p>
-        </div>
-        <ul className="employer-directory-card__facts">
-          {openRoleCount ? (
-            <li>
-              <EmployerFactIcon type="location" />
-              <span>{employerLocation(employer.locations)}</span>
-            </li>
-          ) : null}
+    <article className="employer-directory-card">
+      <header className="employer-directory-card__header">
+        <EmployerLogo
+          imageClassName="employer-logo"
+          logoUrl={employer.logoUrl}
+          monogramClassName="employer-monogram"
+          name={employer.name}
+        />
+        {openRoleCount ? (
+          <span className="employer-directory-card__status">
+            <span>Hiring now!</span>
+          </span>
+        ) : null}
+      </header>
+      <div className="employer-directory-card__body">
+        <h2>
+          <Link
+            aria-label={`View ${employer.name}`}
+            className="employer-directory-card__link"
+            href={
+              employer.profileSlug
+                ? `/employers/${employer.profileSlug}`
+                : `/?q=${encodeURIComponent(employer.name)}`
+            }
+          >
+            {employer.name}
+          </Link>
+        </h2>
+        <p className="employer-directory-card__summary">{description}</p>
+      </div>
+      <ul className="employer-directory-card__facts">
+        {openRoleCount ? (
           <li>
-            <EmployerFactIcon type="roles" />
-            <span>
-              {openRoleCount} live {openRoleCount === 1 ? "role" : "roles"}
-            </span>
+            <EmployerFactIcon type="location" />
+            <span>{employerLocation(employer.locations)}</span>
           </li>
-        </ul>
-        <div className="employer-directory-card__topics" aria-label="Organisation topics">
-          {topics.map((topic) => (
-            <span key={topic}>{topic}</span>
-          ))}
-        </div>
-      </article>
-    </Link>
+        ) : null}
+        <li>
+          <EmployerFactIcon type="roles" />
+          <span>
+            {openRoleCount} live {openRoleCount === 1 ? "role" : "roles"}
+          </span>
+        </li>
+      </ul>
+      <div className="employer-directory-card__topics" aria-label="Organisation topics">
+        {topics.map((topic) => (
+          <Link key={topic} href={`/?sector=${encodeURIComponent(topic)}`}>
+            {topic}
+          </Link>
+        ))}
+      </div>
+    </article>
   );
 }

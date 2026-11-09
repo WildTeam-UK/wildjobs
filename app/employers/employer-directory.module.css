@@ -3,11 +3,6 @@
 }
 
 .heading {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: end;
-  justify-content: space-between;
-  gap: 18px 28px;
   margin-bottom: clamp(24px, 4vw, 38px);
 }
 
@@ -20,9 +15,18 @@
 }
 
 .description {
-  max-width: 58ch;
   margin: 14px 0 0;
   color: var(--wt-color-muted);
+}
+
+.description a {
+  color: var(--wt-color-brand-pink);
+  text-decoration: underline;
+  text-underline-offset: 0.16em;
+}
+
+.description a:hover {
+  color: var(--wt-color-brand-purple);
 }
 
 .filters {
@@ -36,6 +40,7 @@
   flex: 1 1 20rem;
   min-width: 0;
   max-width: 34rem;
+  box-shadow: none;
 }
 
 .search:has(input:focus-visible) {
@@ -77,12 +82,6 @@ button[aria-checked="true"] > .switchTrack {
 button[aria-checked="true"] > .switchTrack::before {
   transform: translateX(14px);
   background: var(--wt-color-paper);
-}
-
-.filterHint {
-  margin: 8px 0 0;
-  color: var(--wt-color-muted);
-  font-size: 0.8rem;
 }
 
 .resultsBar {

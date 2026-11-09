@@ -89,10 +89,6 @@ export function EmployerDirectory({
           </div>
         </div>
       </div>
-      {countries.length ? (
-        <p className={styles.filterHint}>Country is based on recent vacancy locations.</p>
-      ) : null}
-
       <div className={styles.resultsBar}>
         <p role="status">
           {filteredEmployers.length} {filteredEmployers.length === 1 ? "organisation" : "organisations"} ·{" "}

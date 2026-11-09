@@ -4,7 +4,11 @@ import { getPublicEmployerDirectory } from "@/lib/public-employers";
 import { EmployerDirectory } from "./employer-directory";
 import styles from "./employer-directory.module.css";
 
-export const metadata: Metadata = { title: "Conservation employers" };
+export const metadata: Metadata = {
+  title: "Conservation employers",
+  description:
+    "Explore conservation employers and environmental organisations. Browse employer profiles and find opportunities in wildlife conservation, ecology and sustainability.",
+};
 
 export default async function EmployersPage() {
   const { employers, sectors, countries } = await getPublicEmployerDirectory();
@@ -12,16 +16,17 @@ export default async function EmployersPage() {
   return (
     <main className={`${styles.page} shell`}>
       <header className={styles.heading}>
-        <div>
-          <p className="eyebrow">Employer directory</p>
-          <h1>Explore conservation organisations</h1>
-          <p className={styles.description}>
-            Browse conservation employers, learn about their work and see who’s hiring on WildJobs.
-          </p>
-        </div>
-        <Link className="site-navigation-button site-navigation-button--outline" href="/">
-          See all jobs
-        </Link>
+        <p className="eyebrow">Employer directory</p>
+        <h1>Explore conservation organisations</h1>
+        <p className={styles.description}>
+          Discover conservation employers in the UK and internationally, from wildlife charities and
+          environmental consultancies to organisations restoring habitats and protecting species. Browse
+          employer profiles to learn about their work, explore the sectors they recruit in and find current
+          opportunities on WildJobs. Use the search, sector and country filters to find organisations that
+          interest you, or show only employers with live vacancies. Whether you’re starting a conservation
+          career or planning your next move, explore the directory below or{" "}
+          <Link href="/">see all conservation jobs</Link>.
+        </p>
       </header>
       {employers.length ? (
         <EmployerDirectory countries={countries} employers={employers} sectors={sectors} />
