@@ -2,6 +2,7 @@ import "server-only";
 import { connection } from "next/server";
 import { cache } from "react";
 import { guideWindowStart } from "./guide-market";
+import { countryName, normaliseCountryCode } from "./job-filtering";
 import { getPublicCareerAreas } from "./public-career-areas";
 import { getPublicJobs } from "./public-jobs";
 import { getPublishedEmployerIndex } from "./public-employer-profiles";
@@ -9,37 +10,41 @@ import { createPublicClient } from "./supabase/public";
 import type { PublicEmployer } from "./public-employer-mapper";
 import type { Job } from "./jobs";
 
-async function getRecentSectorsByEmployer() {
+async function getRecentListingsByEmployer() {
   const db = createPublicClient();
   const now = new Date();
-  const sectorsByName = new Map<string, Set<string>>();
+  const listingsByName = new Map<string, { sectors: Set<string>; countries: Set<string> }>();
   for (let from = 0; ; from += 1000) {
     const { data, error } = await db
       .from("directory_jobs")
-      .select("organisation_name,sector_slugs")
+      .select("organisation_name,sector_slugs,country_code")
       .is("merged_into", null)
       .gte("posted_at", guideWindowStart(now))
       .lte("posted_at", now.toISOString())
       .order("posted_at")
       .order("id")
       .range(from, from + 999);
-    if (error) throw new Error("Employer sectors could not be loaded.");
-    for (const { organisation_name: name, sector_slugs: slugs } of data) {
-      const sectors = sectorsByName.get(name) ?? new Set<string>();
-      for (const slug of slugs) sectors.add(slug);
-      sectorsByName.set(name, sectors);
+    if (error) throw new Error("Employer listing history could not be loaded.");
+    for (const { organisation_name: name, sector_slugs: slugs, country_code: code } of data) {
+      const listing = listingsByName.get(name) ?? {
+        sectors: new Set<string>(),
+        countries: new Set<string>(),
+      };
+      for (const slug of slugs) listing.sectors.add(slug);
+      if (code) listing.countries.add(code);
+      listingsByName.set(name, listing);
     }
-    if (data.length < 1000) return sectorsByName;
+    if (data.length < 1000) return listingsByName;
   }
 }
 
 export const getPublicEmployerDirectory = cache(async () => {
   await connection();
-  const [jobs, profiles, branding, recentSectors, careerAreas] = await Promise.all([
+  const [jobs, profiles, branding, recentListings, careerAreas] = await Promise.all([
     getPublicJobs(),
     getPublishedEmployerIndex(),
     createPublicClient().from("directory_organisations").select("name,logo_url"),
-    getRecentSectorsByEmployer(),
+    getRecentListingsByEmployer(),
     getPublicCareerAreas(),
   ]);
   if (branding.error) throw new Error("Employer logos could not be loaded.");
@@ -56,9 +61,12 @@ export const getPublicEmployerDirectory = cache(async () => {
     .sort((a, b) => a.localeCompare(b, "en-GB"))
     .map((name): PublicEmployer => {
       const openRoles = rolesByName.get(name) ?? [];
-      const sectorSlugs = new Set(recentSectors.get(name));
+      const listing = recentListings.get(name);
+      const sectorSlugs = new Set(listing?.sectors);
+      const countryCodes = new Set(listing?.countries);
       for (const job of openRoles) {
         for (const { slug } of job.careerAreaTerms ?? []) sectorSlugs.add(slug);
+        if (job.countryCode) countryCodes.add(job.countryCode);
       }
       return {
         name,
@@ -70,6 +78,9 @@ export const getPublicEmployerDirectory = cache(async () => {
           Boolean,
         ),
         sectorSlugs: [...sectorSlugs],
+        countryCodes: [...new Set([...countryCodes].map(normaliseCountryCode))].filter((code) =>
+          /^[A-Z]{2}$/.test(code),
+        ),
       };
     });
   const usedSectors = new Set(employers.flatMap((employer) => employer.sectorSlugs));
@@ -77,5 +88,8 @@ export const getPublicEmployerDirectory = cache(async () => {
     .filter(({ slug }) => usedSectors.has(slug))
     .map(({ slug, title }) => ({ slug, title }))
     .sort((a, b) => a.title.localeCompare(b.title, "en-GB"));
-  return { employers, sectors };
+  const countries = [...new Set(employers.flatMap((employer) => employer.countryCodes))]
+    .map((value) => ({ value, label: countryName(value) }))
+    .sort((a, b) => a.label.localeCompare(b.label, "en-GB"));
+  return { employers, sectors, countries };
 });

@@ -6,4 +6,5 @@ export type PublicEmployer = Readonly<{
   locations: readonly string[];
   topics: readonly string[];
   sectorSlugs: readonly string[];
+  countryCodes: readonly string[];
 }>;
