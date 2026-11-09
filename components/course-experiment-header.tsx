@@ -67,7 +67,13 @@ function Chevron() {
   );
 }
 
-export function CourseExperimentHeader({ site = "training" }: { site?: "jobs" | "news" | "training" }) {
+export function CourseExperimentHeader({
+  site = "training",
+  skipHref,
+}: {
+  site?: "jobs" | "news" | "training";
+  skipHref?: string;
+}) {
   const activeSection = site === "jobs" ? "Jobs" : site === "news" ? "News" : "Training";
   const siteAction =
     site === "jobs"
@@ -157,30 +163,37 @@ export function CourseExperimentHeader({ site = "training" }: { site?: "jobs" | 
         if (!event.currentTarget.contains(event.relatedTarget)) close();
       }}
     >
-      <a className={styles.skip} href={site === "training" ? "#course-main" : "#navigation-preview-main"}>
+      <a
+        className={styles.skip}
+        href={skipHref ?? (site === "training" ? "#course-main" : "#navigation-preview-main")}
+      >
         {site === "training" ? "Skip to course" : "Skip to content"}
       </a>
       <div className={`shell ${styles.inner}`}>
         <a href="https://www.wildteam.org.uk/" className={`brand ${styles.brand}`} aria-label="WildTeam home">
           <BrandLockup />
         </a>
-        <Image
-          className={styles.mobileCourseImage}
-          src="/images/course-experiment/lion.jpg"
-          alt=""
-          width={40}
-          height={40}
-          sizes="40px"
-        />
-        <a
-          className={`${styles.primary} ${styles.enrolAction} ${styles.mobileCta}`}
-          href="#course-options"
-          onClick={close}
-          aria-hidden={!scrolled}
-          inert={!scrolled}
-        >
-          <span>Enrol now</span>
-        </a>
+        {site === "training" ? (
+          <Image
+            className={styles.mobileCourseImage}
+            src="/images/course-experiment/lion.jpg"
+            alt=""
+            width={40}
+            height={40}
+            sizes="40px"
+          />
+        ) : null}
+        {site === "training" ? (
+          <a
+            className={`${styles.primary} ${styles.enrolAction} ${styles.mobileCta}`}
+            href="#course-options"
+            onClick={close}
+            aria-hidden={!scrolled}
+            inert={!scrolled}
+          >
+            <span>Enrol now</span>
+          </a>
+        ) : null}
         <button
           className={styles.mobileToggle}
           ref={mobileButton}
@@ -199,20 +212,22 @@ export function CourseExperimentHeader({ site = "training" }: { site?: "jobs" | 
         </button>
         <div id={`${id}-nav`} className={`${styles.navigation} ${mobileOpen ? styles.open : ""}`}>
           <div className={styles.navSlot}>
-            <div className={styles.courseContext} aria-hidden={!scrolled} inert={!scrolled}>
-              <Image
-                className={styles.courseImage}
-                src="/images/course-experiment/lion.jpg"
-                alt=""
-                width={56}
-                height={56}
-                sizes="56px"
-              />
-              <div className={styles.courseCopy}>
-                <strong>Project Management for Wildlife Conservation</strong>
-                <span>Build your skills from £29/month</span>
+            {site === "training" ? (
+              <div className={styles.courseContext} aria-hidden={!scrolled} inert={!scrolled}>
+                <Image
+                  className={styles.courseImage}
+                  src="/images/course-experiment/lion.jpg"
+                  alt=""
+                  width={56}
+                  height={56}
+                  sizes="56px"
+                />
+                <div className={styles.courseCopy}>
+                  <strong>Project Management for Wildlife Conservation</strong>
+                  <span>Build your skills from £29/month</span>
+                </div>
               </div>
-            </div>
+            ) : null}
             <nav aria-label="Main navigation" className={styles.links}>
               {navigation.map((item) => (
                 <div
@@ -258,90 +273,92 @@ export function CourseExperimentHeader({ site = "training" }: { site?: "jobs" | 
             </nav>
           </div>
           <div className={styles.actions}>
-            <div className={styles.item} hidden>
-              <button
-                type="button"
-                className={styles.signIn}
-                aria-label={signedIn ? "Hey, Matt! Account menu" : "Sign in"}
-                aria-expanded={signedIn ? expanded === "Account" : undefined}
-                aria-controls={signedIn ? `${id}-account` : undefined}
-                ref={(element) => {
-                  toggleRefs.current.Account = element;
-                }}
-                onClick={() => {
-                  if (!signedIn) {
-                    setSignedIn(true);
-                    setExpanded("Account");
-                  } else setExpanded(expanded === "Account" ? null : "Account");
-                }}
-              >
-                {signedIn ? (
-                  <Image
-                    className={styles.avatar}
-                    src="/images/course-experiment/demo-avatar.jpg"
-                    alt=""
-                    width={32}
-                    height={32}
-                    sizes="32px"
-                  />
-                ) : (
-                  <svg aria-hidden="true" viewBox="0 0 24 24">
-                    <circle cx="12" cy="7.5" r="3.5" />
-                    <path d="M5 20v-1a7 7 0 0 1 14 0v1" />
-                  </svg>
-                )}
-                <span className="icon-label">{signedIn ? "Hey, Matt!" : "Sign in"}</span>
-                {signedIn ? <Chevron /> : null}
-              </button>
-              <div
-                className={`${styles.dropdown} ${styles.accountDropdown}`}
-                id={`${id}-account`}
-                hidden={!signedIn || expanded !== "Account"}
-                inert={!signedIn || expanded !== "Account"}
-              >
-                <a href="https://training.wildteam.org.uk/home" onClick={close}>
-                  <CourseMenuIcon name="book" />
-                  <span className="icon-label">My learning</span>
-                </a>
-                <a href="https://jobs.wildteam.org.uk/saved-jobs" onClick={close}>
-                  <CourseMenuIcon name="heart" />
-                  <span className="icon-label">Saved jobs</span>
-                </a>
-                {(
-                  [
-                    ["Job alerts", "bell"],
-                    ["Email preferences", "mail"],
-                    ["Account settings", "settings"],
-                  ] as const
-                ).map(([label, icon]) => (
-                  <button
-                    key={label}
-                    type="button"
-                    onClick={() => {
-                      setPreviewTitle(label);
-                      accountDialog.current?.showModal();
-                      close();
-                    }}
-                  >
-                    <CourseMenuIcon name={icon} />
-                    <span className="icon-label">{label}</span>
-                  </button>
-                ))}
+            {site === "training" ? (
+              <div className={styles.item} hidden>
                 <button
-                  className={styles.signOut}
                   type="button"
+                  className={styles.signIn}
+                  aria-label={signedIn ? "Hey, Matt! Account menu" : "Sign in"}
+                  aria-expanded={signedIn ? expanded === "Account" : undefined}
+                  aria-controls={signedIn ? `${id}-account` : undefined}
+                  ref={(element) => {
+                    toggleRefs.current.Account = element;
+                  }}
                   onClick={() => {
-                    setSignedIn(false);
-                    setExpanded(null);
-                    toggleRefs.current.Account?.focus();
+                    if (!signedIn) {
+                      setSignedIn(true);
+                      setExpanded("Account");
+                    } else setExpanded(expanded === "Account" ? null : "Account");
                   }}
                 >
-                  <CourseMenuIcon name="logout" />
-                  <span className="icon-label">Sign out</span>
+                  {signedIn ? (
+                    <Image
+                      className={styles.avatar}
+                      src="/images/course-experiment/demo-avatar.jpg"
+                      alt=""
+                      width={32}
+                      height={32}
+                      sizes="32px"
+                    />
+                  ) : (
+                    <svg aria-hidden="true" viewBox="0 0 24 24">
+                      <circle cx="12" cy="7.5" r="3.5" />
+                      <path d="M5 20v-1a7 7 0 0 1 14 0v1" />
+                    </svg>
+                  )}
+                  <span className="icon-label">{signedIn ? "Hey, Matt!" : "Sign in"}</span>
+                  {signedIn ? <Chevron /> : null}
                 </button>
-                <span className={styles.previewNote}>Account preview</span>
+                <div
+                  className={`${styles.dropdown} ${styles.accountDropdown}`}
+                  id={`${id}-account`}
+                  hidden={!signedIn || expanded !== "Account"}
+                  inert={!signedIn || expanded !== "Account"}
+                >
+                  <a href="https://training.wildteam.org.uk/home" onClick={close}>
+                    <CourseMenuIcon name="book" />
+                    <span className="icon-label">My learning</span>
+                  </a>
+                  <a href="https://jobs.wildteam.org.uk/saved-jobs" onClick={close}>
+                    <CourseMenuIcon name="heart" />
+                    <span className="icon-label">Saved jobs</span>
+                  </a>
+                  {(
+                    [
+                      ["Job alerts", "bell"],
+                      ["Email preferences", "mail"],
+                      ["Account settings", "settings"],
+                    ] as const
+                  ).map(([label, icon]) => (
+                    <button
+                      key={label}
+                      type="button"
+                      onClick={() => {
+                        setPreviewTitle(label);
+                        accountDialog.current?.showModal();
+                        close();
+                      }}
+                    >
+                      <CourseMenuIcon name={icon} />
+                      <span className="icon-label">{label}</span>
+                    </button>
+                  ))}
+                  <button
+                    className={styles.signOut}
+                    type="button"
+                    onClick={() => {
+                      setSignedIn(false);
+                      setExpanded(null);
+                      toggleRefs.current.Account?.focus();
+                    }}
+                  >
+                    <CourseMenuIcon name="logout" />
+                    <span className="icon-label">Sign out</span>
+                  </button>
+                  <span className={styles.previewNote}>Account preview</span>
+                </div>
               </div>
-            </div>
+            ) : null}
             <a
               className={`${styles.primary} ${siteAction ? styles.siteAction : styles.enrolAction}`}
               ref={conversionButton}
@@ -355,24 +372,26 @@ export function CourseExperimentHeader({ site = "training" }: { site?: "jobs" | 
           </div>
         </div>
       </div>
-      <dialog
-        className={styles.accountDialog}
-        ref={accountDialog}
-        aria-labelledby={`${id}-account-preview-title`}
-        onClose={() => {
-          if (window.matchMedia("(max-width: 900px)").matches) mobileButton.current?.focus();
-          else toggleRefs.current.Account?.focus();
-        }}
-      >
-        <h2 id={`${id}-account-preview-title`}>{previewTitle}</h2>
-        <p>
-          This is a preview of the shared WildTeam account. {previewTitle} will be available here when shared
-          sign-in is connected.
-        </p>
-        <button type="button" className={styles.primary} onClick={() => accountDialog.current?.close()}>
-          Back to the course
-        </button>
-      </dialog>
+      {site === "training" ? (
+        <dialog
+          className={styles.accountDialog}
+          ref={accountDialog}
+          aria-labelledby={`${id}-account-preview-title`}
+          onClose={() => {
+            if (window.matchMedia("(max-width: 900px)").matches) mobileButton.current?.focus();
+            else toggleRefs.current.Account?.focus();
+          }}
+        >
+          <h2 id={`${id}-account-preview-title`}>{previewTitle}</h2>
+          <p>
+            This is a preview of the shared WildTeam account. {previewTitle} will be available here when
+            shared sign-in is connected.
+          </p>
+          <button type="button" className={styles.primary} onClick={() => accountDialog.current?.close()}>
+            Back to the course
+          </button>
+        </dialog>
+      ) : null}
     </header>
   );
 }
