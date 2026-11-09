@@ -35,7 +35,9 @@ export default function RootLayout({ children }: Readonly<{ children: ReactNode 
     <html lang="en-GB" className={vagRounded.variable} data-scroll-behavior="smooth">
       <body>
         <SiteHeader />
-        {children}
+        <div id="site-content" tabIndex={-1}>
+          {children}
+        </div>
         <SiteFooter />
         <AnalyticsConsent
           enabled={process.env.VERCEL_ENV === "production"}
