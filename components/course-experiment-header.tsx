@@ -67,7 +67,14 @@ function Chevron() {
   );
 }
 
-export function CourseExperimentHeader() {
+export function CourseExperimentHeader({ site = "training" }: { site?: "jobs" | "news" | "training" }) {
+  const activeSection = site === "jobs" ? "Jobs" : site === "news" ? "News" : "Training";
+  const siteAction =
+    site === "jobs"
+      ? { label: "Saved jobs", href: "https://jobs.wildteam.org.uk/saved-jobs" }
+      : site === "news"
+        ? { label: "Good News", href: "https://news.wildteam.org.uk/good-news-in-conservation" }
+        : null;
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [expanded, setExpanded] = useState<string | null>(null);
@@ -98,6 +105,7 @@ export function CourseExperimentHeader() {
   }, []);
 
   useEffect(() => {
+    if (site !== "training") return;
     const hero = document.getElementById("course-hero");
     if (!hero) return;
     const observer = new IntersectionObserver(
@@ -117,7 +125,7 @@ export function CourseExperimentHeader() {
     );
     observer.observe(hero);
     return () => observer.disconnect();
-  }, []);
+  }, [site]);
 
   useEffect(() => {
     function outside(event: PointerEvent) {
@@ -149,8 +157,8 @@ export function CourseExperimentHeader() {
         if (!event.currentTarget.contains(event.relatedTarget)) close();
       }}
     >
-      <a className={styles.skip} href="#course-main">
-        Skip to course
+      <a className={styles.skip} href={site === "training" ? "#course-main" : "#navigation-preview-main"}>
+        {site === "training" ? "Skip to course" : "Skip to content"}
       </a>
       <div className={`shell ${styles.inner}`}>
         <a href="https://www.wildteam.org.uk/" className={`brand ${styles.brand}`} aria-label="WildTeam home">
@@ -208,13 +216,13 @@ export function CourseExperimentHeader() {
             <nav aria-label="Main navigation" className={styles.links}>
               {navigation.map((item) => (
                 <div
-                  className={`${styles.item} ${item.label === "Training" ? styles.active : ""}`}
+                  className={`${styles.item} ${item.label === activeSection ? styles.active : ""}`}
                   key={item.label}
                 >
                   <div className={styles.label}>
                     <a
                       href={item.href}
-                      aria-current={item.label === "Training" ? "true" : undefined}
+                      aria-current={item.label === activeSection ? "true" : undefined}
                       onClick={close}
                     >
                       {item.label}
@@ -250,7 +258,7 @@ export function CourseExperimentHeader() {
             </nav>
           </div>
           <div className={styles.actions}>
-            <div className={styles.item}>
+            <div className={styles.item} hidden>
               <button
                 type="button"
                 className={styles.signIn}
@@ -335,12 +343,14 @@ export function CourseExperimentHeader() {
               </div>
             </div>
             <a
-              className={`${styles.primary} ${styles.enrolAction}`}
+              className={`${styles.primary} ${siteAction ? styles.siteAction : styles.enrolAction}`}
               ref={conversionButton}
-              href="#course-options"
+              href={siteAction?.href ?? "#course-options"}
               onClick={close}
             >
-              <span>{scrolled ? "Enrol now" : "Start learning"}</span>
+              {site === "jobs" ? <CourseMenuIcon name="heart" /> : null}
+              {site === "news" ? <span className={styles.goodNewsIcon} aria-hidden="true" /> : null}
+              <span>{siteAction?.label ?? (scrolled ? "Enrol now" : "Start learning")}</span>
             </a>
           </div>
         </div>

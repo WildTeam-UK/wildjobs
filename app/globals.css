@@ -1038,12 +1038,11 @@ a[role="button"],
   line-height: 1.55;
 }
 .job-search-hero__highlight {
-  color: var(--wt-color-brand-purple);
+  color: var(--wt-color-brand-pink);
   font-weight: var(--wt-font-weight-bold);
 }
 @supports ((background-clip: text) or (-webkit-background-clip: text)) {
-  .job-search-hero h1,
-  .job-search-hero__highlight {
+  .job-search-hero h1 {
     background: linear-gradient(
       90deg,
       var(--wt-color-brand-purple),
@@ -2724,7 +2723,7 @@ a[role="button"],
   overflow-x: auto;
   overscroll-behavior-inline: contain;
   margin: 0;
-  padding: 2px 10px 5px 0;
+  padding: 2px 10px 2px 0;
   list-style: none;
   mask-image: linear-gradient(90deg, #000 0, #000 calc(100% - 10px), transparent 100%);
   scrollbar-width: thin;

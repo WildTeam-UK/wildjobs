@@ -24,7 +24,7 @@
 .navigation {
   flex: 1;
   min-width: 0;
-  justify-content: space-between;
+  justify-content: flex-end;
   gap: 42px;
 }
 .links {
@@ -33,7 +33,7 @@
 .actions {
   flex-shrink: 0;
   gap: 22px;
-  margin-left: auto;
+  margin-left: 0;
 }
 .item {
   position: relative;
@@ -88,6 +88,8 @@
   position: relative;
   display: inline-flex;
   min-height: 46px;
+  width: 160px;
+  flex: 0 0 auto;
   align-items: center;
   justify-content: center;
   gap: 9px;
@@ -331,7 +333,8 @@
     margin: 6px 0 12px;
   }
   .actions {
-    display: block;
+    display: flex;
+    justify-content: flex-end;
     position: relative;
     padding-top: 20px;
     margin-left: 0;
@@ -339,9 +342,8 @@
   .actions > .item {
     position: static;
   }
-  .signIn,
   .primary {
-    width: calc(50% - 5px);
+    width: 160px;
   }
   .signIn {
     font-size: 12px;
@@ -353,9 +355,9 @@
     width: auto;
   }
   .primary {
-    position: absolute;
-    top: 20px;
-    right: 0;
+    position: relative;
+    top: auto;
+    right: auto;
   }
   .accountDropdown {
     position: static;
@@ -488,16 +490,20 @@
   height: 20px;
 }
 
-/* WildNews Good News button shine, scoped to the scrolled enrol actions. */
-.enrolAction {
+/* Match the WildNews Good News button shine on each site's action. */
+.enrolAction,
+.siteAction {
   isolation: isolate;
   overflow: hidden;
 }
-.enrolAction > span {
+.enrolAction > span,
+.siteAction > span,
+.siteAction > svg {
   position: relative;
   z-index: 1;
 }
-.scrolled .enrolAction::after {
+.scrolled .enrolAction::after,
+.siteAction::after {
   content: "";
   position: absolute;
   z-index: 0;
@@ -543,9 +549,19 @@
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .scrolled .enrolAction::after {
+  .scrolled .enrolAction::after,
+  .siteAction::after {
     display: none;
   }
+}
+
+.goodNewsIcon {
+  display: block;
+  width: 17px;
+  height: 17px;
+  background: currentColor;
+  mask: url("/wildteam-mark.png") center / contain no-repeat;
+  transform: translateY(-1px);
 }
 
 /* Let the course use the space between the brand and account actions. */
