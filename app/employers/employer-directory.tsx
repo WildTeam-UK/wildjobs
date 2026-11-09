@@ -1,64 +1,97 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { EmployerCard } from "@/components/employer-card";
+import { FilterDropdown, JobSearchField } from "@/components/job-search-controls";
 import type { PublicEmployer } from "@/lib/public-employer-mapper";
 import styles from "./employer-directory.module.css";
 
 export function EmployerDirectory({
+  countries,
   employers,
   sectors,
 }: {
+  countries: readonly { value: string; label: string }[];
   employers: readonly PublicEmployer[];
   sectors: readonly { slug: string; title: string }[];
 }) {
   const [query, setQuery] = useState("");
   const [sector, setSector] = useState("");
+  const [country, setCountry] = useState("");
   const [hiringOnly, setHiringOnly] = useState(false);
+  const searchRef = useRef<HTMLInputElement>(null);
   const nameQuery = query.trim().toLocaleLowerCase("en-GB");
   const filteredEmployers = employers.filter(
     (employer) =>
       employer.name.toLocaleLowerCase("en-GB").includes(nameQuery) &&
       (!sector || employer.sectorSlugs.includes(sector)) &&
+      (!country || employer.countryCodes.includes(country)) &&
       (!hiringOnly || employer.openRoleCount > 0),
   );
   const hiringCount = filteredEmployers.filter((employer) => employer.openRoleCount > 0).length;
   const openRoleCount = filteredEmployers.reduce((total, employer) => total + employer.openRoleCount, 0);
-  const hasFilters = Boolean(nameQuery || sector || hiringOnly);
+  const hasFilters = Boolean(nameQuery || sector || country || hiringOnly);
 
   return (
     <>
-      <div className={styles.filters} role="search" aria-label="Employer directory">
-        <label className={styles.field}>
-          Search organisations
-          <input
-            type="search"
+      <div className={styles.filters}>
+        <div
+          className={`${styles.search} job-search-strip job-search-strip--single`}
+          role="search"
+          aria-label="Employer directory"
+        >
+          <JobSearchField
+            id="employer-search"
+            inputRef={searchRef}
+            label="Search organisations"
+            onChange={setQuery}
             placeholder="Search by organisation name"
             value={query}
-            onChange={(event) => setQuery(event.currentTarget.value)}
           />
-        </label>
-        <label className={styles.field}>
-          Sector
-          <select value={sector} onChange={(event) => setSector(event.currentTarget.value)}>
-            <option value="">All sectors</option>
-            {sectors.map(({ slug, title }) => (
-              <option key={slug} value={slug}>
-                {title}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label className={styles.hiring}>
-          <input
-            type="checkbox"
-            role="switch"
-            checked={hiringOnly}
-            onChange={(event) => setHiringOnly(event.currentTarget.checked)}
+        </div>
+        <div
+          className={`${styles.pills} job-filter-pills--compact`}
+          role="group"
+          aria-label="Employer filters"
+        >
+          <FilterDropdown
+            accessibleLabel="Sector"
+            clearLabel="All sectors"
+            icon="leaf"
+            onChange={setSector}
+            options={sectors.map(({ slug, title }) => ({ value: slug, label: title }))}
+            placeholder="Sector"
+            showSectorIcons
+            value={sector}
           />
-          Only show organisations hiring
-        </label>
+          {countries.length ? (
+            <FilterDropdown
+              accessibleLabel="Country"
+              clearLabel="All countries"
+              icon="country"
+              onChange={setCountry}
+              options={countries}
+              placeholder="Country"
+              value={country}
+            />
+          ) : null}
+          <div className={`job-filter-pill${hiringOnly ? " job-filter-pill--active" : ""}`}>
+            <button
+              aria-checked={hiringOnly}
+              className="job-filter-pill__trigger"
+              onClick={() => setHiringOnly((current) => !current)}
+              role="switch"
+              type="button"
+            >
+              <span aria-hidden="true" className={styles.switchTrack} />
+              <span className="icon-label">Only show organisations hiring</span>
+            </button>
+          </div>
+        </div>
       </div>
+      {countries.length ? (
+        <p className={styles.filterHint}>Country is based on recent vacancy locations.</p>
+      ) : null}
 
       <div className={styles.resultsBar}>
         <p role="status">
@@ -72,7 +105,9 @@ export function EmployerDirectory({
             onClick={() => {
               setQuery("");
               setSector("");
+              setCountry("");
               setHiringOnly(false);
+              searchRef.current?.focus();
             }}
           >
             Clear filters

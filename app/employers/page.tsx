@@ -7,7 +7,7 @@ import styles from "./employer-directory.module.css";
 export const metadata: Metadata = { title: "Conservation employers" };
 
 export default async function EmployersPage() {
-  const { employers, sectors } = await getPublicEmployerDirectory();
+  const { employers, sectors, countries } = await getPublicEmployerDirectory();
 
   return (
     <main className={`${styles.page} shell`}>
@@ -24,7 +24,7 @@ export default async function EmployersPage() {
         </Link>
       </header>
       {employers.length ? (
-        <EmployerDirectory employers={employers} sectors={sectors} />
+        <EmployerDirectory countries={countries} employers={employers} sectors={sectors} />
       ) : (
         <div className="staff-empty-state">
           <h2>No organisations to show yet</h2>
