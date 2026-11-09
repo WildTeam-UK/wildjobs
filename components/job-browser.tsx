@@ -538,7 +538,7 @@ export function JobBrowser({
         <div className="job-search-hero__inner shell">
           <div className="job-search-hero__intro">
             <div className="job-search-hero__intro-content">
-              <h1 id="jobs-page-heading">Do work that matters</h1>
+              <h1 id="jobs-page-heading">Find your dream conservation job</h1>
               <p className="job-search-hero__description">
                 Discover your next <strong className="job-search-hero__highlight">meaningful career</strong>{" "}
                 protecting wildlife, restoring nature and creating a better future for our{" "}
