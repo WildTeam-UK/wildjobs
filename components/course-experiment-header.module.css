@@ -53,6 +53,11 @@
 .active .label {
   color: var(--wt-color-brand-pink);
 }
+.label > a[aria-current="true"] {
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 7px;
+}
 .label > button {
   display: grid;
   place-items: center;

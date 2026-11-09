@@ -976,6 +976,10 @@ a[role="button"],
   background-image: url("/images/jobs-hero-right.svg");
   background-position: right center;
 }
+.job-search-hero-art--plain::before,
+.job-search-hero-art--plain::after {
+  display: none;
+}
 @media (prefers-reduced-motion: no-preference) {
   .job-search-hero-art::before,
   .job-search-hero-art::after {
@@ -1012,7 +1016,7 @@ a[role="button"],
   min-height: 0;
 }
 .job-search-hero h1 {
-  padding-top: 0.08em;
+  padding: 0.08em 0.04em 0.12em;
   margin: 0 0 28px;
   color: var(--wt-color-surface-charcoal);
   font-size: clamp(3rem, 7vw, 5.8rem);
@@ -1038,6 +1042,7 @@ a[role="button"],
   font-weight: var(--wt-font-weight-bold);
 }
 @supports ((background-clip: text) or (-webkit-background-clip: text)) {
+  .job-search-hero h1,
   .job-search-hero__highlight {
     background: linear-gradient(
       90deg,
@@ -2668,20 +2673,47 @@ a[role="button"],
   width: auto;
   height: auto;
   align-items: center;
-  padding: 0;
+  gap: 6px;
+  min-height: 29px;
+  padding: 5px 10px;
+  border: 1px solid transparent;
+  border-radius: var(--wt-radius-pill);
   color: var(--wt-color-brand-pink);
-  font-size: 0.78rem;
+  font-size: 0.72rem;
   font-weight: var(--wt-font-weight-regular);
-  line-height: 1.35;
-  text-decoration: underline;
-  text-decoration-thickness: 1px;
-  text-underline-offset: 0.16em;
+  line-height: 1.15;
   white-space: nowrap;
   cursor: pointer;
   vertical-align: baseline;
 }
-.job-card__training-explainer:hover {
-  color: var(--wt-color-brand-purple);
+.job-card__training-explainer:is(:hover, :focus-visible) {
+  border-color: var(--wt-color-brand-pink);
+  background: var(--wt-color-brand-pink);
+  color: var(--wt-color-paper);
+}
+.job-card__training-explainer:is(:hover, :focus-visible) .job-filter-pill__value {
+  background: none;
+  color: inherit;
+}
+.job-card__training-explainer svg {
+  width: 16px;
+  height: 16px;
+  flex: 0 0 auto;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.7;
+}
+.job-card__training .job-action-tooltip__bubble {
+  top: auto;
+  bottom: 100%;
+}
+.job-card__training .job-action-tooltip__bubble::before {
+  top: 100%;
+  bottom: auto;
+  border-top: 5px solid var(--wt-color-surface-charcoal);
+  border-bottom: 0;
 }
 .job-card__training-courses {
   display: flex;
