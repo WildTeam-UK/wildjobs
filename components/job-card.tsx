@@ -3,6 +3,7 @@ import { ShareJobControl } from "@/components/share-job-control";
 import { DismissJobControl } from "@/components/dismiss-job-control";
 import type { CSSProperties } from "react";
 import { EmployerLogo } from "@/components/employer-logo";
+import { JobActionTooltip } from "@/components/job-action-tooltip";
 import { SaveJobControl, type JobSaveState } from "@/components/save-job-control";
 import { formatSalaryLabel } from "@/lib/job-salary";
 import {
@@ -256,12 +257,18 @@ export function JobCard({
                 </li>
               ))}
             </ul>
-            <Link
-              className="job-card__training-why job-card__training-explainer"
-              href="/course-recommendations/"
-            >
-              <span className="icon-label">Why are we recommending these courses?</span>
-            </Link>
+            <JobActionTooltip label="These courses relate to skills and responsibilities in this advert. Read how WildJobs recommends training.">
+              <Link
+                className="job-card__training-why job-card__training-explainer job-filter-pill--fancy"
+                href="/course-recommendations/"
+              >
+                <span className="job-filter-pill__value icon-label">Recommended courses</span>
+                <svg aria-hidden="true" viewBox="0 0 24 24">
+                  <circle cx="12" cy="12" r="9" />
+                  <path d="M9.5 9a2.5 2.5 0 0 1 5 0c0 2-2.5 2-2.5 4M12 16v.5" />
+                </svg>
+              </Link>
+            </JobActionTooltip>
           </div>
           {postedLabel && compact && !detailPanel ? <p className="job-card__posted">{postedLabel}</p> : null}
         </div>
