@@ -1,5 +1,11 @@
 import { beforeEach, expect, it, vi } from "vitest";
-const mocks = vi.hoisted(() => ({ client: vi.fn(), read: vi.fn(), ai: vi.fn(), logo: vi.fn() }));
+const mocks = vi.hoisted(() => ({
+  client: vi.fn(),
+  read: vi.fn(),
+  ai: vi.fn(),
+  logo: vi.fn(),
+  verify: vi.fn(),
+}));
 vi.mock("server-only", () => ({}));
 vi.mock("../lib/guide-workflow", () => ({
   recordGuideAdvert: vi.fn(),
@@ -7,7 +13,7 @@ vi.mock("../lib/guide-workflow", () => ({
   autoPublishEligibleGuides: vi.fn(async () => ({ published: 0, deferred: [] })),
 }));
 vi.mock("../lib/supabase/trusted", () => ({ createTrustedClient: mocks.client }));
-vi.mock("../lib/directory-http", () => ({ fetchPublicText: mocks.read }));
+vi.mock("../lib/directory-http", () => ({ fetchPublicText: mocks.read, verifyPublicImage: mocks.verify }));
 vi.mock("../lib/source-reader", () => ({
   readSource: async ({ url, name }: { url: string; name: string }) => {
     const page = await mocks.read(url);
@@ -25,7 +31,10 @@ vi.mock("../lib/organisation-logo", async (original) => ({
 }));
 vi.mock("openai", () => ({ default: mocks.ai }));
 import { syncDirectory } from "../lib/directory-sync";
-beforeEach(() => vi.resetAllMocks());
+beforeEach(() => {
+  vi.resetAllMocks();
+  mocks.verify.mockImplementation(async (url: string) => url);
+});
 it("preserves a broken feed, imports the healthy source, and skips AI for an already enriched duplicate", async () => {
   const updates: { table: string; value: unknown }[] = [];
   const rpc = vi.fn(async (name: string, _args?: unknown) => ({

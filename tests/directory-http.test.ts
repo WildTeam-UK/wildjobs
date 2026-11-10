@@ -1,3 +1,4 @@
+import sharp from "sharp";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { EventEmitter } from "node:events";
 import { Readable } from "node:stream";
@@ -7,7 +8,7 @@ const mocks = vi.hoisted(() => ({ lookup: vi.fn(), https: vi.fn(), http: vi.fn()
 vi.mock("node:dns/promises", () => ({ lookup: mocks.lookup }));
 vi.mock("node:https", () => ({ request: mocks.https }));
 vi.mock("node:http", () => ({ request: mocks.http }));
-function response(text: string, status = 200, headers: Record<string, string> = {}) {
+function response(text: string | Buffer, status = 200, headers: Record<string, string> = {}) {
   mocks.https.mockImplementationOnce(
     (_url: URL, _options: RequestOptions, callback: (response: Readable) => void) => {
       const req = new EventEmitter() as EventEmitter & { end: () => void; destroy: (error: Error) => void };
@@ -65,14 +66,24 @@ describe("public feed HTTP reader", () => {
     await expect(fetchPublicText("https://jobs.example.org/feed")).rejects.toThrow("too large");
   });
   it("accepts an actual image response and rejects HTML masquerading as an image", async () => {
-    response("image bytes", 200, { "content-type": "image/png" });
+    const image = await sharp(
+      Buffer.from('<svg width="128" height="128"><circle cx="64" cy="64" r="40" fill="green"/></svg>'),
+    )
+      .png()
+      .toBuffer();
+    response(image, 200, { "content-type": "image/png" });
     expect(await verifyPublicImage("https://nature.org/logo.png")).toBe("https://nature.org/logo.png");
     response("<html>Not an image</html>", 200, { "content-type": "text/html" });
     expect(await verifyPublicImage("https://nature.org/missing-logo.png")).toBeNull();
   });
   it("caches website icons as embedded images and rejects the missing-icon response", async () => {
-    response("png", 200, { "content-type": "image/png" });
-    expect(await fetchWebsiteIcon("https://nature.org")).toMatch(/^data:image\/svg\+xml,/);
+    const image = await sharp(
+      Buffer.from('<svg width="128" height="128"><circle cx="64" cy="64" r="40" fill="green"/></svg>'),
+    )
+      .png()
+      .toBuffer();
+    response(image, 200, { "content-type": "image/png" });
+    expect(await fetchWebsiteIcon("https://nature.org")).toMatch(/^data:image\/png;base64,/);
     response("generic icon", 404, { "content-type": "image/png" });
     expect(await fetchWebsiteIcon("https://missing.org")).toBeNull();
   });

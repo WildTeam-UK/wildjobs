@@ -154,7 +154,6 @@ export async function findOrganisationLogo(
     const candidates = organisationLogoCandidates(page.text, page.url, organisation);
     if (candidates.length) verified = true;
     for (const candidate of candidates.slice(0, 2)) {
-      if (candidate.startsWith("data:image/svg+xml,")) return candidate;
       const remaining = deadline - Date.now() - 1000;
       if (remaining <= 0) break;
       if (/favicon|apple-touch|android-chrome|\/icon[.-]/i.test(candidate)) {

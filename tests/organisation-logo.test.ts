@@ -99,3 +99,16 @@ it("accepts simple inline brand SVGs and excludes executable SVG content and pla
     ),
   ).toEqual([]);
 });
+
+it("skips an inline white logo when pixel validation rejects it", async () => {
+  vi.mocked(fetchPublicText).mockResolvedValue({
+    url: "https://nature.org/",
+    text: '<title>Nature Trust</title><svg class="logo" width="128" height="128"><circle cx="64" cy="64" r="40" fill="#FFFFFE"/></svg><img src="/logo-green.png" alt="Nature Trust logo">',
+  });
+  vi.mocked(verifyPublicImage)
+    .mockResolvedValueOnce(null)
+    .mockResolvedValueOnce("https://nature.org/logo-green.png");
+  expect(await findOrganisationLogo("Nature Trust", "https://nature.org")).toBe(
+    "https://nature.org/logo-green.png",
+  );
+});
