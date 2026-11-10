@@ -5,46 +5,28 @@ import Link from "next/link";
 import styles from "./page.module.css";
 import { getReviewedGuideIndex } from "@/lib/public-guides";
 import { guideHubMetadata, guideHubStructuredData, serializeStructuredData } from "@/lib/guide-seo";
-import { guideSectorLabels, sectorGuideSlugs } from "@/lib/guide-sectors";
 import { GuideBreadcrumbs } from "@/components/guides/guide-breadcrumbs";
-import { careerGuides, guidePath } from "@/lib/guide-content";
+import { guideCatalog, guidePath } from "@/lib/guide-content";
 import { guideName } from "@/lib/guide-seo";
 
 export async function generateMetadata(): Promise<Metadata> {
   return guideHubMetadata(!(await getReviewedGuideIndex()).length);
 }
 
-const sectors = sectorGuideSlugs.map((slug) => ({
-  title: guideSectorLabels[slug],
-  slug,
-  href: `/conservation-sector/${slug}`,
-}));
-
-const careers: readonly { title: string; description: string; href?: string }[] = [
-  ...careerGuides.map((guide) => ({
-    title: guideName(guide),
-    description: guide.description,
-    href: guidePath(guide),
-  })),
-  {
-    title: "Conservation Officer",
-    description: "Turn plans for wildlife and habitats into practical conservation action.",
-  },
-  { title: "Ranger", description: "Care for wild places and help people connect with nature." },
-  { title: "Marine Biologist", description: "Understand ocean life and help protect our marine ecosystems." },
-  {
-    title: "Fundraising Officer",
-    description: "Build support and secure funding to make conservation work possible.",
-  },
-  {
-    title: "Sustainability Consultant",
-    description: "Help organisations reduce their impact and make more sustainable choices.",
-  },
-];
-
 export default async function CareerGuidesPage() {
   const reviewed = await getReviewedGuideIndex();
-  const reviewedPaths = new Set(reviewed.map(({ guide }) => guidePath(guide)));
+  const publishedSlugs = new Set(reviewed.map(({ guide }) => guide.slug));
+  const published = guideCatalog.filter((guide) => publishedSlugs.has(guide.slug));
+  const sectors = published
+    .filter((guide) => guide.kind === "sector")
+    .map((guide) => ({ title: guideName(guide), slug: guide.slug, href: guidePath(guide) }));
+  const careers = published
+    .filter((guide) => guide.kind === "career")
+    .map((guide) => ({
+      title: guideName(guide),
+      description: guide.description,
+      href: guidePath(guide),
+    }));
   return (
     <main className={styles.page}>
       <script
@@ -120,16 +102,10 @@ export default async function CareerGuidesPage() {
                     <p data-career-description>{career.description}</p>
                   </div>
                 </div>
-                <span className={styles.cardFooter}>
-                  {career.href
-                    ? reviewedPaths.has(career.href)
-                      ? "READ THE GUIDE"
-                      : "GUIDE PREVIEW"
-                    : "GUIDE COMING SOON"}
-                </span>
+                <span className={styles.cardFooter}>READ THE GUIDE</span>
               </>
             );
-            return career.href ? (
+            return (
               <Link
                 className={styles.careerCard + " " + styles.linkedCareer}
                 href={career.href}
@@ -137,10 +113,6 @@ export default async function CareerGuidesPage() {
               >
                 {content}
               </Link>
-            ) : (
-              <article className={styles.careerCard} key={career.title}>
-                {content}
-              </article>
             );
           })}
         </FittedCareerGrid>

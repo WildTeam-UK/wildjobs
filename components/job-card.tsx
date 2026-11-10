@@ -124,12 +124,12 @@ export function JobCard({
     <div className={`job-card__summary-block${hasSummaryLabel ? " job-card__summary-block--ai" : ""}`}>
       {summaryLabel}
       <p className="job-card__summary">{job.summary}</p>
-      {(detailPanel || compact) && job.skills?.length ? (
+      {detailPanel && job.skills?.length ? (
         <p className="job-card__attributes">
           <strong>Skills:</strong> {job.skills.map(({ title }) => title).join(" · ")}
         </p>
       ) : null}
-      {(detailPanel || compact) && job.benefits?.length ? (
+      {detailPanel && job.benefits?.length ? (
         <p className="job-card__attributes">
           <strong>Advertised benefits:</strong> {job.benefits.map(({ title }) => title).join(" · ")}
         </p>

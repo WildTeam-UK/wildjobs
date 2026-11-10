@@ -1,3 +1,4 @@
+import { renderToStaticMarkup } from "react-dom/server";
 import { afterEach, expect, it, vi } from "vitest";
 const mocks = vi.hoisted(() => ({ data: vi.fn(), index: vi.fn() }));
 vi.mock("server-only", () => ({}));
@@ -5,8 +6,10 @@ vi.mock("../lib/public-guides", () => ({ getGuideData: mocks.data, getReviewedGu
 vi.mock("../components/guides/guide-page", () => ({ GuidePage: () => null }));
 import { generateMetadata as careerMetadata } from "../app/(templates)/conservation-career-guides/[slug]/page";
 import { generateMetadata as sectorMetadata } from "../app/(templates)/conservation-sector/[slug]/page";
-import { generateMetadata as hubMetadata } from "../app/(templates)/conservation-career-guides/page";
-import { pilotGuides } from "../lib/guide-content";
+import CareerGuidesPage, {
+  generateMetadata as hubMetadata,
+} from "../app/(templates)/conservation-career-guides/page";
+import { guideCatalog, guidePath, pilotGuides } from "../lib/guide-content";
 afterEach(() => {
   vi.unstubAllEnvs();
   vi.clearAllMocks();
@@ -49,4 +52,20 @@ it("makes the guide hub indexable when its first reviewed guide is published", a
   }));
   mocks.index.mockResolvedValue([{ guide: pilotGuides[1], reviewedAt: "2026-11-03T12:00:00Z" }]);
   expect((await hubMetadata()).robots).toEqual({ index: true, follow: true });
+});
+
+it("lists only published guides and includes a newly published guide on the next request", async () => {
+  const published = guideCatalog.filter((guide) =>
+    ["ecologist", "wildlife-conservation"].includes(guide.slug),
+  );
+  mocks.index.mockResolvedValue(published.map((guide) => ({ guide, reviewedAt: "2026-11-10T12:00:00Z" })));
+  const initial = renderToStaticMarkup(await CareerGuidesPage());
+  for (const guide of published) expect(initial).toContain(`href="${guidePath(guide)}"`);
+  for (const guide of guideCatalog.filter((guide) => !published.includes(guide))) {
+    expect(initial).not.toContain(`href="${guidePath(guide)}"`);
+  }
+  expect(initial).not.toMatch(/GUIDE COMING SOON|GUIDE PREVIEW/);
+  mocks.index.mockResolvedValue(guideCatalog.map((guide) => ({ guide, reviewedAt: "2026-11-10T12:00:00Z" })));
+  const updated = renderToStaticMarkup(await CareerGuidesPage());
+  for (const guide of guideCatalog) expect(updated).toContain(`href="${guidePath(guide)}"`);
 });

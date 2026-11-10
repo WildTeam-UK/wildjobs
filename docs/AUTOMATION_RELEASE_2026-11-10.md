@@ -51,3 +51,13 @@ The first attribute run exposed an existing application guard that skipped alrea
 Production browser checks confirmed the requested navigation on both domains, pink employer names with `text-decoration-line: none`, retained application links, and the Exmoor employer page's Paid leave / Paid sick leave / Pension labels with its role-specific qualification. A 390-pixel phone viewport now applied successfully: the job and employer page had no horizontal overflow, and the mobile menu retained Training / Jobs / News / About. The final display follow-up also shows attributes on compact/list cards, so phone users can see them as well as desktop detail-panel users.
 
 Local and GitHub checks passed: 405 tests, formatting, strict TypeScript, lint, production builds and the full disposable-database publication flow. Runtime error/fatal logs were empty for the corrected deployment during the rollout observation. Database advisors were unchanged; the existing [Auth leaked-password protection warning](https://supabase.com/docs/guides/auth/password-security#password-strength-and-leaked-password-protection) is unrelated to this release.
+
+## Published guide hub and card corrections
+
+The guide hub now uses the same published-revision index as guide discovery and structured data. Published career and sector guides appear on the next request, in catalogue order; unpublished previews and coming-soon placeholders are omitted. Production had 17 published guides at this correction's baseline. A rendering regression checks that newly published guides appear and unpublished guides are absent.
+
+Compact job cards and sidebar previews use charcoal employer names without underlines. The selected desktop detail panel retains pink employer links. The unsolicited skills/benefits rows have been removed from compact/mobile cards; extraction, search data, employer benefits and selected desktop detail remain available. Exmoor National Park Authority currently provides a verified employer-benefits example (paid leave, paid sick leave and pension).
+
+GitHub Desktop summary: **Show published guides and simplify compact job cards**
+
+Description: List published guides automatically, remove coming-soon placeholders, restore charcoal employer names on small cards, and remove compact skill/benefit rows. Verified with rendering coverage, formatting, TypeScript, lint, the full test suite and production build; live browser verification follows deployment.

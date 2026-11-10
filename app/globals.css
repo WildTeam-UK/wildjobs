@@ -2307,6 +2307,15 @@ a[role="button"],
   text-decoration: none;
   text-underline-offset: 3px;
 }
+/* Compact cards keep employer names charcoal; selected job details retain pink links. */
+.job-preview-card__organisation a,
+.job-card--compact .job-card__organisation a {
+  color: var(--wt-color-surface-charcoal);
+}
+.job-detail-panel .job-card__organisation a {
+  color: var(--wt-color-brand-pink);
+}
+
 .job-card--compact .job-card__logo,
 .job-card--compact .job-card__monogram {
   width: 75px;
