@@ -11,6 +11,7 @@ import { getPublicRoleAliases } from "./public-career-roles";
 import { matchCareerRole } from "./career-role-matching";
 import { cleanJobTitle } from "./job-title";
 import { employerPageSlugs } from "./employer-page-slug";
+import { attributeTerms } from "./job-attributes";
 import { getPublishedEmployerIndex } from "./public-employer-profiles";
 import {
   directoryDeadline,
@@ -44,6 +45,8 @@ export async function mapDirectoryJobs(records: readonly DirectoryJob[]): Promis
     return {
       id: row.id,
       observedAt,
+      skills: attributeTerms(row.skill_slugs ?? [], "skills"),
+      benefits: attributeTerms(row.benefit_slugs ?? [], "benefits"),
       roleSlug: matchCareerRole(row.title, row.feed_text, roles.aliases).roleSlug ?? undefined,
       slug: row.slug,
       title: cleanJobTitle(row.title),

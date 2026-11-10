@@ -32,7 +32,8 @@ export default async function GuideAdmin({
         </div>
         <p>
           Sector and career guides share the directory’s canonical vacancies. Figures update independently of
-          reviewed prose. No draft is published automatically.
+          published prose. Guides publish automatically after ten detailed matching adverts from at least two
+          employers, with current research sources. Separately edited drafts are preserved.
         </p>
       </header>
       <section className="staff-section shell">
@@ -60,9 +61,11 @@ export default async function GuideAdmin({
               <p>
                 {guide.kind === "career"
                   ? market.draftEligible
-                    ? "Evidence threshold reached: ready for a draft"
+                    ? "Evidence threshold reached: automatic publication is eligible"
                     : "Waiting for 10 detailed, distinct adverts from at least 2 employers"
-                  : "Sector guide: editorial review required"}
+                  : market.draftEligible
+                    ? "Evidence threshold reached: automatic publication is eligible"
+                    : "Waiting for 10 detailed, distinct adverts from at least 2 employers"}
                 .{" "}
                 {guideSourcesCurrent(guide)
                   ? "Research sources are within their 90-day review period."

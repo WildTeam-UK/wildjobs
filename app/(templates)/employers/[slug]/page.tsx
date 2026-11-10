@@ -39,6 +39,9 @@ export default async function EmployerPage({ params }: Props) {
   const photo = market.sectors[0] ? guidePhotography[market.sectors[0]] : undefined;
   const overview = profile.content?.claims.filter((claim) => claim.kind !== "careers") ?? [];
   const careers = profile.content?.claims.filter((claim) => claim.kind === "careers") ?? [];
+  const advertisedBenefits = [
+    ...new Map(jobs.flatMap((job) => job.benefits ?? []).map((benefit) => [benefit.slug, benefit])).values(),
+  ].toSorted((a, b) => a.title.localeCompare(b.title));
   const stats: { value: string; label: string; detail?: string }[] = [
     { value: String(jobs.length), label: "Current vacancies", detail: "Live on WildJobs" },
     {
@@ -133,6 +136,20 @@ export default async function EmployerPage({ params }: Props) {
             </div>
             <div className="tpl-employer-claims">{showClaims(careers)}</div>
           </div>
+        </section>
+      ) : null}
+      {advertisedBenefits.length ? (
+        <section className="shell tpl-wide-section" id="benefits">
+          <h2>Benefits advertised in current roles</h2>
+          <ul>
+            {advertisedBenefits.map((benefit) => (
+              <li key={benefit.slug}>{benefit.title}</li>
+            ))}
+          </ul>
+          <p>
+            These benefits appear in current job adverts. Availability and eligibility vary by role; check the
+            original advert.
+          </p>
         </section>
       ) : null}
       <section className="shell tpl-wide-section" id="hiring-history">

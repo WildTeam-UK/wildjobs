@@ -1,7 +1,11 @@
 import { beforeEach, expect, it, vi } from "vitest";
 const mocks = vi.hoisted(() => ({ client: vi.fn(), read: vi.fn(), ai: vi.fn(), logo: vi.fn() }));
 vi.mock("server-only", () => ({}));
-vi.mock("../lib/guide-workflow", () => ({ recordGuideAdvert: vi.fn(), refreshPilotDrafts: vi.fn() }));
+vi.mock("../lib/guide-workflow", () => ({
+  recordGuideAdvert: vi.fn(),
+  refreshPilotDrafts: vi.fn(),
+  autoPublishEligibleGuides: vi.fn(async () => ({ published: 0, deferred: [] })),
+}));
 vi.mock("../lib/supabase/trusted", () => ({ createTrustedClient: mocks.client }));
 vi.mock("../lib/directory-http", () => ({ fetchPublicText: mocks.read }));
 vi.mock("../lib/source-reader", () => ({

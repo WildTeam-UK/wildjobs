@@ -293,6 +293,9 @@ export type Database = {
           contract_type: string | null;
           country_code: string | null;
           course_slugs: string[];
+          skill_slugs: string[];
+          benefit_slugs: string[];
+          attributes_version: number;
           engagement_type: string | null;
           feed_hash: string;
           feed_id: string;
@@ -330,6 +333,9 @@ export type Database = {
           contract_type?: string | null;
           country_code?: string | null;
           course_slugs?: string[];
+          skill_slugs?: string[];
+          benefit_slugs?: string[];
+          attributes_version?: number;
           engagement_type?: string | null;
           feed_hash: string;
           feed_id: string;
@@ -367,6 +373,9 @@ export type Database = {
           contract_type?: string | null;
           country_code?: string | null;
           course_slugs?: string[];
+          skill_slugs?: string[];
+          benefit_slugs?: string[];
+          attributes_version?: number;
           engagement_type?: string | null;
           feed_hash?: string;
           feed_id?: string;

@@ -1,5 +1,15 @@
 # Approved feed directory replacement
 
+## Approved job quality automation · 10 November 2026
+
+The user approved publishing the quality fixes, extracting short canonical skills and employer benefits in the existing AI batch, and automatic guide publication after ten matching detailed roles. Source expansion remains paused and pagination remains unchanged.
+
+Extend the existing directory job rows with bounded skill/benefit slug arrays and an extraction version. Use a fixed vocabulary, group equivalent wording, retain supporting source excerpts only in the private source snapshot, and reject unknown or unsupported selections. Reuse the existing enrichment call and scheduler for new jobs and the current-job backfill. Attributes must follow the current canonical source and feed hash, clearing when an advert changes. Expose only recognised public labels; employer pages describe benefits observed in specific current adverts, without implying that every role offers them.
+
+Use the existing guide catalogue, original-advert evidence, current research sources, source privacy rules and atomic publication RPC. The heartbeat publishes a validated career guide once ten detailed matching canonical adverts from at least two employers qualify. It refreshes evidence automatically without replacing separately edited staff prose. Known catalogue content and current citations remain required; this is not permission to invent guide claims or arbitrary occupations. Record automated publication and deferral reasons in the staff view. Previously published guide prose remains available if a later automatic attempt lacks evidence.
+
+Release in tested batches: publish the UI/menu fixes first, apply the additive schema and deploy attribute/guide automation next, verify actual extraction and publication, and leave the existing heartbeat to continue bounded backfill. No new service or shared application database is introduced.
+
 ## Approved source expansion · 9 November 2026
 
 The user approved extending the existing importer and Sources admin to cover the supplied conservation employer catalogue, working through it in tested batches. Staff/team permission changes are explicitly deferred: source management remains administrator-only.

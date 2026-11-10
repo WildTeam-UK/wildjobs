@@ -48,6 +48,8 @@ export function filterJobs(items: readonly Job[], filters: JobFilters) {
         job.category,
         ...(job.careerAreas ?? []),
         job.summary,
+        ...(job.skills?.map((skill) => skill.title) ?? []),
+        ...(job.benefits?.map((benefit) => benefit.title) ?? []),
       ].join(" "),
     );
     const location = normalise(

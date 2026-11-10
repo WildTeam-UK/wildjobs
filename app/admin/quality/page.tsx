@@ -17,12 +17,13 @@ export default async function QualityPage() {
         organisation_name: string;
         feed_hash: string;
         processed_hash: string | null;
+        attributes_version: number;
         source_url: string;
       }[] = [];
       for (let from = 0; ; from += 1000) {
         const result = await db
           .from("directory_jobs")
-          .select("id,title,organisation_name,feed_hash,processed_hash,source_url")
+          .select("id,title,organisation_name,feed_hash,processed_hash,source_url,attributes_version")
           .eq("is_active", true)
           .is("merged_into", null)
           .or(liveDirectoryDateFilter())
@@ -69,6 +70,10 @@ export default async function QualityPage() {
         <p>Missing branding and research never hold otherwise valid jobs for approval</p>
       </header>
       <section className="staff-summary shell">
+        <div>
+          <span>{jobs.filter((job) => job.attributes_version < 1).length}</span>
+          <strong>Attribute extraction queued automatically</strong>
+        </div>
         <div>
           <span>{jobs.length}</span>
           <strong>Current jobs checked</strong>
@@ -151,9 +156,11 @@ export default async function QualityPage() {
       <section className="staff-section shell">
         <h2>Skills and guides</h2>
         <p>
-          Structured job skills are not currently extracted. Role families are matched automatically where
-          supported. Guide vacancy counts and comparable salary observations use current job data; written
-          guide content remains versioned and reviewed.
+          Skills and advertised benefits are extracted into a fixed vocabulary in the existing enrichment
+          pass. Supporting excerpts stay with the private source snapshot. Current jobs are backfilled
+          automatically. Career guides publish automatically after ten detailed matching adverts from at least
+          two employers, with current research sources; unsupported or separately edited content is preserved
+          for attention.
         </p>
         <p>
           <Link href="/admin/guides">View guide evidence and publication status</Link>
