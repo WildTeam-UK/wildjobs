@@ -18,6 +18,7 @@ beforeAll(async () => {
   await db.exec(await migration("20261101224153_self_service_directory_sources"));
   await db.exec(await migration("20261101225639_duplicate_advert_location_matching"));
   await db.exec(await migration("20261110095239_career_page_sources"));
+  await db.exec(await migration("20261110122612_job_attributes_and_automation"));
   // Baseline grants normally follow the directory tables in the original full migration.
   await db.exec(
     "grant all on public.directory_jobs,public.directory_organisations,public.directory_settings,public.directory_runs,public.directory_saved_jobs to service_role;grant usage,select on all sequences in schema public to service_role;",
@@ -58,6 +59,75 @@ async function imported(
   );
   return result.rows[0].result;
 }
+
+it("keeps attributes tied to the canonical source hash and clears them when the advert changes", async () => {
+  const source = await saved("attributes");
+  await enable(source);
+  const posting = postingCard({
+    url: "https://quality.example.org/jobs/gis",
+    title: "GIS Officer",
+    organisation: "Quality Trust",
+    description: "Use QGIS to map habitats. We offer annual leave.",
+    location: "Exeter",
+  });
+  await imported(source, 2, [posting]);
+  const [{ id }] = (
+    await db.query<{ id: number }>(
+      "select id from public.directory_jobs where organisation_name='Quality Trust'",
+    )
+  ).rows;
+  await db.query("select public.apply_directory_job($1,$2,$3,true)", [
+    id,
+    posting.feed_hash,
+    JSON.stringify({
+      summary: "Map habitats",
+      skill_slugs: ["gis"],
+      benefit_slugs: ["paid-leave"],
+      attributes_version: 1,
+      attributes_hash: posting.feed_hash,
+      attribute_evidence: { skills: { gis: "Use QGIS to map habitats" } },
+    }),
+  ]);
+  expect(
+    (
+      await db.query(
+        "select skill_slugs,benefit_slugs,attributes_version from public.directory_jobs where id=$1",
+        [id],
+      )
+    ).rows[0],
+  ).toEqual({ skill_slugs: ["gis"], benefit_slugs: ["paid-leave"], attributes_version: 1 });
+  await imported(source, 2, [posting]);
+  expect((await db.query("select skill_slugs from public.directory_jobs where id=$1", [id])).rows[0]).toEqual(
+    { skill_slugs: ["gis"] },
+  );
+  await expect(
+    db.query("update public.directory_jobs set skill_slugs=array['invented'] where id=$1", [id]),
+  ).rejects.toThrow();
+  await imported(source, 2, [
+    { ...posting, feed_hash: "changed-attribute-advert", feed_text: "Manage habitat restoration instead" },
+  ]);
+  expect(
+    (
+      await db.query(
+        "select skill_slugs,benefit_slugs,attributes_version from public.directory_jobs where id=$1",
+        [id],
+      )
+    ).rows[0],
+  ).toEqual({ skill_slugs: [], benefit_slugs: [], attributes_version: 0 });
+});
+
+it("automatically queues already summarised current jobs for the attribute backfill", async () => {
+  const pending = (
+    await db.query<{ jobs: { attributes_version: number }[] }>(
+      "select public.directory_pending_source_jobs() jobs",
+    )
+  ).rows[0].jobs;
+  expect(pending.some((job) => job.attributes_version === 0)).toBe(true);
+  const result = await db.query<{ allowed: boolean }>(
+    "select has_function_privilege('anon','public.directory_pending_source_jobs()','EXECUTE') allowed",
+  );
+  expect(result.rows[0].allowed).toBe(false);
+});
 it("keeps sources and audit history inaccessible to anonymous and ordinary authenticated clients", async () => {
   const permissions = await db.query<{ rls: boolean; readable: boolean; callable: boolean }>(
     "select relrowsecurity as rls,has_table_privilege('authenticated','public.directory_source_events','SELECT') as readable,has_function_privilege('anon','public.import_directory_source(bigint,integer,jsonb,jsonb)','EXECUTE') as callable from pg_class where oid='public.directory_source_events'::regclass",
@@ -74,10 +144,12 @@ it("allows the existing automation role to use the invoker functions without pub
     const pending = await db.query<{ jobs: { source_content_kind: string; feed_text: string }[] }>(
       "select public.directory_pending_source_jobs() as jobs",
     );
-    expect(pending.rows[0].jobs[0]).toMatchObject({
-      source_content_kind: "advert",
-      feed_text: card.feed_text,
-    });
+    expect(pending.rows[0].jobs).toContainEqual(
+      expect.objectContaining({
+        source_content_kind: "advert",
+        feed_text: card.feed_text,
+      }),
+    );
   } finally {
     await db.exec("reset role");
   }

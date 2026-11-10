@@ -188,6 +188,72 @@ export async function refreshPilotDrafts(forceSlug?: string) {
   return { created, schemaReady: true };
 }
 
+export async function autoPublishEligibleGuides() {
+  const workspace = await guideWorkspace();
+  if (!workspace.schemaReady) return { published: 0, deferred: ["Guide storage is unavailable"] };
+  const db = createTrustedClient();
+  const deferred: string[] = [];
+  let published = 0;
+  for (const definition of guideCatalog) {
+    // Apply the same evidence minimum to career and sector guides.
+    const guide = validateGuideContent(definition);
+    const evidence = guideEvidence(guide, workspace.jobs, workspace.aliases);
+    if (!evidence.market.draftEligible) continue;
+    if (!guideSourcesCurrent(guide)) {
+      deferred.push(`${guide.slug}: research sources need refreshing`);
+      continue;
+    }
+    const versions = workspace.revisions.filter((revision) => revision.guide_slug === guide.slug);
+    const draft = versions.find((revision) => revision.status === "draft");
+    if (draft && hash(validateGuideContent(draft.content)) !== hash(guide)) {
+      deferred.push(`${guide.slug}: preserve separately edited content`);
+      continue;
+    }
+    const current = versions.find((revision) => revision.status === "published");
+    // Live market figures already update independently; do not create a new
+    // prose revision for every vacancy or repeatedly publish identical content.
+    if (!draft && current && hash(validateGuideContent(current.content)) === hash(guide)) continue;
+    if (draft && draft.input_hash !== evidence.inputHash) {
+      const archived = await db
+        .from("career_guide_revisions")
+        .update({ status: "archived" })
+        .eq("id", draft.id)
+        .eq("status", "draft");
+      if (archived.error) throw new Error("Automatic guide evidence could not be refreshed.");
+    }
+    const saved = await db.from("career_guide_revisions").upsert(
+      {
+        guide_slug: guide.slug,
+        input_hash: evidence.inputHash,
+        content: guide as Json,
+        evidence: { ...evidence.snapshot, publicationMode: "automatic" } as Json,
+        status: "draft",
+        reviewed_at: null,
+      },
+      { onConflict: "guide_slug,input_hash", ignoreDuplicates: true },
+    );
+    if (saved.error?.code === "23505") continue;
+    if (saved.error) throw new Error("Automatic guide draft could not be saved.");
+    const selected = await db
+      .from("career_guide_revisions")
+      .select("id,input_hash,status")
+      .eq("guide_slug", guide.slug)
+      .eq("input_hash", evidence.inputHash);
+    if (selected.error) throw new Error("Automatic guide draft could not be loaded.");
+    const candidate = selected.data.find(
+      (revision) => revision.status === "draft" && revision.input_hash === evidence.inputHash,
+    );
+    if (!candidate) continue;
+    const result = await db.rpc("publish_career_guide", {
+      p_id: candidate.id,
+      p_input_hash: evidence.inputHash,
+    });
+    if (result.error) throw new Error("Automatic guide publication needs a retry.");
+    if (result.data) published++;
+  }
+  return { published, deferred };
+}
+
 export async function recordGuideAdvert(
   job: { id: number; feed_hash: string; source_url: string },
   text: string,

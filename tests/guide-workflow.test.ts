@@ -10,6 +10,7 @@ import {
   guideSourcesCurrent,
   publishPilotDraft,
   refreshPilotDrafts,
+  autoPublishEligibleGuides,
 } from "../lib/guide-workflow";
 import { pilotGuides, sectorGuides } from "../lib/guide-content";
 
@@ -105,6 +106,38 @@ beforeEach(() => {
 afterEach(() => {
   vi.useRealTimers();
   vi.clearAllMocks();
+});
+
+it("publishes a qualifying career guide automatically and does not republish unchanged prose", async () => {
+  await refreshPilotDrafts();
+  expect(await autoPublishEligibleGuides()).toMatchObject({ published: 2, deferred: [] });
+  expect(revisions.find((r) => r.guide_slug === "ecologist" && r.status === "published")).toBeDefined();
+  expect(await autoPublishEligibleGuides()).toMatchObject({ published: 0 });
+  expect(revisions.filter((r) => r.guide_slug === "ecologist")).toHaveLength(1);
+});
+
+it("automatically refreshes stale generated evidence while preserving separately edited content", async () => {
+  await refreshPilotDrafts();
+  const old = revisions.find((r) => r.guide_slug === "ecologist")!;
+  jobs = [...jobs, { ...jobs[0], id: 110, source_url: "https://example.test/new" }];
+  expect(await autoPublishEligibleGuides()).toMatchObject({ published: 2 });
+  expect(old.status).toBe("archived");
+  const published = revisions.find((r) => r.guide_slug === "ecologist" && r.status === "published")!;
+  published.status = "draft";
+  published.content = { ...(published.content as object), description: "A separately edited introduction" };
+  const result = await autoPublishEligibleGuides();
+  expect(result.published).toBe(0);
+  expect(result.deferred).toContain("ecologist: preserve separately edited content");
+});
+
+it("does not automatically publish a career guide below ten adverts or with overdue sources", async () => {
+  jobs = jobs.slice(0, 9);
+  expect((await autoPublishEligibleGuides()).published).toBe(0);
+  jobs = [...jobs, { ...jobs[0], id: 12 }];
+  vi.setSystemTime(new Date("2027-02-15T12:00:00Z"));
+  const result = await autoPublishEligibleGuides();
+  expect(result.published).toBe(0);
+  expect(result.deferred).toContain("ecologist: research sources need refreshing");
 });
 
 it("queues eligible pilot drafts once and preserves pending editorial work as adverts change", async () => {

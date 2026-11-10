@@ -1,0 +1,368 @@
+{
+  "skills": [
+    {
+      "slug": "project-management",
+      "title": "Project management",
+      "aliases": [
+        "project management",
+        "programme management",
+        "program management",
+        "project planning",
+        "project delivery"
+      ]
+    },
+    {
+      "slug": "stakeholder-engagement",
+      "title": "Stakeholder engagement",
+      "aliases": [
+        "stakeholder engagement",
+        "stakeholder management",
+        "community engagement",
+        "partnership development",
+        "community outreach"
+      ]
+    },
+    {
+      "slug": "grant-writing",
+      "title": "Grant writing",
+      "aliases": ["grant writing", "funding bids", "funding proposals", "grant applications"]
+    },
+    {
+      "slug": "fundraising",
+      "title": "Fundraising",
+      "aliases": ["fundraising", "fund raising", "donor relations", "philanthropy"]
+    },
+    {
+      "slug": "gis",
+      "title": "GIS",
+      "aliases": ["GIS", "QGIS", "ArcGIS", "geospatial", "geographic information systems"]
+    },
+    {
+      "slug": "data-analysis",
+      "title": "Data analysis",
+      "aliases": [
+        "data analysis",
+        "data analytics",
+        "statistical analysis",
+        "statistics",
+        "data modelling",
+        "data modeling"
+      ]
+    },
+    {
+      "slug": "field-surveys",
+      "title": "Field surveys",
+      "aliases": [
+        "field surveys",
+        "ecological surveys",
+        "species surveys",
+        "habitat surveys",
+        "fieldwork",
+        "field work"
+      ]
+    },
+    {
+      "slug": "species-identification",
+      "title": "Species identification",
+      "aliases": [
+        "species identification",
+        "botanical identification",
+        "bird identification",
+        "plant identification",
+        "taxonomy"
+      ]
+    },
+    {
+      "slug": "habitat-management",
+      "title": "Habitat management",
+      "aliases": [
+        "habitat management",
+        "habitat restoration",
+        "ecological restoration",
+        "land management",
+        "woodland management"
+      ]
+    },
+    {
+      "slug": "ecological-monitoring",
+      "title": "Ecological monitoring",
+      "aliases": [
+        "ecological monitoring",
+        "biodiversity monitoring",
+        "species monitoring",
+        "wildlife monitoring",
+        "biological monitoring"
+      ]
+    },
+    {
+      "slug": "monitoring-evaluation",
+      "title": "Monitoring and evaluation",
+      "aliases": [
+        "monitoring and evaluation",
+        "M&E",
+        "impact evaluation",
+        "theory of change",
+        "impact measurement"
+      ]
+    },
+    {
+      "slug": "research",
+      "title": "Research",
+      "aliases": ["research", "experimental design", "scientific investigation"]
+    },
+    {
+      "slug": "report-writing",
+      "title": "Report writing",
+      "aliases": ["report writing", "technical writing", "scientific writing", "technical reports"]
+    },
+    {
+      "slug": "policy-advocacy",
+      "title": "Policy and advocacy",
+      "aliases": ["policy analysis", "policy development", "advocacy", "public policy", "policy engagement"]
+    },
+    {
+      "slug": "environmental-education",
+      "title": "Environmental education",
+      "aliases": [
+        "environmental education",
+        "conservation education",
+        "outdoor education",
+        "education programmes",
+        "education programs"
+      ]
+    },
+    {
+      "slug": "communications",
+      "title": "Communications",
+      "aliases": [
+        "communications",
+        "communication skills",
+        "public relations",
+        "media relations",
+        "content creation",
+        "social media"
+      ]
+    },
+    {
+      "slug": "financial-management",
+      "title": "Financial management",
+      "aliases": [
+        "financial management",
+        "budget management",
+        "budgeting",
+        "accounting",
+        "financial reporting"
+      ]
+    },
+    {
+      "slug": "people-management",
+      "title": "People management",
+      "aliases": [
+        "people management",
+        "line management",
+        "team management",
+        "staff management",
+        "supervising staff"
+      ]
+    },
+    {
+      "slug": "volunteer-management",
+      "title": "Volunteer management",
+      "aliases": [
+        "volunteer management",
+        "volunteer coordination",
+        "volunteer recruitment",
+        "supervising volunteers"
+      ]
+    },
+    {
+      "slug": "law-compliance",
+      "title": "Law and compliance",
+      "aliases": [
+        "legal advice",
+        "litigation",
+        "environmental law",
+        "regulatory compliance",
+        "legal research",
+        "legal advocacy"
+      ]
+    },
+    {
+      "slug": "animal-care",
+      "title": "Animal care",
+      "aliases": [
+        "animal care",
+        "animal husbandry",
+        "veterinary",
+        "wildlife rehabilitation",
+        "animal welfare"
+      ]
+    },
+    {
+      "slug": "health-safety",
+      "title": "Health and safety",
+      "aliases": ["health and safety", "risk assessment", "occupational safety", "first aid"]
+    },
+    {
+      "slug": "practical-conservation",
+      "title": "Practical conservation",
+      "aliases": [
+        "practical conservation",
+        "tree planting",
+        "fencing",
+        "chainsaw",
+        "brushcutter",
+        "invasive species control"
+      ]
+    },
+    {
+      "slug": "software-development",
+      "title": "Software development",
+      "aliases": ["software development", "programming", "Python", "JavaScript", "software engineering"]
+    },
+    {
+      "slug": "information-security",
+      "title": "Information security",
+      "aliases": [
+        "information security",
+        "cybersecurity",
+        "cyber security",
+        "IT governance",
+        "cyber security risk"
+      ]
+    },
+    {
+      "slug": "administration",
+      "title": "Administration",
+      "aliases": ["administration", "administrative", "office management", "record keeping"]
+    }
+  ],
+  "benefits": [
+    {
+      "slug": "flexible-working",
+      "title": "Flexible working",
+      "aliases": [
+        "flexible working",
+        "flexible hours",
+        "flexitime",
+        "flexi time",
+        "hybrid working",
+        "remote working",
+        "work from home",
+        "home working"
+      ]
+    },
+    {
+      "slug": "paid-leave",
+      "title": "Paid leave",
+      "aliases": ["annual leave", "paid leave", "paid holiday", "holiday allowance", "paid time off", "PTO"]
+    },
+    {
+      "slug": "pension",
+      "title": "Pension",
+      "aliases": ["pension", "retirement plan", "401k", "401 k", "superannuation"]
+    },
+    {
+      "slug": "health-cover",
+      "title": "Health cover",
+      "aliases": [
+        "health insurance",
+        "medical insurance",
+        "healthcare cover",
+        "health care coverage",
+        "medical cover",
+        "dental insurance",
+        "private healthcare"
+      ]
+    },
+    {
+      "slug": "wellbeing-support",
+      "title": "Wellbeing support",
+      "aliases": [
+        "wellbeing",
+        "well being",
+        "employee assistance",
+        "counselling",
+        "counseling",
+        "mental health support"
+      ]
+    },
+    {
+      "slug": "training-development",
+      "title": "Training and development",
+      "aliases": [
+        "professional development",
+        "training opportunities",
+        "training allowance",
+        "training budget",
+        "learning budget",
+        "funded training",
+        "career development"
+      ]
+    },
+    {
+      "slug": "family-leave",
+      "title": "Family leave",
+      "aliases": ["parental leave", "maternity leave", "paternity leave", "adoption leave", "family leave"]
+    },
+    {
+      "slug": "paid-sick-leave",
+      "title": "Paid sick leave",
+      "aliases": ["paid sick leave", "sick pay", "paid sickness", "sickness allowance"]
+    },
+    {
+      "slug": "life-assurance",
+      "title": "Life assurance",
+      "aliases": ["life assurance", "life insurance", "death in service"]
+    },
+    {
+      "slug": "travel-support",
+      "title": "Travel support",
+      "aliases": [
+        "cycle to work",
+        "travel allowance",
+        "commuting allowance",
+        "season ticket loan",
+        "transport allowance",
+        "commuter benefits"
+      ]
+    },
+    {
+      "slug": "relocation-support",
+      "title": "Relocation support",
+      "aliases": ["relocation allowance", "relocation assistance", "relocation support", "relocation package"]
+    },
+    {
+      "slug": "visa-support",
+      "title": "Visa support",
+      "aliases": ["visa sponsorship", "visa support", "work permit assistance"]
+    },
+    {
+      "slug": "accommodation",
+      "title": "Accommodation",
+      "aliases": [
+        "staff accommodation",
+        "provided accommodation",
+        "accommodation provided",
+        "housing allowance",
+        "housing provided"
+      ]
+    },
+    {
+      "slug": "employee-discounts",
+      "title": "Employee discounts",
+      "aliases": [
+        "employee discounts",
+        "staff discounts",
+        "discounted membership",
+        "free entry",
+        "free admission"
+      ]
+    },
+    {
+      "slug": "bonus-scheme",
+      "title": "Bonus scheme",
+      "aliases": ["annual bonus", "performance bonus", "bonus scheme", "profit sharing"]
+    }
+  ]
+}

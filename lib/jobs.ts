@@ -25,6 +25,8 @@ export type JobTaxonomyTerm = Readonly<{
 
 export type Job = Readonly<{
   observedAt?: string;
+  skills?: readonly JobTaxonomyTerm[];
+  benefits?: readonly JobTaxonomyTerm[];
   updatedAt?: string;
   id?: number;
   availability?: "current" | "expired" | "unavailable" | "withdrawn";
