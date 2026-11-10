@@ -4,6 +4,17 @@ vi.mock("server-only", () => ({}));
 vi.mock("../lib/guide-workflow", () => ({ recordGuideAdvert: vi.fn(), refreshPilotDrafts: vi.fn() }));
 vi.mock("../lib/supabase/trusted", () => ({ createTrustedClient: mocks.client }));
 vi.mock("../lib/directory-http", () => ({ fetchPublicText: mocks.read }));
+vi.mock("../lib/source-reader", () => ({
+  readSource: async ({ url, name }: { url: string; name: string }) => {
+    const page = await mocks.read(url);
+    const { parseSourceFeed } = await import("../lib/directory-sources");
+    const parsed = parseSourceFeed(page.text, page.url);
+    return {
+      ...parsed,
+      preview: { complete: true, count: parsed.items.length, kind: "rss", pages: 1, url, name },
+    };
+  },
+}));
 vi.mock("../lib/organisation-logo", async (original) => ({
   ...(await original<typeof import("../lib/organisation-logo")>()),
   findOrganisationLogo: mocks.logo,
@@ -17,16 +28,16 @@ it("preserves a broken feed, imports the healthy source, and skips AI for an alr
     data:
       name === "claim_directory_run"
         ? true
-        : name === "import_directory_feed"
+        : name === "import_directory_source"
           ? { seen: 1, changed: 1 }
-          : name === "directory_pending_jobs"
+          : name === "directory_pending_source_jobs"
             ? []
             : null,
     error: null,
   }));
   const sources = [
-    { id: 1, name: "Unavailable board", feed_url: "https://a.example.org/feed" },
-    { id: 2, name: "Healthy board", feed_url: "https://b.example.org/feed" },
+    { id: 1, name: "Unavailable board", feed_url: "https://a.example.org/feed", configuration_revision: 1 },
+    { id: 2, name: "Healthy board", feed_url: "https://b.example.org/feed", configuration_revision: 1 },
   ];
   function from(table: string) {
     const result = { data: table === "directory_sources" ? sources : [], error: null };
@@ -64,9 +75,9 @@ it("preserves a broken feed, imports the healthy source, and skips AI for an alr
     ai_completed: 0,
     estimated_cost_usd: 0,
   });
-  const imports = rpc.mock.calls.filter((call) => call[0] === "import_directory_feed");
+  const imports = rpc.mock.calls.filter((call) => call[0] === "import_directory_source");
   expect(imports).toHaveLength(1);
-  expect(imports[0][1]).toMatchObject({ p_source_id: 2, p_feed_url: "https://b.example.org/feed" });
+  expect(imports[0][1]).toMatchObject({ p_source_id: 2, p_revision: 1, p_check: { complete: true } });
   expect(updates).toContainEqual({
     table: "directory_sources",
     value: expect.objectContaining({ last_error: "Source HTTP 503" }),
@@ -101,7 +112,7 @@ it("persists international pay and reuses one employer logo lookup within the si
       data:
         name === "claim_directory_run"
           ? true
-          : name === "directory_pending_jobs"
+          : name === "directory_pending_source_jobs"
             ? [job, { ...job, id: 2 }]
             : name === "apply_directory_job"
               ? { ...job, id: args?.p_job_id, ...args?.p_fields }
@@ -162,4 +173,102 @@ it("persists international pay and reuses one employer logo lookup within the si
   expect(mocks.logo).toHaveBeenCalledTimes(1);
   for (const [, args] of writes.filter(([, args]) => args?.p_ai))
     expect(args?.p_fields).toMatchObject({ logo_url: "https://nature.org/logo.svg" });
+});
+
+it("keeps a validated API/manual advert when its public application page is a JavaScript shell", async () => {
+  const description =
+    "Survey coastal habitats and coordinate volunteer monitoring across protected reserves.";
+  const job = {
+    id: 9,
+    feed_hash: "verified",
+    processed_hash: null,
+    source_content_kind: "advert",
+    source_url: "https://trust.example.org/jobs/9",
+    canonical_url: "https://trust.example.org/jobs/9",
+    title: "Coastal Ecologist",
+    organisation_name: "Nature Trust",
+    feed_text: description,
+    location_text: "Location not stated",
+    salary_text: "Not stated",
+    hours_type: "Not specified",
+    contract_type: "Not specified",
+    workplace: "Not specified",
+    closes_at: "2026-11-30T23:59:59Z",
+    country_code: null,
+  };
+  const rpc = vi.fn(async (name: string, args?: { p_fields?: Record<string, unknown>; p_ai?: boolean }) => ({
+    data:
+      name === "claim_directory_run"
+        ? true
+        : name === "directory_pending_source_jobs"
+          ? [job]
+          : name === "apply_directory_job"
+            ? { ...job, ...args?.p_fields }
+            : null,
+    error: null,
+  }));
+  mocks.client.mockReturnValue({
+    rpc,
+    from(table: string) {
+      const data =
+        table === "directory_organisations"
+          ? [
+              {
+                name: "Nature Trust",
+                logo_url: "https://trust.example.org/logo.svg",
+                website_url: "https://trust.example.org",
+              },
+            ]
+          : [];
+      const query = {
+        select: () => query,
+        eq: () => query,
+        is: () => query,
+        lte: () => query,
+        order: () => query,
+        limit: () => query,
+        insert: () => query,
+        update: () => query,
+        single: async () => ({ data: { id: 99 }, error: null }),
+        // oxlint-disable-next-line unicorn/no-thenable -- Models the Supabase query builder.
+        then: (resolve: (value: unknown) => unknown) => Promise.resolve({ data, error: null }).then(resolve),
+      };
+      return query;
+    },
+  });
+  mocks.read.mockResolvedValue({
+    url: job.source_url,
+    text: "<main>Enable cookies and JavaScript to use this recruitment system.</main>",
+  });
+  const parse = vi.fn().mockResolvedValue({
+    output_parsed: {
+      jobs: [
+        {
+          id: 9,
+          summary: "Survey coastal habitats and support volunteer monitoring.",
+          sector_slugs: [],
+          course_slugs: [],
+          workplace: null,
+          hours_type: null,
+          contract_type: null,
+          engagement_type: null,
+        },
+      ],
+    },
+    usage: {},
+  });
+  mocks.ai.mockImplementation(function () {
+    return { responses: { parse } };
+  });
+  expect(await syncDirectory()).toMatchObject({ status: "complete", ai_completed: 1 });
+  const supplied = JSON.parse(parse.mock.calls[0][0].input);
+  expect(supplied.jobs[0]).toMatchObject({ title: job.title, description });
+  expect(supplied.jobs[0].description).not.toContain("Enable cookies");
+  const writes = rpc.mock.calls.filter(([name]) => name === "apply_directory_job");
+  for (const [, args] of writes)
+    expect(args?.p_fields).toMatchObject({
+      workplace: "Not specified",
+      hours_type: "Not specified",
+      contract_type: "Not specified",
+    });
 });

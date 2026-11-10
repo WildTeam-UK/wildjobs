@@ -1,5 +1,15 @@
 # Approved feed directory replacement
 
+## Approved source expansion · 9 November 2026
+
+The user approved extending the existing importer and Sources admin to cover the supplied conservation employer catalogue, working through it in tested batches. Staff/team permission changes are explicitly deferred: source management remains administrator-only.
+
+Accept careers pages, recognised recruitment boards, RSS/Atom and individual adverts. Save unsupported URLs with a useful reason rather than rejecting them from the catalogue. Check sources without publishing, show a bounded job preview, and require source access/reuse review before enabling imports. Add editable URLs/settings, manual adverts with confirmed deadlines, recoverable removal, per-source intervals and private activity history. Keep existing job IDs, bookmarks, summaries and cross-source duplicate handling.
+
+Readers must fail closed on partial pagination, failed advert reads, login challenges, crawl exclusions and ambiguous document extraction. Import only complete snapshots; a newly empty source needs a second spaced observation before retiring previously observed jobs. Preserve original posting dates and unknown employment facts. Follow only bounded, validated public URLs using the existing DNS-pinned request protections. Respect declared crawl/reuse restrictions; use direct employer sources in place of the two EthicalJobs URLs. Documents without extractable text or a confirmed deadline require manual entry rather than guessed details.
+
+Keep the proposed 71-source catalogue and read-only audit results in this repository. Verify source readers, source management authorization, migration privileges, configuration races, duplicate preservation and retirement against tests and live public reads. Do not deploy or write to the production catalogue as part of local implementation; release the additive migration and application together when a deployment is requested.
+
 ## Approved automated employer profiles · 5 November 2026
 
 The requested rollout uses the approved Wildmere layout, AI research from official sources and automatic publication. The user explicitly approved this data model and rollout on 5 November 2026.
