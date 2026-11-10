@@ -7,14 +7,33 @@ export function closingDate(value: unknown): string | null {
 }
 
 export function advertClosingDate(text: string) {
+  const prefix =
+    "(?:closing date(?: for applications)?|application deadline|apply by|deadline(?: for submitting (?:your |an )?application)?(?: is)?|applications?[\\s\\S]{0,220}?(?:sent|received|submitted)[\\s\\S]{0,180}?(?:by|before|no later than))";
   const date = text
     .match(
-      /(?:closing date(?: for applications)?|application deadline|apply by|deadline)\s*[:–-]?\s*(\d{1,2}(?:st|nd|rd|th)?\s+[A-Z][a-z]+\s+\d{4}|\d{4}-\d{2}-\d{2})/i,
+      new RegExp(
+        prefix +
+          "\\s*[:–-]?\\s*(?:(?:Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday),?\\s+)?(\\d{1,2}(?:st|nd|rd|th)?\\s+[A-Za-z]+\\s+\\d{4}|[A-Za-z]+\\s+\\d{1,2}(?:st|nd|rd|th)?,?\\s+\\d{4}|\\d{4}-\\d{2}-\\d{2})",
+        "i",
+      ),
     )?.[1]
-    ?.replace(/(\d)(?:st|nd|rd|th)\b/g, "$1");
+    ?.replace(/(\d)(?:st|nd|rd|th)\b/g, "$1")
+    .replace(/,/g, "");
   if (!date) return null;
-  const parsed = new Date(date);
-  return Number.isFinite(parsed.valueOf()) ? closingDate(parsed.toISOString().slice(0, 10)) : null;
+  let iso = date;
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+    const parts = date.split(/\s+/),
+      day = /^\d+$/.test(parts[0]) ? parts[0] : parts[1],
+      name = /^\d+$/.test(parts[0]) ? parts[1] : parts[0];
+    const month =
+      ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"].indexOf(
+        name.slice(0, 3).toLowerCase(),
+      ) + 1;
+    if (!month) return null;
+    iso = `${parts[2]}-${String(month).padStart(2, "0")}-${day.padStart(2, "0")}`;
+  }
+  const result = closingDate(iso);
+  return result?.startsWith(iso) ? result : null;
 }
 
 export function directoryDeadline(postedAt: string, closesAt?: string | null) {

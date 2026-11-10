@@ -28,6 +28,7 @@ function message(error: unknown) {
   return error instanceof Error ? error.message : "Source processing failed";
 }
 export async function syncDirectory(force = false, sourceId?: number) {
+  const startedAt = Date.now();
   const db = createTrustedClient();
   const claim = check(await db.rpc("claim_directory_run", { p_force: force }));
   if (!claim.data) return { status: "idle" };
@@ -124,7 +125,9 @@ export async function syncDirectory(force = false, sourceId?: number) {
         .eq("availability_status", "available"),
       db.from("career_areas").select("slug,title,description").eq("is_active", true),
     ]);
-    const pending = check(jobs).data as unknown as DirectoryJob[],
+    // Slow, crawl-delayed boards must finish their complete snapshot first. The
+    // existing heartbeat will enrich pending jobs on its next run, within its lease.
+    const pending = (Date.now() - startedAt > 45000 ? [] : check(jobs).data) as unknown as DirectoryJob[],
       courses = check(coursesResult).data,
       sectors = check(sectorsResult).data;
     const enrichedJobs: {

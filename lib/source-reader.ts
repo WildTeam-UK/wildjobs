@@ -1,3 +1,4 @@
+import { readRecruitmentAdapter, talentPool } from "./source-adapters";
 import { XMLParser } from "fast-xml-parser";
 import { parseSourceFeed, type FeedCard } from "./directory-sources";
 import { publicUrl, canonicalUrl } from "./directory-url";
@@ -38,12 +39,14 @@ export async function readSource(
     deadline?: number;
   } = {},
 ) {
-  options = { ...options, deadline: options.deadline || Date.now() + 55000 };
   if ((options.discoveryDepth || 0) > 3)
     throw new SourceReadError("unsupported", "The careers links form a loop or need a dedicated connector.");
   const config = sourceConfigSchema.parse(input.config || {});
   const url = publicUrl(input.url).toString();
   const start = new URL(url);
+  // Six regional pages require over a minute under the publisher's 10-second delay.
+  const budget = start.hostname.replace(/^www\./, "") === "nts.org.uk" ? 85000 : 55000;
+  options = { ...options, deadline: options.deadline || Date.now() + budget };
   const pageLink = (href: string, base: string) => {
     const target = publicUrl(href, base),
       parent = new URL(base);
@@ -105,6 +108,7 @@ export async function readSource(
     endpoint = target.toString();
     kind = "icims";
   }
+  if (start.hostname.endsWith(".livevacancies.co.uk")) origins.push("https://api.core-easywebats.com");
   const crawler = sourceCrawler(origins, options.transport, options.deadline);
   let pages = 0;
   const read = async (next: string, request?: PublicSourceRequest) => {
@@ -180,6 +184,13 @@ export async function readSource(
     throw new SourceReadError("incomplete", "This Workday board exceeds the import budget.");
   }
   let first = await read(endpoint);
+  const adapter = await readRecruitmentAdapter({
+    first,
+    read,
+    organisation: config.organisation,
+    now: options.now,
+  });
+  if (adapter) return finish(adapter.items, adapter.kind, adapter.url, pages);
   if (start.hostname.endsWith(".simplify.hr") && /companyVacanciesResultsContainer/.test(first.text)) {
     first = await read(new URL("/vacancy/vacancies?query=&displayOrder=4", start.origin).toString());
     kind = "simplify";
@@ -390,7 +401,7 @@ export async function readSource(
         if (
           target.origin !== new URL(first.url).origin &&
           sourceHosts.test(target.hostname) &&
-          /(?:current|open|search|browse|view|explore|list|employee|apply|job|vacan|opportun|position)/i.test(
+          /(?:current|open|search|browse|view|explore|list|employee|apply|job|vacan|opportun|position|role)/i.test(
             label,
           ) &&
           !/internship|volunteer|request for|proposal|tender|notification|alert/i.test(label)
@@ -477,6 +488,7 @@ export async function readSource(
       }
       const label = plainText(anchor.innerHTML);
       const key = canonicalUrl(candidate.toString());
+      if (talentPool(label)) continue;
       if (
         key === canonicalUrl(page.url) ||
         /(?:privacy|login|register|sign-in|alerts|benefits|application-process|how-to-apply|volunteer|scholarship|tenders?|procurement)/i.test(
@@ -554,10 +566,18 @@ export async function readSource(
           (kind === "icims" && /Sorry,? no jobs were found/i.test(text)));
     const next = config.nextSelector
       ? dom.querySelector(config.nextSelector)
-      : dom.querySelector('a[rel="next"],link[rel="next"],a[aria-label="Next page"],a.next');
+      : dom.querySelector(
+          'a[rel="next"],link[rel="next"],a[aria-label="Next page"],a[aria-label="Next"],a[title="Next Page"],a.next',
+        );
     const href = next?.getAttribute("href");
     const apparentTotal = text.match(/\b(\d+)\s+(?:results|jobs available|vacancies found)\b/i)?.[1];
     if (!href) {
+      const toolset = content.querySelector("[data-pagination]")?.getAttribute("data-pagination");
+      if (toolset && Number(JSON.parse(toolset).max_pages) > 1)
+        throw new SourceReadError(
+          "incomplete",
+          "The vacancy widget requires verified pagination before import.",
+        );
       if (phenom.status === 200 && Number(phenom.totalHits) > details.size)
         throw new SourceReadError("incomplete", "The careers portal did not expose every results page.");
       if (apparentTotal && Number(apparentTotal) > jobs.size + details.size)

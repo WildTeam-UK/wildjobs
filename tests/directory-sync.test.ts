@@ -272,3 +272,65 @@ it("keeps a validated API/manual advert when its public application page is a Ja
       contract_type: "Not specified",
     });
 });
+it("finishes a crawl-delayed import and leaves enrichment pending for the next heartbeat", async () => {
+  const pending = { id: 91, feed_hash: "unprocessed", source_url: "https://trust.example.org/jobs/91" };
+  const clock = vi.spyOn(Date, "now");
+  let elapsed = 0;
+  clock.mockImplementation(() => elapsed);
+  try {
+    const rpc = vi.fn(async (name: string) => ({
+      data:
+        name === "claim_directory_run"
+          ? true
+          : name === "import_directory_source"
+            ? { seen: 1, changed: 1 }
+            : name === "directory_pending_source_jobs"
+              ? [pending]
+              : null,
+      error: null,
+    }));
+    const source = {
+      id: 91,
+      name: "Slow public careers board",
+      feed_url: "https://trust.example.org/feed",
+      configuration_revision: 1,
+    };
+    function from(table: string) {
+      const query = {
+        select: () => query,
+        eq: () => query,
+        is: () => query,
+        lte: () => query,
+        order: () => query,
+        limit: () => query,
+        insert: () => query,
+        update: () => query,
+        single: async () => ({ data: { id: 91 }, error: null }),
+        // oxlint-disable-next-line unicorn/no-thenable -- Models the Supabase query builder.
+        then: (resolve: (v: unknown) => unknown) =>
+          Promise.resolve({ data: table === "directory_sources" ? [source] : [], error: null }).then(resolve),
+      };
+      return query;
+    }
+    mocks.client.mockReturnValue({ rpc, from });
+    mocks.read.mockImplementation(async (url: string) => {
+      elapsed = 61000;
+      return {
+        url,
+        text: "<rss><channel><title>Jobs</title><item><guid>91</guid><title>Ranger</title><link>https://trust.example.org/jobs/91</link><description>Care for wildlife.</description></item></channel></rss>",
+      };
+    });
+    expect(await syncDirectory()).toMatchObject({
+      status: "complete",
+      feed_seen: 1,
+      changed: 1,
+      ai_completed: 0,
+    });
+    expect(mocks.read).toHaveBeenCalledTimes(1);
+    expect(mocks.ai).not.toHaveBeenCalled();
+    expect(rpc).not.toHaveBeenCalledWith("apply_directory_job", expect.anything());
+    expect(rpc).toHaveBeenCalledWith("finish_directory_run", expect.objectContaining({ p_run_id: 91 }));
+  } finally {
+    clock.mockRestore();
+  }
+});
