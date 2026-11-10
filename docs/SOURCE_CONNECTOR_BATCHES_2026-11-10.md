@@ -2,6 +2,31 @@
 
 This batch implements and tests readers/configuration fixes for 16 previously paused sources. Ten pass the technical and linked-notice review for activation; six remain paused for publisher reuse clarification. The original 16 enabled sources remain unchanged. Team access changes are still deferred. No schema, service or dependency is added.
 
+## Production outcome
+
+[PR #66](https://github.com/WildTeam-UK/wildjobs/pull/66) passed GitHub CI, including the disposable-database publication checks, and merged as `8b63c034f97f16e8cdf0458ef1bcab07831a19d4`. Vercel deployment `dpl_3MGcCUU8aQXVRrv8uA2NRDu1Rkgg` was verified READY with the production custom domain before activation. The existing 16 enabled proposed sources and four legacy feeds retained their states.
+
+The ten cleared sources were activated in four observed batches: Born Free / Earthjustice / Landcare; ClientEarth / Australian Wildlife Conservancy / Department of Conservation NZ; Oceana Europe / Oceana UK / Office for Environmental Protection; then Taronga. Each batch completed its source reads before the next was enabled. Runs 930–933 completed without errors and processed 61 listing occurrences. At 11:28 UTC the summary queue was empty, all ten sources had successful import timestamps and none had an error.
+
+They contributed **55 additional current public cards**, taking the public feed from **435 to 490** at the recorded checks. **26 of the 71 proposed sources are now enabled; 45 remain paused: 12 reuse-review holds and 33 technical/access cases.** Seven newly enabled sources currently have vacancies; Oceana Europe and Oceana UK are verified empty, and OEP's retained advert is expired and excluded from the public feed. Every enabled new source is scheduled for another check after 12 hours.
+
+| Source                              | Listings imported | Current linked jobs |
+| ----------------------------------- | ----------------: | ------------------: |
+| Born Free                           |                 1 |                   1 |
+| Earthjustice                        |                10 |                   5 |
+| ClientEarth                         |                 6 |                   6 |
+| Oceana Europe                       |                 0 |                   0 |
+| Oceana UK                           |                 0 |                   0 |
+| Office for Environmental Protection |                 1 |                   0 |
+| Australian Wildlife Conservancy     |                 3 |                   3 |
+| Taronga Conservation Society        |                11 |                  11 |
+| Landcare Australia                  |                 1 |                   1 |
+| Department of Conservation NZ       |                28 |                  28 |
+
+Public HTTPS checks returned 200 and rendered original application links for all seven populated employers. The 28-role DOC result spans the normal 25-card page limit. Anonymous access to the source administrator route returned the expected sign-in redirect. Interactive browser inspection remains unavailable because local browser use is disabled in Work settings; no signed-in visual check is claimed. Deployment runtime error/fatal logs were empty during the rollout check.
+
+The six newly identified reuse holds were saved paused with their successful technical previews nested beneath visible permission-review failures. Bush Heritage and WWF India also received their verified replacement URLs and current HTTP 406/403 explanations; both remain paused. Durrell's approved temporary test is recorded below and in its administrator check, without changing the production crawler or activating that feed. No schema changes or employer outreach occurred.
+
 ## Verified readers
 
 | Source                              | Technical result                                                                                                                                                                                             | Release decision                       |
@@ -56,7 +81,7 @@ The readers retain complete-snapshot, revision and cross-source duplicate protec
 
 Long crawl-delayed source reads can defer summaries to the existing next heartbeat rather than overrun the function lease. No additional scheduler or AI pass is introduced. Open “applications are being accepted” wording is distinguished from “no longer being accepted”. Widget pagination, regional failures, hidden pay, British dates, application/interview dates and UK daylight-saving deadlines have regression coverage.
 
-The production release uses the existing source RPCs: save updated configurations paused, record current technical previews, record reuse holds as visible failures, then enable cleared sources in batches of at most three. Observe successful imports and an empty processing queue before reporting the final outcome. No production deployment or activation is implied by the preparatory counts above.
+The production release used the existing source RPCs: configurations were saved paused, current technical previews were recorded, reuse holds were recorded as visible failures, and cleared sources were enabled in batches of at most three. Successful imports and an empty processing queue were observed before recording the production outcome above. The technical audit counts remain dated, pre-deduplication observations.
 
 ## Durrell crawler-policy decision
 
@@ -64,4 +89,6 @@ Durrell's public Occupop client publishes a read-only GraphQL job-list query. It
 
 Automatic approval review rejected a proposed **global** change allowing HTTP 400 robots responses because it could weaken crawl safeguards. That change was not applied. The crawler's existing 400/401/403/429 and explicit-exclusion behaviour remains intact.
 
-A possible follow-up, requiring explicit approval, is a narrowly scoped exception for `gateway.server.occupop.com` only when `/robots.txt` returns that exact missing-query JSON error. Unknown errors, authentication failures, rate limits and actual disallow rules would continue to stop the reader. It would permit testing the public Durrell job-list query, not automatically approve content reuse or activation. No exception is included in this release.
+The user approved a narrowly scoped test for `gateway.server.occupop.com` only when `/robots.txt` returns that exact missing-query JSON error. At 11:22 UTC, the temporary test verified the exact host/path, HTTP status, JSON content type, single error message and `BAD_REQUEST` code before issuing the public, read-only Durrell job query. It returned three published vacancies with titles, descriptions, publication dates and locations. Negative assertions rejected other hosts/paths, unknown or multiple errors, non-JSON responses, HTTP 401/403/429 and server errors. No bundled credentials or GraphQL mutations were used.
+
+This proves a scoped connector is technically possible. The production crawler remains unchanged and Durrell remains paused; the test does not establish publisher reuse permission or a complete production import contract. A production connector would still need application-link/deadline validation, bounded response handling, reuse review and the same narrow policy checks. No exception is included in this release.
