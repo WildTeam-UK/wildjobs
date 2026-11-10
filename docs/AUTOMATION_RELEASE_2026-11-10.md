@@ -37,3 +37,11 @@ Local coverage includes source-hash changes, unchanged imports, invalid labels, 
 GitHub Desktop summary: **Automate job skills, benefits and guide publication**
 
 Description: Extract grounded canonical labels in the existing enrichment pass, automatically backfill current jobs, display role-specific benefits and publish qualifying guides without a staff approval step.
+
+## Production rollout
+
+[PR 69](https://github.com/WildTeam-UK/wildjobs/pull/69) passed CI, including the complete database publication flow, and deployed commit `b1b64cbaad7221436aec5fe384d15d30819577b1`. The applied migration is recorded as `20261110132906_job_attributes_and_automation`; its repository filename and test reference are reconciled to that generated version. Do not apply it again.
+
+The post-migration check retained all directory records: 676 total and 491 current, including one new advert observed since the 675-record baseline. Public clients still cannot read the private source snapshots. Six guide revisions had published automatically by the first production observation, without a staff publication action.
+
+The first attribute run exposed an existing application guard that skipped already summarised jobs. The follow-up allows an outdated attribute version to enter the same AI batch even when its summary is current. The regression fixture now starts with an already completed summary and requires successful enrichment. Production extraction observations follow after that correction is deployed.

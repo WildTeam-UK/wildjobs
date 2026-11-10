@@ -93,11 +93,12 @@ it("preserves a broken feed, imports the healthy source, and skips AI for an alr
   );
 });
 
-it("persists international pay and reuses one employer logo lookup within the single AI pass", async () => {
+it("backfills already summarised jobs, preserves international pay and reuses one employer logo lookup", async () => {
   const job = {
     id: 1,
     feed_hash: "current",
-    processed_hash: null,
+    processed_hash: "current",
+    attributes_version: 0,
     source_url: "https://trust.example.org/job/1",
     salary_text: "Not stated",
     organisation_name: "Nature Trust",

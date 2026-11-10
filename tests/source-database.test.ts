@@ -18,7 +18,7 @@ beforeAll(async () => {
   await db.exec(await migration("20261101224153_self_service_directory_sources"));
   await db.exec(await migration("20261101225639_duplicate_advert_location_matching"));
   await db.exec(await migration("20261110095239_career_page_sources"));
-  await db.exec(await migration("20261110122612_job_attributes_and_automation"));
+  await db.exec(await migration("20261110132906_job_attributes_and_automation"));
   // Baseline grants normally follow the directory tables in the original full migration.
   await db.exec(
     "grant all on public.directory_jobs,public.directory_organisations,public.directory_settings,public.directory_runs,public.directory_saved_jobs to service_role;grant usage,select on all sequences in schema public to service_role;",
