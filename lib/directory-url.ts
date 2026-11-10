@@ -46,8 +46,17 @@ export function publicUrl(value: string, base?: string) {
   url.hash = "";
   return url;
 }
+// Network URLs remain fragment-free. Only this publisher's documented numeric
+// hash route is retained for application links and duplicate identity.
+export function applicationUrl(value: string, base?: string) {
+  const url = publicUrl(value, base),
+    original = new URL(value, base);
+  if (url.hostname.endsWith(".livevacancies.co.uk") && /^#\/job\/details\/\d+$/.test(original.hash))
+    url.hash = original.hash;
+  return url;
+}
 export function canonicalUrl(value: string, base?: string) {
-  const url = publicUrl(value, base);
+  const url = applicationUrl(value, base);
   const trackingKeys = [...url.searchParams.keys()].filter((key) =>
     /^utm_|^(?:from_rss|fbclid|gclid|mc_cid|mc_eid)$/i.test(key),
   );

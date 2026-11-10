@@ -1,0 +1,1006 @@
+[
+  {
+    "name": "National Trust",
+    "url": "https://careers.smartrecruiters.com/NationalTrust",
+    "region": "Europe",
+    "status": "needs_attention",
+    "code": "blocked",
+    "message": "This source's robots.txt excludes the requested vacancy page.",
+    "checkedAt": "2026-11-09T14:47:18.608Z"
+  },
+  {
+    "name": "National Trust for Scotland",
+    "sourceUrl": "https://www.nts.org.uk/volunteering-jobs/job-search",
+    "region": "Europe",
+    "status": "tested",
+    "kind": "regional-html",
+    "checkedAt": "2026-11-10T10:51:18.354Z",
+    "count": 10,
+    "liveCount": 9,
+    "pages": 7,
+    "complete": true,
+    "url": "https://www.nts.org.uk/volunteering-jobs/job-search",
+    "jobs": [
+      {
+        "title": "Gardener (Newhailes)",
+        "organisation": "National Trust for Scotland",
+        "location": "Edinburgh & East",
+        "url": "https://www.nts.org.uk/volunteering-jobs/job-search/edinburgh-east",
+        "closesAt": "2026-11-15T23:59:59.000Z"
+      },
+      {
+        "title": "Financial Control Analyst",
+        "organisation": "National Trust for Scotland",
+        "location": "Edinburgh & East",
+        "url": "https://www.nts.org.uk/volunteering-jobs/job-search/edinburgh-east",
+        "closesAt": "2026-11-19T23:59:59.000Z"
+      },
+      {
+        "title": "Visitor Services Manager (The Georgian House)",
+        "organisation": "National Trust for Scotland",
+        "location": "Edinburgh & East",
+        "url": "https://www.nts.org.uk/volunteering-jobs/job-search/edinburgh-east",
+        "closesAt": "2026-11-29T23:59:59.000Z"
+      },
+      {
+        "title": "Visitor Services Assistant - Housekeeping (Brodick Castle)",
+        "organisation": "National Trust for Scotland",
+        "location": "South & West",
+        "url": "https://www.nts.org.uk/volunteering-jobs/job-search/south-west",
+        "closesAt": null
+      },
+      {
+        "title": "Visitor Services Supervisor - Food & Beverage (Glencoe)",
+        "organisation": "National Trust for Scotland",
+        "location": "Highlands & Islands",
+        "url": "https://www.nts.org.uk/volunteering-jobs/job-search/highlands-islands",
+        "closesAt": "2026-11-27T23:59:59.000Z"
+      },
+      {
+        "title": "Regional Marketing Communications Coordinator",
+        "organisation": "National Trust for Scotland",
+        "location": "Highlands & Islands",
+        "url": "https://www.nts.org.uk/volunteering-jobs/job-search/highlands-islands",
+        "closesAt": "2026-11-22T23:59:59.000Z"
+      },
+      {
+        "title": "Deputy Head of Philanthropy",
+        "organisation": "National Trust for Scotland",
+        "location": "National",
+        "url": "https://www.nts.org.uk/volunteering-jobs/job-search/national",
+        "closesAt": "2026-11-09T23:59:59.000Z"
+      },
+      {
+        "title": "Regional Marketing Communications Coordinator (Highlands & Islands)",
+        "organisation": "National Trust for Scotland",
+        "location": "National",
+        "url": "https://www.nts.org.uk/volunteering-jobs/job-search/national",
+        "closesAt": "2026-11-22T23:59:59.000Z"
+      },
+      {
+        "title": "Financial Control Analyst",
+        "organisation": "National Trust for Scotland",
+        "location": "National",
+        "url": "https://www.nts.org.uk/volunteering-jobs/job-search/national",
+        "closesAt": "2026-11-19T23:59:59.000Z"
+      },
+      {
+        "title": "Visitor Services Supervisor - Visitor Experience (Drum Castle)",
+        "organisation": "National Trust for Scotland",
+        "location": "North East",
+        "url": "https://www.nts.org.uk/volunteering-jobs/job-search/north-east",
+        "closesAt": "2026-12-06T23:59:59.000Z"
+      }
+    ]
+  },
+  {
+    "name": "The Nature Conservancy",
+    "sourceUrl": "https://nature.wd108.myworkdayjobs.com/en-US/ExternalCareers",
+    "region": "Global",
+    "status": "tested",
+    "kind": "workday",
+    "checkedAt": "2026-11-10T10:52:27.842Z",
+    "count": 76,
+    "liveCount": 60,
+    "pages": 80,
+    "complete": true,
+    "url": "https://nature.wd108.myworkdayjobs.com/en-US/ExternalCareers",
+    "jobs": [
+      {
+        "title": "Midwest Division Development Writer",
+        "organisation": "The Nature Conservancy",
+        "location": "Remote - Illinois",
+        "url": "https://nature.wd108.myworkdayjobs.com/ExternalCareers/job/Remote---Illinois/Midwest-Division-Development-Writer_JR104256",
+        "closesAt": "2026-11-16T23:59:59.999Z"
+      },
+      {
+        "title": "Midwest Division Development Writer",
+        "organisation": "The Nature Conservancy",
+        "location": "Remote - Wisconsin",
+        "url": "https://nature.wd108.myworkdayjobs.com/ExternalCareers/job/Remote---Wisconsin/Midwest-Division-Development-Writer_JR104245",
+        "closesAt": "2026-11-16T23:59:59.999Z"
+      },
+      {
+        "title": "Senior Attorney",
+        "organisation": "The Nature Conservancy",
+        "location": "Remote, USA",
+        "url": "https://nature.wd108.myworkdayjobs.com/ExternalCareers/job/Remote-USA/Senior-Attorney_JR104215",
+        "closesAt": null
+      },
+      {
+        "title": "Director of Development, South Carolina",
+        "organisation": "The Nature Conservancy",
+        "location": "North Charleston, South Carolina \u00b7 Greenville, South Carolina",
+        "url": "https://nature.wd108.myworkdayjobs.com/ExternalCareers/job/North-Charleston-South-Carolina/Director-of-Development--South-Carolina_JR104337",
+        "closesAt": null
+      },
+      {
+        "title": "Director of Finance & Operations, Europe",
+        "organisation": "The Nature Conservancy",
+        "location": "Berlin, Germany",
+        "url": "https://nature.wd108.myworkdayjobs.com/ExternalCareers/job/Berlin-Germany/Director-of-Finance---Operations--Europe_JR104331",
+        "closesAt": null
+      },
+      {
+        "title": "Donor Communications Specialist",
+        "organisation": "The Nature Conservancy",
+        "location": "Remote, USA",
+        "url": "https://nature.wd108.myworkdayjobs.com/ExternalCareers/job/Remote-USA/Donor-Communications-Specialist_JR104328",
+        "closesAt": null
+      },
+      {
+        "title": "SE MN Preserve Management Assistant",
+        "organisation": "The Nature Conservancy",
+        "location": "Kellogg, Minnesota",
+        "url": "https://nature.wd108.myworkdayjobs.com/ExternalCareers/job/Kellogg-Minnesota/SE-MN-Preserve-Management-Assistant_JR104202",
+        "closesAt": null
+      },
+      {
+        "title": "Klamath Project Manager",
+        "organisation": "The Nature Conservancy",
+        "location": "Mount Shasta, California",
+        "url": "https://nature.wd108.myworkdayjobs.com/ExternalCareers/job/Mount-Shasta-California/Klamath-Project-Manager_JR104267",
+        "closesAt": "2026-12-02T23:59:59.999Z"
+      },
+      {
+        "title": "Aquatic Restoration and Resiliency Coordinator",
+        "organisation": "The Nature Conservancy",
+        "location": "Pulaski, New York",
+        "url": "https://nature.wd108.myworkdayjobs.com/ExternalCareers/job/Pulaski-New-York/Aquatic-Restoration-and-Resiliency-Coordinator_JR104154",
+        "closesAt": null
+      },
+      {
+        "title": "Analista Conserva\u00e7\u00e3o III - Indigenous People and Local Communnities Analyst",
+        "organisation": "The Nature Conservancy",
+        "location": "Remote, Brazil",
+        "url": "https://nature.wd108.myworkdayjobs.com/ExternalCareers/job/Remote-Brazil/Analista-Conservao-III---Indigenous-People-and-Local-Communnities-Analyst_JR104311",
+        "closesAt": "2026-11-20T23:59:59.999Z"
+      }
+    ]
+  },
+  {
+    "name": "WWF UK",
+    "sourceUrl": "https://www.wwf.org.uk/jobs",
+    "region": "Europe",
+    "status": "tested",
+    "kind": "itrent",
+    "checkedAt": "2026-11-10T10:32:09.691Z",
+    "count": 1,
+    "liveCount": 1,
+    "pages": 1,
+    "complete": true,
+    "url": "https://ce0449li.webitrent.com/ce0449li_webrecruitment/wrd/run/ETREC106GF.display_srch_all?WVID=5223411NZL",
+    "jobs": [
+      {
+        "title": "Communications Executive",
+        "organisation": "WWF UK",
+        "location": "Location not stated",
+        "url": "https://ce0449li.webitrent.com/ce0449li_webrecruitment/wrd/run/ETREC107GF.open?VACANCY_ID=6081276Nel&WVID=5223411NZL&LANG=USA",
+        "closesAt": "2026-11-24T23:59:59.999Z"
+      }
+    ]
+  },
+  {
+    "name": "ZSL",
+    "url": "https://careers.zsl.org/",
+    "region": "Europe",
+    "status": "needs_attention",
+    "code": "incomplete",
+    "message": "Source HTTP 406",
+    "checkedAt": "2026-11-09T14:47:29.424Z"
+  },
+  {
+    "name": "Wildlife Conservation Society",
+    "url": "https://www.wcs.org/about-us/careers",
+    "region": "Global",
+    "status": "needs_attention",
+    "code": "unsupported",
+    "message": "No complete vacancy list was found. Configure its vacancy section and links, save the recruitment-board URL, or add an individual advert manually.",
+    "checkedAt": "2026-11-09T14:47:34.406Z"
+  },
+  {
+    "name": "RSPB",
+    "url": "https://www.rspb.org.uk/careers/vacancies-listing",
+    "region": "Europe",
+    "status": "needs_attention",
+    "code": "blocked",
+    "message": "Source HTTP 403",
+    "checkedAt": "2026-11-09T14:47:34.780Z"
+  },
+  {
+    "name": "The Wildlife Trusts",
+    "url": "https://www.wildlifetrusts.org/jobs",
+    "region": "Europe",
+    "status": "needs_attention",
+    "code": "blocked",
+    "message": "Source HTTP 403",
+    "checkedAt": "2026-11-09T14:47:34.629Z"
+  },
+  {
+    "name": "Re:wild",
+    "url": "https://jobs.dover.com/rewild",
+    "region": "Global",
+    "status": "needs_attention",
+    "code": "unsupported",
+    "message": "No complete vacancy list was found. Configure its vacancy section and links, save the recruitment-board URL, or add an individual advert manually.",
+    "checkedAt": "2026-11-09T14:47:35.390Z"
+  },
+  {
+    "name": "Marine Conservation Society",
+    "sourceUrl": "https://jobs.mcsuk.org/MarineConservationSociety/Home",
+    "region": "Europe",
+    "status": "tested",
+    "kind": "html",
+    "checkedAt": "2026-11-10T10:32:09.230Z",
+    "count": 1,
+    "liveCount": 1,
+    "pages": 2,
+    "complete": true,
+    "url": "https://jobs.mcsuk.org/MarineConservationSociety/Home",
+    "jobs": [
+      {
+        "title": "Head of External Affairs",
+        "organisation": "Marine Conservation Society",
+        "location": "GB",
+        "url": "https://jobs.mcsuk.org/MarineConservationSociety/JobDescription/bhk1FnINiOw",
+        "closesAt": "2026-11-15T23:59:59.999Z"
+      }
+    ]
+  },
+  {
+    "name": "Born Free",
+    "sourceUrl": "https://www.bornfree.org.uk/careers/",
+    "region": "Europe",
+    "status": "tested",
+    "kind": "inline-html",
+    "checkedAt": "2026-11-10T11:09:03.648Z",
+    "count": 1,
+    "liveCount": 1,
+    "pages": 1,
+    "complete": true,
+    "url": "https://www.bornfree.org.uk/careers/",
+    "jobs": [
+      {
+        "title": "Conservation Manager (Impact & Learning) (Maternity Cover)",
+        "organisation": "Born Free",
+        "location": "Location not stated",
+        "url": "https://www.bornfree.org.uk/careers/",
+        "closesAt": null
+      }
+    ]
+  },
+  {
+    "name": "Ocean Conservancy",
+    "url": "https://oceanconservancy.org/our-people/people-culture",
+    "region": "North America",
+    "status": "needs_attention",
+    "code": "unsupported",
+    "message": "No complete vacancy list was found. Configure its vacancy section and links, save the recruitment-board URL, or add an individual advert manually.",
+    "checkedAt": "2026-11-09T14:47:45.736Z"
+  },
+  {
+    "name": "National Wildlife Federation",
+    "url": "https://www.nwf.org/About-Us/Careers",
+    "region": "North America",
+    "status": "needs_attention",
+    "code": "unsupported",
+    "message": "Vacancies are hosted at https://recruiting.ultipro.com. Save that recruitment URL or explicitly allow it in source settings.",
+    "checkedAt": "2026-11-09T14:47:46.318Z"
+  },
+  {
+    "name": "Rainforest Alliance",
+    "url": "https://www.rainforest-alliance.org/careers/",
+    "region": "Global",
+    "status": "needs_attention",
+    "code": "unsupported",
+    "message": "Vacancies are hosted at https://recruiting.ultipro.com. Save that recruitment URL or explicitly allow it in source settings.",
+    "checkedAt": "2026-11-09T14:47:45.725Z"
+  },
+  {
+    "name": "The Wilderness Society",
+    "url": "https://www.wilderness.org/careers-internships",
+    "region": "North America",
+    "status": "needs_attention",
+    "code": "unsupported",
+    "message": "No complete vacancy list was found. Configure its vacancy section and links, save the recruitment-board URL, or add an individual advert manually.",
+    "checkedAt": "2026-11-09T14:47:46.850Z"
+  },
+  {
+    "name": "Earthjustice",
+    "sourceUrl": "https://jobs.jobvite.com/earthjustice/jobs",
+    "region": "North America",
+    "status": "tested",
+    "kind": "html",
+    "checkedAt": "2026-11-10T11:09:04.876Z",
+    "count": 10,
+    "liveCount": 5,
+    "pages": 11,
+    "complete": true,
+    "url": "https://jobs.jobvite.com/earthjustice/jobs",
+    "jobs": [
+      {
+        "title": "Associate Attorney, Community Partnerships Program",
+        "organisation": "Earthjustice",
+        "location": "Los Angeles, California, United States",
+        "url": "https://jobs.jobvite.com/earthjustice/job/oi6RAfwz",
+        "closesAt": null
+      },
+      {
+        "title": "Executive Assistant, Development",
+        "organisation": "Earthjustice",
+        "location": "San Francisco, California, United States",
+        "url": "https://jobs.jobvite.com/earthjustice/job/ogv1Afw6",
+        "closesAt": null
+      },
+      {
+        "title": "Senior Attorney, Fossil Fuels",
+        "organisation": "Earthjustice",
+        "location": "New Orleans, Louisiana, United States",
+        "url": "https://jobs.jobvite.com/earthjustice/job/orzwAfwQ",
+        "closesAt": null
+      },
+      {
+        "title": "Sr. Compliance Analyst",
+        "organisation": "Earthjustice",
+        "location": "Washington, DC, United States",
+        "url": "https://jobs.jobvite.com/earthjustice/job/ogeWAfwK",
+        "closesAt": null
+      },
+      {
+        "title": "Latin America Communications Strategist/Estratega de Comunicaciones para Am\u00e9rica Latina",
+        "organisation": "Earthjustice",
+        "location": "Mexico City, Mexico",
+        "url": "https://jobs.jobvite.com/earthjustice/job/oxU4AfwP",
+        "closesAt": null
+      },
+      {
+        "title": "Latin America Scientist/Cient\u00edfico para Am\u00e9rica Latina",
+        "organisation": "Earthjustice",
+        "location": "Mexico City, Mexico",
+        "url": "https://jobs.jobvite.com/earthjustice/job/oWT4Afwd",
+        "closesAt": null
+      },
+      {
+        "title": "Mexico Attorney and International Program Liaison/Abogado/a y enlace del Programa Internacional para M\u00e9xico",
+        "organisation": "Earthjustice",
+        "location": "Mexico City, Mexico",
+        "url": "https://jobs.jobvite.com/earthjustice/job/o9r4AfwY",
+        "closesAt": null
+      },
+      {
+        "title": "Mexico Clean Energy Attorney/Abogado(a) de Energ\u00eda Limpia \u2013 M\u00e9xico",
+        "organisation": "Earthjustice",
+        "location": "Mexico City, Mexico",
+        "url": "https://jobs.jobvite.com/earthjustice/job/ov3PAfwH",
+        "closesAt": null
+      },
+      {
+        "title": "Senior Attorney, Enforcement",
+        "organisation": "Earthjustice",
+        "location": "United States",
+        "url": "https://jobs.jobvite.com/earthjustice/job/opFwAfwU",
+        "closesAt": "2026-09-07T23:59:59.999Z"
+      },
+      {
+        "title": "Two-Year Senior Counsel, Appellate Enforcement",
+        "organisation": "Earthjustice",
+        "location": "United States",
+        "url": "https://jobs.jobvite.com/earthjustice/job/ob91AfwF",
+        "closesAt": "2026-11-24T23:59:59.999Z"
+      }
+    ]
+  },
+  {
+    "name": "American Bird Conservancy",
+    "url": "https://abcbirds.org/careers/",
+    "region": "North America",
+    "status": "needs_attention",
+    "code": "unsupported",
+    "message": "No complete vacancy list was found. Configure its vacancy section and links, save the recruitment-board URL, or add an individual advert manually.",
+    "checkedAt": "2026-11-09T14:48:16.668Z"
+  },
+  {
+    "name": "The Conservation Fund",
+    "url": "https://www.conservationfund.org/about-us/careers/",
+    "region": "North America",
+    "status": "needs_attention",
+    "code": "blocked",
+    "message": "This source's robots.txt excludes the requested vacancy page.",
+    "checkedAt": "2026-11-09T14:48:16.813Z"
+  },
+  {
+    "name": "Snow Leopard Trust",
+    "url": "https://snowleopard.org/about/careers/",
+    "region": "Global",
+    "status": "needs_attention",
+    "code": "unsupported",
+    "message": "A vacancy PDF has no verifiable closing date. Review it through the manual advert form to avoid importing an archived role.",
+    "checkedAt": "2026-11-09T14:48:20.740Z"
+  },
+  {
+    "name": "Wildfowl & Wetlands Trust",
+    "url": "https://vacancies.wwt.org.uk/vacancies/vacancy-search-results.aspx",
+    "region": "Europe",
+    "status": "needs_attention",
+    "code": "incomplete",
+    "message": "Source HTTP 406",
+    "checkedAt": "2026-11-09T14:48:31.646Z"
+  },
+  {
+    "name": "Plantlife",
+    "sourceUrl": "https://plantlife.livevacancies.co.uk/",
+    "region": "Europe",
+    "status": "tested",
+    "kind": "hireful",
+    "checkedAt": "2026-11-10T10:39:38.262Z",
+    "count": 2,
+    "liveCount": 2,
+    "pages": 3,
+    "complete": true,
+    "url": "https://plantlife.livevacancies.co.uk/",
+    "jobs": [
+      {
+        "title": "Supporter Care Administrator (Maternity Cover)",
+        "organisation": "Plantlife",
+        "location": "Hybrid: Salisbury Head Office for a minimum of 3 days a week",
+        "url": "https://plantlife.livevacancies.co.uk/#/job/details/36",
+        "closesAt": "2026-11-13T09:00:00.000Z"
+      },
+      {
+        "title": "Relationship Manager",
+        "organisation": "Plantlife",
+        "location": "Working from home or option to work in a local workspace. Regular travel will be required across the UK.",
+        "url": "https://plantlife.livevacancies.co.uk/#/job/details/35",
+        "closesAt": "2026-11-16T09:00:00.000Z"
+      }
+    ]
+  },
+  {
+    "name": "Butterfly Conservation",
+    "sourceUrl": "https://butterflyconservation.livevacancies.co.uk/",
+    "region": "Europe",
+    "status": "tested",
+    "kind": "hireful",
+    "checkedAt": "2026-11-10T10:39:38.273Z",
+    "count": 1,
+    "liveCount": 1,
+    "pages": 3,
+    "complete": true,
+    "url": "https://butterflyconservation.livevacancies.co.uk/",
+    "jobs": [
+      {
+        "title": "Corporate Fundraising Officer",
+        "organisation": "Butterfly Conservation",
+        "location": "Home based with requirement for occasional travel",
+        "url": "https://butterflyconservation.livevacancies.co.uk/#/job/details/205",
+        "closesAt": "2026-12-02T12:00:00.000Z"
+      }
+    ]
+  },
+  {
+    "name": "British Trust for Ornithology",
+    "url": "https://www.bto.org/about/jobs",
+    "region": "Europe",
+    "status": "needs_attention",
+    "code": "incomplete",
+    "message": "Source HTTP 404",
+    "checkedAt": "2026-11-09T14:48:39.269Z"
+  },
+  {
+    "name": "ClientEarth",
+    "sourceUrl": "https://jobs.clientearth.org/postings.json",
+    "region": "Europe",
+    "status": "tested",
+    "kind": "pinpoint",
+    "checkedAt": "2026-11-10T11:09:03.036Z",
+    "count": 6,
+    "liveCount": 6,
+    "pages": 1,
+    "complete": true,
+    "url": "https://jobs.clientearth.org/postings.json",
+    "jobs": [
+      {
+        "title": "Lawyer",
+        "organisation": "ClientEarth",
+        "location": "Tokyo",
+        "url": "https://jobs.clientearth.org/en/postings/d2b86ef0-8d16-41f6-9962-63a64fdc0631",
+        "closesAt": "2026-12-02T23:59:59.000Z"
+      },
+      {
+        "title": "Lawyer, Marine Biodiversity Conservation",
+        "organisation": "ClientEarth",
+        "location": "Remote - Jakarta",
+        "url": "https://jobs.clientearth.org/en/postings/05652101-9456-49ae-a1b6-a700b39392af",
+        "closesAt": "2026-11-16T23:59:59.000Z"
+      },
+      {
+        "title": "Senior Philanthropy Officer",
+        "organisation": "ClientEarth",
+        "location": "London",
+        "url": "https://jobs.clientearth.org/en/postings/6234c46e-561a-40f7-951a-6fedecb44093",
+        "closesAt": "2026-11-19T23:59:59.000Z"
+      },
+      {
+        "title": "Senior Philanthropy Officer",
+        "organisation": "ClientEarth",
+        "location": "Brussels",
+        "url": "https://jobs.clientearth.org/en/postings/d5a4a3fb-96a6-4ec7-92df-c8569b823379",
+        "closesAt": "2026-11-19T23:59:59.000Z"
+      },
+      {
+        "title": "Lawyer, Marine Biodiversity Conservation",
+        "organisation": "ClientEarth",
+        "location": "Remote - Manila",
+        "url": "https://jobs.clientearth.org/en/postings/dc5fd108-5037-4b76-9c35-078b11994c72",
+        "closesAt": "2026-11-16T23:59:59.000Z"
+      },
+      {
+        "title": "Lawyer",
+        "organisation": "ClientEarth",
+        "location": "Tokyo",
+        "url": "https://jobs.clientearth.org/en/postings/533bdee2-4c3c-48bb-b4df-49abeb95ad7a",
+        "closesAt": "2026-12-02T23:59:59.000Z"
+      }
+    ]
+  },
+  {
+    "name": "Durrell Wildlife Conservation Trust",
+    "url": "https://durrell.occupop-careers.com/",
+    "region": "Europe",
+    "status": "needs_attention",
+    "code": "unsupported",
+    "message": "No complete vacancy list was found. Configure its vacancy section and links, save the recruitment-board URL, or add an individual advert manually.",
+    "checkedAt": "2026-11-09T14:48:39.459Z"
+  },
+  {
+    "name": "Whale and Dolphin Conservation UK",
+    "url": "https://uk.whales.org/about/job-vacancies/",
+    "region": "Europe",
+    "status": "needs_attention",
+    "code": "blocked",
+    "message": "Source HTTP 403",
+    "checkedAt": "2026-11-09T14:48:39.759Z"
+  },
+  {
+    "name": "Tusk",
+    "url": "https://tusk.org/who-we-are/work-for-tusk-job-vacancies/",
+    "region": "Europe",
+    "status": "needs_attention",
+    "code": "blocked",
+    "message": "Source HTTP 403",
+    "checkedAt": "2026-11-09T14:48:39.640Z"
+  },
+  {
+    "name": "Rewilding Europe",
+    "url": "https://rewildingeurope.com/our-team/vacancies/",
+    "region": "Europe",
+    "status": "needs_attention",
+    "code": "unsupported",
+    "message": "A vacancy PDF has no verifiable closing date. Review it through the manual advert form to avoid importing an archived role.",
+    "checkedAt": "2026-11-09T14:48:40.904Z"
+  },
+  {
+    "name": "Oceana Europe",
+    "sourceUrl": "https://europe.oceana.org/employment-opportunities/",
+    "region": "Europe",
+    "status": "tested",
+    "kind": "html",
+    "checkedAt": "2026-11-10T11:09:08.216Z",
+    "count": 0,
+    "liveCount": 0,
+    "pages": 1,
+    "complete": true,
+    "url": "https://europe.oceana.org/employment-opportunities/",
+    "jobs": []
+  },
+  {
+    "name": "Oceana UK",
+    "sourceUrl": "https://uk.oceana.org/employment-opportunities/",
+    "region": "Europe",
+    "status": "tested",
+    "kind": "html",
+    "checkedAt": "2026-11-10T11:09:05.027Z",
+    "count": 0,
+    "liveCount": 0,
+    "pages": 1,
+    "complete": true,
+    "url": "https://uk.oceana.org/employment-opportunities/",
+    "jobs": []
+  },
+  {
+    "name": "Office for Environmental Protection",
+    "sourceUrl": "https://www.theoep.org.uk/work-us-job-vacancies",
+    "region": "Europe",
+    "status": "tested",
+    "kind": "inline-html",
+    "checkedAt": "2026-11-10T11:09:05.211Z",
+    "count": 1,
+    "liveCount": 0,
+    "pages": 1,
+    "complete": true,
+    "url": "https://www.theoep.org.uk/work-us-job-vacancies",
+    "jobs": [
+      {
+        "title": "Voluntary role: Independent Member of the Audit and Risk Assurance Committee",
+        "organisation": "Office for Environmental Protection",
+        "location": "Location not stated",
+        "url": "https://www.theoep.org.uk/work-us-job-vacancies",
+        "closesAt": "2026-10-28T23:55:00.000Z"
+      }
+    ]
+  },
+  {
+    "name": "Australian Wildlife Conservancy",
+    "sourceUrl": "https://australianwildlife.elmotalent.com.au/careers/external/jobs",
+    "region": "Australasia",
+    "status": "tested",
+    "kind": "html",
+    "checkedAt": "2026-11-10T11:09:15.806Z",
+    "count": 3,
+    "liveCount": 3,
+    "pages": 4,
+    "complete": true,
+    "url": "https://australianwildlife.elmotalent.com.au/careers/external/jobs",
+    "jobs": [
+      {
+        "title": "Wildlife Ecologist | Central North",
+        "organisation": "Australian Wildlife Conservancy",
+        "location": "Location not stated",
+        "url": "https://australianwildlife.elmotalent.com.au/careers/external/job/view/280",
+        "closesAt": "2026-11-15T23:59:59.999Z"
+      },
+      {
+        "title": "Administration and Operations Support Officer | Central",
+        "organisation": "Australian Wildlife Conservancy",
+        "location": "Location not stated",
+        "url": "https://australianwildlife.elmotalent.com.au/careers/external/job/view/282",
+        "closesAt": "2026-11-27T23:59:59.999Z"
+      },
+      {
+        "title": "Senior Operations Manager | Gascoyne & Sanctuary Manager | Faure Island",
+        "organisation": "Australian Wildlife Conservancy",
+        "location": "Location not stated",
+        "url": "https://australianwildlife.elmotalent.com.au/careers/external/job/view/283",
+        "closesAt": "2026-11-27T23:59:59.999Z"
+      }
+    ]
+  },
+  {
+    "name": "BirdLife Australia",
+    "url": "https://birdlife.org.au/about/work-with-us",
+    "region": "Australasia",
+    "status": "needs_attention",
+    "code": "unsupported",
+    "message": "No complete vacancy list was found. Configure its vacancy section and links, save the recruitment-board URL, or add an individual advert manually.",
+    "checkedAt": "2026-11-09T14:48:48.604Z"
+  },
+  {
+    "name": "WWF Australia",
+    "url": "https://wwf.org.au/about-us/jobs-at-wwf",
+    "region": "Australasia",
+    "status": "needs_attention",
+    "code": "incomplete",
+    "message": "Source HTTP 406",
+    "checkedAt": "2026-11-09T14:48:49.314Z"
+  },
+  {
+    "name": "Zoos Victoria",
+    "url": "https://www.zoo.org.au/about-us/careers",
+    "region": "Australasia",
+    "status": "needs_attention",
+    "code": "unsupported",
+    "message": "No complete vacancy list was found. Configure its vacancy section and links, save the recruitment-board URL, or add an individual advert manually.",
+    "checkedAt": "2026-11-09T14:48:52.776Z"
+  },
+  {
+    "name": "Taronga Conservation Society",
+    "sourceUrl": "https://careers.taronga.org.au/go/Available-Roles/7872610/",
+    "region": "Australasia",
+    "status": "tested",
+    "kind": "html",
+    "checkedAt": "2026-11-10T11:09:24.245Z",
+    "count": 11,
+    "liveCount": 11,
+    "pages": 12,
+    "complete": true,
+    "url": "https://careers.taronga.org.au/go/Available-Roles/7872610/",
+    "jobs": [
+      {
+        "title": "Role: Unit Supervisor - Taronga Wildlife Hospital",
+        "organisation": "Taronga Conservation Society",
+        "location": "Sydney, NSW, AU, 2088",
+        "url": "https://careers.taronga.org.au/job/Sydney-Unit-Supervisor-Taronga-Wildlife-Hospital-NSW-2088/1370097666/",
+        "closesAt": null
+      },
+      {
+        "title": "Role: Housekeeper - TWPZ",
+        "organisation": "Taronga Conservation Society",
+        "location": "Dubbo, NSW, AU, 2830",
+        "url": "https://careers.taronga.org.au/job/Dubbo-Housekeeper-TWPZ-NSW-2830/1370101466/",
+        "closesAt": null
+      },
+      {
+        "title": "Role: Guest Experience Coordinator - Overnight Programs",
+        "organisation": "Taronga Conservation Society",
+        "location": "Sydney, NSW, AU, 2088",
+        "url": "https://careers.taronga.org.au/job/Sydney-Guest-Experience-Coordinator-Overnight-Programs-NSW-2088/1369827766/",
+        "closesAt": null
+      },
+      {
+        "title": "Role: Guest Experience Officer - Overnight Programs",
+        "organisation": "Taronga Conservation Society",
+        "location": "Sydney, NSW, AU, 2088",
+        "url": "https://careers.taronga.org.au/job/Sydney-Guest-Experience-Officer-Overnight-Programs-NSW-2088/1369826166/",
+        "closesAt": null
+      },
+      {
+        "title": "Role: Food & Beverage Supervisor - TWPZ",
+        "organisation": "Taronga Conservation Society",
+        "location": "Dubbo, NSW, AU, 2830",
+        "url": "https://careers.taronga.org.au/job/Dubbo-Food-&-Beverage-Supervisor-TWPZ-NSW-2830/1369676566/",
+        "closesAt": null
+      },
+      {
+        "title": "Role: Injury Prevention and Wellbeing Advisor",
+        "organisation": "Taronga Conservation Society",
+        "location": "Sydney, NSW, AU, 2088",
+        "url": "https://careers.taronga.org.au/job/Sydney-Injury-Prevention-and-Wellbeing-Advisor-NSW-2088/1369701366/",
+        "closesAt": null
+      },
+      {
+        "title": "Role: Food & Beverage Attendant - TWPZ",
+        "organisation": "Taronga Conservation Society",
+        "location": "Dubbo, NSW, AU, 2830",
+        "url": "https://careers.taronga.org.au/job/Dubbo-Food-&-Beverage-Attendant-TWPZ-NSW-2830/1369669166/",
+        "closesAt": null
+      },
+      {
+        "title": "Role: Burbangana Program Coordinator - Identified",
+        "organisation": "Taronga Conservation Society",
+        "location": "Sydney, NSW, AU, 2088",
+        "url": "https://careers.taronga.org.au/job/Sydney-Burbangana-Program-Coordinator-Identified-NSW-2088/1369663266/",
+        "closesAt": null
+      },
+      {
+        "title": "Role: Guest Experience Coordinator (Casual) - Taronga Western Plains Zoo",
+        "organisation": "Taronga Conservation Society",
+        "location": "Dubbo, NSW, AU, 2830",
+        "url": "https://careers.taronga.org.au/job/Dubbo-Guest-Experience-Coordinator-%28Casual%29-Taronga-Western-Plains-Zoo-NSW-2830/1360704066/",
+        "closesAt": null
+      },
+      {
+        "title": "Role: Cafe Operations Coordinator - TWPZ",
+        "organisation": "Taronga Conservation Society",
+        "location": "Dubbo, NSW, AU, 2830",
+        "url": "https://careers.taronga.org.au/job/Dubbo-Cafe-Operations-Coordinator-TWPZ-NSW-2830/1367802566/",
+        "closesAt": null
+      }
+    ]
+  },
+  {
+    "name": "Greening Australia",
+    "url": "https://www.greeningaustralia.org.au/careers/",
+    "region": "Australasia",
+    "status": "needs_attention",
+    "code": "unsupported",
+    "message": "No complete vacancy list was found. Configure its vacancy section and links, save the recruitment-board URL, or add an individual advert manually.",
+    "checkedAt": "2026-11-09T14:48:54.636Z"
+  },
+  {
+    "name": "Landcare Australia",
+    "sourceUrl": "https://landcareaustralia.org.au/careers/",
+    "region": "Australasia",
+    "status": "tested",
+    "kind": "inline-html",
+    "checkedAt": "2026-11-10T11:09:08.553Z",
+    "count": 1,
+    "liveCount": 1,
+    "pages": 1,
+    "complete": true,
+    "url": "https://landcareaustralia.org.au/careers/",
+    "jobs": [
+      {
+        "title": "PR & Communications Manager",
+        "organisation": "Landcare Australia",
+        "location": "Location not stated",
+        "url": "https://landcareaustralia.org.au/careers/",
+        "closesAt": null
+      }
+    ]
+  },
+  {
+    "name": "Bush Heritage Australia",
+    "url": "https://bushheritageau-external.applynow.net.au/",
+    "region": "Australasia",
+    "status": "needs_attention",
+    "code": "incomplete",
+    "message": "Source HTTP 406",
+    "checkedAt": "2026-11-10T10:32:16.755Z"
+  },
+  {
+    "name": "Department of Conservation NZ",
+    "sourceUrl": "https://doc.wd105.myworkdayjobs.com/en-US/DOC",
+    "region": "Australasia",
+    "status": "tested",
+    "kind": "workday",
+    "checkedAt": "2026-11-10T11:09:41.982Z",
+    "count": 28,
+    "liveCount": 28,
+    "pages": 30,
+    "complete": true,
+    "url": "https://doc.wd105.myworkdayjobs.com/en-US/DOC",
+    "jobs": [
+      {
+        "title": "Ranger - Project Lead, Heritage and Visitors (Multiple Vacancies)",
+        "organisation": "Department of Conservation NZ",
+        "location": "Te Anau",
+        "url": "https://doc.wd105.myworkdayjobs.com/DOC/job/Te-Anau/Ranger---Project-Lead--Heritage-and-Visitors--Multiple-Vacancies-_JR103028-1",
+        "closesAt": "2026-11-26T23:59:59.999Z"
+      },
+      {
+        "title": "Supervisor Operations",
+        "organisation": "Department of Conservation NZ",
+        "location": "Te Anau",
+        "url": "https://doc.wd105.myworkdayjobs.com/DOC/job/Te-Anau/Supervisor-Operations_JR103030",
+        "closesAt": "2026-11-26T23:59:59.999Z"
+      },
+      {
+        "title": "Site Support Officer",
+        "organisation": "Department of Conservation NZ",
+        "location": "Hokitika",
+        "url": "https://doc.wd105.myworkdayjobs.com/DOC/job/Hokitika/Site-Support-Officer_JR103055",
+        "closesAt": "2026-11-19T23:59:59.999Z"
+      },
+      {
+        "title": "Site Support Officer (Fixed Term)",
+        "organisation": "Department of Conservation NZ",
+        "location": "Murihiku Invercargill",
+        "url": "https://doc.wd105.myworkdayjobs.com/DOC/job/Murihiku-Invercargill/Site-Support-Officer--Fixed-Term-_JR103038",
+        "closesAt": "2026-11-19T23:59:59.999Z"
+      },
+      {
+        "title": "Permissions Advisor | Kaitohu Whakaaetanga",
+        "organisation": "Department of Conservation NZ",
+        "location": "\u014ctautahi Christchurch \u00b7 Hokitika \u00b7 \u014ctepoti Dunedin",
+        "url": "https://doc.wd105.myworkdayjobs.com/DOC/job/tautahi-Christchurch/Permissions-Advisor---Kaitohu-Whakaaetanga_JR102882",
+        "closesAt": "2026-11-24T23:59:59.999Z"
+      },
+      {
+        "title": "Business Partner Occupational Health",
+        "organisation": "Department of Conservation NZ",
+        "location": "Flexible Location",
+        "url": "https://doc.wd105.myworkdayjobs.com/DOC/job/Flexible-Location/Business-Partner-Occupational-Health_JR103071",
+        "closesAt": "2026-11-16T23:59:59.999Z"
+      },
+      {
+        "title": "Ranger (Campground) (Fixed-Term)",
+        "organisation": "Department of Conservation NZ",
+        "location": "Whakaoriori Masterton",
+        "url": "https://doc.wd105.myworkdayjobs.com/DOC/job/Whakaoriori-Masterton/Ranger--Campground---Fixed-Term-_JR103027",
+        "closesAt": "2026-11-24T23:59:59.999Z"
+      },
+      {
+        "title": "Operations Lead Wild Animals (Tahr)",
+        "organisation": "Department of Conservation NZ",
+        "location": "Raukapuka Geraldine \u00b7 \u014ctautahi Christchurch",
+        "url": "https://doc.wd105.myworkdayjobs.com/DOC/job/Raukapuka-Geraldine/Operations-Lead-Wild-Animals--Tahr-_JR103046",
+        "closesAt": "2026-11-23T23:59:59.999Z"
+      },
+      {
+        "title": "Ranger",
+        "organisation": "Department of Conservation NZ",
+        "location": "Rakiura",
+        "url": "https://doc.wd105.myworkdayjobs.com/DOC/job/Rakiura/Ranger_JR103043",
+        "closesAt": "2026-11-23T23:59:59.999Z"
+      },
+      {
+        "title": "Senior Technical Advisor | Kaitohu M\u0101tanga Matua",
+        "organisation": "Department of Conservation NZ",
+        "location": "Wellington Conservation House \u00b7 Flexible Location",
+        "url": "https://doc.wd105.myworkdayjobs.com/DOC/job/Wellington-Conservation-House/Senior-Technical-Advisor---Kaitohu-Mtanga-Matua_JR102956-1",
+        "closesAt": "2026-11-21T23:59:59.999Z"
+      }
+    ]
+  },
+  {
+    "name": "WWF India",
+    "url": "https://www.wwfindia.org/engage_with_us/get_involved/jobs/",
+    "region": "South Asia",
+    "status": "needs_attention",
+    "code": "blocked",
+    "message": "Source HTTP 403",
+    "checkedAt": "2026-11-10T10:46:20.543Z"
+  },
+  {
+    "name": "WWF Pakistan",
+    "url": "https://www.wwfpak.org/jobs_/",
+    "region": "South Asia",
+    "status": "needs_attention",
+    "code": "blocked",
+    "message": "Source HTTP 403",
+    "checkedAt": "2026-11-09T14:49:00.154Z"
+  },
+  {
+    "name": "NTNC Nepal",
+    "url": "https://ntnc.org.np/notices/management",
+    "region": "South Asia",
+    "status": "needs_attention",
+    "code": "unsupported",
+    "message": "No complete vacancy list was found. Configure its vacancy section and links, save the recruitment-board URL, or add an individual advert manually.",
+    "checkedAt": "2026-11-09T14:49:09.519Z"
+  },
+  {
+    "name": "TNC India",
+    "url": "https://www.tncindia.in/careers/",
+    "region": "South Asia",
+    "status": "needs_attention",
+    "code": "incomplete",
+    "message": "Source HTTP 404",
+    "checkedAt": "2026-11-09T14:49:09.180Z"
+  },
+  {
+    "name": "Caribbean Biodiversity Fund",
+    "url": "https://caribbeanbiodiversityfund.org/join-our-team/",
+    "region": "Caribbean",
+    "status": "needs_attention",
+    "code": "unsupported",
+    "message": "A vacancy PDF has no verifiable closing date. Review it through the manual advert form to avoid importing an archived role.",
+    "checkedAt": "2026-11-09T14:49:10.024Z"
+  },
+  {
+    "name": "Bahamas National Trust",
+    "url": "https://bnt.bs/get-involved/join-the-team/",
+    "region": "Caribbean",
+    "status": "needs_attention",
+    "code": "unsupported",
+    "message": "No complete vacancy list was found. Configure its vacancy section and links, save the recruitment-board URL, or add an individual advert manually.",
+    "checkedAt": "2026-11-09T14:49:14.855Z"
+  },
+  {
+    "name": "National Trust for the Cayman Islands",
+    "url": "https://nationaltrust.org.ky/",
+    "region": "Caribbean",
+    "status": "needs_attention",
+    "code": "unsupported",
+    "message": "No complete vacancy list was found. Configure its vacancy section and links, save the recruitment-board URL, or add an individual advert manually.",
+    "checkedAt": "2026-11-09T14:49:12.695Z"
+  },
+  {
+    "name": "STENAPA",
+    "url": "https://statiapark.org/",
+    "region": "Caribbean",
+    "status": "needs_attention",
+    "code": "unsupported",
+    "message": "No complete vacancy list was found. Configure its vacancy section and links, save the recruitment-board URL, or add an individual advert manually.",
+    "checkedAt": "2026-11-09T14:49:16.163Z"
+  },
+  {
+    "name": "Sea Turtle Conservancy",
+    "url": "https://conserveturtles.org/careers/",
+    "region": "Caribbean",
+    "status": "needs_attention",
+    "code": "blocked",
+    "message": "The source returned a login or access challenge instead of vacancies.",
+    "checkedAt": "2026-11-09T14:49:15.704Z"
+  }
+]

@@ -5,7 +5,9 @@ import type { LookupFunction } from "node:net";
 import { gunzipSync, inflateSync, brotliDecompressSync } from "node:zlib";
 import { isPublicAddress, publicUrl } from "./directory-url";
 
-export type PublicSourceRequest = { method: "POST"; body: string };
+export type PublicSourceRequest =
+  | { method: "POST"; body: string }
+  | { method: "GET"; companyId: string; body?: never };
 
 async function fetchPublicResource(
   value: string,
@@ -15,6 +17,11 @@ async function fetchPublicResource(
   allow?: (url: URL) => boolean,
   sourceRequest?: PublicSourceRequest,
 ): Promise<{ body: Buffer; contentType: string; url: string }> {
+  if (
+    sourceRequest?.method === "GET" &&
+    !/^[a-f0-9]{8}-(?:[a-f0-9]{4}-){3}[a-f0-9]{12}$/i.test(sourceRequest.companyId)
+  )
+    throw new Error("A public recruitment employer identifier is required.");
   const url = publicUrl(value);
   if (allow && !allow(url)) throw new Error("Source URL is outside the permitted research scope.");
   const remaining = deadline - Date.now();
@@ -45,9 +52,10 @@ async function fetchPublicResource(
           headers: {
             "User-Agent": "WildJobs/1.0 (WildTeam job directory)",
             "Accept-Encoding": "identity",
+            ...(sourceRequest?.method === "GET" ? { "x-company-id": sourceRequest.companyId } : {}),
             Accept:
               "application/json, application/rss+xml, application/atom+xml, application/xml, text/xml, text/html;q=0.9",
-            ...(sourceRequest
+            ...(sourceRequest?.method === "POST"
               ? {
                   "Content-Type": "application/json",
                   "Content-Length": Buffer.byteLength(sourceRequest.body),
@@ -93,13 +101,13 @@ async function fetchPublicResource(
         },
       );
       req.on("error", reject);
-      req.end(sourceRequest?.body);
+      req.end(sourceRequest?.method === "POST" ? sourceRequest.body : undefined);
     },
   );
   if (result.location) {
     if (!redirects) throw new Error("Source redirected too many times.");
     if (sourceRequest)
-      throw new Error("The source API redirected a POST request. Check its current endpoint.");
+      throw new Error("The source API redirected a scoped request. Check its current endpoint.");
     return fetchPublicResource(
       publicUrl(result.location, url.toString()).toString(),
       timeout,

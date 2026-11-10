@@ -271,7 +271,7 @@ it("reads Workday's public search pages when subsequent totals use its zero sent
   const read: SourceTransport = async (url, timeout, allow, request) => {
     if (request) {
       expect(request.method).toBe("POST");
-      const offset = JSON.parse(request.body).offset;
+      const offset = JSON.parse(request.method === "POST" ? request.body : "{}").offset;
       return {
         url,
         contentType: "application/json",
