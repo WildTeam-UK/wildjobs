@@ -1,5 +1,7 @@
 # Job quality and browsing fixes — 10 November 2026
 
+Release update: these application fixes are live through PR 68, including employer names without underlines. Skills, benefits and automatic guide publication were subsequently released; see [the automation release report](AUTOMATION_RELEASE_2026-11-10.md) for current behaviour and production verification. The findings below record the initial quality batch.
+
 Source expansion is paused. Existing enabled imports continue, with missing branding kept separate from publication. This batch extends existing application code and employer records; it adds no schema, service, dependency, AI pass or approval queue.
 
 ## Findings and changes
