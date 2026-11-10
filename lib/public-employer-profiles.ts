@@ -3,6 +3,7 @@ import { cache } from "react";
 import { connection } from "next/server";
 import { createPublicClient } from "./supabase/public";
 import { employerProfileContent } from "./employer-profile-content";
+import { basicEmployerSlug } from "./employer-page-slug";
 
 type PublishedEmployer = { organisation_name: string; slug: string; researched_at: string };
 
@@ -24,6 +25,33 @@ export const getPublishedEmployerIndex = cache(async () => {
     if (result.error) throw new Error("Employer profiles could not be loaded.");
     profiles.push(...result.data);
     if (result.data.length < 1000) return profiles;
+  }
+});
+
+// The importer already creates directory_organisations. Those existing public
+// facts provide an immediate employer page while official-source research runs.
+export const getPublicEmployerPage = cache(async (slug: string) => {
+  const researched = await getPublishedEmployer(slug);
+  if (researched) return researched;
+  if (!/^organisation-[a-z0-9-]+-[a-f0-9]{12}$/.test(slug) || slug.length > 100) return null;
+  const db = createPublicClient();
+  for (let from = 0; ; from += 1000) {
+    const result = await db
+      .from("directory_organisations")
+      .select("name,logo_url,website_url")
+      .order("name")
+      .range(from, from + 999);
+    if (result.error) throw new Error("Employer details could not be loaded.");
+    const employer = result.data.find(
+      ({ name }) => name.toLowerCase() !== "organisation not stated" && basicEmployerSlug(name) === slug,
+    );
+    if (employer) {
+      const profiles = await getPublishedEmployerIndex();
+      const published = profiles.find((profile) => profile.organisation_name === employer.name);
+      if (published) return getPublishedEmployer(published.slug);
+      return { ...employer, slug, content: null, researchedAt: null };
+    }
+    if (result.data.length < 1000) return null;
   }
 });
 

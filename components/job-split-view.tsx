@@ -85,7 +85,10 @@ export function JobSplitView({
                     </p>
                   </div>
                   <p className="job-preview-card__posted">
-                    {postedAgoLabel(job.publishedAt ?? job.postedAt)}
+                    {postedAgoLabel(
+                      job.publishedAt ?? job.postedAt,
+                      job.observedAt ? new Date(job.observedAt) : undefined,
+                    )}
                   </p>
                   <div className="job-preview-card__save">
                     {job.sourceUrl ? (
@@ -139,7 +142,10 @@ export function JobSplitView({
               </a>
             ) : null}
             <p className="job-card__posted">
-              {postedAgoLabel(selectedJob.publishedAt ?? selectedJob.postedAt)}
+              {postedAgoLabel(
+                selectedJob.publishedAt ?? selectedJob.postedAt,
+                selectedJob.observedAt ? new Date(selectedJob.observedAt) : undefined,
+              )}
             </p>
           </div>
         </div>

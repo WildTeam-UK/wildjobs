@@ -2301,9 +2301,10 @@ a[role="button"],
 }
 .job-card__organisation a,
 .job-preview-card__organisation a {
+  color: var(--wt-color-brand-pink);
   position: relative;
   z-index: 2;
-  text-decoration: underline;
+  text-decoration: none;
   text-underline-offset: 3px;
 }
 .job-card--compact .job-card__logo,
@@ -2471,7 +2472,7 @@ a[role="button"],
   font-weight: var(--wt-font-weight-bold);
 }
 .job-card__organisation a:hover {
-  color: var(--wt-color-brand-pink);
+  color: var(--wt-color-brand-purple);
 }
 .job-card .job-card__title {
   margin: 0;

@@ -9,6 +9,7 @@ import { getPublishedEmployerIndex } from "./public-employer-profiles";
 import { createPublicClient } from "./supabase/public";
 import type { PublicEmployer } from "./public-employer-mapper";
 import type { Job } from "./jobs";
+import { employerPageSlugs } from "./employer-page-slug";
 
 async function getRecentListingsByEmployer() {
   const db = createPublicClient();
@@ -49,7 +50,7 @@ export const getPublicEmployerDirectory = cache(async () => {
   ]);
   if (branding.error) throw new Error("Employer logos could not be loaded.");
   const logos = new Map(branding.data.map(({ name, logo_url }) => [name, logo_url]));
-  const slugByName = new Map(profiles.map((profile) => [profile.organisation_name, profile.slug]));
+  const slugByName = employerPageSlugs(branding.data, profiles);
   const rolesByName = new Map<string, Job[]>();
   for (const job of jobs) {
     if (job.organisation.toLowerCase() === "organisation not stated") continue;
@@ -57,7 +58,9 @@ export const getPublicEmployerDirectory = cache(async () => {
     group.push(job);
     rolesByName.set(job.organisation, group);
   }
-  const employers = [...new Set([...rolesByName.keys(), ...slugByName.keys()])]
+  const employers = [
+    ...new Set([...rolesByName.keys(), ...profiles.map((profile) => profile.organisation_name)]),
+  ]
     .sort((a, b) => a.localeCompare(b, "en-GB"))
     .map((name): PublicEmployer => {
       const openRoles = rolesByName.get(name) ?? [];

@@ -6,6 +6,7 @@ import { FilterDropdown, JobSearchField } from "./job-search-controls";
 import { minimumGbpSalary } from "@/lib/job-salary";
 import { careerRoleLabels, isCareerRoleSlug } from "@/lib/career-role-catalog";
 import { directoryDeadline } from "@/lib/directory-lifecycle";
+import { compareRecommendedJobs } from "@/lib/job-ranking";
 import {
   Fragment,
   type ReactNode,
@@ -302,7 +303,7 @@ export function JobBrowser({
         new Date(directoryDeadline(right.postedAt, right.closesAt)).valueOf()
       );
     }
-    return 0;
+    return compareRecommendedJobs(left, right, query);
   });
   const filteredOrganisationCount = new Set(filteredJobs.map((job) => job.organisation)).size;
   const categories = jobCategories(jobs);
@@ -437,6 +438,13 @@ export function JobBrowser({
     setCurrentPage(page);
     if (addHistoryEntry) window.history.pushState(null, "", nextUrl);
     else window.history.replaceState(null, "", nextUrl);
+    if (!addHistoryEntry) {
+      // Run after React has committed the shorter result list. Preserve focus in
+      // the filter control and avoid movement when the visitor is already at top.
+      requestAnimationFrame(() => {
+        if (window.scrollY > 0) window.scrollTo({ top: 0, behavior: "instant" });
+      });
+    }
   }
 
   function changePage(page: number) {
@@ -545,7 +553,6 @@ export function JobBrowser({
                 <span aria-label="planet Earth" className="job-search-hero__emoji" role="img">
                   🌍
                 </span>
-                {"."}
               </p>
             </div>
           </div>

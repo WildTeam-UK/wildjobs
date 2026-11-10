@@ -8,6 +8,16 @@ import styles from "./course-experiment-header.module.css";
 
 const navigation = [
   {
+    label: "Training",
+    href: "https://training.wildteam.org.uk/",
+    links: [
+      ["Explore all courses", "https://training.wildteam.org.uk/courses", "book"],
+      ["Memberships", "https://training.wildteam.org.uk/memberships", "badge"],
+      ["Bursaries", "https://training.wildteam.org.uk/bursaries", "gift"],
+      ["Training for teams", "https://training.wildteam.org.uk/pricing-teams", "users"],
+    ],
+  },
+  {
     label: "Jobs",
     href: "https://jobs.wildteam.org.uk/",
     links: [
@@ -33,16 +43,6 @@ const navigation = [
       ["Latest conservation news", "https://news.wildteam.org.uk/", "news"],
       ["Good News", "https://news.wildteam.org.uk/good-news-in-conservation", "sparkles"],
       ["Daily and weekly digests", "https://news.wildteam.org.uk/digests", "mail"],
-    ],
-  },
-  {
-    label: "Training",
-    href: "https://training.wildteam.org.uk/",
-    links: [
-      ["Explore all courses", "https://training.wildteam.org.uk/courses", "book"],
-      ["Memberships", "https://training.wildteam.org.uk/memberships", "badge"],
-      ["Bursaries", "https://training.wildteam.org.uk/bursaries", "gift"],
-      ["Training for teams", "https://training.wildteam.org.uk/pricing-teams", "users"],
     ],
   },
   {
@@ -170,7 +170,19 @@ export function CourseExperimentHeader({
         {site === "training" ? "Skip to course" : "Skip to content"}
       </a>
       <div className={`shell ${styles.inner}`}>
-        <a href="https://www.wildteam.org.uk/" className={`brand ${styles.brand}`} aria-label="WildTeam home">
+        <a
+          href={
+            site === "jobs"
+              ? "/"
+              : site === "news"
+                ? "https://news.wildteam.org.uk/"
+                : "https://training.wildteam.org.uk/"
+          }
+          className={`brand ${styles.brand}`}
+          aria-label={
+            site === "jobs" ? "WildJobs home" : site === "news" ? "WildNews home" : "WildTraining home"
+          }
+        >
           <BrandLockup />
         </a>
         {site === "training" ? (

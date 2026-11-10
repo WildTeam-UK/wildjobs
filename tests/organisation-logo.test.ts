@@ -13,6 +13,15 @@ vi.mock("../lib/directory-http", () => ({
 }));
 beforeEach(() => vi.resetAllMocks());
 
+it("does not mistake a brand-assets photograph or partner logo for the employer logo", () => {
+  const candidates = organisationLogoCandidates(
+    '<title>Drax Group</title><img src="/Cruachan_brand_assets_2019.jpg" alt="Two Drax workers"><img src="/partner-logo.png" alt="Partner logo"><link rel="apple-touch-icon" href="/drax-icon.png">',
+    "https://www.drax.com/",
+    "Drax Group",
+  );
+  expect(candidates).toEqual(["https://www.drax.com/drax-icon.png"]);
+});
+
 it("collects employer websites and business email domains, excluding the board and personal email services", () => {
   expect(
     employerWebsiteCandidates(

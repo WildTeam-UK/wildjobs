@@ -12,6 +12,7 @@ import {
   groundEmployerClaims,
 } from "./employer-profile-content";
 import type { Json } from "./supabase/database.types";
+import { repairEmployerLogo } from "./employer-branding";
 
 export async function researchEmployer(pilotName?: string) {
   const db = createTrustedClient();
@@ -49,11 +50,15 @@ export async function researchEmployer(pilotName?: string) {
           p_output_tokens: outputTokens,
         });
         if (saved.error) throw new Error("Verified website could not be recorded.");
-        if (saved.data) return { status: "website_verified" };
+        if (saved.data) {
+          await repairEmployerLogo(db, task.name, found.website);
+          return { status: "website_verified" };
+        }
       }
       result = "insufficient";
     } else {
       const { identity, sources } = await collectEmployerSources(task.name, task.website);
+      if (identity === "verified") await repairEmployerLogo(db, task.name, task.website);
       if (identity === "mismatch") {
         result = "identity_mismatch";
       } else if (sources.length < 2) {

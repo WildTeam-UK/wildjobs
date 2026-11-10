@@ -171,7 +171,7 @@ export function TrainingBanner({
         </Heading>
         {compact ? (
           <p className="tpl-training-banner__description">
-            Find your direction and plan your next steps towards a career in conservation.
+            Find your direction and plan your next steps towards a career in conservation
           </p>
         ) : (
           <p>
@@ -180,7 +180,7 @@ export function TrainingBanner({
             ) : (
               <>
                 Find your direction, prepare your application and approach your next move with purpose. Start{" "}
-                <strong>Launching Your Career in Wildlife Conservation.</strong>
+                <strong>Launching Your Career in Wildlife Conservation</strong>
               </>
             )}
           </p>

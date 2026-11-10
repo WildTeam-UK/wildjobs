@@ -81,7 +81,11 @@ export function organisationLogoCandidates(html: string, pageUrl: string, organi
     /<img\b[^>]*>|<link\b[^>]*>|<script\b[^>]*type=["']application\/ld\+json["'][^>]*>[\s\S]*?<\/script>/gi,
   )) {
     const element = tag[0];
-    if (/^<img/i.test(element) && /logo|brand/i.test(element))
+    if (
+      /^<img/i.test(element) &&
+      /logo|brandmark|wordmark/i.test(element) &&
+      !/brand[_-]assets|partner[-_ ]?logo|sponsor[-_ ]?logo|accredit/i.test(element)
+    )
       images.push(attribute(element, "src") || attribute(element, "data-src"));
     if (
       /^<link/i.test(element) &&
