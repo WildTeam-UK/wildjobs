@@ -1,5 +1,7 @@
 # Conservation source import batches — 9 November 2026
 
+Production rollout followed on 10 November 2026. See [the release record](SOURCE_ROLLOUT_2026-11-10.md) for deployed commits, activated batches and sources held for access or reuse restrictions. The results below retain the original 9 November audit.
+
 Implementation and read-only audit of the 71 proposed sources. Source management remains administrator-only. No migration was applied to production, no sources were enabled there, and no AI requests were made by these audits.
 
 **22 sources read successfully:** 13 returned adverts and 9 returned a verified empty result. The readers observed 164 source listings, of which 145 meet the existing WildJobs expiry rules. These are observations before cross-source deduplication, not a public job count. **49 sources still need access, URL, configuration or connector work.**
@@ -103,7 +105,7 @@ The full catalogue was read in batches of three. Focused reruns verified configu
 - The actual admin page was server-rendered with synthetic checked, blocked and removed sources and its controls verified. Browser visual inspection was blocked because the browser tool disallows local `file:` URLs. A live authenticated mutation flow was not exercised against production.
 - Local Supabase CLI testing was unavailable because Docker/Podman is not installed. The PostgreSQL tests use PGlite instead; they are not a full Supabase stack test.
 
-Apply `supabase/migrations/20261109141022_career_page_sources.sql` and release the application together when deployment is requested. Existing feed rows retain their URLs and enabled state. The new catalogue is queued explicitly through admin and starts paused. Remaining connector work is listed above; the manual advert path provides a reviewed fallback, not automatic monitoring.
+The application and `supabase/migrations/20261110095239_career_page_sources.sql` were released on 10 November 2026. The filename matches the version recorded by the production migration service; it must not be applied there again. Existing feed rows retain their URLs and enabled state. The new catalogue is queued explicitly through admin and starts paused. Remaining connector work is listed above; the manual advert path provides a reviewed fallback, not automatic monitoring.
 
 ## Repeating the audit
 
