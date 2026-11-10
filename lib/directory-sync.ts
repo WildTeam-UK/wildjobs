@@ -236,7 +236,7 @@ export async function syncDirectory(force = false, sourceId?: number) {
           updated &&
           updated.id === job.id &&
           updated.feed_hash === job.feed_hash &&
-          updated.processed_hash !== updated.feed_hash
+          (updated.processed_hash !== updated.feed_hash || updated.attributes_version < jobAttributeVersion)
         )
           enrichedJobs.push({
             job: updated,
