@@ -1,5 +1,6 @@
 "use client";
 
+import { employerLogoPath } from "@/lib/employer-logo-path";
 import { useState } from "react";
 
 function initials(name: string) {
@@ -48,7 +49,7 @@ export function EmployerLogo({
             setRejectedLogoUrl(logoUrl);
           }
         }}
-        src={logoUrl}
+        src={employerLogoPath(name, logoUrl)}
       />
     </div>
   );

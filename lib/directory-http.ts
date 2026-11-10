@@ -1,3 +1,4 @@
+import { prepareLogoImage } from "./logo-image";
 import { lookup } from "node:dns/promises";
 import { request as httpsRequest } from "node:https";
 import { request as httpRequest } from "node:http";
@@ -138,10 +139,25 @@ export async function fetchPublicResearchPage(value: string, timeout: number, al
   const page = await fetchPublicResource(value, timeout, 4, undefined, allow);
   return { text: page.body.toString("utf8"), url: page.url, contentType: page.contentType };
 }
+export async function loadPublicLogo(value: string, timeout = 4500) {
+  let image: { body: Buffer; contentType: string; url: string };
+  if (value.startsWith("data:image/")) {
+    if (value.length > 500_000) return null;
+    const data = value.match(/^data:(image\/(?:svg\+xml|png|jpeg|webp|avif))(;base64)?,([\s\S]*)$/i);
+    if (!data) return null;
+    image = {
+      body: data[2] ? Buffer.from(data[3], "base64") : Buffer.from(decodeURIComponent(data[3])),
+      contentType: data[1],
+      url: value,
+    };
+  } else image = await fetchPublicResource(value, timeout);
+  if (!image.contentType.toLowerCase().startsWith("image/")) return null;
+  const png = await prepareLogoImage(image.body);
+  return png ? { png, url: image.url } : null;
+}
 export async function verifyPublicImage(value: string, timeout = 4500): Promise<string | null> {
   try {
-    const image = await fetchPublicResource(value, timeout);
-    return image.body.length > 0 && image.contentType.toLowerCase().startsWith("image/") ? image.url : null;
+    return (await loadPublicLogo(value, timeout))?.url ?? null;
   } catch {
     return null;
   }
@@ -149,12 +165,8 @@ export async function verifyPublicImage(value: string, timeout = 4500): Promise<
 
 export async function cachePublicIcon(url: string, timeout = 1500): Promise<string | null> {
   try {
-    const image = await fetchPublicResource(url, timeout);
-    const type = image.contentType.split(";")[0].toLowerCase();
-    if (!/^image\/(?:png|jpeg|webp|avif|x-icon|vnd.microsoft.icon)$/.test(type) || image.body.length > 100000)
-      return null;
-    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128"><image width="128" height="128" href="data:${type};base64,${image.body.toString("base64")}"/></svg>`;
-    return `data:image/svg+xml,${encodeURIComponent(svg)}`;
+    const image = await loadPublicLogo(url, timeout);
+    return image ? `data:image/png;base64,${image.png.toString("base64")}` : null;
   } catch {
     return null;
   }

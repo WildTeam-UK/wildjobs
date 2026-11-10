@@ -3,6 +3,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireStaff } from "@/lib/auth/staff";
 import { createTrustedClient } from "@/lib/supabase/trusted";
+import { verifyPublicImage } from "@/lib/directory-http";
 import { syncDirectory } from "@/lib/directory-sync";
 export async function setAutomation(form: FormData) {
   await requireStaff();
@@ -50,6 +51,10 @@ export async function updateLogo(form: FormData) {
     const url = new URL(value);
     if (url.protocol !== "https:" || url.username || url.password) throw new Error("Use an HTTPS image URL.");
   }
+  if (value && !(await verifyPublicImage(value)))
+    throw new Error(
+      "Choose a readable logo at least 64 pixels wide or high, with visible detail on white. Blank, transparent-only and all-white logos cannot be saved.",
+    );
   const { error } = await db
     .from("directory_organisations")
     .update({ logo_url: value || null })

@@ -1,6 +1,7 @@
 import { beforeEach, expect, it, vi } from "vitest";
-const mocks = vi.hoisted(() => ({ find: vi.fn() }));
+const mocks = vi.hoisted(() => ({ find: vi.fn(), load: vi.fn() }));
 vi.mock("../lib/organisation-logo", () => ({ findOrganisationLogo: mocks.find }));
+vi.mock("../lib/directory-http", () => ({ loadPublicLogo: mocks.load }));
 import { repairEmployerLogo } from "../lib/employer-branding";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "../lib/supabase/database.types";
@@ -23,6 +24,7 @@ it("repairs a missing employer logo without overwriting an administrator choice"
   expect(await repairEmployerLogo(db, "Nature Trust", "https://nature.example")).toBe(true);
   expect(q.update).toHaveBeenCalledWith({ logo_url: "https://nature.example/logo.svg" });
   expect(q.is).toHaveBeenCalledWith("logo_url", null);
+  mocks.load.mockResolvedValue({ png: Buffer.from("verified") });
   expect(
     await repairEmployerLogo(
       client("https://custom.example/logo.svg").db,
@@ -43,4 +45,19 @@ it("keeps branding failure separate and rejects a stale website", async () => {
     ),
   ).toBe(false);
   expect(mocks.find).toHaveBeenCalledTimes(1);
+});
+
+it("replaces a blank stored logo using a compare-and-set update", async () => {
+  const { db, q } = client("https://nature.example/white.svg");
+  mocks.load.mockResolvedValue(null);
+  mocks.find.mockResolvedValue("https://nature.example/green.png");
+  expect(await repairEmployerLogo(db, "Nature Trust", "https://nature.example")).toBe(true);
+  expect(q.eq).toHaveBeenCalledWith("logo_url", "https://nature.example/white.svg");
+  expect(q.update).toHaveBeenCalledWith({ logo_url: "https://nature.example/green.png" });
+});
+it("preserves the stored choice when validation fails because of a network error", async () => {
+  const { db, q } = client("https://nature.example/green.png");
+  mocks.load.mockRejectedValue(new Error("Timeout"));
+  expect(await repairEmployerLogo(db, "Nature Trust", "https://nature.example")).toBe(false);
+  expect(q.update).not.toHaveBeenCalled();
 });

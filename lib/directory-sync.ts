@@ -9,6 +9,7 @@ import { sourceConfigSchema, sourceError } from "./source-config";
 import { fetchAdvert } from "./directory-advert";
 import { directoryFacts } from "./directory-lifecycle";
 import { completeSalary, extractSalary, normaliseSalary, parseSalary } from "./job-salary";
+import { verifyPublicImage } from "./directory-http";
 import { findOrganisationLogo } from "./organisation-logo";
 import { plainText } from "./directory-text";
 import { findEmployerWebsite } from "./employer-websites";
@@ -68,6 +69,15 @@ export async function syncDirectory(force = false, sourceId?: number) {
       await db.from("directory_organisations").select("name,logo_url,website_url"),
     ).data;
     const logoCache = new Map(organisations.filter((o) => o.logo_url).map((o) => [o.name, o.logo_url!]));
+    const checkedLogos = new Map<string, Promise<string | null>>();
+    const checkedLogo = (url: string) => {
+      if (!checkedLogos.has(url)) {
+        // Logo discovery must not consume the feed worker's whole lease.
+        if (checkedLogos.size >= 20 || Date.now() - startedAt > 40000) return Promise.resolve(null);
+        checkedLogos.set(url, verifyPublicImage(url));
+      }
+      return checkedLogos.get(url)!;
+    };
     const websiteCache = new Set(organisations.filter((o) => o.website_url).map((o) => o.name));
     const feeds = await Promise.allSettled(
       sources.map(async (source) => {
@@ -87,6 +97,18 @@ export async function syncDirectory(force = false, sourceId?: number) {
         feed = feeds[i];
       try {
         if (feed.status === "rejected") throw feed.reason;
+        // Feed branding is optional; validate without changing the source hash or blocking jobs.
+        for (let offset = 0; offset < feed.value.items.length; offset += 4)
+          await Promise.all(
+            feed.value.items.slice(offset, offset + 4).map(async (item) => {
+              if (item.logo_url) {
+                const current = logoCache.get(item.organisation_name);
+                const logo = await checkedLogo(current ?? item.logo_url);
+                if (logo) item.logo_url = logo;
+                else delete item.logo_url;
+              }
+            }),
+          );
         const applied = check(
           await db.rpc("import_directory_source", {
             p_source_id: source.id,
@@ -199,7 +221,13 @@ export async function syncDirectory(force = false, sourceId?: number) {
                 salary_min: parseSalary(salary).minimum,
               }
             : {}),
-          ...(advert.logoUrl ? { logo_url: advert.logoUrl } : {}),
+          ...(advert.logoUrl
+            ? {
+                logo_url: await checkedLogo(
+                  logoCache.get(advert.organisationName ?? job.organisation_name) ?? advert.logoUrl,
+                ),
+              }
+            : {}),
           ...(advert.canonicalUrl ? { canonical_url: advert.canonicalUrl } : {}),
           ...directoryFacts(
             {
@@ -317,8 +345,9 @@ export async function syncDirectory(force = false, sourceId?: number) {
             const selected =
               item.logo_url && original.logos.some((l) => l.url === item.logo_url) ? item.logo_url : null;
             const known = logoCache.get(name) ?? selected;
-            if (known) {
-              resolvedLogos.set(item.id, known);
+            const validKnown = known ? await checkedLogo(known) : null;
+            if (validKnown) {
+              resolvedLogos.set(item.id, validKnown);
               return;
             }
             if (!logoLookups.has(name))
