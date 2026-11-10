@@ -66,6 +66,7 @@ export function JobCard({
   const jobType = [job.hoursType, job.contractType]
     .filter((value, index, values) => value && values.indexOf(value) === index)
     .join(" · ");
+  const observedAt = job.observedAt ? new Date(job.observedAt) : new Date();
   const employerSuffix = ` with ${job.organisation}`;
   const displayTitle =
     compact && job.title.toLocaleLowerCase("en-GB").endsWith(employerSuffix.toLocaleLowerCase("en-GB"))
@@ -82,13 +83,15 @@ export function JobCard({
     sample
       ? []
       : [
-          isNewJob(job.publishedAt ?? job.postedAt) ? { className: "new", label: "New job" } : null,
-          job.closesAt && isClosingSoon(job.closesAt)
+          isNewJob(job.publishedAt ?? job.postedAt, observedAt)
+            ? { className: "new", label: "New job" }
+            : null,
+          job.closesAt && isClosingSoon(job.closesAt, observedAt)
             ? { className: "closing", label: "Closing soon" }
             : null,
         ]
   ).filter((pill): pill is { className: string; label: string } => Boolean(pill));
-  const postedLabel = sample ? null : postedAgoLabel(job.publishedAt ?? job.postedAt);
+  const postedLabel = sample ? null : postedAgoLabel(job.publishedAt ?? job.postedAt, observedAt);
   const hasRelatedCourses = Boolean(job.relatedCourses?.length);
   const sourceLinkAttributes = job.sourceUrl ? { target: "_blank", rel: "noopener noreferrer" } : {};
   const title = (
@@ -235,7 +238,7 @@ export function JobCard({
           </div>
           <div>
             <dt>Closes</dt>
-            <dd>{job.closesAt ? formatDate(job.closesAt) : listingAgeLabel(job.postedAt)}</dd>
+            <dd>{job.closesAt ? formatDate(job.closesAt) : listingAgeLabel(job.postedAt, observedAt)}</dd>
           </div>
         </dl>
       )}

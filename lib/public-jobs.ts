@@ -9,6 +9,8 @@ import { getPublicCourses } from "./public-courses";
 import { getPublicCareerAreas } from "./public-career-areas";
 import { getPublicRoleAliases } from "./public-career-roles";
 import { matchCareerRole } from "./career-role-matching";
+import { cleanJobTitle } from "./job-title";
+import { employerPageSlugs } from "./employer-page-slug";
 import { getPublishedEmployerIndex } from "./public-employer-profiles";
 import {
   directoryDeadline,
@@ -28,7 +30,8 @@ export async function mapDirectoryJobs(records: readonly DirectoryJob[]): Promis
   ]);
   if (organisations.error) throw new Error("Organisation logos could not be loaded.");
   const employers = new Map(organisations.data.map((o) => [o.name, o]));
-  const employerSlugs = new Map(profiles.map((profile) => [profile.organisation_name, profile.slug]));
+  const employerSlugs = employerPageSlugs(organisations.data, profiles);
+  const observedAt = new Date().toISOString();
   return records.map((row) => {
     const terms = sectors.filter((s) => row.sector_slugs.includes(s.slug));
     const relatedCourses = courses.filter((c) => row.course_slugs.includes(c.slug));
@@ -40,9 +43,10 @@ export async function mapDirectoryJobs(records: readonly DirectoryJob[]): Promis
     const salary = parseSalary(row.salary_text);
     return {
       id: row.id,
+      observedAt,
       roleSlug: matchCareerRole(row.title, row.feed_text, roles.aliases).roleSlug ?? undefined,
       slug: row.slug,
-      title: row.title,
+      title: cleanJobTitle(row.title),
       organisation: row.organisation_name,
       employerProfileSlug: employerSlugs.get(row.organisation_name),
       employerLogoUrl: employers.get(row.organisation_name)?.logo_url ?? undefined,

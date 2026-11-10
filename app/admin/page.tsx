@@ -51,6 +51,9 @@ export default async function AdminPage() {
           <Link href="/admin/sources">Add and manage job feeds →</Link>
         </p>
         <p>
+          <Link href="/admin/quality">Job and employer quality checks →</Link>
+        </p>
+        <p>
           Automation is <strong>{settings.data.enabled ? "on" : "off"}</strong>. Enabled feeds refresh hourly;
           AI processes up to 20 jobs per minute while work remains.
         </p>

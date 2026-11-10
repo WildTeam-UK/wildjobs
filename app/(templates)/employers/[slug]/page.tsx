@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import { JobCard } from "@/components/job-card";
 import { RelatedGuides } from "@/components/guides/related-guides";
 import { EmployerProfileHero } from "@/components/templates/employer-profile-hero";
@@ -9,32 +9,36 @@ import { guidePhotography } from "@/lib/guide-photography";
 import { guideName } from "@/lib/guide-seo";
 import { getEmployerProfileMarket } from "@/lib/employer-profile-market";
 import { formatDate } from "@/lib/jobs";
-import { getPublishedEmployer } from "@/lib/public-employer-profiles";
+import { getPublicEmployerPage } from "@/lib/public-employer-profiles";
 import { getPublicJobs } from "@/lib/public-jobs";
 import { SITE_URL, siteIndexingEnabled } from "@/lib/site-indexing";
 
 type Props = { params: Promise<{ slug: string }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const profile = await getPublishedEmployer((await params).slug);
+  const profile = await getPublicEmployerPage((await params).slug);
   if (!profile) return { robots: { index: false, follow: false } };
   const index = siteIndexingEnabled();
   return {
     title: `${profile.name} employer profile`,
-    description: profile.content.claims.find((item) => item.kind === "overview")?.text,
+    description:
+      profile.content?.claims.find((item) => item.kind === "overview")?.text ??
+      `Explore current jobs at ${profile.name} on WildJobs`,
     alternates: { canonical: `${SITE_URL}/employers/${profile.slug}` },
-    robots: { index, follow: index },
+    robots: { index: index && Boolean(profile.content), follow: index },
   };
 }
 
 export default async function EmployerPage({ params }: Props) {
-  const profile = await getPublishedEmployer((await params).slug);
+  const requestedSlug = (await params).slug;
+  const profile = await getPublicEmployerPage(requestedSlug);
   if (!profile) notFound();
+  if (profile.slug !== requestedSlug) permanentRedirect(`/employers/${profile.slug}`);
   const jobs = await getPublicJobs(profile.name);
   const market = await getEmployerProfileMarket(profile.name, jobs);
   const photo = market.sectors[0] ? guidePhotography[market.sectors[0]] : undefined;
-  const overview = profile.content.claims.filter((claim) => claim.kind !== "careers");
-  const careers = profile.content.claims.filter((claim) => claim.kind === "careers");
+  const overview = profile.content?.claims.filter((claim) => claim.kind !== "careers") ?? [];
+  const careers = profile.content?.claims.filter((claim) => claim.kind === "careers") ?? [];
   const stats: { value: string; label: string; detail?: string }[] = [
     { value: String(jobs.length), label: "Current vacancies", detail: "Live on WildJobs" },
     {
@@ -93,16 +97,29 @@ export default async function EmployerPage({ params }: Props) {
           <p className="eyebrow">The organisation</p>
           <h2>About {profile.name}</h2>
           {showClaims(overview)}
+          {!profile.content ? (
+            <p>
+              Explore vacancies advertised by {profile.name}. Role details and application instructions are
+              linked from each job below.
+            </p>
+          ) : null}
         </div>
         <aside className="tpl-employer-facts">
           <h3>About this profile</h3>
-          <p>
-            WildJobs used AI to summarise the employer’s official sources. Source links accompany each claim.
-          </p>
-          <p>
-            Sources checked on <time dateTime={profile.researchedAt}>{formatDate(profile.researchedAt)}</time>
-            .
-          </p>
+          {profile.content ? (
+            <p>
+              WildJobs used AI to summarise the employer’s official sources. Source links accompany each
+              claim.
+            </p>
+          ) : (
+            <p>This page brings together this employer’s vacancies and hiring observations on WildJobs.</p>
+          )}
+          {profile.researchedAt ? (
+            <p>
+              Sources checked on{" "}
+              <time dateTime={profile.researchedAt}>{formatDate(profile.researchedAt)}</time>.
+            </p>
+          ) : null}
           <Link className="tpl-text-link" href="/employers">
             Browse employers
           </Link>
@@ -150,12 +167,7 @@ export default async function EmployerPage({ params }: Props) {
           {jobs.length ? (
             <div className="job-list">
               {jobs.map((job) => (
-                <JobCard
-                  compact
-                  headingLevel={3}
-                  job={{ ...job, employerProfileSlug: undefined }}
-                  key={job.slug}
-                />
+                <JobCard compact headingLevel={3} job={job} key={job.slug} />
               ))}
             </div>
           ) : (
