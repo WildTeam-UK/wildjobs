@@ -130,7 +130,7 @@
       {
         "title": "Director of Development, South Carolina",
         "organisation": "The Nature Conservancy",
-        "location": "North Charleston, South Carolina \u00b7 Greenville, South Carolina",
+        "location": "North Charleston, South Carolina · Greenville, South Carolina",
         "url": "https://nature.wd108.myworkdayjobs.com/ExternalCareers/job/North-Charleston-South-Carolina/Director-of-Development--South-Carolina_JR104337",
         "closesAt": null
       },
@@ -170,7 +170,7 @@
         "closesAt": null
       },
       {
-        "title": "Analista Conserva\u00e7\u00e3o III - Indigenous People and Local Communnities Analyst",
+        "title": "Analista Conservação III - Indigenous People and Local Communnities Analyst",
         "organisation": "The Nature Conservancy",
         "location": "Remote, Brazil",
         "url": "https://nature.wd108.myworkdayjobs.com/ExternalCareers/job/Remote-Brazil/Analista-Conservao-III---Indigenous-People-and-Local-Communnities-Analyst_JR104311",
@@ -367,28 +367,28 @@
         "closesAt": null
       },
       {
-        "title": "Latin America Communications Strategist/Estratega de Comunicaciones para Am\u00e9rica Latina",
+        "title": "Latin America Communications Strategist/Estratega de Comunicaciones para América Latina",
         "organisation": "Earthjustice",
         "location": "Mexico City, Mexico",
         "url": "https://jobs.jobvite.com/earthjustice/job/oxU4AfwP",
         "closesAt": null
       },
       {
-        "title": "Latin America Scientist/Cient\u00edfico para Am\u00e9rica Latina",
+        "title": "Latin America Scientist/Científico para América Latina",
         "organisation": "Earthjustice",
         "location": "Mexico City, Mexico",
         "url": "https://jobs.jobvite.com/earthjustice/job/oWT4Afwd",
         "closesAt": null
       },
       {
-        "title": "Mexico Attorney and International Program Liaison/Abogado/a y enlace del Programa Internacional para M\u00e9xico",
+        "title": "Mexico Attorney and International Program Liaison/Abogado/a y enlace del Programa Internacional para México",
         "organisation": "Earthjustice",
         "location": "Mexico City, Mexico",
         "url": "https://jobs.jobvite.com/earthjustice/job/o9r4AfwY",
         "closesAt": null
       },
       {
-        "title": "Mexico Clean Energy Attorney/Abogado(a) de Energ\u00eda Limpia \u2013 M\u00e9xico",
+        "title": "Mexico Clean Energy Attorney/Abogado(a) de Energía Limpia – México",
         "organisation": "Earthjustice",
         "location": "Mexico City, Mexico",
         "url": "https://jobs.jobvite.com/earthjustice/job/ov3PAfwH",
@@ -570,7 +570,51 @@
     "status": "needs_attention",
     "code": "unsupported",
     "message": "No complete vacancy list was found. Configure its vacancy section and links, save the recruitment-board URL, or add an individual advert manually.",
-    "checkedAt": "2026-11-09T14:48:39.459Z"
+    "checkedAt": "2026-11-09T14:48:39.459Z",
+    "scopedTest": {
+      "checkedAt": "2026-11-10T11:22:17.390Z",
+      "companyKey": "durrell",
+      "robotsStatus": 400,
+      "exceptionScope": "Temporary test only; production crawler unchanged",
+      "queryStatus": 200,
+      "count": 3,
+      "allHavePublicFields": true,
+      "jobs": [
+        {
+          "uuid": "7a14aad3-1fdc-47db-826f-8ae75fff13dd",
+          "title": "Experienced Mammal Keeper",
+          "publishedAt": "2026-11-05 15:26:57",
+          "companyName": "Durrell Wildlife Conservation Trust",
+          "location": {
+            "city": "La Profonde Rue",
+            "country": "Jersey"
+          },
+          "period": "Fulltime"
+        },
+        {
+          "uuid": "76fdf488-a1c4-411a-98cd-80e2d830d3a1",
+          "title": "Senior Maintenance Assistant",
+          "publishedAt": "2026-11-02 11:50:37",
+          "companyName": "Durrell Wildlife Conservation Trust",
+          "location": {
+            "city": "La Profonde Rue",
+            "country": "Jersey"
+          },
+          "period": "Fulltime"
+        },
+        {
+          "uuid": "ede3473e-4203-4950-9bc0-36612fa0f6b7",
+          "title": "Supporter Experience Officer",
+          "publishedAt": "2026-10-29 10:36:17",
+          "companyName": "Durrell Wildlife Conservation Trust",
+          "location": {
+            "city": "La Profonde Rue",
+            "country": "Jersey"
+          },
+          "period": "Fulltime"
+        }
+      ]
+    }
   },
   {
     "name": "Whale and Dolphin Conservation UK",
@@ -881,7 +925,7 @@
       {
         "title": "Permissions Advisor | Kaitohu Whakaaetanga",
         "organisation": "Department of Conservation NZ",
-        "location": "\u014ctautahi Christchurch \u00b7 Hokitika \u00b7 \u014ctepoti Dunedin",
+        "location": "Ōtautahi Christchurch · Hokitika · Ōtepoti Dunedin",
         "url": "https://doc.wd105.myworkdayjobs.com/DOC/job/tautahi-Christchurch/Permissions-Advisor---Kaitohu-Whakaaetanga_JR102882",
         "closesAt": "2026-11-24T23:59:59.999Z"
       },
@@ -902,7 +946,7 @@
       {
         "title": "Operations Lead Wild Animals (Tahr)",
         "organisation": "Department of Conservation NZ",
-        "location": "Raukapuka Geraldine \u00b7 \u014ctautahi Christchurch",
+        "location": "Raukapuka Geraldine · Ōtautahi Christchurch",
         "url": "https://doc.wd105.myworkdayjobs.com/DOC/job/Raukapuka-Geraldine/Operations-Lead-Wild-Animals--Tahr-_JR103046",
         "closesAt": "2026-11-23T23:59:59.999Z"
       },
@@ -914,9 +958,9 @@
         "closesAt": "2026-11-23T23:59:59.999Z"
       },
       {
-        "title": "Senior Technical Advisor | Kaitohu M\u0101tanga Matua",
+        "title": "Senior Technical Advisor | Kaitohu Mātanga Matua",
         "organisation": "Department of Conservation NZ",
-        "location": "Wellington Conservation House \u00b7 Flexible Location",
+        "location": "Wellington Conservation House · Flexible Location",
         "url": "https://doc.wd105.myworkdayjobs.com/DOC/job/Wellington-Conservation-House/Senior-Technical-Advisor---Kaitohu-Mtanga-Matua_JR102956-1",
         "closesAt": "2026-11-21T23:59:59.999Z"
       }
