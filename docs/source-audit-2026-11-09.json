@@ -1,0 +1,1352 @@
+[
+  {
+    "name": "IUCN",
+    "sourceUrl": "https://hrms.iucn.org/iresy/index.cfm?event=vac.showOpenList",
+    "region": "Global",
+    "status": "tested",
+    "kind": "html",
+    "checkedAt": "2026-11-09T14:47:19.756Z",
+    "count": 9,
+    "liveCount": 9,
+    "pages": 10,
+    "complete": true,
+    "url": "https://hrms.iucn.org/iresy/index.cfm?event=vac.showOpenList",
+    "jobs": [
+      {
+        "title": "Asistente Técnico(a) de Campo del programa “Financiamiento Sostenible para Nuevas Áreas Naturales Protegidas”",
+        "organisation": "IUCN",
+        "location": "Ciudad de México México La ubicación de la posición es en Tuxtepec, Oaxaca",
+        "url": "https://hrms.iucn.org/iresy/index.cfm?event=vac.show&vacId=11823&lang=sp",
+        "closesAt": "2026-11-18T23:59:59.999Z"
+      },
+      {
+        "title": "Asistente Especialista en Gestión Ambiental y Social (Salvaguardas)",
+        "organisation": "IUCN",
+        "location": "Oficina Regional para México, América Central y el Caribe San José Costa Rica",
+        "url": "https://hrms.iucn.org/iresy/index.cfm?event=vac.show&vacId=11821&lang=sp",
+        "closesAt": "2026-11-16T23:59:59.999Z"
+      },
+      {
+        "title": "Communications and Stakeholder Engagement Intern, LPA",
+        "organisation": "IUCN",
+        "location": "Asia Regional Office Bangkok Thailand",
+        "url": "https://hrms.iucn.org/iresy/index.cfm?event=vac.show&vacId=11820&lang=en",
+        "closesAt": "2026-11-15T23:59:59.999Z"
+      },
+      {
+        "title": "Technical Officer, Blended Finance",
+        "organisation": "IUCN",
+        "location": "Asia Regional Office Bangkok Thailand",
+        "url": "https://hrms.iucn.org/iresy/index.cfm?event=vac.show&vacId=11819&lang=en",
+        "closesAt": "2026-11-22T23:59:59.999Z"
+      },
+      {
+        "title": "Responsable du service technique – Unité des Services généraux",
+        "organisation": "IUCN",
+        "location": "Siège Gland Suisse La/le titulaire du poste devra être en mesure de se rendre au bureau de l’UICN à Gland dans les plus brefs délais en cas d’urgence.",
+        "url": "https://hrms.iucn.org/iresy/index.cfm?event=vac.show&vacId=11815&lang=fr",
+        "closesAt": "2026-11-18T23:59:59.999Z"
+      },
+      {
+        "title": "Senior Programme Officer",
+        "organisation": "IUCN",
+        "location": "North America Regional Office Washington D.C. United States of America Bonn, Germany, also considered as an alternative duty station.",
+        "url": "https://hrms.iucn.org/iresy/index.cfm?event=vac.show&vacId=11813&lang=en",
+        "closesAt": "2026-11-09T23:59:59.999Z"
+      },
+      {
+        "title": "Portfolio Assistant, ESARO (GEF and GCF), Nairobi",
+        "organisation": "IUCN",
+        "location": "Eastern and Southern Africa Regional Office Nairobi Kenya",
+        "url": "https://hrms.iucn.org/iresy/index.cfm?event=vac.show&vacId=11810&lang=en",
+        "closesAt": "2026-11-20T23:59:59.999Z"
+      },
+      {
+        "title": "Portfolio Officer, ESARO, (GEF and GCF)- Nairobi",
+        "organisation": "IUCN",
+        "location": "Eastern and Southern Africa Regional Office Nairobi Kenya",
+        "url": "https://hrms.iucn.org/iresy/index.cfm?event=vac.show&vacId=11809&lang=en",
+        "closesAt": "2026-11-20T23:59:59.999Z"
+      },
+      {
+        "title": "Monitoring, Evaluation, Accountability and Learning (MEAL) Officer",
+        "organisation": "IUCN",
+        "location": "Cambridge Office Cambridge United Kingdom of Great Britain and Northern Ireland",
+        "url": "https://hrms.iucn.org/iresy/index.cfm?event=vac.show&vacId=11808&lang=en",
+        "closesAt": "2026-11-22T23:59:59.999Z"
+      }
+    ]
+  },
+  {
+    "name": "National Trust",
+    "url": "https://careers.smartrecruiters.com/NationalTrust",
+    "region": "Europe",
+    "status": "needs_attention",
+    "code": "blocked",
+    "message": "This source's robots.txt excludes the requested vacancy page.",
+    "checkedAt": "2026-11-09T14:47:18.608Z"
+  },
+  {
+    "name": "National Trust for Scotland",
+    "url": "https://www.nts.org.uk/volunteering-jobs/job-search",
+    "region": "Europe",
+    "status": "needs_attention",
+    "code": "unsupported",
+    "message": "No complete vacancy list was found. Configure its vacancy section and links, save the recruitment-board URL, or add an individual advert manually.",
+    "checkedAt": "2026-11-09T14:47:18.894Z"
+  },
+  {
+    "name": "The Nature Conservancy",
+    "url": "https://careers.tnc.org/us/en/search-results",
+    "region": "Global",
+    "status": "needs_attention",
+    "code": "incomplete",
+    "message": "The careers portal did not expose every results page.",
+    "checkedAt": "2026-11-09T14:47:29.180Z"
+  },
+  {
+    "name": "WWF US",
+    "sourceUrl": "https://careers-wwfus.icims.com/jobs/search",
+    "region": "North America",
+    "status": "tested",
+    "kind": "icims",
+    "checkedAt": "2026-11-09T14:47:21.607Z",
+    "count": 0,
+    "liveCount": 0,
+    "pages": 1,
+    "complete": true,
+    "url": "https://careers-wwfus.icims.com/jobs/search?ss=1&in_iframe=1",
+    "jobs": []
+  },
+  {
+    "name": "WWF UK",
+    "url": "https://www.wwf.org.uk/jobs",
+    "region": "Europe",
+    "status": "needs_attention",
+    "code": "unsupported",
+    "message": "No complete vacancy list was found. Configure its vacancy section and links, save the recruitment-board URL, or add an individual advert manually.",
+    "checkedAt": "2026-11-09T14:47:20.963Z"
+  },
+  {
+    "name": "ZSL",
+    "url": "https://careers.zsl.org/",
+    "region": "Europe",
+    "status": "needs_attention",
+    "code": "incomplete",
+    "message": "Source HTTP 406",
+    "checkedAt": "2026-11-09T14:47:29.424Z"
+  },
+  {
+    "name": "Wildlife Conservation Society",
+    "url": "https://www.wcs.org/about-us/careers",
+    "region": "Global",
+    "status": "needs_attention",
+    "code": "unsupported",
+    "message": "No complete vacancy list was found. Configure its vacancy section and links, save the recruitment-board URL, or add an individual advert manually.",
+    "checkedAt": "2026-11-09T14:47:34.406Z"
+  },
+  {
+    "name": "Fauna & Flora",
+    "sourceUrl": "https://www.fauna-flora.org/career/",
+    "region": "Global",
+    "status": "tested",
+    "kind": "html",
+    "checkedAt": "2026-11-09T14:47:29.924Z",
+    "count": 4,
+    "liveCount": 4,
+    "pages": 5,
+    "complete": true,
+    "url": "https://www.fauna-flora.org/career/",
+    "jobs": [
+      {
+        "title": "Grant Manager, Marine Protected Areas, Cabo Verde",
+        "organisation": "Fauna & Flora",
+        "location": "Location not stated",
+        "url": "https://www.fauna-flora.org/about/career/grant-manager-marine-protected-areas_cabo-verde/",
+        "closesAt": null
+      },
+      {
+        "title": "Research & Insight Manager",
+        "organisation": "Fauna & Flora",
+        "location": "Location not stated",
+        "url": "https://www.fauna-flora.org/about/career/research-and-insight-manager/",
+        "closesAt": null
+      },
+      {
+        "title": "Management Accountant",
+        "organisation": "Fauna & Flora",
+        "location": "Location not stated",
+        "url": "https://www.fauna-flora.org/about/career/management-accountant/",
+        "closesAt": null
+      },
+      {
+        "title": "Senior Programme Development Manager, Institutional Funding & Partnerships",
+        "organisation": "Fauna & Flora",
+        "location": "Location not stated",
+        "url": "https://www.fauna-flora.org/about/career/senior-programme-development-manager-institutional-funding/",
+        "closesAt": null
+      }
+    ]
+  },
+  {
+    "name": "RSPB",
+    "url": "https://www.rspb.org.uk/careers/vacancies-listing",
+    "region": "Europe",
+    "status": "needs_attention",
+    "code": "blocked",
+    "message": "Source HTTP 403",
+    "checkedAt": "2026-11-09T14:47:34.780Z"
+  },
+  {
+    "name": "The Wildlife Trusts",
+    "url": "https://www.wildlifetrusts.org/jobs",
+    "region": "Europe",
+    "status": "needs_attention",
+    "code": "blocked",
+    "message": "Source HTTP 403",
+    "checkedAt": "2026-11-09T14:47:34.629Z"
+  },
+  {
+    "name": "BirdLife International",
+    "sourceUrl": "https://birdlifeinternational.teamtailor.com/jobs.rss",
+    "region": "Global",
+    "status": "tested",
+    "kind": "rss",
+    "checkedAt": "2026-11-09T14:47:34.713Z",
+    "count": 4,
+    "liveCount": 2,
+    "pages": 1,
+    "complete": true,
+    "url": "https://birdlifeinternational.teamtailor.com/jobs.rss",
+    "jobs": [
+      {
+        "title": "Individual Giving Officer (Retention & Mid-Value)",
+        "organisation": "BirdLife International",
+        "location": "Cambridge, United Kingdom",
+        "url": "https://birdlifeinternational.teamtailor.com/jobs/8626457-individual-giving-officer-retention-mid-value",
+        "closesAt": "2026-11-23T23:59:59.999Z"
+      },
+      {
+        "title": "Head of Major Gifts",
+        "organisation": "BirdLife International",
+        "location": "Cambridge, United Kingdom",
+        "url": "https://birdlifeinternational.teamtailor.com/jobs/8354812-head-of-major-gifts",
+        "closesAt": null
+      },
+      {
+        "title": "ERP System Administrator",
+        "organisation": "BirdLife International",
+        "location": "Cambridge, United Kingdom",
+        "url": "https://birdlifeinternational.teamtailor.com/jobs/8589347-erp-system-administrator",
+        "closesAt": null
+      },
+      {
+        "title": "Head of Business and Nature",
+        "organisation": "BirdLife International",
+        "location": "Cambridge, United Kingdom",
+        "url": "https://birdlifeinternational.teamtailor.com/jobs/8102354-head-of-business-and-nature",
+        "closesAt": null
+      }
+    ]
+  },
+  {
+    "name": "Re:wild",
+    "url": "https://jobs.dover.com/rewild",
+    "region": "Global",
+    "status": "needs_attention",
+    "code": "unsupported",
+    "message": "No complete vacancy list was found. Configure its vacancy section and links, save the recruitment-board URL, or add an individual advert manually.",
+    "checkedAt": "2026-11-09T14:47:35.390Z"
+  },
+  {
+    "name": "African Parks",
+    "sourceUrl": "https://africanparks.simplify.hr/",
+    "region": "Africa",
+    "status": "tested",
+    "kind": "simplify",
+    "checkedAt": "2026-11-09T14:47:43.732Z",
+    "count": 23,
+    "liveCount": 9,
+    "pages": 25,
+    "complete": true,
+    "url": "https://africanparks.simplify.hr/vacancy/vacancies?query=&displayOrder=4",
+    "jobs": [
+      {
+        "title": "Conservation and Research Manager",
+        "organisation": "African Parks Network",
+        "location": "Rwanda",
+        "url": "https://africanparks.simplify.hr/Vacancy/210169",
+        "closesAt": "2026-11-15T23:59:59.999Z"
+      },
+      {
+        "title": "Chief Pilot",
+        "organisation": "African Parks Network",
+        "location": "South Sudan",
+        "url": "https://africanparks.simplify.hr/Vacancy/201013",
+        "closesAt": null
+      },
+      {
+        "title": "Human Resource Officer",
+        "organisation": "African Parks Network",
+        "location": "Zambia",
+        "url": "https://africanparks.simplify.hr/Vacancy/179896",
+        "closesAt": null
+      },
+      {
+        "title": "Conservation Manager",
+        "organisation": "African Parks Network",
+        "location": "Zambia",
+        "url": "https://africanparks.simplify.hr/Vacancy/179948",
+        "closesAt": null
+      },
+      {
+        "title": "Shoebill Camp Manager",
+        "organisation": "African Parks Network",
+        "location": "Zambia",
+        "url": "https://africanparks.simplify.hr/Vacancy/194374",
+        "closesAt": null
+      },
+      {
+        "title": "ASSISTANT (E) ICT",
+        "organisation": "African Parks Network",
+        "location": "Central African Republic",
+        "url": "https://africanparks.simplify.hr/Vacancy/198513",
+        "closesAt": null
+      },
+      {
+        "title": "Mechanical Technician",
+        "organisation": "African Parks Network",
+        "location": "Zambia",
+        "url": "https://africanparks.simplify.hr/Vacancy/179398",
+        "closesAt": null
+      },
+      {
+        "title": "Assistant Park Instructor",
+        "organisation": "African Parks Network",
+        "location": "Zambia",
+        "url": "https://africanparks.simplify.hr/Vacancy/179270",
+        "closesAt": null
+      },
+      {
+        "title": "Assistant Accountant",
+        "organisation": "African Parks Network",
+        "location": "Zambia",
+        "url": "https://africanparks.simplify.hr/Vacancy/191301",
+        "closesAt": null
+      },
+      {
+        "title": "Community Development Officer",
+        "organisation": "African Parks Network",
+        "location": "Zambia",
+        "url": "https://africanparks.simplify.hr/Vacancy/208091",
+        "closesAt": "2026-11-20T23:59:59.999Z"
+      }
+    ]
+  },
+  {
+    "name": "Marine Conservation Society",
+    "url": "https://www.mcsuk.org/work-for-us/",
+    "region": "Europe",
+    "status": "needs_attention",
+    "code": "unsupported",
+    "message": "No complete vacancy list was found. Configure its vacancy section and links, save the recruitment-board URL, or add an individual advert manually.",
+    "checkedAt": "2026-11-09T14:47:35.522Z"
+  },
+  {
+    "name": "Blue Marine Foundation",
+    "sourceUrl": "https://www.bluemarinefoundation.com/careers/",
+    "region": "Europe",
+    "status": "tested",
+    "kind": "html",
+    "checkedAt": "2026-11-09T14:47:44.706Z",
+    "count": 0,
+    "liveCount": 0,
+    "pages": 1,
+    "complete": true,
+    "url": "https://www.bluemarinefoundation.com/careers/",
+    "jobs": []
+  },
+  {
+    "name": "Born Free",
+    "url": "https://www.bornfree.org.uk/careers/",
+    "region": "Europe",
+    "status": "needs_attention",
+    "code": "unsupported",
+    "message": "A vacancy PDF has no verifiable closing date. Review it through the manual advert form to avoid importing an archived role.",
+    "checkedAt": "2026-11-09T14:47:44.222Z"
+  },
+  {
+    "name": "Sierra Club",
+    "sourceUrl": "https://jobs.lever.co/sierraclub",
+    "region": "North America",
+    "status": "tested",
+    "kind": "lever",
+    "checkedAt": "2026-11-09T14:47:45.358Z",
+    "count": 5,
+    "liveCount": 2,
+    "pages": 1,
+    "complete": true,
+    "url": "https://api.lever.co/v0/postings/sierraclub?mode=json&limit=100&skip=0",
+    "jobs": [
+      {
+        "title": "Advancement Director, West",
+        "organisation": "Sierra Club",
+        "location": "Seattle, WA",
+        "url": "https://jobs.lever.co/sierraclub/b44f33ce-54c0-4f95-95b6-706b4415afd1",
+        "closesAt": null
+      },
+      {
+        "title": "Legal Intern",
+        "organisation": "Sierra Club",
+        "location": "Oakland, CA",
+        "url": "https://jobs.lever.co/sierraclub/1d928d1f-09d1-4a8e-85d3-7fe711636186",
+        "closesAt": null
+      },
+      {
+        "title": "Legislative Director",
+        "organisation": "Sierra Club",
+        "location": "Atlanta, GA",
+        "url": "https://jobs.lever.co/sierraclub/a250559e-52c3-40f1-b87f-443f2561f140",
+        "closesAt": null
+      },
+      {
+        "title": "Outdoors for All Intern",
+        "organisation": "Sierra Club",
+        "location": "Washington, DC",
+        "url": "https://jobs.lever.co/sierraclub/1fd2221a-06f2-4a6f-b236-de25925522ff",
+        "closesAt": null
+      },
+      {
+        "title": "Senior Attorney, General Administration",
+        "organisation": "Sierra Club",
+        "location": "Remote",
+        "url": "https://jobs.lever.co/sierraclub/0fc3fb5f-ccc3-4482-9628-c6f372ca7aa2",
+        "closesAt": null
+      }
+    ]
+  },
+  {
+    "name": "Ocean Conservancy",
+    "url": "https://oceanconservancy.org/our-people/people-culture",
+    "region": "North America",
+    "status": "needs_attention",
+    "code": "unsupported",
+    "message": "No complete vacancy list was found. Configure its vacancy section and links, save the recruitment-board URL, or add an individual advert manually.",
+    "checkedAt": "2026-11-09T14:47:45.736Z"
+  },
+  {
+    "name": "National Wildlife Federation",
+    "url": "https://www.nwf.org/About-Us/Careers",
+    "region": "North America",
+    "status": "needs_attention",
+    "code": "unsupported",
+    "message": "Vacancies are hosted at https://recruiting.ultipro.com. Save that recruitment URL or explicitly allow it in source settings.",
+    "checkedAt": "2026-11-09T14:47:46.318Z"
+  },
+  {
+    "name": "Rainforest Alliance",
+    "url": "https://www.rainforest-alliance.org/careers/",
+    "region": "Global",
+    "status": "needs_attention",
+    "code": "unsupported",
+    "message": "Vacancies are hosted at https://recruiting.ultipro.com. Save that recruitment URL or explicitly allow it in source settings.",
+    "checkedAt": "2026-11-09T14:47:45.725Z"
+  },
+  {
+    "name": "NRDC",
+    "sourceUrl": "https://careers-nrdc.icims.com/jobs/search",
+    "region": "North America",
+    "status": "tested",
+    "kind": "icims",
+    "checkedAt": "2026-11-09T14:48:15.158Z",
+    "count": 30,
+    "liveCount": 30,
+    "pages": 32,
+    "complete": true,
+    "url": "https://careers-nrdc.icims.com/jobs/search?ss=1&in_iframe=1",
+    "jobs": [
+      {
+        "title": "Summer 2027 Principal Gifts Intern",
+        "organisation": "Natural Resources Defense Council, Inc.",
+        "location": "New York, NY, US",
+        "url": "https://careers-nrdc.icims.com/jobs/6076/summer-2027-principal-gifts-intern/job",
+        "closesAt": "2027-11-05T04:00:00.000Z"
+      },
+      {
+        "title": "Attorney",
+        "organisation": "Natural Resources Defense Council, Inc.",
+        "location": "New York, NY, US",
+        "url": "https://careers-nrdc.icims.com/jobs/6075/attorney/job",
+        "closesAt": "2027-10-22T04:00:00.000Z"
+      },
+      {
+        "title": "Spring 2027 Nature Innovation Hub Graduate Intern",
+        "organisation": "Natural Resources Defense Council, Inc.",
+        "location": "Washington, DC, US",
+        "url": "https://careers-nrdc.icims.com/jobs/6074/spring-2027-nature-innovation-hub-graduate-intern/job",
+        "closesAt": "2027-11-05T04:00:00.000Z"
+      },
+      {
+        "title": "Summer 2027 Freshwater Ecosystems Intern",
+        "organisation": "Natural Resources Defense Council, Inc.",
+        "location": "Washington, DC, US",
+        "url": "https://careers-nrdc.icims.com/jobs/6071/summer-2027-freshwater-ecosystems-intern/job",
+        "closesAt": "2027-11-05T04:00:00.000Z"
+      },
+      {
+        "title": "Summer 2027 Green Finance Advocacy Intern",
+        "organisation": "Natural Resources Defense Council, Inc.",
+        "location": "Washington, DC, US",
+        "url": "https://careers-nrdc.icims.com/jobs/6069/summer-2027-green-finance-advocacy-intern/job",
+        "closesAt": "2027-11-05T04:00:00.000Z"
+      },
+      {
+        "title": "Summer 2027 Economics Research Intern",
+        "organisation": "Natural Resources Defense Council, Inc.",
+        "location": "Washington, DC, US",
+        "url": "https://careers-nrdc.icims.com/jobs/6068/summer-2027-economics-research-intern/job",
+        "closesAt": "2027-11-05T04:00:00.000Z"
+      },
+      {
+        "title": "Summer 2027 Knowledge Management Intern",
+        "organisation": "Natural Resources Defense Council, Inc.",
+        "location": "Washington, DC, US",
+        "url": "https://careers-nrdc.icims.com/jobs/6066/summer-2027-knowledge-management-intern/job",
+        "closesAt": "2027-11-05T04:00:00.000Z"
+      },
+      {
+        "title": "Summer 2027 Foundation Relations Intern",
+        "organisation": "Natural Resources Defense Council, Inc.",
+        "location": "Chicago, IL, US",
+        "url": "https://careers-nrdc.icims.com/jobs/6065/summer-2027-foundation-relations-intern/job",
+        "closesAt": "2027-11-05T04:00:00.000Z"
+      },
+      {
+        "title": "Summer 2027 Climate Mobility Intern",
+        "organisation": "Natural Resources Defense Council, Inc.",
+        "location": "Washington, DC, US",
+        "url": "https://careers-nrdc.icims.com/jobs/6063/summer-2027-climate-mobility-intern/job",
+        "closesAt": "2027-11-05T04:00:00.000Z"
+      },
+      {
+        "title": "Policy Advocate, Colorado",
+        "organisation": "Natural Resources Defense Council, Inc.",
+        "location": "Any City, UNAVAILABLE, US",
+        "url": "https://careers-nrdc.icims.com/jobs/6062/policy-advocate%2c-colorado/job",
+        "closesAt": "2027-11-03T04:00:00.000Z"
+      }
+    ]
+  },
+  {
+    "name": "Trust for Public Land",
+    "sourceUrl": "https://tpl.catsone.com/careers/13305-General",
+    "region": "North America",
+    "status": "tested",
+    "kind": "html",
+    "checkedAt": "2026-11-09T14:47:48.330Z",
+    "count": 7,
+    "liveCount": 7,
+    "pages": 8,
+    "complete": true,
+    "url": "https://tpl.catsone.com/careers/13305-General",
+    "jobs": [
+      {
+        "title": "Manager - Federal Relations/ ORLP Technical Assistance Program (Temporary)",
+        "organisation": "Trust for Public Land",
+        "location": "Location not stated",
+        "url": "https://tpl.catsone.com/careers/13305/jobs/16870475-Manager-Federal-Relations-ORLP-Technical-Assistance-Program-Temporary",
+        "closesAt": null
+      },
+      {
+        "title": "Director - NY State Trails",
+        "organisation": "Trust for Public Land",
+        "location": "Location not stated",
+        "url": "https://tpl.catsone.com/careers/13305/jobs/16870471-Director-NY-State-Trails",
+        "closesAt": null
+      },
+      {
+        "title": "Finance Operations Specialist",
+        "organisation": "Trust for Public Land",
+        "location": "Location not stated",
+        "url": "https://tpl.catsone.com/careers/13305/jobs/16868198-Finance-Operations-Specialist",
+        "closesAt": null
+      },
+      {
+        "title": "Associate Director - Philanthropy Operations",
+        "organisation": "Trust for Public Land",
+        "location": "Location not stated",
+        "url": "https://tpl.catsone.com/careers/13305/jobs/16860227-Associate-Director-Philanthropy-Operations",
+        "closesAt": null
+      },
+      {
+        "title": "Director of Philanthropy - Minnesota Northwoods",
+        "organisation": "Trust for Public Land",
+        "location": "Location not stated",
+        "url": "https://tpl.catsone.com/careers/13305/jobs/16858353-Director-of-Philanthropy-Minnesota-Northwoods",
+        "closesAt": null
+      },
+      {
+        "title": "Institutional Giving Director - New York",
+        "organisation": "Trust for Public Land",
+        "location": "Location not stated",
+        "url": "https://tpl.catsone.com/careers/13305/jobs/16848774-Institutional-Giving-Director-New-York",
+        "closesAt": null
+      },
+      {
+        "title": "Legal Counsel",
+        "organisation": "Trust for Public Land",
+        "location": "Location not stated",
+        "url": "https://tpl.catsone.com/careers/13305/jobs/16838609-Legal-Counsel",
+        "closesAt": null
+      }
+    ]
+  },
+  {
+    "name": "The Wilderness Society",
+    "url": "https://www.wilderness.org/careers-internships",
+    "region": "North America",
+    "status": "needs_attention",
+    "code": "unsupported",
+    "message": "No complete vacancy list was found. Configure its vacancy section and links, save the recruitment-board URL, or add an individual advert manually.",
+    "checkedAt": "2026-11-09T14:47:46.850Z"
+  },
+  {
+    "name": "Earthjustice",
+    "url": "https://earthjustice.org/about/jobs",
+    "region": "North America",
+    "status": "needs_attention",
+    "code": "incomplete",
+    "message": "A linked vacancy could not be parsed. The source's previous jobs have been preserved.",
+    "checkedAt": "2026-11-09T14:48:15.389Z"
+  },
+  {
+    "name": "American Bird Conservancy",
+    "url": "https://abcbirds.org/careers/",
+    "region": "North America",
+    "status": "needs_attention",
+    "code": "unsupported",
+    "message": "No complete vacancy list was found. Configure its vacancy section and links, save the recruitment-board URL, or add an individual advert manually.",
+    "checkedAt": "2026-11-09T14:48:16.668Z"
+  },
+  {
+    "name": "The Conservation Fund",
+    "url": "https://www.conservationfund.org/about-us/careers/",
+    "region": "North America",
+    "status": "needs_attention",
+    "code": "blocked",
+    "message": "This source's robots.txt excludes the requested vacancy page.",
+    "checkedAt": "2026-11-09T14:48:16.813Z"
+  },
+  {
+    "name": "World Resources Institute",
+    "sourceUrl": "https://www.wri.org/careers/jobs",
+    "region": "Global",
+    "status": "tested",
+    "kind": "html",
+    "checkedAt": "2026-11-09T14:49:36.988Z",
+    "count": 20,
+    "liveCount": 20,
+    "pages": 21,
+    "complete": true,
+    "url": "https://www.wri.org/careers/jobs",
+    "jobs": [
+      {
+        "title": "Senior Manager - Salesforce SME",
+        "organisation": "World Resources Institute",
+        "location": "Location not stated",
+        "url": "https://www.wri.org/careers/jobs/senior-manager-salesforce-sme-2026-jr100556",
+        "closesAt": null
+      },
+      {
+        "title": "Strategic Coordinator, European Executive Office, Executive Office",
+        "organisation": "World Resources Institute",
+        "location": "Location not stated",
+        "url": "https://www.wri.org/careers/jobs/strategic-coordinator-european-executive-office-executive-office-2026-jr100531",
+        "closesAt": null
+      },
+      {
+        "title": "Especialista en Financiamiento de Ecosistemas de Manglar",
+        "organisation": "World Resources Institute",
+        "location": "Location not stated",
+        "url": "https://www.wri.org/careers/jobs/especialista-en-financiamiento-de-ecosistemas-de-manglar-2026-jr100559",
+        "closesAt": null
+      },
+      {
+        "title": "Europe Regional Accounting Manager",
+        "organisation": "World Resources Institute",
+        "location": "Location not stated",
+        "url": "https://www.wri.org/careers/jobs/europe-regional-accounting-manager-2026-jr100473",
+        "closesAt": null
+      },
+      {
+        "title": "Manager, Financial Planning and Analysis",
+        "organisation": "World Resources Institute",
+        "location": "Location not stated",
+        "url": "https://www.wri.org/careers/jobs/manager-financial-planning-and-analysis-2026-jr100460",
+        "closesAt": null
+      },
+      {
+        "title": "Project Implementation Assistant",
+        "organisation": "World Resources Institute",
+        "location": "Location not stated",
+        "url": "https://www.wri.org/careers/jobs/project-implementation-assistant-2026-jr100550",
+        "closesAt": null
+      },
+      {
+        "title": "User Research Lead",
+        "organisation": "World Resources Institute",
+        "location": "Location not stated",
+        "url": "https://www.wri.org/careers/jobs/user-research-lead-2026-jr100552",
+        "closesAt": null
+      },
+      {
+        "title": "Low Carbon Technology Analyst",
+        "organisation": "World Resources Institute",
+        "location": "Location not stated",
+        "url": "https://www.wri.org/careers/jobs/low-carbon-technology-analyst-2026-jr100551",
+        "closesAt": null
+      },
+      {
+        "title": "Development Associate, FOLU",
+        "organisation": "World Resources Institute",
+        "location": "Location not stated",
+        "url": "https://www.wri.org/careers/jobs/development-associate-folu-2026-jr100535",
+        "closesAt": null
+      },
+      {
+        "title": "Project Operations Assistant",
+        "organisation": "World Resources Institute",
+        "location": "Location not stated",
+        "url": "https://www.wri.org/careers/jobs/project-operations-assistant-2026-jr100545",
+        "closesAt": null
+      }
+    ]
+  },
+  {
+    "name": "Snow Leopard Trust",
+    "url": "https://snowleopard.org/about/careers/",
+    "region": "Global",
+    "status": "needs_attention",
+    "code": "unsupported",
+    "message": "A vacancy PDF has no verifiable closing date. Review it through the manual advert form to avoid importing an archived role.",
+    "checkedAt": "2026-11-09T14:48:20.740Z"
+  },
+  {
+    "name": "Audubon",
+    "sourceUrl": "https://www.audubon.org/about/careers",
+    "region": "North America",
+    "status": "tested",
+    "kind": "workday",
+    "checkedAt": "2026-11-09T14:48:31.433Z",
+    "count": 47,
+    "liveCount": 47,
+    "pages": 50,
+    "complete": true,
+    "url": "https://audubon.wd503.myworkdayjobs.com/Audubon",
+    "jobs": [
+      {
+        "title": "Grounds and Maintenance Assistant",
+        "organisation": "Audubon",
+        "location": "Audubon, PA",
+        "url": "https://audubon.wd503.myworkdayjobs.com/Audubon/job/Audubon-PA/Grounds-and-Maintenance-Assistant_JR1257-1",
+        "closesAt": null
+      },
+      {
+        "title": "Director, Community Leadership",
+        "organisation": "Audubon",
+        "location": "Washington, DC",
+        "url": "https://audubon.wd503.myworkdayjobs.com/Audubon/job/Washington-DC/Director--Community-Leadership_JR1263",
+        "closesAt": null
+      },
+      {
+        "title": "Operations Manager",
+        "organisation": "Audubon",
+        "location": "Dallas, TX",
+        "url": "https://audubon.wd503.myworkdayjobs.com/Audubon/job/Dallas-TX/Operations-Manager_JR1266",
+        "closesAt": null
+      },
+      {
+        "title": "Policy Intern – Vermont",
+        "organisation": "Audubon",
+        "location": "Huntington, VT",
+        "url": "https://audubon.wd503.myworkdayjobs.com/Audubon/job/Huntington-VT/Policy-Intern---Vermont_JR1262",
+        "closesAt": null
+      },
+      {
+        "title": "Director, Conservation",
+        "organisation": "Audubon",
+        "location": "Audubon South Carolina - Columbia Office · Charleston, SC",
+        "url": "https://audubon.wd503.myworkdayjobs.com/Audubon/job/Audubon-South-Carolina---Columbia-Office/Director--Conservation_JR1261",
+        "closesAt": null
+      },
+      {
+        "title": "Senior Coordinator, Development Services",
+        "organisation": "Audubon",
+        "location": "New York, NY",
+        "url": "https://audubon.wd503.myworkdayjobs.com/Audubon/job/New-York-NY/Senior-Coordinator--Development-Services_JR1259",
+        "closesAt": null
+      },
+      {
+        "title": "Visitor Center Coordinator",
+        "organisation": "Audubon",
+        "location": "Naples, FL",
+        "url": "https://audubon.wd503.myworkdayjobs.com/Audubon/job/Naples-FL/Visitor-Center-Coordinator_JR1255",
+        "closesAt": null
+      },
+      {
+        "title": "Conservation Leadership Initiative (CLI) Assistant",
+        "organisation": "Audubon",
+        "location": "Audubon Florida - Remote",
+        "url": "https://audubon.wd503.myworkdayjobs.com/Audubon/job/Audubon-Florida---Remote/Conservation-Leadership-Initiative--CLI--Assistant_JR1258",
+        "closesAt": null
+      },
+      {
+        "title": "Senior Assistant, Grounds and Maintenance",
+        "organisation": "Audubon",
+        "location": "Dayton, OH",
+        "url": "https://audubon.wd503.myworkdayjobs.com/Audubon/job/Dayton-OH/Senior-Assistant--Grounds-and-Maintenance_JR1253",
+        "closesAt": null
+      },
+      {
+        "title": "Education Intern",
+        "organisation": "Audubon",
+        "location": "Huntington, VT",
+        "url": "https://audubon.wd503.myworkdayjobs.com/Audubon/job/Huntington-VT/Education-Intern_JR1256",
+        "closesAt": null
+      }
+    ]
+  },
+  {
+    "name": "Panthera",
+    "sourceUrl": "https://ats.rippling.com/panthera-careers/jobs",
+    "region": "Global",
+    "status": "tested",
+    "kind": "html",
+    "checkedAt": "2026-11-09T14:48:33.595Z",
+    "count": 4,
+    "liveCount": 4,
+    "pages": 5,
+    "complete": true,
+    "url": "https://ats.rippling.com/panthera-careers/jobs",
+    "jobs": [
+      {
+        "title": "Community Conservation Senior Manager",
+        "organisation": "Panthera",
+        "location": "Location not stated",
+        "url": "https://ats.rippling.com/panthera-careers/jobs/07a3da1f-f1c2-4483-91df-690001b32315",
+        "closesAt": null
+      },
+      {
+        "title": "Community Engagement Officer",
+        "organisation": "Panthera",
+        "location": "Location not stated",
+        "url": "https://ats.rippling.com/panthera-careers/jobs/90975af4-3413-4e53-bac6-0f82a67e24af",
+        "closesAt": null
+      },
+      {
+        "title": "Resource Protection Manager",
+        "organisation": "Panthera",
+        "location": "Location not stated",
+        "url": "https://ats.rippling.com/panthera-careers/jobs/03025044-f462-4728-8310-e4f314444b85",
+        "closesAt": null
+      },
+      {
+        "title": "Accountant",
+        "organisation": "Panthera",
+        "location": "Location not stated",
+        "url": "https://ats.rippling.com/panthera-careers/jobs/6ad1f571-0889-4624-8f05-57d02dc110cb",
+        "closesAt": null
+      }
+    ]
+  },
+  {
+    "name": "Wildfowl & Wetlands Trust",
+    "url": "https://vacancies.wwt.org.uk/vacancies/vacancy-search-results.aspx",
+    "region": "Europe",
+    "status": "needs_attention",
+    "code": "incomplete",
+    "message": "Source HTTP 406",
+    "checkedAt": "2026-11-09T14:48:31.646Z"
+  },
+  {
+    "name": "Buglife",
+    "sourceUrl": "https://www.buglife.org.uk/jobs/",
+    "region": "Europe",
+    "status": "tested",
+    "kind": "html",
+    "checkedAt": "2026-11-09T14:48:32.338Z",
+    "count": 0,
+    "liveCount": 0,
+    "pages": 1,
+    "complete": true,
+    "url": "https://www.buglife.org.uk/jobs/",
+    "jobs": []
+  },
+  {
+    "name": "Plantlife",
+    "url": "https://www.plantlife.org.uk/about-us/careers/",
+    "region": "Europe",
+    "status": "needs_attention",
+    "code": "unsupported",
+    "message": "No complete vacancy list was found. Configure its vacancy section and links, save the recruitment-board URL, or add an individual advert manually.",
+    "checkedAt": "2026-11-09T14:48:33.945Z"
+  },
+  {
+    "name": "Butterfly Conservation",
+    "url": "https://careers.butterfly-conservation.org/",
+    "region": "Europe",
+    "status": "needs_attention",
+    "code": "incomplete",
+    "message": "The vacancy list repeated a page.",
+    "checkedAt": "2026-11-09T14:48:34.324Z"
+  },
+  {
+    "name": "British Trust for Ornithology",
+    "url": "https://www.bto.org/about/jobs",
+    "region": "Europe",
+    "status": "needs_attention",
+    "code": "incomplete",
+    "message": "Source HTTP 404",
+    "checkedAt": "2026-11-09T14:48:39.269Z"
+  },
+  {
+    "name": "Blue Ventures",
+    "sourceUrl": "https://careers.blueventures.org/jobs.rss",
+    "region": "Global",
+    "status": "tested",
+    "kind": "rss",
+    "checkedAt": "2026-11-09T14:48:39.388Z",
+    "count": 3,
+    "liveCount": 3,
+    "pages": 1,
+    "complete": true,
+    "url": "https://careers.blueventures.org/jobs.rss",
+    "jobs": [
+      {
+        "title": "Senior Manager - Programme Evaluation (Maternity Cover)",
+        "organisation": "Blue Ventures",
+        "location": "London, United Kingdom",
+        "url": "https://careers.blueventures.org/jobs/8680693-senior-manager-programme-evaluation-maternity-cover",
+        "closesAt": "2026-11-23T23:59:59.999Z"
+      },
+      {
+        "title": "Global Change Senior Manager – Maternity Cover",
+        "organisation": "Blue Ventures",
+        "location": "London, United Kingdom",
+        "url": "https://careers.blueventures.org/jobs/8673549-global-change-senior-manager-maternity-cover",
+        "closesAt": "2026-11-23T23:59:59.999Z"
+      },
+      {
+        "title": "Head of Partnership Network - South East Asia",
+        "organisation": "Blue Ventures",
+        "location": "Jakarta, Indonesia",
+        "url": "https://careers.blueventures.org/jobs/8606522-head-of-partnership-network-south-east-asia",
+        "closesAt": "2026-11-23T23:59:59.999Z"
+      }
+    ]
+  },
+  {
+    "name": "ClientEarth",
+    "url": "https://jobs.clientearth.org/",
+    "region": "Europe",
+    "status": "needs_attention",
+    "code": "unsupported",
+    "message": "No complete vacancy list was found. Configure its vacancy section and links, save the recruitment-board URL, or add an individual advert manually.",
+    "checkedAt": "2026-11-09T14:48:39.562Z"
+  },
+  {
+    "name": "Durrell Wildlife Conservation Trust",
+    "url": "https://durrell.occupop-careers.com/",
+    "region": "Europe",
+    "status": "needs_attention",
+    "code": "unsupported",
+    "message": "No complete vacancy list was found. Configure its vacancy section and links, save the recruitment-board URL, or add an individual advert manually.",
+    "checkedAt": "2026-11-09T14:48:39.459Z"
+  },
+  {
+    "name": "Whale and Dolphin Conservation UK",
+    "url": "https://uk.whales.org/about/job-vacancies/",
+    "region": "Europe",
+    "status": "needs_attention",
+    "code": "blocked",
+    "message": "Source HTTP 403",
+    "checkedAt": "2026-11-09T14:48:39.759Z"
+  },
+  {
+    "name": "Tusk",
+    "url": "https://tusk.org/who-we-are/work-for-tusk-job-vacancies/",
+    "region": "Europe",
+    "status": "needs_attention",
+    "code": "blocked",
+    "message": "Source HTTP 403",
+    "checkedAt": "2026-11-09T14:48:39.640Z"
+  },
+  {
+    "name": "Wetlands International Europe",
+    "sourceUrl": "https://europe.wetlands.org/about-us/vacancies/",
+    "region": "Europe",
+    "status": "tested",
+    "kind": "html",
+    "checkedAt": "2026-11-09T14:48:39.953Z",
+    "count": 1,
+    "liveCount": 1,
+    "pages": 2,
+    "complete": true,
+    "url": "https://europe.wetlands.org/about-us/vacancies/",
+    "jobs": [
+      {
+        "title": "We are hiring! Become our new nature-based solutions officer",
+        "organisation": "Wetlands International Europe",
+        "location": "Location not stated",
+        "url": "https://europe.wetlands.org/we-are-hiring-become-our-new-nature-based-solutions-officer/",
+        "closesAt": null
+      }
+    ]
+  },
+  {
+    "name": "Rewilding Europe",
+    "url": "https://rewildingeurope.com/our-team/vacancies/",
+    "region": "Europe",
+    "status": "needs_attention",
+    "code": "unsupported",
+    "message": "A vacancy PDF has no verifiable closing date. Review it through the manual advert form to avoid importing an archived role.",
+    "checkedAt": "2026-11-09T14:48:40.904Z"
+  },
+  {
+    "name": "Oceana Europe",
+    "url": "https://europe.oceana.org/employment-opportunities/",
+    "region": "Europe",
+    "status": "needs_attention",
+    "code": "unsupported",
+    "message": "No complete vacancy list was found. Configure its vacancy section and links, save the recruitment-board URL, or add an individual advert manually.",
+    "checkedAt": "2026-11-09T14:48:43.459Z"
+  },
+  {
+    "name": "Oceana UK",
+    "url": "https://uk.oceana.org/employment-opportunities/",
+    "region": "Europe",
+    "status": "needs_attention",
+    "code": "unsupported",
+    "message": "No complete vacancy list was found. Configure its vacancy section and links, save the recruitment-board URL, or add an individual advert manually.",
+    "checkedAt": "2026-11-09T14:48:40.112Z"
+  },
+  {
+    "name": "Office for Environmental Protection",
+    "url": "https://www.theoep.org.uk/work-us-job-vacancies",
+    "region": "Europe",
+    "status": "needs_attention",
+    "code": "unsupported",
+    "message": "No complete vacancy list was found. Configure its vacancy section and links, save the recruitment-board URL, or add an individual advert manually.",
+    "checkedAt": "2026-11-09T14:48:43.696Z"
+  },
+  {
+    "name": "Rainforest Trust UK",
+    "sourceUrl": "https://www.rainforesttrust.org/about-us/rt-uk-careers/",
+    "region": "Europe",
+    "status": "tested",
+    "kind": "html",
+    "checkedAt": "2026-11-09T14:48:43.751Z",
+    "count": 0,
+    "liveCount": 0,
+    "pages": 1,
+    "complete": true,
+    "url": "https://www.rainforesttrust.org/about-us/rt-uk-careers/",
+    "jobs": []
+  },
+  {
+    "name": "Australian Wildlife Conservancy",
+    "url": "https://www.australianwildlife.org/about-us/work-with-us/careers",
+    "region": "Australasia",
+    "status": "needs_attention",
+    "code": "incomplete",
+    "message": "A linked vacancy could not be parsed. The source's previous jobs have been preserved.",
+    "checkedAt": "2026-11-09T14:48:48.045Z"
+  },
+  {
+    "name": "BirdLife Australia",
+    "url": "https://birdlife.org.au/about/work-with-us",
+    "region": "Australasia",
+    "status": "needs_attention",
+    "code": "unsupported",
+    "message": "No complete vacancy list was found. Configure its vacancy section and links, save the recruitment-board URL, or add an individual advert manually.",
+    "checkedAt": "2026-11-09T14:48:48.604Z"
+  },
+  {
+    "name": "WWF Australia",
+    "url": "https://wwf.org.au/about-us/jobs-at-wwf",
+    "region": "Australasia",
+    "status": "needs_attention",
+    "code": "incomplete",
+    "message": "Source HTTP 406",
+    "checkedAt": "2026-11-09T14:48:49.314Z"
+  },
+  {
+    "name": "Zoos Victoria",
+    "url": "https://www.zoo.org.au/about-us/careers",
+    "region": "Australasia",
+    "status": "needs_attention",
+    "code": "unsupported",
+    "message": "No complete vacancy list was found. Configure its vacancy section and links, save the recruitment-board URL, or add an individual advert manually.",
+    "checkedAt": "2026-11-09T14:48:52.776Z"
+  },
+  {
+    "name": "Taronga Conservation Society",
+    "url": "https://careers.taronga.org.au/",
+    "region": "Australasia",
+    "status": "needs_attention",
+    "code": "unsupported",
+    "message": "No complete vacancy list was found. Configure its vacancy section and links, save the recruitment-board URL, or add an individual advert manually.",
+    "checkedAt": "2026-11-09T14:48:54.597Z"
+  },
+  {
+    "name": "Greening Australia",
+    "url": "https://www.greeningaustralia.org.au/careers/",
+    "region": "Australasia",
+    "status": "needs_attention",
+    "code": "unsupported",
+    "message": "No complete vacancy list was found. Configure its vacancy section and links, save the recruitment-board URL, or add an individual advert manually.",
+    "checkedAt": "2026-11-09T14:48:54.636Z"
+  },
+  {
+    "name": "Wilderness Society Australia",
+    "sourceUrl": "https://wilderness.org.au/get-involved/careers/",
+    "region": "Australasia",
+    "status": "tested",
+    "kind": "html",
+    "checkedAt": "2026-11-09T14:48:53.014Z",
+    "count": 0,
+    "liveCount": 0,
+    "pages": 1,
+    "complete": true,
+    "url": "https://wilderness.org.au/get-involved/careers/",
+    "jobs": []
+  },
+  {
+    "name": "Landcare Australia",
+    "url": "https://landcareaustralia.org.au/careers/",
+    "region": "Australasia",
+    "status": "needs_attention",
+    "code": "unsupported",
+    "message": "No complete vacancy list was found. Configure its vacancy section and links, save the recruitment-board URL, or add an individual advert manually.",
+    "checkedAt": "2026-11-09T14:48:54.956Z"
+  },
+  {
+    "name": "Bush Heritage Australia",
+    "url": "https://www.bushheritage.org.au/who-we-are/careers",
+    "region": "Australasia",
+    "status": "needs_attention",
+    "code": "unsupported",
+    "message": "No complete vacancy list was found. Configure its vacancy section and links, save the recruitment-board URL, or add an individual advert manually.",
+    "checkedAt": "2026-11-09T14:48:57.705Z"
+  },
+  {
+    "name": "Australian Conservation Foundation",
+    "sourceUrl": "https://www.acf.org.au/about/work-with-us",
+    "region": "Australasia",
+    "status": "tested",
+    "kind": "html",
+    "checkedAt": "2026-11-09T14:48:57.894Z",
+    "count": 0,
+    "liveCount": 0,
+    "pages": 1,
+    "complete": true,
+    "url": "https://www.acf.org.au/about/work-with-us",
+    "jobs": []
+  },
+  {
+    "name": "Forest & Bird",
+    "sourceUrl": "https://www.forestandbird.org.nz/working-here/current-vacancies",
+    "region": "Australasia",
+    "status": "tested",
+    "kind": "html",
+    "checkedAt": "2026-11-09T14:48:59.613Z",
+    "count": 0,
+    "liveCount": 0,
+    "pages": 1,
+    "complete": true,
+    "url": "https://www.forestandbird.org.nz/working-here/current-vacancies",
+    "jobs": []
+  },
+  {
+    "name": "Department of Conservation NZ",
+    "url": "https://www.doc.govt.nz/careers",
+    "region": "Australasia",
+    "status": "needs_attention",
+    "code": "unsupported",
+    "message": "No complete vacancy list was found. Configure its vacancy section and links, save the recruitment-board URL, or add an individual advert manually.",
+    "checkedAt": "2026-11-09T14:48:58.845Z"
+  },
+  {
+    "name": "WWF India",
+    "url": "https://careers.wwfindia.org/",
+    "region": "South Asia",
+    "status": "needs_attention",
+    "code": "incomplete",
+    "message": "getaddrinfo ENOTFOUND careers.wwfindia.org",
+    "checkedAt": "2026-11-09T14:48:58.329Z"
+  },
+  {
+    "name": "WWF Pakistan",
+    "url": "https://www.wwfpak.org/jobs_/",
+    "region": "South Asia",
+    "status": "needs_attention",
+    "code": "blocked",
+    "message": "Source HTTP 403",
+    "checkedAt": "2026-11-09T14:49:00.154Z"
+  },
+  {
+    "name": "ICIMOD",
+    "sourceUrl": "https://www.icimod.org/get-involved/vacancies/",
+    "region": "South Asia",
+    "status": "tested",
+    "kind": "html",
+    "checkedAt": "2026-11-09T14:49:00.956Z",
+    "count": 0,
+    "liveCount": 0,
+    "pages": 1,
+    "complete": true,
+    "url": "https://www.icimod.org/get-involved/vacancies/",
+    "jobs": []
+  },
+  {
+    "name": "ATREE",
+    "sourceUrl": "https://www.atree.org/careers/",
+    "region": "South Asia",
+    "status": "tested",
+    "kind": "html",
+    "checkedAt": "2026-11-09T14:49:08.769Z",
+    "count": 7,
+    "liveCount": 7,
+    "pages": 8,
+    "complete": true,
+    "url": "https://www.atree.org/careers/",
+    "jobs": [
+      {
+        "title": "Policy Analyst",
+        "organisation": "ATREE",
+        "location": "Location not stated",
+        "url": "https://www.atree.org/career/policy-analyst/",
+        "closesAt": null
+      },
+      {
+        "title": "Lead – Policy",
+        "organisation": "ATREE",
+        "location": "Location not stated",
+        "url": "https://www.atree.org/career/lead-policy/",
+        "closesAt": null
+      },
+      {
+        "title": "Research Associate – Bengaluru (TGI)",
+        "organisation": "ATREE",
+        "location": "Location not stated",
+        "url": "https://www.atree.org/career/research-associate-bengaluru-tgi/",
+        "closesAt": null
+      },
+      {
+        "title": "Research Associate- Rajasthan (TGI)",
+        "organisation": "ATREE",
+        "location": "Location not stated",
+        "url": "https://www.atree.org/career/research-associate-rajasthan-tgi/",
+        "closesAt": null
+      },
+      {
+        "title": "Research Associate- Maharastra (TGI)",
+        "organisation": "ATREE",
+        "location": "Location not stated",
+        "url": "https://www.atree.org/career/research-associate-maharastratgi/",
+        "closesAt": null
+      },
+      {
+        "title": "Landscape Lead – The Grasslands Initiative (TGI)",
+        "organisation": "ATREE",
+        "location": "Location not stated",
+        "url": "https://www.atree.org/career/landscape-lead-tgi/",
+        "closesAt": null
+      },
+      {
+        "title": "Scientist – Grassland Socio-Ecological Systems",
+        "organisation": "ATREE",
+        "location": "Location not stated",
+        "url": "https://www.atree.org/career/scientist-gses/",
+        "closesAt": null
+      }
+    ]
+  },
+  {
+    "name": "NTNC Nepal",
+    "url": "https://ntnc.org.np/notices/management",
+    "region": "South Asia",
+    "status": "needs_attention",
+    "code": "unsupported",
+    "message": "No complete vacancy list was found. Configure its vacancy section and links, save the recruitment-board URL, or add an individual advert manually.",
+    "checkedAt": "2026-11-09T14:49:09.519Z"
+  },
+  {
+    "name": "Wetlands International South Asia",
+    "sourceUrl": "https://south-asia.wetlands.org/about-us/vacancies/",
+    "region": "South Asia",
+    "status": "tested",
+    "kind": "html",
+    "checkedAt": "2026-11-09T14:49:09.025Z",
+    "count": 0,
+    "liveCount": 0,
+    "pages": 1,
+    "complete": true,
+    "url": "https://south-asia.wetlands.org/about-us/vacancies/",
+    "jobs": []
+  },
+  {
+    "name": "TNC India",
+    "url": "https://www.tncindia.in/careers/",
+    "region": "South Asia",
+    "status": "needs_attention",
+    "code": "incomplete",
+    "message": "Source HTTP 404",
+    "checkedAt": "2026-11-09T14:49:09.180Z"
+  },
+  {
+    "name": "Caribbean Biodiversity Fund",
+    "url": "https://caribbeanbiodiversityfund.org/join-our-team/",
+    "region": "Caribbean",
+    "status": "needs_attention",
+    "code": "unsupported",
+    "message": "A vacancy PDF has no verifiable closing date. Review it through the manual advert form to avoid importing an archived role.",
+    "checkedAt": "2026-11-09T14:49:10.024Z"
+  },
+  {
+    "name": "Bahamas National Trust",
+    "url": "https://bnt.bs/get-involved/join-the-team/",
+    "region": "Caribbean",
+    "status": "needs_attention",
+    "code": "unsupported",
+    "message": "No complete vacancy list was found. Configure its vacancy section and links, save the recruitment-board URL, or add an individual advert manually.",
+    "checkedAt": "2026-11-09T14:49:14.855Z"
+  },
+  {
+    "name": "National Trust for the Cayman Islands",
+    "url": "https://nationaltrust.org.ky/",
+    "region": "Caribbean",
+    "status": "needs_attention",
+    "code": "unsupported",
+    "message": "No complete vacancy list was found. Configure its vacancy section and links, save the recruitment-board URL, or add an individual advert manually.",
+    "checkedAt": "2026-11-09T14:49:12.695Z"
+  },
+  {
+    "name": "STENAPA",
+    "url": "https://statiapark.org/",
+    "region": "Caribbean",
+    "status": "needs_attention",
+    "code": "unsupported",
+    "message": "No complete vacancy list was found. Configure its vacancy section and links, save the recruitment-board URL, or add an individual advert manually.",
+    "checkedAt": "2026-11-09T14:49:16.163Z"
+  },
+  {
+    "name": "Sea Turtle Conservancy",
+    "url": "https://conserveturtles.org/careers/",
+    "region": "Caribbean",
+    "status": "needs_attention",
+    "code": "blocked",
+    "message": "The source returned a login or access challenge instead of vacancies.",
+    "checkedAt": "2026-11-09T14:49:15.704Z"
+  }
+]

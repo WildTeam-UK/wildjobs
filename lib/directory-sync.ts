@@ -4,8 +4,8 @@ import { z } from "zod";
 import { zodTextFormat } from "openai/helpers/zod";
 import { createTrustedClient } from "./supabase/trusted";
 import type { Database, Json } from "./supabase/database.types";
-import { parseSourceFeed } from "./directory-sources";
-import { fetchPublicText } from "./directory-http";
+import { readSource } from "./source-reader";
+import { sourceConfigSchema, sourceError } from "./source-config";
 import { fetchAdvert } from "./directory-advert";
 import { directoryFacts } from "./directory-lifecycle";
 import { completeSalary, extractSalary, normaliseSalary, parseSalary } from "./job-salary";
@@ -14,7 +14,9 @@ import { plainText } from "./directory-text";
 import { findEmployerWebsite } from "./employer-websites";
 import { recordGuideAdvert, refreshPilotDrafts } from "./guide-workflow";
 
-type DirectoryJob = Database["public"]["Tables"]["directory_jobs"]["Row"];
+type DirectoryJob = Database["public"]["Tables"]["directory_jobs"]["Row"] & {
+  source_content_kind?: "feed" | "advert";
+};
 function check<T>(result: { data: T; error: unknown }): { data: NonNullable<T> } {
   if (result.error) throw result.error;
   return { data: result.data as NonNullable<T> };
@@ -63,13 +65,19 @@ export async function syncDirectory(force = false, sourceId?: number) {
     const organisations = check(
       await db.from("directory_organisations").select("name,logo_url,website_url"),
     ).data;
-    const names = organisations.map((o) => o.name);
     const logoCache = new Map(organisations.filter((o) => o.logo_url).map((o) => [o.name, o.logo_url!]));
     const websiteCache = new Set(organisations.filter((o) => o.website_url).map((o) => o.name));
     const feeds = await Promise.allSettled(
       sources.map(async (source) => {
-        const response = await fetchPublicText(source.feed_url, 20000);
-        return parseSourceFeed(response.text, response.url, new Date(), names);
+        // Legacy rows in tests/rolling deployments still use their existing RSS configuration.
+        return readSource(
+          {
+            url: source.feed_url,
+            name: source.name,
+            config: sourceConfigSchema.parse(source.configuration || { kind: "rss" }),
+          },
+          { organisationNames: organisations.map((o) => o.name) },
+        );
       }),
     );
     for (let i = 0; i < sources.length; i++) {
@@ -78,10 +86,11 @@ export async function syncDirectory(force = false, sourceId?: number) {
       try {
         if (feed.status === "rejected") throw feed.reason;
         const applied = check(
-          await db.rpc("import_directory_feed", {
+          await db.rpc("import_directory_source", {
             p_source_id: source.id,
-            p_feed_url: source.feed_url,
+            p_revision: source.configuration_revision,
             p_items: feed.value.items as unknown as Json,
+            p_check: feed.value.preview as unknown as Json,
           }),
         ).data as { seen: number; changed: number };
         stats.feed_seen += applied.seen;
@@ -90,15 +99,23 @@ export async function syncDirectory(force = false, sourceId?: number) {
         const errorText = message(error).slice(0, 800);
         sourceErrors.push(`${source.name}: ${errorText}`);
         check(
+          await db.rpc("record_directory_source_check", {
+            p_source_id: source.id,
+            p_revision: source.configuration_revision,
+            p_result: { ...sourceError(error), checkedAt: new Date().toISOString() },
+          }),
+        );
+        check(
           await db
             .from("directory_sources")
             .update({ last_error: errorText, next_feed_at: new Date(Date.now() + 900000).toISOString() })
-            .eq("id", source.id),
+            .eq("id", source.id)
+            .eq("configuration_revision", source.configuration_revision),
         );
       }
     }
     const [jobs, coursesResult, sectorsResult] = await Promise.all([
-      db.rpc("directory_pending_jobs"),
+      db.rpc("directory_pending_source_jobs"),
       db
         .from("courses")
         .select("slug,title,summary,matching_notes")
@@ -107,7 +124,7 @@ export async function syncDirectory(force = false, sourceId?: number) {
         .eq("availability_status", "available"),
       db.from("career_areas").select("slug,title,description").eq("is_active", true),
     ]);
-    const pending = check(jobs).data,
+    const pending = check(jobs).data as unknown as DirectoryJob[],
       courses = check(coursesResult).data,
       sectors = check(sectorsResult).data;
     const enrichedJobs: {
@@ -122,7 +139,24 @@ export async function syncDirectory(force = false, sourceId?: number) {
       const group = pending.slice(offset, offset + 4);
       const adverts = await Promise.allSettled(
         group.map(async (job) => {
-          const advert = await fetchAdvert(job.source_url);
+          const fetched = await fetchAdvert(job.source_url);
+          const advert =
+            job.source_content_kind === "advert"
+              ? {
+                  ...fetched,
+                  title: job.title,
+                  organisationName: job.organisation_name,
+                  description: job.feed_text,
+                  locationText: job.location_text === "Location not stated" ? "" : job.location_text,
+                  salary: job.salary_text,
+                  hours: job.hours_type,
+                  contract: job.contract_type,
+                  workplace: job.workplace,
+                  closesAt: job.closes_at,
+                  countryCode: job.country_code || undefined,
+                  canonicalUrl: job.canonical_url || undefined,
+                }
+              : fetched;
           const name = advert.organisationName || job.organisation_name;
           const website = websiteCache.has(name)
             ? null
@@ -163,11 +197,14 @@ export async function syncDirectory(force = false, sourceId?: number) {
             : {}),
           ...(advert.logoUrl ? { logo_url: advert.logoUrl } : {}),
           ...(advert.canonicalUrl ? { canonical_url: advert.canonicalUrl } : {}),
-          ...directoryFacts({
-            hours: advert.hours ?? job.hours_type,
-            contract: advert.contract ?? job.contract_type,
-            workplace: advert.workplace ?? job.workplace,
-          }),
+          ...directoryFacts(
+            {
+              hours: advert.hours ?? job.hours_type,
+              contract: advert.contract ?? job.contract_type,
+              workplace: advert.workplace ?? job.workplace,
+            },
+            true,
+          ),
           closes_at: advert.closesAt ?? job.closes_at,
           country_code: advert.countryCode ?? job.country_code,
         };
@@ -326,14 +363,20 @@ export async function syncDirectory(force = false, sourceId?: number) {
             (item.country_code && /^[A-Z]{2}$/.test(item.country_code) ? item.country_code : null),
           salary_text: salary,
           salary_min: parseSalary(salary).minimum,
-          ...directoryFacts({
-            workplace: job.workplace === "On-site" ? (item.workplace ?? job.workplace) : job.workplace,
-            hours: job.hours_type === "Full time" ? (item.hours_type ?? job.hours_type) : job.hours_type,
-            contract:
-              job.contract_type === "Permanent"
+          ...directoryFacts(
+            {
+              workplace: ["On-site", "Not specified"].includes(job.workplace)
+                ? (item.workplace ?? job.workplace)
+                : job.workplace,
+              hours: ["Full time", "Not specified"].includes(job.hours_type || "")
+                ? (item.hours_type ?? job.hours_type)
+                : job.hours_type,
+              contract: ["Permanent", "Not specified"].includes(job.contract_type || "")
                 ? (item.contract_type ?? job.contract_type)
                 : job.contract_type,
-          }),
+            },
+            true,
+          ),
           engagement_type: item.engagement_type ?? job.engagement_type,
           ...(resolvedLogos.has(item.id) ? { logo_url: resolvedLogos.get(item.id) } : {}),
         };

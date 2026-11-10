@@ -6,6 +6,17 @@ export function closingDate(value: unknown): string | null {
   return Number.isFinite(date.valueOf()) ? date.toISOString() : null;
 }
 
+export function advertClosingDate(text: string) {
+  const date = text
+    .match(
+      /(?:closing date(?: for applications)?|application deadline|apply by|deadline)\s*[:–-]?\s*(\d{1,2}(?:st|nd|rd|th)?\s+[A-Z][a-z]+\s+\d{4}|\d{4}-\d{2}-\d{2})/i,
+    )?.[1]
+    ?.replace(/(\d)(?:st|nd|rd|th)\b/g, "$1");
+  if (!date) return null;
+  const parsed = new Date(date);
+  return Number.isFinite(parsed.valueOf()) ? closingDate(parsed.toISOString().slice(0, 10)) : null;
+}
+
 export function directoryDeadline(postedAt: string, closesAt?: string | null) {
   return closesAt ?? new Date(new Date(postedAt).valueOf() + listingLifetime).toISOString();
 }
@@ -23,19 +34,35 @@ export function liveDirectoryDateFilter(now = new Date()) {
   return `closes_at.gt.${now.toISOString()},and(closes_at.is.null,posted_at.gt.${cutoff})`;
 }
 
-export function directoryFacts(input: {
-  workplace?: string | null;
-  hours?: string | null;
-  contract?: string | null;
-}) {
+export function directoryFacts(
+  input: {
+    workplace?: string | null;
+    hours?: string | null;
+    contract?: string | null;
+  },
+  preserveUnknown = false,
+) {
   const hours = input.hours?.split(" · ") ?? [];
   return {
-    workplace: input.workplace === "Remote" || input.workplace === "Hybrid" ? input.workplace : "On-site",
-    contract_type: input.contract === "Fixed term" ? "Fixed term" : "Permanent",
-    hours_type: hours.includes("Part time")
-      ? hours.includes("Full time")
-        ? "Full time · Part time"
-        : "Part time"
-      : "Full time",
+    workplace:
+      preserveUnknown && input.workplace === "Not specified"
+        ? "Not specified"
+        : input.workplace === "Remote" || input.workplace === "Hybrid"
+          ? input.workplace
+          : "On-site",
+    contract_type:
+      preserveUnknown && input.contract === "Not specified"
+        ? "Not specified"
+        : input.contract === "Fixed term"
+          ? "Fixed term"
+          : "Permanent",
+    hours_type:
+      preserveUnknown && input.hours === "Not specified"
+        ? "Not specified"
+        : hours.includes("Part time")
+          ? hours.includes("Full time")
+            ? "Full time · Part time"
+            : "Part time"
+          : "Full time",
   };
 }

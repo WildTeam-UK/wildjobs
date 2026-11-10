@@ -3,7 +3,7 @@ import { XMLParser, XMLValidator } from "fast-xml-parser";
 import { parseFeed } from "./directory-feed";
 import { extractSalary, parseSalary, structuredSalary } from "./job-salary";
 import { plainText } from "./directory-text";
-import { closingDate, directoryFacts } from "./directory-lifecycle";
+import { closingDate, directoryFacts, advertClosingDate } from "./directory-lifecycle";
 import { canonicalUrl, publicUrl } from "./directory-url";
 
 export type FeedCard = Omit<ReturnType<typeof parseFeed>[number], "locality" | "region"> & {
@@ -11,6 +11,7 @@ export type FeedCard = Omit<ReturnType<typeof parseFeed>[number], "locality" | "
   region: string | null | undefined;
   canonical_url: string;
   logo_url?: string;
+  source_content_kind?: "feed" | "advert";
 };
 function object(value: unknown): Record<string, unknown> {
   return value && typeof value === "object" && !Array.isArray(value)
@@ -84,20 +85,43 @@ export function parseSourceFeed(
     const organisation =
       plainText(string(item.company ?? item.employer ?? item.hiringOrganization ?? item.companyName)) ||
       "Organisation not stated";
+    const nestedLocations = list(object(item.locations).location).map((v) => object(v));
     const location =
-      plainText(string(item.location ?? item.jobLocation ?? item.region)) || "Location not stated";
+      plainText(string(item.location ?? item.jobLocation ?? item.region)) ||
+      nestedLocations
+        .map((v) => string(v.city || v.name) + (v.country ? ", " + string(v.country) : ""))
+        .join(" · ") ||
+      "Location not stated";
     const salaryField = item.salary ?? item.baseSalary;
     const statedSalary = structuredSalary(salaryField, string(item.salaryCurrency));
     const salary = statedSalary === "Not stated" ? extractSalary(fullText) : statedSalary;
     const date = new Date(string(item.pubDate ?? item.published ?? item.date ?? item.updated));
-    const closesAt = closingDate(string(item.closingDate ?? item.validThrough ?? ""));
+    const closesAt =
+      closingDate(string(item.closingDate ?? item.validThrough ?? "")) || advertClosingDate(fullText);
     const feedId = string(item.guid ?? item.id) || canonicalUrl(source);
     const work = string(item.workplace ?? item.jobLocationType).toLowerCase();
     const types = string(item.employmentType ?? item.jobType).toLowerCase();
-    const rawCountry = string(item.country ?? item.countryCode).toUpperCase();
+    const rawCountry = string(
+      item.country ?? item.countryCode ?? (nestedLocations.length === 1 ? nestedLocations[0].country : ""),
+    ).toUpperCase();
     const country =
-      ({ UK: "GB", "UNITED KINGDOM": "GB", "UNITED STATES": "US" } as Record<string, string>)[rawCountry] ??
-      rawCountry;
+      (
+        {
+          UK: "GB",
+          "UNITED KINGDOM": "GB",
+          "UNITED STATES": "US",
+          "UNITED STATES OF AMERICA": "US",
+          INDONESIA: "ID",
+          KENYA: "KE",
+          CAMBODIA: "KH",
+          MADAGASCAR: "MG",
+          AUSTRALIA: "AU",
+          CANADA: "CA",
+          INDIA: "IN",
+          "NEW ZEALAND": "NZ",
+          "SOUTH AFRICA": "ZA",
+        } as Record<string, string>
+      )[rawCountry] ?? rawCountry;
     const logo = string(item.companyLogo ?? item.logo);
     let logoUrl: string | undefined;
     try {

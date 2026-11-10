@@ -5,12 +5,15 @@ import type { LookupFunction } from "node:net";
 import { gunzipSync, inflateSync, brotliDecompressSync } from "node:zlib";
 import { isPublicAddress, publicUrl } from "./directory-url";
 
+export type PublicSourceRequest = { method: "POST"; body: string };
+
 async function fetchPublicResource(
   value: string,
   timeout = 8000,
   redirects = 4,
   deadline = Date.now() + timeout,
   allow?: (url: URL) => boolean,
+  sourceRequest?: PublicSourceRequest,
 ): Promise<{ body: Buffer; contentType: string; url: string }> {
   const url = publicUrl(value);
   if (allow && !allow(url)) throw new Error("Source URL is outside the permitted research scope.");
@@ -36,12 +39,20 @@ async function fetchPublicResource(
       const req = (url.protocol === "https:" ? httpsRequest : httpRequest)(
         url,
         {
+          ...(sourceRequest ? { method: sourceRequest.method } : {}),
           lookup: pinned,
           signal: AbortSignal.timeout(Math.max(1, deadline - Date.now())),
           headers: {
             "User-Agent": "WildJobs/1.0 (WildTeam job directory)",
             "Accept-Encoding": "identity",
-            Accept: "application/rss+xml, application/atom+xml, application/xml, text/xml, text/html;q=0.9",
+            Accept:
+              "application/json, application/rss+xml, application/atom+xml, application/xml, text/xml, text/html;q=0.9",
+            ...(sourceRequest
+              ? {
+                  "Content-Type": "application/json",
+                  "Content-Length": Buffer.byteLength(sourceRequest.body),
+                }
+              : {}),
           },
         },
         (res) => {
@@ -82,11 +93,13 @@ async function fetchPublicResource(
         },
       );
       req.on("error", reject);
-      req.end();
+      req.end(sourceRequest?.body);
     },
   );
   if (result.location) {
     if (!redirects) throw new Error("Source redirected too many times.");
+    if (sourceRequest)
+      throw new Error("The source API redirected a POST request. Check its current endpoint.");
     return fetchPublicResource(
       publicUrl(result.location, url.toString()).toString(),
       timeout,
@@ -101,6 +114,16 @@ async function fetchPublicResource(
 export async function fetchPublicText(value: string, timeout = 8000) {
   const page = await fetchPublicResource(value, timeout);
   return { text: page.body.toString("utf8"), url: page.url };
+}
+
+// Source readers use the same DNS pinning, redirect checks and byte limits as feeds.
+export async function fetchPublicSourceResource(
+  value: string,
+  timeout: number,
+  allow: (url: URL) => boolean,
+  sourceRequest?: PublicSourceRequest,
+) {
+  return fetchPublicResource(value, timeout, 4, undefined, allow, sourceRequest);
 }
 
 export async function fetchPublicResearchPage(value: string, timeout: number, allow: (url: URL) => boolean) {

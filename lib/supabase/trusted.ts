@@ -3,7 +3,7 @@ import "server-only";
 import { createClient } from "@supabase/supabase-js";
 
 import { getSupabaseConfig } from "./config";
-import type { DatabaseWithGuides as Database } from "../guide-database.types";
+import type { DatabaseWithSources as Database } from "../source-database.types";
 
 export function createTrustedClient() {
   const { url } = getSupabaseConfig();
