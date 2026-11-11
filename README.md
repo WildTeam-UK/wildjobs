@@ -8,6 +8,8 @@ Public registration is closed until the SSO approach is approved. `PUBLIC_SIGNUP
 
 Saved jobs use a versioned browser-local list of job IDs at `/saved-jobs`, with `/account/saved` redirecting there. Saving requires no account and does not change existing account data. Lists persist on that browser only; clearing storage removes them. If browser storage is blocked, the list lasts for the current visit. Removed or expired listings have an unavailable state and can be removed from the list.
 
+Public navigation places Training, Jobs, News and About beside the brand on the left, matching Training. The Saved jobs action stays on the right, the brand links to the WildJobs homepage, and there is no public sign-in or account menu. In the mobile menu, the Saved jobs button fills the available width. The existing dropdown interactions are retained.
+
 Production analytics uses `NEXT_PUBLIC_GTM_ID` for the existing WildTeam GTM/GA4 setup. It loads only on `jobs.wildteam.org.uk` after the visitor chooses to allow analytics; advertising consent remains denied. Cookie settings in the footer lets visitors change their choice. Preview/local deployments and private routes do not load the container. Analytics cookies use the WildJobs prefix and hostname. No new marketing or training integration is introduced.
 
 The production domain is `jobs.wildteam.org.uk`; its DNS is managed in Wix. `SITE_INDEXING_ENABLED=true` enables the directory sitemap and indexing. Static design templates and the style guide retain their separate noindex settings. Content, policies and source-permission reviews are deferred by the user's soft-launch decision.
