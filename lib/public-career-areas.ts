@@ -4,6 +4,7 @@ import { connection } from "next/server";
 import { cache } from "react";
 
 import { createPublicClient } from "./supabase/public";
+import { cachePublicData } from "./public-data-cache";
 
 export type PublicCareerArea = Readonly<{
   id: number;
@@ -22,25 +23,32 @@ function publicReadError(error: { code?: string; message: string }) {
   return new Error("Career areas could not be loaded.");
 }
 
-export const getPublicCareerAreas = cache(async (): Promise<readonly PublicCareerArea[]> => {
+const loadPublicCareerAreas = cachePublicData(
+  "career-areas",
+  async (): Promise<readonly PublicCareerArea[]> => {
+    const client = createPublicClient();
+    const { data, error } = await client
+      .from("career_areas")
+      .select("id, slug, title, description, display_order")
+      .eq("is_active", true)
+      .order("display_order")
+      .order("title");
+
+    if (error) throw publicReadError(error);
+
+    return data.map((area) => ({
+      id: area.id,
+      slug: area.slug,
+      title: area.title,
+      description: area.description ?? "Explore current opportunities in this area of conservation.",
+      displayOrder: area.display_order,
+    }));
+  },
+);
+
+export const getPublicCareerAreas = cache(async () => {
   await connection();
-  const client = createPublicClient();
-  const { data, error } = await client
-    .from("career_areas")
-    .select("id, slug, title, description, display_order")
-    .eq("is_active", true)
-    .order("display_order")
-    .order("title");
-
-  if (error) throw publicReadError(error);
-
-  return data.map((area) => ({
-    id: area.id,
-    slug: area.slug,
-    title: area.title,
-    description: area.description ?? "Explore current opportunities in this area of conservation.",
-    displayOrder: area.display_order,
-  }));
+  return loadPublicCareerAreas();
 });
 
 export const getPublicCareerAreaBySlug = cache(async (slug: string) => {

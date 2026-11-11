@@ -15,6 +15,7 @@ import { plainText } from "./directory-text";
 import { findEmployerWebsite } from "./employer-websites";
 import { recordGuideAdvert, refreshPilotDrafts, autoPublishEligibleGuides } from "./guide-workflow";
 import { jobSkills, jobBenefits, jobAttributeVersion, groundedJobAttributes } from "./job-attributes";
+import { invalidatePublicData } from "./public-data-cache";
 
 type DirectoryJob = Database["public"]["Tables"]["directory_jobs"]["Row"] & {
   source_content_kind?: "feed" | "advert";
@@ -468,5 +469,8 @@ export async function syncDirectory(force = false, sourceId?: number) {
       .eq("id", run.id);
     await db.from("directory_settings").update({ running_until: null, last_error: detail }).eq("id", true);
     throw new Error(detail);
+  } finally {
+    // A partial run can commit source withdrawals or enriched cards before failing.
+    invalidatePublicData();
   }
 }

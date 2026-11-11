@@ -3,7 +3,6 @@ import { normaliseSalary, parseSalary } from "./job-salary";
 import { connection } from "next/server";
 import { cache } from "react";
 import type { Job, LocationType } from "./jobs";
-import type { Database } from "./supabase/database.types";
 import { createPublicClient } from "./supabase/public";
 import { getPublicCourses } from "./public-courses";
 import { getPublicCareerAreas } from "./public-career-areas";
@@ -13,6 +12,8 @@ import { cleanJobTitle } from "./job-title";
 import { employerPageSlugs } from "./employer-page-slug";
 import { attributeTerms } from "./job-attributes";
 import { getPublishedEmployerIndex } from "./public-employer-profiles";
+import { getPublicOrganisations } from "./public-organisations";
+import { cachePublicData, PUBLIC_DATA_PAGE_SIZE } from "./public-data-cache";
 import {
   directoryDeadline,
   directoryFacts,
@@ -20,18 +21,20 @@ import {
   liveDirectoryDateFilter,
 } from "./directory-lifecycle";
 
-type DirectoryJob = Database["public"]["Tables"]["directory_jobs"]["Row"];
+// Keep feed_text: role matching still needs the source evidence, not the AI summary.
+const publicJobSelect =
+  "id,slug,title,organisation_name,summary,summary_source,location_text,locality,region,country_code,workplace,hours_type,contract_type,engagement_type,salary_text,sector_slugs,course_slugs,posted_at,updated_at,closes_at,is_active,source_name,source_url,feed_text,skill_slugs,benefit_slugs";
+type DirectoryJob = Awaited<ReturnType<typeof getPublicJobPage>>[number];
 export async function mapDirectoryJobs(records: readonly DirectoryJob[]): Promise<readonly Job[]> {
   const [courses, sectors, organisations, roles, profiles] = await Promise.all([
     getPublicCourses(),
     getPublicCareerAreas(),
-    createPublicClient().from("directory_organisations").select("name,logo_url,website_url"),
+    getPublicOrganisations(),
     getPublicRoleAliases(),
     getPublishedEmployerIndex(),
   ]);
-  if (organisations.error) throw new Error("Organisation logos could not be loaded.");
-  const employers = new Map(organisations.data.map((o) => [o.name, o]));
-  const employerSlugs = employerPageSlugs(organisations.data, profiles);
+  const employers = new Map(organisations.map((o) => [o.name, o]));
+  const employerSlugs = employerPageSlugs(organisations, profiles);
   const observedAt = new Date().toISOString();
   return records.map((row) => {
     const terms = sectors.filter((s) => row.sector_slugs.includes(s.slug));
@@ -83,35 +86,39 @@ export async function mapDirectoryJobs(records: readonly DirectoryJob[]): Promis
     };
   });
 }
-export const getPublicJobs = cache(async (organisation?: string): Promise<readonly Job[]> => {
-  await connection();
+const getPublicJobPage = cachePublicData("live-jobs", async (from: number, organisation?: string) => {
   const db = createPublicClient();
-  const records: DirectoryJob[] = [];
-  for (let from = 0; ; from += 1000) {
-    let query = db
-      .from("directory_jobs")
-      .select("*")
-      .eq("is_active", true)
-      .is("merged_into", null)
-      .or(liveDirectoryDateFilter())
-      .order("posted_at", { ascending: false })
-      .order("id")
-      .range(from, from + 999);
-    if (organisation) query = query.eq("organisation_name", organisation);
-    const { data, error } = await query;
-    if (error) throw new Error("Jobs could not be loaded.");
-    records.push(...data);
-    if (data.length < 1000) break;
-  }
-  return mapDirectoryJobs(records);
+  let query = db
+    .from("directory_jobs")
+    .select(publicJobSelect)
+    .eq("is_active", true)
+    .is("merged_into", null)
+    .or(liveDirectoryDateFilter())
+    .order("posted_at", { ascending: false })
+    .order("id")
+    .range(from, from + PUBLIC_DATA_PAGE_SIZE - 1);
+  if (organisation) query = query.eq("organisation_name", organisation);
+  const { data, error } = await query;
+  if (error) throw new Error("Jobs could not be loaded.");
+  return data;
 });
 
-export async function getPublicJobsByIds(ids: readonly number[]): Promise<readonly Job[]> {
-  if (!ids.length) return [];
+export const getPublicJobs = cache(async (organisation?: string): Promise<readonly Job[]> => {
   await connection();
+  const records: DirectoryJob[] = [];
+  for (let from = 0; ; from += PUBLIC_DATA_PAGE_SIZE) {
+    const data = await getPublicJobPage(from, organisation);
+    records.push(...data);
+    if (data.length < PUBLIC_DATA_PAGE_SIZE) break;
+  }
+  // Expiry is evaluated on every request, even while the raw rows are cached.
+  return mapDirectoryJobs(records.filter((row) => isDirectoryJobLive(row)));
+});
+
+const getPublicJobIdPage = cachePublicData("jobs-by-id", async (ids: number[]) => {
   const { data, error } = await createPublicClient()
     .from("directory_jobs")
-    .select("*")
+    .select(publicJobSelect)
     .in("id", ids)
     .eq("is_active", true)
     .is("merged_into", null)
@@ -119,5 +126,17 @@ export async function getPublicJobsByIds(ids: readonly number[]): Promise<readon
     .order("posted_at", { ascending: false })
     .order("id");
   if (error) throw new Error("Current guide opportunities could not be loaded.");
-  return mapDirectoryJobs(data);
+  return data;
+});
+
+export async function getPublicJobsByIds(ids: readonly number[]): Promise<readonly Job[]> {
+  if (!ids.length) return [];
+  await connection();
+  const uniqueIds = [...new Set(ids)].sort((a, b) => a - b);
+  const records: DirectoryJob[] = [];
+  for (let from = 0; from < uniqueIds.length; from += PUBLIC_DATA_PAGE_SIZE) {
+    records.push(...(await getPublicJobIdPage(uniqueIds.slice(from, from + PUBLIC_DATA_PAGE_SIZE))));
+  }
+  records.sort((a, b) => b.posted_at.localeCompare(a.posted_at) || a.id - b.id);
+  return mapDirectoryJobs(records.filter((row) => isDirectoryJobLive(row)));
 }

@@ -5,9 +5,9 @@ import { cache } from "react";
 
 import { DEFAULT_COURSE_THEME_COLOUR, type Course } from "@/lib/courses";
 import { createPublicClient } from "@/lib/supabase/public";
+import { cachePublicData } from "./public-data-cache";
 
-export const getPublicCourses = cache(async (): Promise<readonly Course[]> => {
-  await connection();
+const loadPublicCourses = cachePublicData("courses", async (): Promise<readonly Course[]> => {
   const { data, error } = await createPublicClient()
     .from("courses")
     .select("slug, title, short_title, summary, public_url, theme_colour")
@@ -29,4 +29,9 @@ export const getPublicCourses = cache(async (): Promise<readonly Course[]> => {
     title: course.title,
     trainingUrl: course.public_url,
   }));
+});
+
+export const getPublicCourses = cache(async () => {
+  await connection();
+  return loadPublicCourses();
 });

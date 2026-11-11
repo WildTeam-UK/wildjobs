@@ -4,7 +4,11 @@ import type { GuideJob } from "../lib/guide-market";
 const mocks = vi.hoisted(() => ({ client: vi.fn(), jobs: vi.fn() }));
 vi.mock("server-only", () => ({}));
 vi.mock("../lib/supabase/trusted", () => ({ createTrustedClient: mocks.client }));
-vi.mock("../lib/public-guides", () => ({ getGuideJobs: mocks.jobs }));
+vi.mock("../lib/public-guides", () => ({ getFreshGuideJobs: mocks.jobs }));
+vi.mock("../lib/public-data-cache", () => ({
+  invalidatePublicData: vi.fn(),
+  cachePublicData: (_key: string, load: unknown) => load,
+}));
 import {
   guideEvidence,
   guideSourcesCurrent,

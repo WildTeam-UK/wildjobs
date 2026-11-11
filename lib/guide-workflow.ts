@@ -1,7 +1,8 @@
 import "server-only";
 import { createHash } from "node:crypto";
 import { createTrustedClient } from "./supabase/trusted";
-import { getGuideJobs } from "./public-guides";
+import { getFreshGuideJobs } from "./public-guides";
+import { invalidatePublicData } from "./public-data-cache";
 import { guideSchemaUnavailable } from "./public-career-roles";
 import { guideCatalog, validateGuideContent, type GuideContent } from "./guide-content";
 import { buildGuideMarket, guideMatches, hasFullTimeEvidence, type GuideJob } from "./guide-market";
@@ -26,7 +27,7 @@ const hash = (input: unknown) => createHash("sha256").update(JSON.stringify(inpu
 export async function guideWorkspace() {
   const db = createTrustedClient();
   const [jobs, aliases, revisions] = await Promise.all([
-    getGuideJobs(),
+    getFreshGuideJobs(),
     db.from("directory_role_aliases").select("normalized_title,role_slug").order("normalized_title"),
     db.from("career_guide_revisions").select("*").order("created_at", { ascending: false }),
   ]);
@@ -249,7 +250,10 @@ export async function autoPublishEligibleGuides() {
       p_input_hash: evidence.inputHash,
     });
     if (result.error) throw new Error("Automatic guide publication needs a retry.");
-    if (result.data) published++;
+    if (result.data) {
+      published++;
+      invalidatePublicData();
+    }
   }
   return { published, deferred };
 }
@@ -367,6 +371,7 @@ export async function setRoleAlias(title: string, roleSlug: CareerRoleSlug | nul
     updated_at: new Date().toISOString(),
   });
   if (result.error) throw new Error("The reviewed role mapping could not be saved.");
+  invalidatePublicData();
 }
 
 export async function publishPilotDraft(id: number, expectedHash: string) {
@@ -398,4 +403,5 @@ export async function publishPilotDraft(id: number, expectedHash: string) {
   });
   if (result.error || !result.data)
     throw new Error("The draft could not be published. Reload and try again.");
+  invalidatePublicData();
 }

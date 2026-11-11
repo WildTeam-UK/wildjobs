@@ -10,23 +10,32 @@ import { createPublicClient } from "./supabase/public";
 import type { PublicEmployer } from "./public-employer-mapper";
 import type { Job } from "./jobs";
 import { employerPageSlugs } from "./employer-page-slug";
+import { getPublicOrganisations } from "./public-organisations";
+import { cachePublicData, PUBLIC_DATA_PAGE_SIZE } from "./public-data-cache";
+
+const getRecentListingPage = cachePublicData("employer-listings", async (from: number) => {
+  const now = new Date();
+  const { data, error } = await createPublicClient()
+    .from("directory_jobs")
+    .select("organisation_name,sector_slugs,country_code,posted_at")
+    .is("merged_into", null)
+    .gte("posted_at", guideWindowStart(now))
+    .lte("posted_at", now.toISOString())
+    .order("posted_at")
+    .order("id")
+    .range(from, from + PUBLIC_DATA_PAGE_SIZE - 1);
+  if (error) throw new Error("Employer listing history could not be loaded.");
+  return data;
+});
 
 async function getRecentListingsByEmployer() {
-  const db = createPublicClient();
   const now = new Date();
+  const start = guideWindowStart(now);
   const listingsByName = new Map<string, { sectors: Set<string>; countries: Set<string> }>();
-  for (let from = 0; ; from += 1000) {
-    const { data, error } = await db
-      .from("directory_jobs")
-      .select("organisation_name,sector_slugs,country_code")
-      .is("merged_into", null)
-      .gte("posted_at", guideWindowStart(now))
-      .lte("posted_at", now.toISOString())
-      .order("posted_at")
-      .order("id")
-      .range(from, from + 999);
-    if (error) throw new Error("Employer listing history could not be loaded.");
-    for (const { organisation_name: name, sector_slugs: slugs, country_code: code } of data) {
+  for (let from = 0; ; from += PUBLIC_DATA_PAGE_SIZE) {
+    const data = await getRecentListingPage(from);
+    for (const { organisation_name: name, sector_slugs: slugs, country_code: code, posted_at } of data) {
+      if (posted_at < start || posted_at > now.toISOString()) continue;
       const listing = listingsByName.get(name) ?? {
         sectors: new Set<string>(),
         countries: new Set<string>(),
@@ -35,7 +44,7 @@ async function getRecentListingsByEmployer() {
       if (code) listing.countries.add(code);
       listingsByName.set(name, listing);
     }
-    if (data.length < 1000) return listingsByName;
+    if (data.length < PUBLIC_DATA_PAGE_SIZE) return listingsByName;
   }
 }
 
@@ -44,13 +53,12 @@ export const getPublicEmployerDirectory = cache(async () => {
   const [jobs, profiles, branding, recentListings, careerAreas] = await Promise.all([
     getPublicJobs(),
     getPublishedEmployerIndex(),
-    createPublicClient().from("directory_organisations").select("name,logo_url"),
+    getPublicOrganisations(),
     getRecentListingsByEmployer(),
     getPublicCareerAreas(),
   ]);
-  if (branding.error) throw new Error("Employer logos could not be loaded.");
-  const logos = new Map(branding.data.map(({ name, logo_url }) => [name, logo_url]));
-  const slugByName = employerPageSlugs(branding.data, profiles);
+  const logos = new Map(branding.map(({ name, logo_url }) => [name, logo_url]));
+  const slugByName = employerPageSlugs(branding, profiles);
   const rolesByName = new Map<string, Job[]>();
   for (const job of jobs) {
     if (job.organisation.toLowerCase() === "organisation not stated") continue;

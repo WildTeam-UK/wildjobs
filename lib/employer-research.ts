@@ -1,4 +1,5 @@
 import "server-only";
+import { invalidatePublicData } from "./public-data-cache";
 import OpenAI from "openai";
 import { zodTextFormat } from "openai/helpers/zod";
 import { createTrustedClient } from "./supabase/trusted";
@@ -52,13 +53,15 @@ export async function researchEmployer(pilotName?: string) {
         if (saved.error) throw new Error("Verified website could not be recorded.");
         if (saved.data) {
           await repairEmployerLogo(db, task.name, found.website);
+          invalidatePublicData();
           return { status: "website_verified" };
         }
       }
       result = "insufficient";
     } else {
       const { identity, sources } = await collectEmployerSources(task.name, task.website);
-      if (identity === "verified") await repairEmployerLogo(db, task.name, task.website);
+      if (identity === "verified" && (await repairEmployerLogo(db, task.name, task.website)))
+        invalidatePublicData();
       if (identity === "mismatch") {
         result = "identity_mismatch";
       } else if (sources.length < 2) {
@@ -168,5 +171,6 @@ export async function researchEmployer(pilotName?: string) {
     p_output_tokens: outputTokens,
   });
   if (finish.error) throw new Error("Employer research could not be recorded.");
+  if (result === "published") invalidatePublicData();
   return { status: finish.data };
 }

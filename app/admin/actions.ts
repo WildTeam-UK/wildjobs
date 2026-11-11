@@ -5,6 +5,7 @@ import { requireStaff } from "@/lib/auth/staff";
 import { createTrustedClient } from "@/lib/supabase/trusted";
 import { verifyPublicImage } from "@/lib/directory-http";
 import { syncDirectory } from "@/lib/directory-sync";
+import { invalidatePublicData } from "@/lib/public-data-cache";
 export async function setAutomation(form: FormData) {
   await requireStaff();
   const { error } = await createTrustedClient()
@@ -36,6 +37,7 @@ export async function updateCourse(form: FormData) {
     })
     .eq("slug", slug);
   if (error) throw new Error("Could not update course.");
+  invalidatePublicData();
   revalidatePath("/admin/courses");
   revalidatePath("/");
 }
@@ -60,6 +62,7 @@ export async function updateLogo(form: FormData) {
     .update({ logo_url: value || null })
     .eq("name", name);
   if (error) throw new Error("Could not update logo.");
+  invalidatePublicData();
   revalidatePath("/admin/organisations");
   revalidatePath("/");
 }

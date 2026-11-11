@@ -10,6 +10,7 @@ import { readSource } from "@/lib/source-reader";
 import { sourceCatalogue } from "@/lib/source-catalogue";
 import { syncDirectory } from "@/lib/directory-sync";
 import type { Json } from "@/lib/supabase/database.types";
+import { invalidatePublicData } from "@/lib/public-data-cache";
 
 function finish(message: string, error = false): never {
   for (const path of ["/", "/admin", "/admin/sources", "/admin/jobs"]) revalidatePath(path);
@@ -126,6 +127,7 @@ export async function changeSource(form: FormData) {
         p_reviewed: form.get("reviewed") === "on",
       });
       if (result.error) throw new Error(result.error.message);
+      invalidatePublicData();
       if (action === "refresh") {
         const source = await db.from("directory_sources").select("enabled").eq("id", id).single();
         if (source.error) throw new Error("The source status could not be loaded.");

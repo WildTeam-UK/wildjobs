@@ -7,6 +7,7 @@ const mocks = vi.hoisted(() => ({
   verify: vi.fn(),
 }));
 vi.mock("server-only", () => ({}));
+vi.mock("../lib/public-data-cache", () => ({ invalidatePublicData: vi.fn() }));
 vi.mock("../lib/guide-workflow", () => ({
   recordGuideAdvert: vi.fn(),
   refreshPilotDrafts: vi.fn(),
