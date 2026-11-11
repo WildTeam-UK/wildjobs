@@ -24,8 +24,8 @@
 .navigation {
   flex: 1;
   min-width: 0;
-  justify-content: flex-end;
-  gap: 42px;
+  justify-content: space-between;
+  gap: 24px;
 }
 .links {
   gap: 24px;
@@ -33,7 +33,7 @@
 .actions {
   flex-shrink: 0;
   gap: 22px;
-  margin-left: 0;
+  margin-left: auto;
 }
 .item {
   position: relative;
@@ -257,7 +257,7 @@
     min-height: var(--wt-layout-site-header-height-tablet, 4.875rem);
   }
   .navigation {
-    gap: 20px;
+    gap: 18px;
   }
   .links {
     gap: 12px;
