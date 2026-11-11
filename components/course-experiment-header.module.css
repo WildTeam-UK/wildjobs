@@ -345,6 +345,9 @@
   .primary {
     width: 160px;
   }
+  .actions > .siteAction {
+    width: 100%;
+  }
   .signIn {
     font-size: 12px;
     padding-inline: 0;
