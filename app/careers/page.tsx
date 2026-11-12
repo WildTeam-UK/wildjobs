@@ -1,9 +1,15 @@
+import { pageMetadata } from "@/lib/page-metadata";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getPublicCareerAreas } from "@/lib/public-career-areas";
 import { getPublicJobs } from "@/lib/public-jobs";
 
-export const metadata: Metadata = { title: "Explore conservation careers" };
+export const metadata: Metadata = pageMetadata({
+  title: "Explore conservation careers",
+  description:
+    "Explore conservation career areas, understand the work and skills involved, and find current jobs that help nature recover.",
+  path: "/careers",
+});
 
 export default async function CareersPage() {
   const [careerAreas, jobs] = await Promise.all([getPublicCareerAreas(), getPublicJobs()]);

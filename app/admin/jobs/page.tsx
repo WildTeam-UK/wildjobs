@@ -1,6 +1,14 @@
+import { pageMetadata } from "@/lib/page-metadata";
 import { requireStaff } from "@/lib/auth/staff";
 import { createTrustedClient } from "@/lib/supabase/trusted";
 import { directoryDeadline, isDirectoryJobLive } from "@/lib/directory-lifecycle";
+export const metadata = pageMetadata({
+  title: "Manage jobs",
+  description: "Inspect and manage job cards in the WildJobs conservation jobs directory.",
+  path: "/admin/jobs",
+  staff: true,
+});
+
 export default async function JobsAdmin() {
   await requireStaff();
   const { data, error } = await createTrustedClient()

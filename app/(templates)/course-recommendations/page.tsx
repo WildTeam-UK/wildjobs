@@ -1,3 +1,4 @@
+import { pageMetadata } from "@/lib/page-metadata";
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
@@ -10,11 +11,12 @@ import {
   TrainingBanner,
 } from "@/components/templates/template-parts";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Why we recommend WildTeam courses",
   description:
     "How relevant WildTeam learning can support your conservation job search, with no promise of employment.",
-};
+  path: "/course-recommendations",
+});
 
 export default function CourseRecommendationsTemplate() {
   return (

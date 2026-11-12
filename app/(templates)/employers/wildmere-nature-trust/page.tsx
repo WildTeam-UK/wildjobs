@@ -1,3 +1,4 @@
+import { pageMetadata } from "@/lib/page-metadata";
 import type { Metadata } from "next";
 import { RelatedGuides } from "@/components/guides/related-guides";
 import { EmployerProfileHero } from "@/components/templates/employer-profile-hero";
@@ -57,11 +58,13 @@ const sampleJobs: readonly Job[] = [
   },
 ];
 
-export const metadata: Metadata = {
-  title: "Wildmere Nature Trust — employer profile",
+export const metadata: Metadata = pageMetadata({
+  title: "Wildmere Nature Trust — example employer profile",
   description:
-    "Discover Wildmere Nature Trust’s mission, working environment and current conservation vacancies.",
-};
+    "Explore a fictional employer profile showing how conservation organisations, their work and sample vacancies can appear on WildJobs.",
+  path: "/employers/wildmere-nature-trust",
+  robots: { index: false, follow: false, noarchive: true },
+});
 
 export default function EmployerTemplate() {
   return (

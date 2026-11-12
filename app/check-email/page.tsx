@@ -1,10 +1,16 @@
+import { pageMetadata } from "@/lib/page-metadata";
 import type { Metadata } from "next";
 import Link from "next/link";
 
 import { getSafeNextPath } from "@/lib/auth/redirects";
 import { getSaveJobIntent } from "@/lib/auth/save-intent";
 
-export const metadata: Metadata = { title: "Check your email" };
+export const metadata: Metadata = pageMetadata({
+  title: "Check your email",
+  description: "Confirm your email address to finish creating your WildJobs account and securely sign in.",
+  path: "/check-email",
+  robots: { index: false, follow: false, noarchive: true },
+});
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 
 export default async function CheckEmailPage({ searchParams }: { searchParams: SearchParams }) {

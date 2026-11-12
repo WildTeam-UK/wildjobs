@@ -1,3 +1,4 @@
+import { pageMetadata } from "@/lib/page-metadata";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { JobCard } from "@/components/job-card";
@@ -6,7 +7,13 @@ import { getCandidateSavedJobs } from "@/lib/candidate-saved-jobs";
 import { matchJobsToPreferences } from "@/lib/job-preference-matching";
 import { getPublicJobs } from "@/lib/public-jobs";
 
-export const metadata: Metadata = { title: "Your account" };
+export const metadata: Metadata = pageMetadata({
+  title: "Your account",
+  description:
+    "Manage your WildJobs account, review saved conservation jobs and explore opportunities matching your preferences.",
+  path: "/account",
+  robots: { index: false, follow: false, noarchive: true },
+});
 
 export default async function AccountPage() {
   const [savedJobs, currentJobs, { preferences }] = await Promise.all([

@@ -1,3 +1,4 @@
+import { pageMetadata } from "@/lib/page-metadata";
 import type { Metadata } from "next";
 import { TrainingBanner } from "@/components/templates/template-parts";
 import { JobBrowser, type JobSortOrder } from "@/components/job-browser";
@@ -7,11 +8,12 @@ import { getPublicCourses } from "@/lib/public-courses";
 import { getPublicJobs } from "@/lib/public-jobs";
 import { normaliseCountryCode } from "@/lib/job-filtering";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Find conservation jobs",
-  description: "Search and explore conservation careers with WildJobs.",
-  alternates: { canonical: "/" },
-};
+  description:
+    "Search conservation jobs, explore employers and find career opportunities in wildlife conservation, ecology and sustainability with WildJobs.",
+  path: "/",
+});
 
 const locationTypes: readonly LocationType[] = ["Remote", "Hybrid", "On-site"];
 const employmentTypes: readonly EmploymentType[] = [

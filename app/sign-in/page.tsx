@@ -1,3 +1,4 @@
+import { pageMetadata } from "@/lib/page-metadata";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
@@ -8,7 +9,12 @@ import { getSafeNextPath } from "@/lib/auth/redirects";
 import { getSaveJobIntent } from "@/lib/auth/save-intent";
 import { createClient } from "@/lib/supabase/server";
 
-export const metadata: Metadata = { title: "Sign in", robots: { index: false, follow: false } };
+export const metadata: Metadata = pageMetadata({
+  title: "Sign in",
+  description: "Sign in to your WildJobs account to save conservation jobs and manage your job preferences.",
+  path: "/sign-in",
+  robots: { index: false, follow: false, noarchive: true },
+});
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 
 const messages: Record<string, string> = {

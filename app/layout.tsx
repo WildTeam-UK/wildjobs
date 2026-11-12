@@ -4,8 +4,9 @@ import type { ReactNode } from "react";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import "./globals.css";
-import { siteIndexingEnabled } from "@/lib/site-indexing";
+import { SITE_URL, siteIndexingEnabled } from "@/lib/site-indexing";
 import { AnalyticsConsent } from "@/components/analytics-consent";
+import { pageMetadata, siteDescription } from "@/lib/page-metadata";
 
 const vagRounded = localFont({
   src: [
@@ -18,12 +19,12 @@ const vagRounded = localFont({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://jobs.wildteam.org.uk"),
+  ...pageMetadata({ title: "Conservation careers", description: siteDescription }),
+  metadataBase: new URL(SITE_URL),
   title: {
     default: "WildJobs | Conservation careers",
     template: "%s | WildJobs",
   },
-  description: "Discover conservation jobs and career opportunities from WildTeam.",
   applicationName: "WildJobs",
   creator: "WildTeam",
   publisher: "WildTeam",

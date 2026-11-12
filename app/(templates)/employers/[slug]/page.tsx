@@ -11,22 +11,23 @@ import { getEmployerProfileMarket } from "@/lib/employer-profile-market";
 import { formatDate } from "@/lib/jobs";
 import { getPublicEmployerPage } from "@/lib/public-employer-profiles";
 import { getPublicJobs } from "@/lib/public-jobs";
-import { SITE_URL, siteIndexingEnabled } from "@/lib/site-indexing";
+import { siteIndexingEnabled } from "@/lib/site-indexing";
+import { pageMetadata } from "@/lib/page-metadata";
 
 type Props = { params: Promise<{ slug: string }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const profile = await getPublicEmployerPage((await params).slug);
-  if (!profile) return { robots: { index: false, follow: false } };
+  if (!profile) notFound();
   const index = siteIndexingEnabled();
-  return {
+  return pageMetadata({
     title: `${profile.name} employer profile`,
     description:
       profile.content?.claims.find((item) => item.kind === "overview")?.text ??
       `Explore current jobs at ${profile.name} on WildJobs`,
-    alternates: { canonical: `${SITE_URL}/employers/${profile.slug}` },
+    path: `/employers/${profile.slug}`,
     robots: { index: index && Boolean(profile.content), follow: index },
-  };
+  });
 }
 
 export default async function EmployerPage({ params }: Props) {

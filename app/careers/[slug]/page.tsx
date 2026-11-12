@@ -5,6 +5,7 @@ import { JobCard } from "@/components/job-card";
 import { getCandidateSaveState } from "@/lib/candidate-saved-jobs";
 import { getPublicCareerAreaBySlug, getPublicCareerAreas } from "@/lib/public-career-areas";
 import { getPublicJobs } from "@/lib/public-jobs";
+import { pageMetadata } from "@/lib/page-metadata";
 
 type CareerAreaPageProps = {
   params: Promise<{ slug: string }>;
@@ -12,12 +13,13 @@ type CareerAreaPageProps = {
 
 export async function generateMetadata({ params }: CareerAreaPageProps): Promise<Metadata> {
   const area = await getPublicCareerAreaBySlug((await params).slug);
-  if (!area) return {};
+  if (!area) notFound();
 
-  return {
+  return pageMetadata({
     title: `${area.title} careers`,
     description: area.description,
-  };
+    path: `/careers/${area.slug}`,
+  });
 }
 
 export default async function CareerAreaPage({ params }: CareerAreaPageProps) {

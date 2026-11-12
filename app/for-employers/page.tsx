@@ -1,5 +1,11 @@
+import { pageMetadata } from "@/lib/page-metadata";
 import type { Metadata } from "next";
-export const metadata: Metadata = { title: "For conservation employers" };
+export const metadata: Metadata = pageMetadata({
+  title: "For conservation employers",
+  description:
+    "Learn how WildJobs helps candidates discover conservation vacancies and directs them to your original job advert.",
+  path: "/for-employers",
+});
 export default function ForEmployers() {
   return (
     <main>

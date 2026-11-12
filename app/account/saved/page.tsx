@@ -1,9 +1,16 @@
+import { pageMetadata } from "@/lib/page-metadata";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { JobCard } from "@/components/job-card";
 import { getCandidateSavedJobs } from "@/lib/candidate-saved-jobs";
 
-export const metadata: Metadata = { title: "Saved jobs" };
+export const metadata: Metadata = pageMetadata({
+  title: "Saved jobs",
+  description:
+    "Review your saved conservation jobs, compare opportunities and keep track of closing dates in your WildJobs account.",
+  path: "/account/saved",
+  robots: { index: false, follow: false, noarchive: true },
+});
 
 export default async function SavedJobsPage({ searchParams }: { searchParams: Promise<{ save?: string }> }) {
   const [savedJobs, query] = await Promise.all([getCandidateSavedJobs(), searchParams]);

@@ -22,8 +22,11 @@ export const metadata: Metadata = {
   },
   alternates: { canonical: PMWC_COURSE_URL },
   openGraph: {
-    title: "Your next conservation project, with more confidence",
-    description: "A fresh look at WildTeam’s Project Management for Wildlife Conservation course.",
+    title: "Project Management for Wildlife Conservation | WildTeam",
+    description:
+      "Lead conservation projects with confidence. Explore WildTeam’s practical, self-paced Project Management for Wildlife Conservation course.",
+    siteName: "WildTeam",
+    locale: "en_GB",
     url: COURSE_EXPERIMENT_PATH,
     type: "website",
     images: [
@@ -38,6 +41,8 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "Project Management for Wildlife Conservation | WildTeam",
+    description:
+      "Lead conservation projects with confidence. Explore WildTeam’s practical, self-paced Project Management for Wildlife Conservation course.",
     images: ["/images/course-experiment/lion.jpg"],
   },
 };
