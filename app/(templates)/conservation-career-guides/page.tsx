@@ -37,20 +37,11 @@ export default async function CareerGuidesPage() {
       <div className="shell">
         <GuideBreadcrumbs />
       </div>
-      <p className={"shell " + styles.summary}>
-        {published.length} published {published.length === 1 ? "guide" : "guides"}:{" "}
-        <a href="#sector-guides-title">
-          {sectors.length} sector {sectors.length === 1 ? "guide" : "guides"}
-        </a>{" "}
-        and{" "}
-        <a href="#career-guides-title">
-          {careers.length} career {careers.length === 1 ? "guide" : "guides"}
-        </a>
-      </p>
       <section className={"shell " + styles.section} aria-labelledby="sector-guides-title">
         <div className={styles.intro}>
           <h1 id="sector-guides-title">
-            Explore our <span className="tpl-gradient">conservation sector guides</span>
+            Explore our <span className="tpl-gradient">conservation sector guides</span>{" "}
+            <span className={styles.count}>{sectors.length}</span>
           </h1>
           <p>
             Start with the bigger picture. Our sector guides bring together the purpose of each area of
@@ -90,7 +81,8 @@ export default async function CareerGuidesPage() {
       >
         <div className={styles.intro}>
           <h2 id="career-guides-title">
-            Explore our <span className="tpl-gradient">conservation career guides</span>
+            Explore our <span className="tpl-gradient">conservation career guides</span>{" "}
+            <span className={styles.count}>{careers.length}</span>
           </h2>
           <p>
             Get to know the career behind the job title. Our career guides explain what the work looks like

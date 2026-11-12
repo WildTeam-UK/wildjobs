@@ -6,7 +6,7 @@ The approved automation of 10 November supersedes the earlier manual-publication
 
 The guide hub, its structured data and sitemap use the same ordered publication index. Successful automatic and staff publication expire the shared public-data cache immediately, so a newly published guide enters discovery on the next request without editing the list or redeploying. A page already open in a browser picks up the new list when refreshed. Only published guides enter discovery; a private draft does not.
 
-The hub displays a total and separate sector/career counts, with links to each section. A read-only production check on 12 November 2026 found 17 published guides: 11 sector guides and 6 career guides. Every published guide had a matching visible link on the live hub. These counts describe that check, not a fixed catalogue total.
+Each guide section heading displays its published-guide count as a white number in a brand-pink circle. There is no separate count summary above the sections. A read-only production check on 12 November 2026 found 17 published guides: 11 sector guides and 6 career guides. Every published guide had a matching visible link on the live hub. These counts describe that check, not a fixed catalogue total.
 
 The pilot consists of Wildlife Conservation (`conservation-wildlife` sector data) and the Ecologist occupation. The sector slug differs from its public URL, `/conservation-sector/wildlife-conservation`; do not rename the directory taxonomy.
 

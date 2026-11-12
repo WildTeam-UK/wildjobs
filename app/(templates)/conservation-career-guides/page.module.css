@@ -1,19 +1,19 @@
 .page {
   padding-bottom: 80px;
 }
-.summary {
-  margin-block: 18px 0;
-  color: var(--wt-color-muted);
-  font-size: 1rem;
-  line-height: 1.5;
-}
-.summary a {
-  color: var(--wt-color-brand-purple);
-  text-decoration: underline;
-  text-underline-offset: 3px;
-}
-.summary a:hover {
-  color: var(--wt-color-brand-pink);
+.count {
+  display: inline-grid;
+  place-items: center;
+  width: 1.8em;
+  height: 1.8em;
+  margin-left: 0.25em;
+  border-radius: 50%;
+  background: var(--wt-color-brand-pink);
+  color: var(--wt-color-paper);
+  font-size: 0.45em;
+  line-height: 1;
+  letter-spacing: 0;
+  vertical-align: middle;
 }
 .section:first-of-type {
   padding-top: 48px;
