@@ -240,6 +240,22 @@
 .mobileToggle {
   display: none;
 }
+@media (min-width: 901px) {
+  /* Equal side columns keep the menu centred on the page. */
+  .centered .inner {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  }
+  .centered .brand {
+    justify-self: start;
+  }
+  .centered .navigation {
+    display: contents;
+  }
+  .centered .actions {
+    justify-self: end;
+  }
+}
 .skip {
   position: absolute;
   left: 15px;
