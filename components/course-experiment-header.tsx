@@ -157,7 +157,7 @@ export function CourseExperimentHeader({
 
   return (
     <header
-      className={`${styles.header} ${scrolled ? styles.scrolled : ""}`}
+      className={`${styles.header} ${site !== "training" ? styles.centered : ""} ${scrolled ? styles.scrolled : ""}`}
       ref={root}
       onBlur={(event) => {
         if (!event.currentTarget.contains(event.relatedTarget)) close();
