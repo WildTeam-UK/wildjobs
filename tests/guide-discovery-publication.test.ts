@@ -162,8 +162,12 @@ it("adds a newly eligible guide to a warm directory, schema and sitemap on the n
     expect(document.querySelector(`a[href="${guidePath(guide)}"]`)).not.toBeNull();
     expect((await sitemap()).some(({ url }) => url.endsWith(guidePath(guide)))).toBe(true);
   }
-  expect(document.querySelector('a[href="#sector-guides-title"]')?.textContent).toBe("1 sector guide");
-  expect(document.querySelector('a[href="#career-guides-title"]')?.textContent).toBe("1 career guide");
+  expect(document.getElementById("sector-guides-title")?.textContent).toBe(
+    "Explore our conservation sector guides 1",
+  );
+  expect(document.getElementById("career-guides-title")?.textContent).toBe(
+    "Explore our conservation career guides 1",
+  );
   const schema = JSON.parse(document.querySelector('script[type="application/ld+json"]')!.textContent!);
   expect(schema["@graph"][0].mainEntity.itemListElement).toHaveLength(2);
   expect((await autoPublishEligibleGuides()).published).toBe(0);
