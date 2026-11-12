@@ -19,9 +19,11 @@ const loadReviewedGuideIndex = cachePublicData("guide-index", async () => {
     );
   if (result.error && !guideSchemaUnavailable(result.error))
     throw new Error("The reviewed guide index could not be loaded.");
-  return (result.data ?? []).flatMap((revision) => {
-    const guide = guideCatalog.find((guide) => guide.slug === revision.guide_slug);
-    return guide ? [{ guide, reviewedAt: revision.reviewed_at }] : [];
+  const published = new Map((result.data ?? []).map((revision) => [revision.guide_slug, revision]));
+  // Keep one ordered publication index for the hub, metadata and sitemap.
+  return guideCatalog.flatMap((guide) => {
+    const revision = published.get(guide.slug);
+    return revision ? [{ guide, reviewedAt: revision.reviewed_at }] : [];
   });
 });
 

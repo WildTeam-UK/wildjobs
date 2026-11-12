@@ -6,7 +6,7 @@ import styles from "./page.module.css";
 import { getReviewedGuideIndex } from "@/lib/public-guides";
 import { guideHubMetadata, guideHubStructuredData, serializeStructuredData } from "@/lib/guide-seo";
 import { GuideBreadcrumbs } from "@/components/guides/guide-breadcrumbs";
-import { guideCatalog, guidePath } from "@/lib/guide-content";
+import { guidePath } from "@/lib/guide-content";
 import { guideName } from "@/lib/guide-seo";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -15,8 +15,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function CareerGuidesPage() {
   const reviewed = await getReviewedGuideIndex();
-  const publishedSlugs = new Set(reviewed.map(({ guide }) => guide.slug));
-  const published = guideCatalog.filter((guide) => publishedSlugs.has(guide.slug));
+  const published = reviewed.map(({ guide }) => guide);
   const sectors = published
     .filter((guide) => guide.kind === "sector")
     .map((guide) => ({ title: guideName(guide), slug: guide.slug, href: guidePath(guide) }));
@@ -38,6 +37,16 @@ export default async function CareerGuidesPage() {
       <div className="shell">
         <GuideBreadcrumbs />
       </div>
+      <p className={"shell " + styles.summary}>
+        {published.length} published {published.length === 1 ? "guide" : "guides"}:{" "}
+        <a href="#sector-guides-title">
+          {sectors.length} sector {sectors.length === 1 ? "guide" : "guides"}
+        </a>{" "}
+        and{" "}
+        <a href="#career-guides-title">
+          {careers.length} career {careers.length === 1 ? "guide" : "guides"}
+        </a>
+      </p>
       <section className={"shell " + styles.section} aria-labelledby="sector-guides-title">
         <div className={styles.intro}>
           <h1 id="sector-guides-title">

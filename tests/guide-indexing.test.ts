@@ -60,6 +60,8 @@ it("lists only published guides and includes a newly published guide on the next
   );
   mocks.index.mockResolvedValue(published.map((guide) => ({ guide, reviewedAt: "2026-11-10T12:00:00Z" })));
   const initial = renderToStaticMarkup(await CareerGuidesPage());
+  expect(initial).toContain('href="#sector-guides-title">1 sector guide</a>');
+  expect(initial).toContain('href="#career-guides-title">1 career guide</a>');
   for (const guide of published) expect(initial).toContain(`href="${guidePath(guide)}"`);
   for (const guide of guideCatalog.filter((guide) => !published.includes(guide))) {
     expect(initial).not.toContain(`href="${guidePath(guide)}"`);
@@ -67,5 +69,7 @@ it("lists only published guides and includes a newly published guide on the next
   expect(initial).not.toMatch(/GUIDE COMING SOON|GUIDE PREVIEW/);
   mocks.index.mockResolvedValue(guideCatalog.map((guide) => ({ guide, reviewedAt: "2026-11-10T12:00:00Z" })));
   const updated = renderToStaticMarkup(await CareerGuidesPage());
+  expect(updated).toContain('href="#sector-guides-title">11 sector guides</a>');
+  expect(updated).toContain('href="#career-guides-title">6 career guides</a>');
   for (const guide of guideCatalog) expect(updated).toContain(`href="${guidePath(guide)}"`);
 });
