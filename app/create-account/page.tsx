@@ -1,3 +1,4 @@
+import { pageMetadata } from "@/lib/page-metadata";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
@@ -9,7 +10,12 @@ import { getSaveJobIntent } from "@/lib/auth/save-intent";
 import { createClient } from "@/lib/supabase/server";
 import { PUBLIC_SIGNUPS_ENABLED } from "@/lib/soft-launch";
 
-export const metadata: Metadata = { title: "Create an account" };
+export const metadata: Metadata = pageMetadata({
+  title: "Create an account",
+  description: "Create a WildJobs account to save conservation jobs and manage your job preferences.",
+  path: "/create-account",
+  robots: { index: false, follow: false, noarchive: true },
+});
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 
 const messages: Record<string, string> = {

@@ -1,14 +1,16 @@
+import { pageMetadata } from "@/lib/page-metadata";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getPublicEmployerDirectory } from "@/lib/public-employers";
 import { EmployerDirectory } from "./employer-directory";
 import styles from "./employer-directory.module.css";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Conservation employers",
   description:
     "Explore conservation employers and environmental organisations. Browse employer profiles and find opportunities in wildlife conservation, ecology and sustainability.",
-};
+  path: "/employers",
+});
 
 export default async function EmployersPage() {
   const { employers, sectors, countries } = await getPublicEmployerDirectory();

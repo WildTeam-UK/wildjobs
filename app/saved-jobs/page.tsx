@@ -1,8 +1,15 @@
+import { pageMetadata } from "@/lib/page-metadata";
 import type { Metadata } from "next";
 import { BrowserSavedJobs } from "@/components/browser-saved-jobs";
 import { getPublicJobs } from "@/lib/public-jobs";
 
-export const metadata: Metadata = { title: "Saved jobs", robots: { index: false, follow: false } };
+export const metadata: Metadata = pageMetadata({
+  title: "Saved jobs",
+  description:
+    "Review conservation jobs saved in this browser, compare opportunities and keep track of closing dates.",
+  path: "/saved-jobs",
+  robots: { index: false, follow: false, noarchive: true },
+});
 
 export default async function SavedJobsPage() {
   const jobs = await getPublicJobs();

@@ -1,3 +1,4 @@
+import { pageMetadata } from "@/lib/page-metadata";
 import { requireAdministrator } from "@/lib/auth/staff";
 import { createTrustedClient } from "@/lib/supabase/trusted";
 import { SubmitButton } from "@/components/submit-button";
@@ -7,6 +8,13 @@ import { SourceSettings } from "./source-settings";
 import styles from "./sources.module.css";
 
 export const maxDuration = 150;
+export const metadata = pageMetadata({
+  title: "Manage job sources",
+  description: "Manage the sources that supply conservation vacancies to the WildJobs directory.",
+  path: "/admin/sources",
+  staff: true,
+});
+
 export default async function SourcesAdmin({
   searchParams,
 }: {

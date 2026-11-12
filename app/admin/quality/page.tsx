@@ -1,3 +1,4 @@
+import { pageMetadata } from "@/lib/page-metadata";
 import Link from "next/link";
 import { requireStaff } from "@/lib/auth/staff";
 import { createTrustedClient } from "@/lib/supabase/trusted";
@@ -5,6 +6,13 @@ import { liveDirectoryDateFilter } from "@/lib/directory-lifecycle";
 import { cleanJobTitle } from "@/lib/job-title";
 import { getPublishedEmployerIndex } from "@/lib/public-employer-profiles";
 import { employerPageSlugs } from "@/lib/employer-page-slug";
+
+export const metadata = pageMetadata({
+  title: "Job and employer quality",
+  description: "Review job data quality, employer branding and source coverage in WildJobs.",
+  path: "/admin/quality",
+  staff: true,
+});
 
 export default async function QualityPage() {
   await requireStaff();

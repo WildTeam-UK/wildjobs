@@ -1,9 +1,17 @@
+import { pageMetadata } from "@/lib/page-metadata";
 import { requireStaff } from "@/lib/auth/staff";
 import { createTrustedClient } from "@/lib/supabase/trusted";
 import { setAutomation, runFeed } from "./actions";
 import Link from "next/link";
 import { SubmitButton } from "@/components/submit-button";
 export const maxDuration = 150;
+export const metadata = pageMetadata({
+  title: "Staff overview",
+  description: "Review WildJobs feed activity, job imports and directory administration.",
+  path: "/admin",
+  staff: true,
+});
+
 export default async function AdminPage() {
   await requireStaff();
   const db = createTrustedClient();

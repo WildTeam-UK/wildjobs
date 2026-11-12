@@ -1,3 +1,4 @@
+import { pageMetadata } from "@/lib/page-metadata";
 import Link from "next/link";
 import { requireStaff } from "@/lib/auth/staff";
 import { guideWorkspace, guideSourcesCurrent } from "@/lib/guide-workflow";
@@ -9,6 +10,13 @@ import { guideName } from "@/lib/guide-seo";
 import { collectGuideEvidence, refreshGuide, reviewRole } from "./actions";
 import { SubmitButton } from "@/components/submit-button";
 export const maxDuration = 150;
+export const metadata = pageMetadata({
+  title: "Manage career guides",
+  description: "Review and manage WildJobs conservation sector and career guides.",
+  path: "/admin/guides",
+  staff: true,
+});
+
 export default async function GuideAdmin({
   searchParams,
 }: {

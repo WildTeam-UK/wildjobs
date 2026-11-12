@@ -10,6 +10,19 @@ import { approveGuide, refreshGuide } from "../actions";
 import { SubmitButton } from "@/components/submit-button";
 import { createTrustedClient } from "@/lib/supabase/trusted";
 import "@/app/(templates)/templates.css";
+import { pageMetadata } from "@/lib/page-metadata";
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const guide = guideCatalog.find((item) => item.slug === slug);
+  if (!guide) notFound();
+  return pageMetadata({
+    title: `Review ${guideName(guide)}`,
+    description: `Review the draft, evidence and publication status of the ${guideName(guide)} guide in the WildJobs staff workspace.`,
+    path: `/admin/guides/${guide.slug}`,
+    staff: true,
+  });
+}
 export default async function GuideReview({ params }: { params: Promise<{ slug: string }> }) {
   await requireStaff();
   const { slug } = await params,

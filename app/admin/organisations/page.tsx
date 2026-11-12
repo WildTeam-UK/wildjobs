@@ -1,7 +1,15 @@
+import { pageMetadata } from "@/lib/page-metadata";
 import { requireStaff } from "@/lib/auth/staff";
 import { createTrustedClient } from "@/lib/supabase/trusted";
 import { updateLogo } from "../actions";
 import { SubmitButton } from "@/components/submit-button";
+export const metadata = pageMetadata({
+  title: "Manage employer logos",
+  description: "Review and manage the employer logos used on WildJobs job cards.",
+  path: "/admin/organisations",
+  staff: true,
+});
+
 export default async function OrganisationsAdmin() {
   await requireStaff();
   const { data, error } = await createTrustedClient()

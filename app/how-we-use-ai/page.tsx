@@ -1,11 +1,13 @@
+import { pageMetadata } from "@/lib/page-metadata";
 import type { Metadata } from "next";
 import Link from "next/link";
 import styles from "./page.module.css";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "How we use AI",
   description: "How WildJobs uses AI for job summaries, sectors and relevant training suggestions.",
-};
+  path: "/how-we-use-ai",
+});
 
 function Sparkle() {
   return (

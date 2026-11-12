@@ -1,3 +1,4 @@
+import { pageMetadata } from "@/lib/page-metadata";
 import type { Metadata } from "next";
 
 import { updateCandidatePreferences } from "@/app/account/preferences/actions";
@@ -14,7 +15,13 @@ import { getCandidateSaveState } from "@/lib/candidate-saved-jobs";
 import { matchJobsToPreferences } from "@/lib/job-preference-matching";
 import { getPublicJobs } from "@/lib/public-jobs";
 
-export const metadata: Metadata = { title: "Job preferences" };
+export const metadata: Metadata = pageMetadata({
+  title: "Job preferences",
+  description:
+    "Manage your conservation job interests, working preferences and experience to find relevant opportunities on WildJobs.",
+  path: "/account/preferences",
+  robots: { index: false, follow: false, noarchive: true },
+});
 
 type PreferenceStatus = "cleared" | "error" | "saved";
 

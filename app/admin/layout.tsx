@@ -3,8 +3,14 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 
 import { requireStaff } from "@/lib/auth/staff";
+import { pageMetadata } from "@/lib/page-metadata";
 
 export const metadata: Metadata = {
+  ...pageMetadata({
+    title: "Staff workspace",
+    description: "Manage WildJobs jobs, sources, employer information and conservation career guides.",
+    staff: true,
+  }),
   title: { default: "Staff workspace", template: "%s | WildJobs staff" },
   robots: { index: false, follow: false, noarchive: true },
 };

@@ -1,12 +1,14 @@
+import { pageMetadata } from "@/lib/page-metadata";
 import type { Metadata } from "next";
 import { Pill } from "@wildteam-uk/ui";
 import Link from "next/link";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Brand and style guide",
   description: "The working visual standard for WildTeam digital products.",
+  path: "/style-guide",
   robots: { index: false, follow: false, noarchive: true },
-};
+});
 
 const colours = [
   ["WildTeam purple", "#6E0F6C", "swatch--purple"],
