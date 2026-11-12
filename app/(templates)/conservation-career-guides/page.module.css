@@ -1,6 +1,20 @@
 .page {
   padding-bottom: 80px;
 }
+.summary {
+  margin-block: 18px 0;
+  color: var(--wt-color-muted);
+  font-size: 1rem;
+  line-height: 1.5;
+}
+.summary a {
+  color: var(--wt-color-brand-purple);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.summary a:hover {
+  color: var(--wt-color-brand-pink);
+}
 .section:first-of-type {
   padding-top: 48px;
 }

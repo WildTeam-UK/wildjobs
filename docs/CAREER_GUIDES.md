@@ -1,5 +1,13 @@
 # Maintaining the guides
 
+## Current automatic publication and discovery
+
+The approved automation of 10 November supersedes the earlier manual-publication rollout notes below. After a successful import, a researched catalogue guide publishes automatically once its rolling twelve-month sample has at least ten distinct detailed canonical adverts from at least two named employers. This applies to both sector and career guides. Research sources must still be current, retained evidence must match the current advert hash, and separately edited staff drafts are preserved. Expired adverts can contribute historical evidence; this is not a requirement for ten currently open jobs. New occupation families still need approved matching rules and researched catalogue content.
+
+The guide hub, its structured data and sitemap use the same ordered publication index. Successful automatic and staff publication expire the shared public-data cache immediately, so a newly published guide enters discovery on the next request without editing the list or redeploying. A page already open in a browser picks up the new list when refreshed. Only published guides enter discovery; a private draft does not.
+
+The hub displays a total and separate sector/career counts, with links to each section. A read-only production check on 12 November 2026 found 17 published guides: 11 sector guides and 6 career guides. Every published guide had a matching visible link on the live hub. These counts describe that check, not a fixed catalogue total.
+
 The pilot consists of Wildlife Conservation (`conservation-wildlife` sector data) and the Ecologist occupation. The sector slug differs from its public URL, `/conservation-sector/wildlife-conservation`; do not rename the directory taxonomy.
 
 The catalogue contains all eleven sector guides and six career guides: Ecologist, Project Manager, Project Officer, Environmental Educator, Biologist and Chief Executive. `lib/guide-sectors.ts` owns sector URLs, exact directory filter labels and related-guide links. `lib/sector-guide-content.ts` and `lib/career-guide-content.ts` contain separately researched advice and citations with shared section builders. `guideCatalog` is the complete workflow and routing catalogue; `pilotGuides` remains the original two-guide reference for regression checks. `lib/career-role-catalog.ts` defines the supported occupation families.
