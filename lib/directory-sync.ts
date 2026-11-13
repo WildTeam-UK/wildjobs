@@ -45,6 +45,7 @@ export async function syncDirectory(force = false, sourceId?: number) {
     estimated_cost_usd: 0,
   };
   const sourceErrors: string[] = [];
+  let publicDataMayHaveChanged = false;
   try {
     if (force) {
       let reset = db
@@ -110,6 +111,9 @@ export async function syncDirectory(force = false, sourceId?: number) {
               }
             }),
           );
+        // Even a lost RPC response can follow a committed withdrawal. Mark
+        // before writing, while a blocked feed read alone cannot change cards.
+        publicDataMayHaveChanged = true;
         const applied = check(
           await db.rpc("import_directory_source", {
             p_source_id: source.id,
@@ -162,6 +166,7 @@ export async function syncDirectory(force = false, sourceId?: number) {
       websites: string[];
     }[] = [];
     // The same linked-advert read also extracts identity before spending AI on duplicates.
+    if (pending.length) publicDataMayHaveChanged = true;
     for (let offset = 0; offset < pending.length; offset += 4) {
       const group = pending.slice(offset, offset + 4);
       const adverts = await Promise.allSettled(
@@ -471,6 +476,6 @@ export async function syncDirectory(force = false, sourceId?: number) {
     throw new Error(detail);
   } finally {
     // A partial run can commit source withdrawals or enriched cards before failing.
-    invalidatePublicData();
+    if (publicDataMayHaveChanged) invalidatePublicData();
   }
 }

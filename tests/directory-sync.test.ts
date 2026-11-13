@@ -32,6 +32,7 @@ vi.mock("../lib/organisation-logo", async (original) => ({
 }));
 vi.mock("openai", () => ({ default: mocks.ai }));
 import { syncDirectory } from "../lib/directory-sync";
+import { invalidatePublicData } from "../lib/public-data-cache";
 beforeEach(() => {
   vi.resetAllMocks();
   mocks.verify.mockImplementation(async (url: string) => url);
@@ -101,6 +102,14 @@ it("preserves a broken feed, imports the healthy source, and skips AI for an alr
     "finish_directory_run",
     expect.objectContaining({ p_run_id: 7, p_error: "Unavailable board: Source HTTP 503" }),
   );
+  expect(invalidatePublicData).toHaveBeenCalled();
+
+  // A later blocked-only run has changed staff diagnostics, not public cards.
+  // It must not evict every warm directory and guide projection.
+  vi.mocked(invalidatePublicData).mockClear();
+  mocks.read.mockRejectedValue(new Error("Source HTTP 403"));
+  await syncDirectory();
+  expect(invalidatePublicData).not.toHaveBeenCalled();
 });
 
 it("backfills already summarised jobs, preserves international pay and reuses one employer logo lookup", async () => {

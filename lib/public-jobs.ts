@@ -25,7 +25,7 @@ import {
 const publicJobSelect =
   "id,slug,title,organisation_name,summary,summary_source,location_text,locality,region,country_code,workplace,hours_type,contract_type,engagement_type,salary_text,sector_slugs,course_slugs,posted_at,updated_at,closes_at,is_active,source_name,source_url,feed_text,skill_slugs,benefit_slugs";
 type DirectoryJob = Awaited<ReturnType<typeof getPublicJobPage>>[number];
-export async function mapDirectoryJobs(records: readonly DirectoryJob[]): Promise<readonly Job[]> {
+async function jobMappingData() {
   const [courses, sectors, organisations, roles, profiles] = await Promise.all([
     getPublicCourses(),
     getPublicCareerAreas(),
@@ -33,9 +33,16 @@ export async function mapDirectoryJobs(records: readonly DirectoryJob[]): Promis
     getPublicRoleAliases(),
     getPublishedEmployerIndex(),
   ]);
+  return { courses, sectors, organisations, roles, profiles };
+}
+
+function mapJobRows(
+  records: readonly DirectoryJob[],
+  data: Awaited<ReturnType<typeof jobMappingData>>,
+): readonly Job[] {
+  const { courses, sectors, organisations, roles, profiles } = data;
   const employers = new Map(organisations.map((o) => [o.name, o]));
   const employerSlugs = employerPageSlugs(organisations, profiles);
-  const observedAt = new Date().toISOString();
   return records.map((row) => {
     const terms = sectors.filter((s) => row.sector_slugs.includes(s.slug));
     const relatedCourses = courses.filter((c) => row.course_slugs.includes(c.slug));
@@ -47,7 +54,6 @@ export async function mapDirectoryJobs(records: readonly DirectoryJob[]): Promis
     const salary = parseSalary(row.salary_text);
     return {
       id: row.id,
-      observedAt,
       skills: attributeTerms(row.skill_slugs ?? [], "skills"),
       benefits: attributeTerms(row.benefit_slugs ?? [], "benefits"),
       roleSlug: matchCareerRole(row.title, row.feed_text, roles.aliases).roleSlug ?? undefined,
@@ -86,6 +92,35 @@ export async function mapDirectoryJobs(records: readonly DirectoryJob[]): Promis
     };
   });
 }
+
+export async function mapDirectoryJobs(records: readonly DirectoryJob[]): Promise<readonly Job[]> {
+  const data = await jobMappingData();
+  const observedAt = new Date().toISOString();
+  return mapJobRows(records, data).map((job) => ({ ...job, observedAt }));
+}
+
+// Only anonymous rows enter this cache. Inputs include all catalogue values so
+// a refreshed course, role mapping or logo cannot reuse an older projection.
+const mapPublicJobRows = cachePublicData(
+  "mapped-job-rows",
+  async (records: DirectoryJob[], data: Awaited<ReturnType<typeof jobMappingData>>) =>
+    mapJobRows(records, data),
+);
+
+async function mapPublicJobs(records: DirectoryJob[]): Promise<readonly Job[]> {
+  const data = await jobMappingData();
+  const pages: (readonly Job[])[] = [];
+  for (let from = 0; from < records.length; from += PUBLIC_DATA_PAGE_SIZE) {
+    pages.push(await mapPublicJobRows(records.slice(from, from + PUBLIC_DATA_PAGE_SIZE), data));
+  }
+  const observedAt = new Date().toISOString();
+  // Keep observation time and expiry outside persistent caching. Private saved
+  // jobs continue to use mapDirectoryJobs rather than this public projection.
+  return pages
+    .flat()
+    .filter((job) => !job.closesAt || Date.parse(job.closesAt) > Date.parse(observedAt))
+    .map((job) => ({ ...job, observedAt }));
+}
 const getPublicJobPage = cachePublicData("live-jobs", async (from: number, organisation?: string) => {
   const db = createPublicClient();
   let query = db
@@ -112,7 +147,7 @@ export const getPublicJobs = cache(async (organisation?: string): Promise<readon
     if (data.length < PUBLIC_DATA_PAGE_SIZE) break;
   }
   // Expiry is evaluated on every request, even while the raw rows are cached.
-  return mapDirectoryJobs(records.filter((row) => isDirectoryJobLive(row)));
+  return mapPublicJobs(records.filter((row) => isDirectoryJobLive(row)));
 });
 
 const getPublicJobIdPage = cachePublicData("jobs-by-id", async (ids: number[]) => {
@@ -138,5 +173,5 @@ export async function getPublicJobsByIds(ids: readonly number[]): Promise<readon
     records.push(...(await getPublicJobIdPage(uniqueIds.slice(from, from + PUBLIC_DATA_PAGE_SIZE))));
   }
   records.sort((a, b) => b.posted_at.localeCompare(a.posted_at) || a.id - b.id);
-  return mapDirectoryJobs(records.filter((row) => isDirectoryJobLive(row)));
+  return mapPublicJobs(records.filter((row) => isDirectoryJobLive(row)));
 }

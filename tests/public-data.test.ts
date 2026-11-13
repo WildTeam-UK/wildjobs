@@ -7,9 +7,20 @@ const state = vi.hoisted(() => ({
   selects: [] as string[],
   fail: false,
   inCache: false,
+  mappings: 0,
 }));
 vi.mock("server-only", () => ({}));
 vi.mock("react", () => ({ cache: (load: unknown) => load }));
+vi.mock("../lib/career-role-matching", async (original) => {
+  const actual = await original<typeof import("../lib/career-role-matching")>();
+  return {
+    ...actual,
+    matchCareerRole: (...args: Parameters<typeof actual.matchCareerRole>) => {
+      state.mappings++;
+      return actual.matchCareerRole(...args);
+    },
+  };
+});
 vi.mock("next/server", () => ({
   connection: async () => {
     if (state.inCache) throw new Error("Request context read inside persistent cache");
@@ -114,14 +125,26 @@ afterEach(() => vi.useRealTimers());
 it("reuses narrow public rows across requests but removes a job at its deadline", async () => {
   expect(await getPublicJobs()).toHaveLength(1);
   const reads = state.reads;
+  const mappings = state.mappings;
   expect(await getPublicJobs()).toHaveLength(1);
   expect(state.reads).toBe(reads);
+  expect(state.mappings).toBe(mappings);
   vi.advanceTimersByTime(60_000);
   expect(await getPublicJobs()).toHaveLength(0);
   expect(state.reads).toBe(reads);
   expect(state.selects).not.toContain("*");
   expect(state.selects[0]).toContain("feed_text");
   expect(state.selects[0]).toContain("skill_slugs,benefit_slugs");
+});
+
+it("refreshes mapped public facts on invalidation and observes each request separately", async () => {
+  const first = (await getPublicJobs())[0];
+  vi.advanceTimersByTime(1_000);
+  const second = (await getPublicJobs())[0];
+  expect(second.observedAt).not.toBe(first.observedAt);
+  state.rows[0].title = "Senior Ecologist";
+  invalidatePublicData();
+  expect((await getPublicJobs())[0].title).toBe("Senior Ecologist");
 });
 
 it("uses fresh guide evidence for approval while public readers reuse their snapshot", async () => {

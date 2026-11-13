@@ -42,6 +42,12 @@ const moneyPattern = new RegExp(
 );
 type SalaryOptions = { currency?: string; unit?: string; defaultAnnual?: boolean };
 export type Salary = { text: string; minimum: number | null; currency: string | null; period: string | null };
+// Constructing an Intl formatter for every salary bound dominates warm directory renders.
+const integerSalaryFormat = new Intl.NumberFormat("en-GB", { maximumFractionDigits: 2 });
+const decimalSalaryFormat = new Intl.NumberFormat("en-GB", {
+  minimumFractionDigits: 2,
+  maximumFractionDigits: 2,
+});
 function currencyCode(value: string) {
   const upper = value.toUpperCase();
   return symbols[upper] ?? (currencies.has(upper) ? upper : null);
@@ -99,11 +105,7 @@ export function parseSalary(value: string, options: SalaryOptions = {}): Salary 
       (options.defaultAnnual && !duration ? "per year" : null);
     const prefix = currency === "GBP" ? "£" : currency === "EUR" ? "€" : currency ? `${currency} ` : token;
     const format = (n: number) =>
-      prefix +
-      n.toLocaleString("en-GB", {
-        minimumFractionDigits: Number.isInteger(n) ? 0 : 2,
-        maximumFractionDigits: 2,
-      });
+      prefix + (Number.isInteger(n) ? integerSalaryFormat : decimalSalaryFormat).format(n);
     const upTo = /\b(?:up to|maximum(?: of)?)\s*$/i.test(before);
     const from = /\b(?:from|starting (?:at|from))\s*$/i.test(before);
     const qualifiers = text.slice(Math.max(0, match.index - 20), match.index + match[0].length + 100);

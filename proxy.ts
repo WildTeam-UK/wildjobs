@@ -7,5 +7,8 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)"],
+  // This public image route verifies stored branding itself and never reads a session.
+  matcher: [
+    "/((?!_next/static|_next/image|favicon.ico|api/employer-logo(?:/|$)|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+  ],
 };

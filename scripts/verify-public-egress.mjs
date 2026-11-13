@@ -22,6 +22,7 @@ const env = {
 let reads = 0;
 let writes = 0;
 let failRun = false;
+let simulateImport = false;
 let title = "Egress fixture ecologist";
 const now = new Date();
 const jobs = Array.from({ length: 201 }, (_, index) => ({
@@ -76,6 +77,25 @@ const api = createServer(async (request, response) => {
           display_order: 1,
         },
       ];
+    } else if (url.pathname === "/rest/v1/directory_sources" && simulateImport) {
+      data = [
+        {
+          id: 1,
+          name: "Fixture source",
+          feed_url: "https://example.com/jobs/1",
+          configuration_revision: 1,
+          configuration: {
+            kind: "manual",
+            organisation: "Fixture Nature Trust",
+            manual: {
+              title,
+              description: "Restore habitats and monitor wildlife throughout the local nature reserve.",
+              location: "Exeter",
+              closesAt: new Date(now.valueOf() + 86400_000).toISOString(),
+            },
+          },
+        },
+      ];
     }
     const idFilter = url.searchParams.get("id");
     if (idFilter?.startsWith("in.(")) {
@@ -98,6 +118,7 @@ const api = createServer(async (request, response) => {
       /* local fixture only */
     }
     if (url.pathname === "/rest/v1/rpc/claim_directory_run") data = true;
+    else if (url.pathname === "/rest/v1/rpc/import_directory_source") data = { seen: 1, changed: 1 };
     else if (url.pathname === "/rest/v1/directory_runs" && request.method === "POST") data = { id: 1 };
     else if (url.pathname === "/rest/v1/rpc/directory_pending_source_jobs") {
       if (failRun) {
@@ -182,6 +203,16 @@ try {
   const unauthorized = await fetch(`${base}/api/automation/feed`, { method: "POST" });
   assert.equal(unauthorized.status, 401);
   assert.equal(writes, 0);
+  const idle = await fetch(`${base}/api/automation/feed`, {
+    method: "POST",
+    headers: { authorization: `Bearer ${env.AUTOMATION_SECRET}` },
+  });
+  assert.equal(idle.status, 200);
+  const afterIdle = reads;
+  await (await fetch(base)).text();
+  assert.equal(reads, afterIdle);
+  console.log(JSON.stringify({ check: "unchanged_run_preserves_public_cache", additionalDatabaseReads: 0 }));
+  simulateImport = true;
   title = "Updated fixture ecologist";
   const run = await fetch(`${base}/api/automation/feed`, {
     method: "POST",
@@ -189,7 +220,7 @@ try {
   });
   assert.equal(run.status, 200, await run.text());
   const afterImport = await fetch(base);
-  assert.match(await afterImport.text(), /Updated fixture ecologist/);
+  assert.ok((await afterImport.text()).includes("Updated fixture ecologist"), logs.slice(-4000));
   console.log(JSON.stringify({ check: "automation_invalidates_public_data", productionWrites: 0 }));
 
   title = "Recovered partial import ecologist";
@@ -199,7 +230,10 @@ try {
     headers: { authorization: `Bearer ${env.AUTOMATION_SECRET}` },
   });
   assert.equal(partial.status, 500);
-  assert.match(await (await fetch(base)).text(), /Recovered partial import ecologist/);
+  assert.ok(
+    (await (await fetch(base)).text()).includes("Recovered partial import ecologist"),
+    logs.slice(-4000),
+  );
   assert.doesNotMatch(logs, /invariant|Failed to set|cache invalidation failed/i);
   console.log(JSON.stringify({ check: "partial_run_also_invalidates", productionWrites: 0 }));
 } finally {

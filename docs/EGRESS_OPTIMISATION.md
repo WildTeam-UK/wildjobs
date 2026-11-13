@@ -10,6 +10,14 @@ Large collections are cached in 200-row pages instead of one growing item. Publi
 
 Imports invalidate after both success and partial failure. Source actions, course/logo edits, guide publication, role decisions and employer publication invalidate the same tag with immediate expiry. Idle automation does not invalidate. A cache-invalidation error is logged without retrying committed imports or AI work; scheduled revalidation remains available. Direct SQL changes outside the application rely on time-based revalidation. Next.js can retain stale data during a failed background refresh; expiry checks still remove jobs whose deadlines have passed.
 
+## Runtime CPU
+
+Anonymous job projections now reuse the same tagged, five-minute Data Cache in pages of 200. Keys contain the source rows and all public mapping catalogues; observation timestamps and closing-deadline checks remain outside the persistent cache. Private saved-job rows still use the uncached mapper. Salary parsing reuses two equivalent `Intl.NumberFormat` instances instead of constructing a formatter for each salary bound. A local 12,000-call comparison on 13 November 2026 produced identical salary objects and used 59 ms of CPU versus 302 ms before the change; this is a salary-parser measurement, not a forecast of whole-site savings.
+
+The public employer-logo route keeps its existing stored-brand verification, safe image conversion, cache lifetime and transient-error behaviour. It bypasses session-refresh Proxy work because it never reads or returns account state. Other routes retain their existing session checks.
+
+A blocked-only source fetch or unchanged worker no longer evicts public data. Invalidation is armed before a source import or pending-job enrichment can write, so even a lost response after a committed withdrawal still expires the cache. Guide publication retains its own invalidation. Source failures remain visible to staff and continue on the existing retry schedule.
+
 ## Verification
 
 Run the normal checks:
