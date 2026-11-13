@@ -3,9 +3,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireStaff } from "@/lib/auth/staff";
 import { createTrustedClient } from "@/lib/supabase/trusted";
-import { verifyPublicImage } from "@/lib/directory-http";
 import { syncDirectory } from "@/lib/directory-sync";
-import { invalidatePublicData } from "@/lib/public-data-cache";
 export async function setAutomation(form: FormData) {
   await requireStaff();
   const { error } = await createTrustedClient()
@@ -25,44 +23,4 @@ export async function runFeed() {
   revalidatePath("/");
   revalidatePath("/admin");
   redirect("/admin?run=complete");
-}
-export async function updateCourse(form: FormData) {
-  await requireStaff();
-  const slug = String(form.get("slug") ?? "");
-  const { error } = await createTrustedClient()
-    .from("courses")
-    .update({
-      matching_notes: String(form.get("matching_notes") ?? "").slice(0, 3000),
-      is_filter_visible: form.get("enabled") === "on",
-    })
-    .eq("slug", slug);
-  if (error) throw new Error("Could not update course.");
-  invalidatePublicData();
-  revalidatePath("/admin/courses");
-  revalidatePath("/");
-}
-export async function updateLogo(form: FormData) {
-  await requireStaff();
-  const name = String(form.get("name") ?? "");
-  const value = String(form.get("logo_url") ?? "").trim();
-  const db = createTrustedClient();
-  if (value.startsWith("data:image/")) {
-    const existing = await db.from("directory_organisations").select("logo_url").eq("name", name).single();
-    if (existing.error || existing.data.logo_url !== value) throw new Error("Use an HTTPS image URL.");
-  } else if (value) {
-    const url = new URL(value);
-    if (url.protocol !== "https:" || url.username || url.password) throw new Error("Use an HTTPS image URL.");
-  }
-  if (value && !(await verifyPublicImage(value)))
-    throw new Error(
-      "Choose a readable logo at least 64 pixels wide or high, with visible detail on white. Blank, transparent-only and all-white logos cannot be saved.",
-    );
-  const { error } = await db
-    .from("directory_organisations")
-    .update({ logo_url: value || null })
-    .eq("name", name);
-  if (error) throw new Error("Could not update logo.");
-  invalidatePublicData();
-  revalidatePath("/admin/organisations");
-  revalidatePath("/");
 }

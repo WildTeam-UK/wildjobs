@@ -10,6 +10,16 @@ export function generateStaticParams() {
   return [...guideCatalog.map(({ slug }) => ({ slug })), { slug: "guides" }];
 }
 
+// Keep the file tracer within the two image collections used by the guide catalogue.
+// A computed path beneath public/ would copy every public asset into the fallback function.
+async function readGuidePhoto(image: string) {
+  if (/^\/images\/sectors\/[^/]+$/.test(image))
+    return readFile(join(process.cwd(), "public/images/sectors", image.slice("/images/sectors/".length)));
+  if (/^\/images\/design\/[^/]+$/.test(image))
+    return readFile(join(process.cwd(), "public/images/design", image.slice("/images/design/".length)));
+  throw new Error("Guide sharing images must use the sectors or design image collection.");
+}
+
 export async function GET(_request: Request, { params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const guide = guideCatalog.find((guide) => guide.slug === slug);
@@ -22,7 +32,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ slu
       };
   const [font, photo] = await Promise.all([
     readFile(join(process.cwd(), "public/fonts/vag-rounded-bold.woff")),
-    readFile(join(process.cwd(), "public", guide?.image ?? "/images/design/woodland.jpg")),
+    readGuidePhoto(guide?.image ?? "/images/design/woodland.jpg"),
   ]);
   return new ImageResponse(
     <div

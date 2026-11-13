@@ -1,7 +1,7 @@
 import { pageMetadata } from "@/lib/page-metadata";
 import { requireStaff } from "@/lib/auth/staff";
 import { createTrustedClient } from "@/lib/supabase/trusted";
-import { updateCourse } from "../actions";
+import { updateCourse } from "../course-actions";
 import { SubmitButton } from "@/components/submit-button";
 export const metadata = pageMetadata({
   title: "Manage course recommendations",

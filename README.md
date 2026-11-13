@@ -20,6 +20,8 @@ Use Node 22.13+ and pnpm 11.25. Install with `pnpm install --frozen-lockfile`, c
 
 Run `pnpm check` for formatting, types, lint, unit tests and a production build. `pnpm db:test` runs the rollback-only database tests against a disposable Supabase stack. Migration files are immutable history; the final migrations replace the earlier schema.
 
+Function packaging and its comparison with WildNews are documented in [function bundle optimisation](docs/FUNCTION_BUNDLES.md). After a build, `pnpm analyze:functions` reports the largest traced server files without contacting services.
+
 Public directory rows, guide history and supporting catalogues use the Next.js Data Cache with a five-minute refresh interval. Only anonymous public-key reads are cached; private account state and guide approval evidence stay fresh. Imports (including partial failures), source changes, guide publication, role mappings, course visibility, logo changes and employer publication invalidate the public data tag. Job closing deadlines are checked on every request. See [egress optimisation and verification](docs/EGRESS_OPTIMISATION.md).
 
 ## Feed to card

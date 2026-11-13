@@ -5,6 +5,10 @@ import type { ReactNode } from "react";
 import { requireStaff } from "@/lib/auth/staff";
 import { pageMetadata } from "@/lib/page-metadata";
 
+// Keep the existing staff-processing budget across the whole workspace. Vercel
+// can then group its image/PDF dependencies separately from public page functions.
+export const maxDuration = 150;
+
 export const metadata: Metadata = {
   ...pageMetadata({
     title: "Staff workspace",
