@@ -335,6 +335,7 @@
   .label > a {
     flex: 1;
     font-size: 16px;
+    line-height: normal;
     padding: 17px 0;
   }
   .label > button {
